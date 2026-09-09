@@ -1,8 +1,8 @@
 # Exercise 02 — Scene Learning UI
 
 **Date:** 2026-09-02  
-**Project:** [`my-first-react`](../../my-first-react/)  
-**Implementation:** [`src/App.jsx`](../../my-first-react/src/App.jsx), [`src/App.css`](../../my-first-react/src/App.css)  
+**Project:** [`seedling`](../../seedling/)  
+**Implementation:** [`src/App.jsx`](../../seedling/src/App.jsx), [`src/App.css`](../../seedling/src/App.css)  
 **Status:** Complete
 
 ## Exercise goal

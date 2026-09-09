@@ -33,13 +33,13 @@ Every requirement maps to a few lines of JSX. The full assembled file is in Sect
 The three 3D packages must live in the same folder as `package.json` of your Vite app. From the repo root:
 
 ```bash
-cd dd699/my-first-react
+cd dd699/seedling
 npm install
 npm install three @react-three/fiber @react-three/drei
 npm run dev
 ```
 
-> **Common mistake:** running `npm install three …` one level too high (in `dd699/` instead of `dd699/my-first-react/`). Vite will then fail with `Failed to resolve import "@react-three/fiber"`. If that happened, delete the stray `dd699/node_modules/` and `dd699/package.json`, then re-run the commands above from inside `my-first-react`.
+> **Common mistake:** running `npm install three …` one level too high (in `dd699/` instead of `dd699/seedling/`). Vite will then fail with `Failed to resolve import "@react-three/fiber"`. If that happened, delete the stray `dd699/node_modules/` and `dd699/package.json`, then re-run the commands above from inside `seedling`.
 
 ### What each package does
 
