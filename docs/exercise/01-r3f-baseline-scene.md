@@ -1,8 +1,8 @@
 # Exercise 01 — React Three Fiber Baseline Scene
 
 **Date:** 2026-09-02  
-**Project:** [`my-first-react`](../../my-first-react/)  
-**Main implementation:** [`src/App.jsx`](../../my-first-react/src/App.jsx)  
+**Project:** [`seedling`](../../seedling/)  
+**Main implementation:** [`src/App.jsx`](../../seedling/src/App.jsx)  
 **Status:** Baseline complete
 
 ## Exercise goal
@@ -15,13 +15,13 @@ This note records the implementation experience. The prerequisite concepts belon
 
 | File | Why it matters in this exercise |
 | --- | --- |
-| [`index.html`](../../my-first-react/index.html) | Supplies the `#root` DOM node and loads `/src/main.jsx` |
-| [`src/App.jsx`](../../my-first-react/src/App.jsx) | Defines the 3D scene, geometry, materials, lights, floor, grid, camera, and controls |
-| [`src/main.jsx`](../../my-first-react/src/main.jsx) | Mounts `App` inside React `StrictMode` |
-| [`src/index.css`](../../my-first-react/src/index.css) | Makes `html`, `body`, and `#root` fill the window and removes scrolling |
-| [`src/App.css`](../../my-first-react/src/App.css) | Was still unused at the end of Exercise 01; Exercise 02 later replaced and imported it for the learning UI |
-| [`src/assets/`](../../my-first-react/src/assets/) | Contains starter image/SVG assets that were not imported by this exercise |
-| [`package.json`](../../my-first-react/package.json) | Records the React, Three.js, React Three Fiber, Drei, and Vite dependencies |
+| [`index.html`](../../seedling/index.html) | Supplies the `#root` DOM node and loads `/src/main.jsx` |
+| [`src/App.jsx`](../../seedling/src/App.jsx) | Defines the 3D scene, geometry, materials, lights, floor, grid, camera, and controls |
+| [`src/main.jsx`](../../seedling/src/main.jsx) | Mounts `App` inside React `StrictMode` |
+| [`src/index.css`](../../seedling/src/index.css) | Makes `html`, `body`, and `#root` fill the window and removes scrolling |
+| [`src/App.css`](../../seedling/src/App.css) | Was still unused at the end of Exercise 01; Exercise 02 later replaced and imported it for the learning UI |
+| [`src/assets/`](../../seedling/src/assets/) | Contains starter image/SVG assets that were not imported by this exercise |
+| [`package.json`](../../seedling/package.json) | Records the React, Three.js, React Three Fiber, Drei, and Vite dependencies |
 
 > **Historical note:** an exercise note records the code state when that exercise was completed. The links above intentionally open the evolving current files, so later exercises may have changed them. At the end of Exercise 01, `App.css` and the starter assets were unused. Exercise 02 then imported `App.css` and turned it into the learning-panel stylesheet.
 

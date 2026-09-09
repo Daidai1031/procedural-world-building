@@ -66,8 +66,8 @@ You should see version numbers (for example, `v20.x.x`).
 In the terminal, navigate to the folder where you want the project, then run:
 
 ```bash
-npm create vite@latest my-first-react -- --template react
-cd my-first-react
+npm create vite@latest seedling -- --template react
+cd seedling
 npm install
 npm run dev
 ```
@@ -77,7 +77,7 @@ The terminal will show a local URL (usually `http://localhost:5173`). Open it in
 ### Important Project Files
 
 ```
-my-first-react/
+seedling/
 ├── index.html          # Entry HTML
 ├── src/
 │   ├── main.jsx        # Mounts App onto the page
@@ -472,10 +472,10 @@ Official docs: [https://react.dev/learn](https://react.dev/learn)
 
 `npm run dev` starts a dev server for local editing. `npm run build` packs everything into static files under `dist/`, ready to upload to a web host.
 
-Run it from the folder that contains `package.json` (in this repo that is `my-first-react/`, not `dd699/`):
+Run it from the folder that contains `package.json` (in this repo that is `seedling/`, not `dd699/`):
 
 ```bash
-cd my-first-react
+cd seedling
 npm run build
 ```
 

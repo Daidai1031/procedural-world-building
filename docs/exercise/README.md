@@ -11,8 +11,8 @@ It is intentionally separate from [`../tutorials/`](../tutorials/):
 
 | Exercise | Project | Source files | Key practical lessons |
 | --- | --- | --- | --- |
-| [01 — React Three Fiber baseline scene](./01-r3f-baseline-scene.md) | [`my-first-react`](../../my-first-react/) | [`App.jsx`](../../my-first-react/src/App.jsx), [`main.jsx`](../../my-first-react/src/main.jsx), [`index.css`](../../my-first-react/src/index.css), [`package.json`](../../my-first-react/package.json) | React Three Fiber scene composition; geometry/material comparison; a three-light rig; the complete shadow setup chain; perspective-camera and orbit-control configuration |
-| [02 — Scene learning UI](./02-scene-learning-ui.md) | [`my-first-react`](../../my-first-react/) | [`App.jsx`](../../my-first-react/src/App.jsx), [`App.css`](../../my-first-react/src/App.css) | DOM overlay on a WebGL canvas; reusable information groups; data-driven entity cards; shared React state connecting UI selection to 3D objects; responsive panel layout |
+| [01 — React Three Fiber baseline scene](./01-r3f-baseline-scene.md) | [`seedling`](../../seedling/) | [`App.jsx`](../../seedling/src/App.jsx), [`main.jsx`](../../seedling/src/main.jsx), [`index.css`](../../seedling/src/index.css), [`package.json`](../../seedling/package.json) | React Three Fiber scene composition; geometry/material comparison; a three-light rig; the complete shadow setup chain; perspective-camera and orbit-control configuration |
+| [02 — Scene learning UI](./02-scene-learning-ui.md) | [`seedling`](../../seedling/) | [`App.jsx`](../../seedling/src/App.jsx), [`App.css`](../../seedling/src/App.css) | DOM overlay on a WebGL canvas; reusable information groups; data-driven entity cards; shared React state connecting UI selection to 3D objects; responsive panel layout |
 
 ## What every exercise note should contain
 
