@@ -37,3 +37,14 @@ This project will explore how procedural systems can be used to create interacti
 
 </details>
 
+### Week 3 — Procedural maps: noise terrain and simulation-driven erosion (September 7–13, 2026)
+
+<details>
+<summary>View weekly details</summary>
+
+- **Progress:** Built a function-based procedural map pipeline (grid → noise stack → 2D map → height field → 3D terrain) with White, Value, Perlin, and Cellular/Worley noise, plus adjustable frequency, octaves, persistence, and shaping controls, where the 2D map and 3D mesh read the same sampled values. Extended this into a simulation-driven map: a simplified hydraulic-erosion simulation that stores height, water, and sediment per cell, updates through double-buffered grids so every cell shares one definition of a timestep, and exposes Start/Pause/Step/Reset controls, a height-based material, and a wireframe toggle. Calibrated simulation resolution, terrain mesh resolution, world size, and height amplitude together to produce believable topography.
+- **Key files:** `seedling/src/lessons/NoiseTerrainLesson.jsx`, `seedling/src/lessons/proceduralMaps/noiseMath.js`, `seedling/src/lessons/proceduralMaps/NoiseMapPreview.jsx`, `seedling/src/lessons/proceduralMaps/TerrainPreview.jsx`, `seedling/src/lessons/proceduralMaps/simulationMath.js`, `seedling/src/lessons/proceduralMaps/SimulationMapPreview.jsx`, `seedling/src/lessons/proceduralMaps/SimulationTerrainPreview.jsx`, `docs/exercise/03-interactive-terrain-playground.md`, `docs/exercise/04-simulation-driven-maps.md`
+- **Keywords:** procedural maps, noise functions, Perlin noise, Worley/cellular noise, octave stack, height field, vertex displacement, hydraulic erosion simulation, double-buffered grid state, calibration, wireframe toggle
+
+</details>
+
