@@ -1,0 +1,26 @@
+---
+title: The key light and shadows
+goal: Trace a shadow back through the four settings that have to agree for it to appear.
+keywords: [directional light, key light, shadow map, castShadow]
+scene:
+  demo: scene-anatomy
+  unlock: [selectedEntity]
+---
+
+The third light does the real work. It sits high and to one side, at 8 units right,
+12 up, and 5 forward, and shines across the whole scene in parallel lines, like the
+sun. At intensity 2.5 it is far stronger than the other two, which is why it decides
+where every highlight and every shadow lands.
+
+Shadows are not automatic. Four separate things have to agree, and if any one is
+missing they vanish without an error:
+
+1. The canvas has to be rendering shadows at all.
+2. The light has to be marked as casting them — it renders the scene from its own
+   point of view into a 2048 by 2048 image, and that image is what says which
+   surfaces are hidden from it.
+3. The object has to be marked as casting a shadow.
+4. The surface underneath has to be marked as receiving one.
+
+When a shadow you expected does not appear, walk that list in order. It is almost
+always one of those four.

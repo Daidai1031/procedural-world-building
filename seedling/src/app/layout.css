@@ -1,0 +1,142 @@
+/* The shell: canvas at the bottom, the interface on paper over it. Every colour
+   and measure comes from styles/tokens.css. */
+
+.app {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  color: var(--ink);
+  font-family: var(--font-chrome);
+  font-size: var(--text-base);
+  line-height: var(--leading-chrome);
+  -webkit-font-smoothing: antialiased;
+
+  /* The rail only pushes the card aside when it is pinned. On hover it floats
+     over instead, so a glance at the outline never reflows the prose. */
+  --rail-width: var(--rail-collapsed-width);
+}
+
+.app[data-rail-pinned='true'] {
+  --rail-width: var(--rail-expanded-width);
+}
+
+/* §1 There is no scrim. Nothing is ramped over the canvas: every word in the
+   app sits on --paper or on an accent block, which is what guarantees contrast
+   here. See §2 for the measurements. */
+
+/* §5 Two views, two slots. The 3D scene and the 2D map each occupy one of them
+   and trade places over 300ms. The slot carries the geometry and the stacking,
+   so whichever view is full-bleed sits behind the card, and whichever is in the
+   corner floats above it.
+
+   The column is pinned rather than left to auto: a <canvas> reports its drawing
+   buffer as an intrinsic width, so an auto column would size to the buffer the
+   canvas already had and the slot would never shrink. */
+.view-slot {
+  position: fixed;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
+  overflow: hidden;
+  transition:
+    top var(--duration-swap) var(--ease-step),
+    right var(--duration-swap) var(--ease-step),
+    bottom var(--duration-swap) var(--ease-step),
+    left var(--duration-swap) var(--ease-step),
+    border-radius var(--duration-swap) var(--ease-step);
+}
+
+.view-slot[data-slot='full'] {
+  inset: 0;
+  z-index: var(--z-canvas);
+  border-radius: 0;
+}
+
+.view-slot[data-slot='corner'] {
+  top: var(--space-5);
+  right: var(--space-5);
+  bottom: calc(100% - var(--space-5) - var(--inset-size) - var(--caption-height));
+  left: calc(100% - var(--space-5) - var(--inset-size));
+  z-index: var(--z-inset);
+  border: var(--hairline) solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--float-surface);
+  box-shadow: var(--shadow-float);
+  backdrop-filter: var(--float-blur);
+}
+
+.view-slot__surface {
+  display: block;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: none;
+  background: none;
+}
+
+.view-slot__caption {
+  display: flex;
+  align-items: center;
+  height: var(--caption-height);
+  margin: 0;
+  padding: 0 var(--space-3);
+  border-top: var(--hairline) solid var(--line);
+  color: var(--ink-dim);
+  font-size: var(--text-xs);
+}
+
+.view-slot__caption-button {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--ink-dim);
+  font: inherit;
+  cursor: pointer;
+}
+
+.view-slot__caption-button:hover {
+  color: var(--ink);
+}
+
+/* The content layer must let pointer events through to the scene everywhere
+   except on the card itself — otherwise orbiting and clicking an entity are
+   impossible. */
+.app__content {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-card);
+  pointer-events: none;
+}
+
+.app__content > * {
+  pointer-events: auto;
+}
+
+/* §9 One focus treatment, everywhere, on everything that takes focus. */
+.app :focus-visible {
+  outline: var(--focus-width) solid var(--ink);
+  outline-offset: var(--focus-offset);
+  border-radius: var(--radius-sm);
+}
+
+/* Fixed so it does not disturb the legacy lesson's own layout. */
+.legacy-back {
+  position: fixed;
+  top: var(--space-2);
+  right: var(--space-4);
+  z-index: 20;
+}
+
+/* §8 One orchestrated moment and nothing else. Reduced motion removes even
+   that, along with the compare morph and the inset swap. */
+@media (prefers-reduced-motion: reduce) {
+  .app *,
+  .app *::before,
+  .app *::after {
+    transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

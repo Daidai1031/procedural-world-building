@@ -1,0 +1,23 @@
+---
+title: The floor and the grid
+goal: Separate the two jobs the ground is doing in this scene.
+keywords: [world, grid, floor, shadow catcher]
+scene:
+  demo: scene-anatomy
+  unlock: [selectedEntity]
+---
+
+The ground looks like one thing and is actually two, stacked a hundredth of a unit
+apart so they do not fight over the same space.
+
+The **grid** is a drawing, nothing more. Thin lines every 0.5 units, heavier lines
+every 2.5, fading out entirely by 35 units away. It blocks no light and catches no
+shadow. Its only job is to tell you how big things are and which way they are
+facing — without it you would have no way to judge that the box is 1.5 units across.
+
+The **floor** underneath it is a single large plane, 60 by 60 units. It is
+completely invisible except where a shadow lands on it, and even there it only
+darkens to 35%. It exists to catch shadows and nothing else.
+
+Split this way, each part does one job well. A visible grid that affects no light,
+and an invisible surface that holds the shadows.

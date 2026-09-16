@@ -1,0 +1,42 @@
+import { useCallback } from 'react'
+import { Outlet } from 'react-router-dom'
+import ControlStrip from '../components/ControlStrip.jsx'
+import InsetCard from '../components/InsetCard.jsx'
+import OutlineRail from '../components/OutlineRail.jsx'
+import { useShellKeys } from '../hooks/useKeyboardShortcuts.js'
+import SceneHost from '../scene/SceneHost.jsx'
+import { useSceneStore } from '../store/sceneStore.js'
+import { useUiStore } from '../store/uiStore.js'
+import './layout.css'
+
+export default function AppLayout() {
+  const railPinned = useUiStore((state) => state.railPinned)
+  const toggleRailPinned = useUiStore((state) => state.toggleRailPinned)
+  const toggleCardCollapsed = useUiStore((state) => state.toggleCardCollapsed)
+  const unpinRail = useUiStore((state) => state.unpinRail)
+  const setInsetSwapped = useSceneStore((state) => state.setInsetSwapped)
+
+  const closeOverlays = useCallback(() => {
+    unpinRail()
+    setInsetSwapped(false)
+  }, [unpinRail, setInsetSwapped])
+
+  useShellKeys({
+    toggleRail: toggleRailPinned,
+    toggleCard: toggleCardCollapsed,
+    closeOverlays,
+  })
+
+  return (
+    <div className="app" data-rail-pinned={railPinned}>
+      <SceneHost />
+      <OutlineRail />
+      <div className="app__content">
+        <Outlet />
+      </div>
+      <InsetCard />
+      <ControlStrip />
+      {/* TutorDrawer goes here in Phase 5. */}
+    </div>
+  )
+}

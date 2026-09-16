@@ -1,3 +1,6 @@
+/* Reset only. Everything with a colour or a typeface is scoped to .app so the
+   legacy Lesson 02 route, which is deleted in Phase 3, keeps its own look. */
+
 * {
   box-sizing: border-box;
 }
@@ -5,9 +8,13 @@
 html,
 body,
 #root {
-  margin: 10;
+  margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
+}
+
+/* §5 The page never scrolls. Only the card does. */
+body {
   overflow: hidden;
 }
