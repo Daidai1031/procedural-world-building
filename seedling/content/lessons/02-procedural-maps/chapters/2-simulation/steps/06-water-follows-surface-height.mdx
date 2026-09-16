@@ -20,6 +20,31 @@ code:
     - 12
     - 13
     - 14
+practice:
+  kind: fill
+  prompt: >-
+    The code above compares this cell's surface against its neighbors. Rebuild the
+    two lines that produce it: how much water the cell holds once the rain has
+    arrived, and how high its surface then stands.
+  from:
+    file: src/scene/demos/proceduralMaps/simulationMath.js
+    region: rainfall
+  blanks:
+    - line: 1
+      answer: "state.water[index] + settings.rainfall"
+      options:
+        - "state.water[index] + settings.rainfall"
+        - "state.water[index] * settings.rainfall"
+        - "settings.rainfall"
+      hint: Rain arrives on top of the water this cell was already holding.
+    - line: 2
+      answer: "state.height[index] + water"
+      options:
+        - "state.height[index] + water"
+        - "state.height[index] - water"
+        - "state.height[index]"
+      hint: The height a neighbor gets compared against is the ground and the
+        water standing on it, together.
 ---
 
 Water responds to the height of the whole surface: ground plus water. A cell checks its four neighbors and chooses the largest positive drop. If none is lower, it keeps its water for now. A low patch of ground can stop attracting flow once enough water has gathered there.

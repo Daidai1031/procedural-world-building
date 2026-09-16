@@ -12,6 +12,44 @@ scene:
   unlock:
     - mapAmplitude
     - mapResolution
+practice:
+  kind: implement
+  signature: fractalNoise(type, x, y, settings)
+  brief: >-
+    Build the whole stack. Each turn of the loop reads one layer for you and
+    records its strength in the running total. Add that layer to the result at
+    its current strength, then set the next one up: quieter by a factor of
+    persistence, and twice as fine. Dividing by the total at the end is what
+    keeps the land from growing taller every time a layer is added. Until you
+    add anything, every sample is zero and your map is flat.
+  starter: |
+    function fractalNoise(type, x, y, settings) {
+      let value = 0
+      let amplitude = 1
+      let frequency = settings.frequency
+      let amplitudeTotal = 0
+
+      for (let octave = 0; octave < settings.octaves; octave += 1) {
+        const layer = baseNoise(type, x * frequency, y * frequency, settings.seed + octave * 131)
+        amplitudeTotal += amplitude
+        // your code here
+      }
+
+      return value / amplitudeTotal
+    }
+  reference:
+    file: src/scene/demos/proceduralMaps/noiseMath.js
+    fn: fractalNoise
+  cases:
+    - args: [perlin, 0, 0, { frequency: 0.32, octaves: 4, persistence: 0.5, seed: 12 }]
+    - args: [perlin, 1.7, -2.3, { frequency: 0.5, octaves: 6, persistence: 0.35, seed: 7 }]
+    - args: [value, -3.1, 4.6, { frequency: 0.2, octaves: 3, persistence: 0.8, seed: 99 }]
+    - args: [perlin, 2.4, 2.4, { frequency: 0.32, octaves: 1, persistence: 0.5, seed: 12 }]
+  tolerance: 0.000001
+  visual: true
+  visualSettings:
+    octaves: 5
+    persistence: 0.6
 ---
 
 The terrain multiplies each sampled value by Height amplitude to place a vertex vertically. Raising amplitude exaggerates the relief without changing the underlying field. Watch the grayscale inset as you adjust it: the values stay the same while the hills grow taller.
