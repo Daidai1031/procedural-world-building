@@ -128,7 +128,13 @@ export async function extractAll(root) {
         const source = await readFile(path.resolve(root, reference.file), 'utf8')
         snippets[key] = extractSnippet(source, reference, stepFile)
       }
-      if (frontmatter.practice?.kind === 'match' && !stepFile.includes('/chapters/01-')) throw new Error('match practice is only supported in chapter 1')
+      // Chapter directories are numbered without padding, so compare the number
+      // rather than the spelling: `chapters/1-functions`, not `chapters/01-…`.
+      const chapterNumber = Number(stepFile.match(/\/chapters\/(\d+)-/)?.[1])
+      if (frontmatter.practice?.kind === 'match' && chapterNumber !== 1) throw new Error('match practice is only supported in chapter 1')
+      // The loader rejects this too, but a fill with no prompt renders as a bare
+      // dropdown, so it must break the build rather than reach a learner.
+      if (frontmatter.practice?.kind === 'fill' && !frontmatter.practice.prompt?.trim()) throw new Error('fill practice requires a prompt')
     } catch (error) {
       if (error.message.startsWith(`${stepFile}:`)) throw error
       throw new Error(`${stepFile}: ${error.message}`)
