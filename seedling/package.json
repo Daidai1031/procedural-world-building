@@ -6,14 +6,16 @@
   "scripts": {
     "predev": "node scripts/extract-code.mjs",
     "dev": "vite",
-    "prebuild": "node scripts/extract-code.mjs",
+    "prebuild": "node scripts/extract-code.mjs && npm run build:index",
     "build": "vite build",
     "test": "node --test scripts/*.test.mjs",
     "test:browser": "playwright test",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:index": "node scripts/build-index.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.126.0",
     "@codemirror/commands": "^6.11.1",
     "@codemirror/lang-javascript": "^6.2.5",
     "@codemirror/language": "^6.12.4",
@@ -26,8 +28,13 @@
     "@mdx-js/rollup": "^3.1.1",
     "@react-three/drei": "^10.7.8",
     "@react-three/fiber": "^9.7.0",
+    "@upstash/ratelimit": "^2.1.0",
+    "@upstash/redis": "^1.38.4",
+    "@xenova/transformers": "^2.17.2",
     "acorn": "^8.18.0",
     "acorn-jsx": "^5.3.2",
+    "jose": "^6.2.12",
+    "minisearch": "^7.2.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.4",

@@ -1,0 +1,59 @@
+
+> seedling@0.0.0 prebuild
+> node scripts/extract-code.mjs && npm run build:index
+
+Extracted 29 code snippets
+
+> seedling@0.0.0 build:index
+> node scripts/build-index.mjs
+
+Embedded 25/175
+Embedded 50/175
+Embedded 75/175
+Embedded 100/175
+Embedded 125/175
+Embedded 150/175
+Embedded 175/175
+{"chunks":175,"types":{"step":35,"practice":8,"source":50,"code":82},"bytes":370424,"gzipBytes":115677}
+
+> seedling@0.0.0 build
+> vite build
+
+vite v8.2.2 building client environment for production...
+transforming...
+✓ 785 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                                        0.45 kB │ gzip:   0.29 kB
+dist/assets/ibm-plex-mono-latin-400-normal-CvHOgSBP.woff              13.14 kB
+dist/assets/ibm-plex-sans-vietnamese-wght-normal-Dg1JeJN0.woff2       13.16 kB
+dist/assets/ibm-plex-mono-latin-400-normal-DMJ8VG8y.woff2             14.70 kB
+dist/assets/ibm-plex-serif-latin-400-normal-BB-zNvJB.woff             18.50 kB
+dist/assets/ibm-plex-sans-greek-wght-normal-CmyJS8uq.woff2            19.50 kB
+dist/assets/ibm-plex-serif-latin-600-normal-D3rpGdkS.woff             19.57 kB
+dist/assets/ibm-plex-serif-latin-400-normal-BIGslYFI.woff2            19.58 kB
+dist/assets/ibm-plex-serif-latin-400-italic-Dd68USph.woff             20.12 kB
+dist/assets/ibm-plex-serif-latin-600-normal-DAxitmSu.woff2            20.51 kB
+dist/assets/ibm-plex-serif-latin-400-italic-BCf4TsCA.woff2            20.90 kB
+dist/assets/ibm-plex-sans-cyrillic-ext-wght-normal-d45eAU9y.woff2     23.56 kB
+dist/assets/ibm-plex-sans-cyrillic-wght-normal-BAAhND-U.woff2         29.51 kB
+dist/assets/ibm-plex-sans-latin-ext-wght-normal-CIII54If.woff2        30.96 kB
+dist/assets/ibm-plex-sans-latin-wght-normal-IvpUvPa2.woff2            45.71 kB
+dist/assets/practiceWorker-BxyeN4Ob.js                               118.72 kB
+dist/assets/embeddingWorker-CsJY7Ss1.js                              807.93 kB
+dist/assets/index-vMbzL1A3.css                                        25.66 kB │ gzip:   5.53 kB
+dist/assets/mathSource-hBR40u-t.js                                    11.44 kB │ gzip:   3.37 kB
+dist/assets/retrieval-Bemjl8gZ.js                                     19.53 kB │ gzip:   6.64 kB
+dist/assets/index-C8yYPtiK.js                                      2,314.24 kB │ gzip: 616.65 kB
+
+✓ built in 826ms
+[33m[EVAL] [0mUse of direct `eval` function is strongly discouraged as it poses security risks and may cause issues with minification.
+ - Use of direct `eval` here. in node_modules/onnxruntime-web/dist/ort-web.min.js at 62674..62678
+ [38;5;240m │[0m 
+ [38;5;240m │[0m [38;5;115mHelp[0m: Consider using indirect eval. For more information, check the documentation: https://rolldown.rs/guide/troubleshooting#avoiding-direct-eval
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.

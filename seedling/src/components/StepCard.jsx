@@ -1,3 +1,5 @@
+import { TutorForm, TutorAccessNote } from '../tutor/Tutor.jsx'
+import { stepContext } from '../tutor/stepContext.js'
 import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import Practice from '../practice/Practice.jsx'
@@ -198,7 +200,8 @@ export default function StepCard({ step, previousStep, nextStep }) {
 
         {frontmatter.code && (frontmatter.code.editable ? <EditableCode stepId={step.id} reference={frontmatter.code} snippet={snippets[step.id]} /> : <CodeBlock stepId={step.id} reference={frontmatter.code} snippet={snippets[step.id]} />)}
         {frontmatter.practice && <Practice stepId={step.id} task={frontmatter.practice} snippet={snippets[`${step.id}:practice`]} />}
-        {/* Inline tutor input (I3) in Phase 5. */}
+        <TutorAccessNote />
+        <TutorForm context={stepContext(step)} />
       </div>
 
       <nav className="step-card__nav" aria-label="Step navigation">

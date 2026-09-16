@@ -65,6 +65,12 @@ test('a JSX fill renders inside the snippet, scores both ways, and never shows i
   await practice.getByRole('button', { name: 'Check answers' }).click()
   await expect(practice.getByText('A mesh sits at the centre of its own shape')).toBeVisible()
   await expect(practice.getByLabel('Passed')).toHaveCount(0)
+  // A wrong answer offers to reveal the right one instead of leaving the
+  // learner to keep guessing.
+  const showAnswer = practice.getByRole('button', { name: 'Show answer' })
+  await expect(showAnswer).toBeVisible()
+  await showAnswer.click()
+  await expect(practice.getByText('Answer: [0, 1, 0]')).toBeVisible()
   await blank.selectOption('[0, 1, 0]')
   await practice.getByRole('button', { name: 'Check answers' }).click()
   await expect(practice.getByLabel('Passed')).toBeVisible()

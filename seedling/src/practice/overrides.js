@@ -1,5 +1,4 @@
 import { runSandbox } from './sandbox.js'
-import { sourceWithMath, sourceWithOverrides } from './mathSource.js'
 import { useSceneStore } from '../store/sceneStore.js'
 import { useSimulationState } from '../scene/demos/proceduralMaps/simulationState.js'
 import { validateSimulation } from './validateSimulation.js'
@@ -13,6 +12,7 @@ function settingsKey(settings) {
 }
 
 export async function evaluateOverride(name, source, signal) {
+  const { sourceWithMath, sourceWithOverrides } = await import('./mathSource.js')
   if (name === 'stepHydraulicErosion') {
     const state = useSceneStore.getState()
     const simulation = useSimulationState.getState().simulation

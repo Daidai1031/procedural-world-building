@@ -1,0 +1,19 @@
+.tutor-form, .tutor-result { margin-block: var(--space-4); }
+.tutor-form form, .tutor-drawer form { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-2); }
+.tutor-form label, .tutor-drawer label { display: grid; gap: var(--space-2); flex: 1; }
+.tutor-form input, .tutor-drawer input { min-width: 0; width: 100%; padding: var(--space-2); background: var(--paper); border: var(--hairline) solid var(--line); border-radius: var(--radius-sm); color: var(--ink); font: inherit; }
+.tutor-form button, .tutor-drawer button, .tutor-popover > button, .tutor-selection-button { padding: var(--space-2) var(--space-3); border: var(--hairline) solid var(--line); border-radius: var(--radius-sm); background: var(--paper-2); color: var(--ink); cursor: pointer; }
+.tutor-form button[type='submit'] { background: var(--summit); }
+.tutor-form button:disabled, .tutor-drawer button:disabled { cursor: wait; }
+.tutor-drawer, .tutor-popover { position: fixed; z-index: var(--z-drawer); background: var(--paper); color: var(--ink); border: var(--hairline) solid var(--line); box-shadow: var(--shadow-float); border-radius: var(--radius-lg); padding: var(--space-5); overflow: auto; }
+.tutor-drawer { right: var(--space-5); top: var(--space-5); bottom: var(--space-5); width: var(--card-default-width); }
+.tutor-drawer header { display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); }
+.tutor-drawer h2, .tutor-result h3 { font-size: var(--text-lg); margin-block: var(--space-3); }
+.tutor-popover { width: var(--card-min-width); max-height: calc(100vh - var(--space-8)); }
+.tutor-note { font-size: var(--text-sm); color: var(--ink-dim); }
+.tutor-question { font-weight: 600; }
+.tutor-answer { white-space: pre-wrap; overflow-wrap: anywhere; }
+.tutor-result { border-block-start: var(--hairline) solid var(--line); padding-block: var(--space-3); }
+.tutor-result li { margin-block: var(--space-2); }
+.tutor-result progress { display: block; width: 100%; accent-color: var(--moss-deep); }
+.tutor-selection-button { position: fixed; z-index: var(--z-drawer); background: var(--summit); }
