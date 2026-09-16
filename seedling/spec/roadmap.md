@@ -49,12 +49,12 @@ Build the extractor and the code block, then migrate Lesson 02 into two chapters
 
 Accept when:
 
-- [ ] `scripts/extract-code.mjs` handles `fn` and `region`, and fails the build on a miss
-- [ ] Code blocks render with Shiki using the custom theme; highlights are correct
-- [ ] Renaming a referenced function breaks the build with a message naming the step
-- [ ] Lesson 02 is two chapters, 8–12 steps each, all four previews working
-- [ ] `NoiseTerrainLesson.jsx` / `.css` deleted; `src/lessons/` gone
-- [ ] Q3 compare toggle works on at least one step
+- [x] `scripts/extract-code.mjs` handles `fn` and `region`, and fails the build on a miss
+- [x] Code blocks render with Shiki using the custom theme; highlights are correct
+- [x] Renaming a referenced function breaks the build with a message naming the step
+- [x] Lesson 02 is two chapters, 8–12 steps each, all four previews working
+- [x] `NoiseTerrainLesson.jsx` / `.css` deleted; `src/lessons/` gone
+- [x] Q3 compare toggle works on at least one step
 
 ## Phase 4 — Practice
 

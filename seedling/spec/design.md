@@ -43,7 +43,7 @@ legend prints its elevation bands — never as tints, washes, or gradients.
   /* Ink */
   --ink:       #101014;
   --ink-dim:   #55555F;
-  --ink-faint: #70707E;
+  --ink-faint: #626270;
 
   /* Accents — the elevation ramp, saturated. These FILL. */
   --water:  #C3B2F5;    /* water */
@@ -54,10 +54,10 @@ legend prints its elevation bands — never as tints, washes, or gradients.
 
   /* Deeps — the same five hues, dark enough to be read. These WRITE. */
   --water-deep:  #5744B8;
-  --moss-deep:   #0B7A44;
+  --moss-deep:   #086E3C;
   --meadow-deep: #4F7A12;
   --summit-deep: #8A6A00;
-  --clay-deep:   #B03A78;
+  --clay-deep:   #A33470;
 }
 ```
 
@@ -82,9 +82,7 @@ Rules:
   ever existed.
 - Body text must clear 7:1 against the card background. Check it, do not assume it.
 
-`TerrainPreview.jsx` still renders its ramp at the older, duller values (`#99B7F5`
-water, `#267F53` mid, `#FCCA59` high). Retune it to `--water`, `--moss`, and `--summit`
-when Lesson 02 migrates in Phase 3, so the world and the legend are visibly one system.
+`TerrainPreview.jsx` and the simulation preview read `--water`, `--moss`, and `--summit` through `readToken.js`. Their legend uses those same tokens. The string, number, and comment text colors were darkened in Phase 3 to clear 4.5:1 on solid `--summit` highlight rows as well as `--paper-2`.
 
 ## 3. Type
 
@@ -228,7 +226,7 @@ No split-screen, no dual viewport. A step with `scene.compare` gets:
   is why we show a whole function.
 - Syntax theme: build a custom Shiki theme from these tokens rather than shipping
   `github-light`. Keywords `--water-deep`, strings `--moss-deep`, numbers
-  `--clay-deep`, comments `--ink-faint` italic, identifiers `--ink`. All four read on
+  `--clay-deep`, comments `--ink-faint` italic, identifiers `--ink`. All five read on
   `--paper-2` and on a `--summit` highlight row — check the highlight row, it is the
   one that catches people out.
 - Selecting text inside a code block raises the "Explain this" affordance (see

@@ -1,0 +1,5 @@
+
+> seedling@0.0.0 prebuild
+> node scripts/extract-code.mjs
+
+Code extraction failed: content/lessons/02-procedural-maps/chapters/1-functions/steps/05-perlin-versus-worley.mdx: missing function "perlin2d" in src/scene/demos/proceduralMaps/noiseMath.js
