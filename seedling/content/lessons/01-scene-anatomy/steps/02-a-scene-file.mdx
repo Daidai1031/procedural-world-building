@@ -1,0 +1,29 @@
+---
+title: A scene file
+goal: Recognise the container and named components that make up the scene.
+keywords: [JSX, component, function, scene file, React Three Fiber]
+scene:
+  demo: scene-anatomy
+code:
+  file: src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx
+  fn: SceneAnatomyDemo
+  highlight: [6, 7, 8, 9]
+  editable: false
+---
+
+The scene behind this card comes from a file of JSX, a way to describe a scene with
+nested tags. Read the function below as a container. `SceneAnatomyDemo` is its name;
+`return` gives React the tags to draw. `export default` makes this component available
+to the rest of the app. The empty `<>` and `</>` tags hold the pieces together without
+adding an object to the scene.
+
+In this block, tags beginning with a capital letter name components defined in this
+same file: `StudioEnvironment`, `SceneLights`, `SceneEntities`, and `SceneGround`.
+Each opens into more code. Lowercase tags come from React Three Fiber, which connects
+these descriptions to Three.js. The lowercase `color` tag sets the background;
+`GROUND` is a named color read from the site's palette.
+
+`StudioEnvironment` supplies surroundings for reflective surfaces. The remaining
+components contain the lights, four shapes, and floor with its grid. The following
+steps open those sections. A shared `Canvas` in `SceneHost.jsx` draws the whole
+scene; this file does not create another canvas.

@@ -1,0 +1,29 @@
+---
+title: Entities, geometry, and transform
+goal: Break any object in a scene into its shape, its surface, and its place.
+keywords: [entity, mesh, geometry, transform, position]
+scene:
+  demo: scene-anatomy
+  unlock: [selectedEntity]
+code:
+  file: src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx
+  region: box
+  highlight: [1, 2, 3]
+  editable: false
+---
+
+Select the orange box with a click or the control below. `Selectable` is an imported
+app component that handles that click and enlarges the chosen mesh. Its `id="box"`
+connects this shape to the picker. Everything inside it describes the actual object.
+
+The `mesh` combines a shape and a surface. `boxGeometry` supplies the shape;
+`args={[1.5, 1.5, 1.5]}` gives its width, height, and depth in world units. Curly
+braces hold a JavaScript value, and square brackets group numbers into a list.
+`position={[-2.5, 0.75, 0]}` lists x, y, and z: left or right, up or down, then back
+or forward. The box sits 2.5 units left and 0.75 up, so its bottom rests on the floor.
+
+`meshStandardMaterial` supplies the surface. `BOX_ORANGE` reads the site's color
+token; roughness and metalness describe how that surface reflects light.
+`envMapIntensity` controls the strength of the studio reflections. The next step
+compares these properties. `castShadow` and `receiveShadow` let the mesh block light
+and carry shadows. You will trace those settings when we reach the lights.

@@ -1,0 +1,32 @@
+---
+title: The floor and the grid
+goal: Separate the two jobs the ground is doing in this scene.
+keywords: [world, grid, floor, shadow catcher]
+scene:
+  demo: scene-anatomy
+  unlock: [selectedEntity]
+code:
+  file: src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx
+  region: floor-and-grid
+  highlight: [2, 3, 6, 9, 12]
+  editable: false
+---
+
+The ground has two parts, shown one after the other below. The first `mesh` is the
+floor. `planeGeometry args={[60, 60]}` makes a plane 60 units wide and high in its
+own coordinates. `rotation={[-Math.PI / 2, 0, 0]}` turns it a quarter turn around x
+so it lies horizontally.
+
+`receiveShadow` lets the floor catch shadows, and `shadowMaterial opacity={0.35}`
+draws only those shadows at 35% opacity. The plane itself stays invisible.
+
+`Grid` is an imported component from Drei, a library of helpers for React Three
+Fiber. Its capital letter marks it as a component; the import at the top of the
+file supplies its definition. `args={[10, 10]}` gives its starting size, while
+`infiniteGrid` extends it beyond those initial dimensions. Its position is 0.01 units above the
+floor to keep the two surfaces apart.
+
+Read `cellSize` and `sectionSize` to find the line spacing: 0.5 and 2.5 units.
+Thickness and named palette colors distinguish fine lines from section lines.
+`fadeDistance={35}` and `fadeStrength={1}` control how the grid disappears into the
+distance. The grid gives scale; the floor holds the shadows.

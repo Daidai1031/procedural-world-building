@@ -1,0 +1,30 @@
+---
+title: Lights that cast no shadow
+goal: Tell ambient and hemisphere light apart by what they do to a surface.
+keywords: [ambient light, hemisphere light, fill light, shading]
+scene:
+  demo: scene-anatomy
+  unlock: [selectedEntity]
+code:
+  file: src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx
+  region: fill-lights
+  highlight: [1, 2]
+  editable: false
+---
+
+Two of the scene's three lights fill in surfaces without casting shadows. They
+need only the two tags below.
+
+`ambientLight intensity={0.4}` adds light from every direction. A surface receives
+that contribution regardless of which way it faces. It helps keep the unlit side
+of the box visible. Rooms get a similar effect from light bouncing off many
+surfaces; this tag is a cheap approximation of that scattered light.
+
+`hemisphereLight` varies its contribution with a surface's orientation. Its `args`
+list contains the sky color, the ground color, and intensity 0.5. `SKY_BOUNCE` and
+`GROUND_BOUNCE` are named colors read from the site's tokens. Here they send cool
+light down from above and warm light up from below. Look at the sphere's underside
+and compare it with the top.
+
+Neither tag has a position or a shadow map. These lights provide broad illumination;
+the next light gives the scene a clear direction and casts its shadows.

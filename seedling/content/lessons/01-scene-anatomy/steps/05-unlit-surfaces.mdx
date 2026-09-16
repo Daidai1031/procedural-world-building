@@ -1,0 +1,29 @@
+---
+title: Unlit surfaces
+goal: Recognise a surface that ignores every light in the scene.
+keywords: [basic material, unlit, flat shading, shadow]
+scene:
+  demo: scene-anatomy
+  unlock: [selectedEntity]
+code:
+  file: src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx
+  region: cone
+  highlight: [1, 3]
+  editable: false
+---
+
+Select the yellow cone and orbit around it. Its sides keep the same color as you
+move. The code below explains why: `meshBasicMaterial` uses `CONE_YELLOW` without
+roughness or metalness. It does no lighting calculation, so moving the scene's
+lights would not change this surface.
+
+Compare that tag with the `meshStandardMaterial` tags from the previous step. The
+geometry still sits beside the material inside a `mesh`; only the kind of material
+has changed. This is one place where reading the tag name tells you more than
+looking for a missing number.
+
+The cone still has `castShadow` on its mesh. It can block light and cast a shadow
+on the floor while its own surface ignores lighting. Those are separate choices.
+Notice that there is no `receiveShadow` here, either. A flat color like this is
+useful for markers and deliberately stylised objects that need to stay readable
+under changing light.

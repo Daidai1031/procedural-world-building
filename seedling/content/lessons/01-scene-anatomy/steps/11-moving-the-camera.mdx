@@ -1,0 +1,32 @@
+---
+title: Moving the camera
+goal: Orbit, zoom, and pan the scene, and say why the range of movement is fenced in.
+keywords: [orbit controls, orbit, pan, zoom]
+scene:
+  demo: scene-anatomy
+  inset: scene-plan
+  unlock: [selectedEntity]
+code:
+  file: src/scene/SceneHost.jsx
+  region: orbit-controls
+  highlight: [4, 5, 6, 7, 8]
+  editable: false
+---
+
+The `OrbitControls` below sit inside the shared `Canvas`. They are another component
+imported from Drei. `makeDefault` lets the app use these controls when it needs to
+reset the view. `target={DEFAULT_TARGET}` points them at `[0, 0.75, 0]`, a constant
+declared near the top of `SceneHost.jsx`.
+
+Drag to orbit around that target, scroll to move closer or farther, and right-drag
+to pan the target along with the view. `enableDamping` and `dampingFactor={0.08}`
+make movement ease to a stop when you release the pointer.
+
+The remaining values limit movement. `minDistance={3}` and `maxDistance={40}` keep
+you between 3 and 40 units from the target. `maxPolarAngle={Math.PI / 2.05}` stops
+the tilt just before you reach a horizontal view, keeping the camera above the
+floor. These are control limits, separate from the camera's clipping distances.
+
+Try each movement while watching the shapes and their shadows. The geometry,
+materials, floor, and lights stay in place; you are changing where you look from.
+That is why a new view can reveal a surface detail without changing the scene.

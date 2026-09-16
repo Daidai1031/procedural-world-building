@@ -1,0 +1,170 @@
+[
+  {
+    "step": "01-what-is-a-scene.mdx",
+    "words": 148,
+    "lines": 0
+  },
+  {
+    "step": "02-a-scene-file.mdx",
+    "words": 164,
+    "lines": 12,
+    "target": {
+      "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
+      "fn": "SceneAnatomyDemo",
+      "highlight": [
+        6,
+        7,
+        8,
+        9
+      ],
+      "editable": false
+    },
+    "startLine": 131
+  },
+  {
+    "step": "03-entities-geometry-and-transform.mdx",
+    "words": 167,
+    "lines": 11,
+    "target": {
+      "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
+      "region": "box",
+      "highlight": [
+        1,
+        2,
+        3
+      ],
+      "editable": false
+    },
+    "startLine": 42
+  },
+  {
+    "step": "04-matte-and-metal.mdx",
+    "words": 154,
+    "lines": 22,
+    "target": {
+      "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
+      "region": "matte-and-metal",
+      "highlight": [
+        7,
+        8,
+        18,
+        19
+      ],
+      "editable": false
+    },
+    "startLine": 41
+  },
+  {
+    "step": "05-unlit-surfaces.mdx",
+    "words": 148,
+    "lines": 4,
+    "target": {
+      "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
+      "region": "cone",
+      "highlight": [
+        1,
+        3
+      ],
+      "editable": false
+    },
+    "startLine": 72
+  },
+  {
+    "step": "06-curved-geometry.mdx",
+    "words": 166,
+    "lines": 29,
+    "target": {
+      "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
+      "region": "curved-geometry",
+      "highlight": [
+        3,
+        15,
+        21
+      ],
+      "editable": false
+    },
+    "startLine": 55
+  },
+  {
+    "step": "07-the-floor-and-the-grid.mdx",
+    "words": 175,
+    "lines": 17,
+    "target": {
+      "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
+      "region": "floor-and-grid",
+      "highlight": [
+        2,
+        3,
+        6,
+        9,
+        12
+      ],
+      "editable": false
+    },
+    "startLine": 100
+  },
+  {
+    "step": "08-lights-that-cast-no-shadow.mdx",
+    "words": 152,
+    "lines": 2,
+    "target": {
+      "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
+      "region": "fill-lights",
+      "highlight": [
+        1,
+        2
+      ],
+      "editable": false
+    },
+    "startLine": 21
+  },
+  {
+    "step": "09-the-key-light-and-shadows.mdx",
+    "words": 162,
+    "lines": 6,
+    "target": {
+      "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
+      "region": "key-light",
+      "highlight": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "editable": false
+    },
+    "startLine": 25
+  },
+  {
+    "step": "10-what-the-camera-sees.mdx",
+    "words": 184,
+    "lines": 5,
+    "target": {
+      "file": "src/scene/SceneHost.jsx",
+      "region": "canvas-camera",
+      "highlight": [
+        3
+      ],
+      "editable": false
+    },
+    "startLine": 48
+  },
+  {
+    "step": "11-moving-the-camera.mdx",
+    "words": 168,
+    "lines": 9,
+    "target": {
+      "file": "src/scene/SceneHost.jsx",
+      "region": "orbit-controls",
+      "highlight": [
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "editable": false
+    },
+    "startLine": 55
+  }
+]

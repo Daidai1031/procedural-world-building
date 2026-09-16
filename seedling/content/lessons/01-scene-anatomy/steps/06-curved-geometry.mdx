@@ -1,0 +1,31 @@
+---
+title: Curved geometry
+goal: Read size and segment arguments across three kinds of curved geometry.
+keywords: [geometry, curvature, segments, sphere, cylinder, torus knot]
+scene:
+  demo: scene-anatomy
+  unlock: [selectedEntity]
+code:
+  file: src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx
+  region: curved-geometry
+  highlight: [3, 15, 21]
+  editable: false
+---
+
+Curved geometry is built from small flat faces. The geometry lines below show a
+pattern: size arguments come first, followed by segment counts that divide the
+surface more finely.
+
+The sphere uses `sphereGeometry args={[1, 48, 48]}`. Its radius is 1; the two 48s
+set segments around its width and along its height. The cone uses `cylinderGeometry
+args={[0, 0.9, 1.8, 32]}`: top radius 0, bottom radius 0.9, height 1.8, then 32
+segments around. A zero top radius turns this cylinder into a cone.
+
+The knot's `torusKnotGeometry args={[0.6, 0.2, 160, 32]}` gives radius 0.6 and tube
+radius 0.2, then 160 segments along the winding path and 32 around the tube.
+More segments make the curves smoother, but also give the computer more faces
+to draw. Segment counts change detail; the earlier arguments set the size.
+
+Select the green knot and orbit slowly. Its highlight slides around the curved
+surface, showing how the same material responds at many angles. On the box, each
+flat face holds a single orientation.

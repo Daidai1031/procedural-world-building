@@ -1,0 +1,31 @@
+---
+title: Matte and metal
+goal: Predict how a surface will look from its roughness and metalness values.
+keywords: [material, roughness, metalness, highlight]
+scene:
+  demo: scene-anatomy
+  unlock: [selectedEntity]
+code:
+  file: src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx
+  region: matte-and-metal
+  highlight: [7, 8, 18, 19]
+  editable: false
+---
+
+Select the sphere, then switch back to the box. Both use `meshStandardMaterial`,
+shown below inside their meshes, but their surface values differ.
+
+**Roughness** describes how uneven a surface is up close. The box uses 0.65, so its
+brightness spreads across each face. The sphere uses 0.15, so reflections look
+sharper. Compare the two `roughness` lines, then orbit to watch the highlights move.
+
+**Metalness** changes how the surface reflects light. The box uses 0.05, close to a
+non-metal. The sphere uses 0.9, close to a metal, so its appearance depends heavily
+on the surroundings reflected in it. `SPHERE_BLUE` names its palette color, just as
+`BOX_ORANGE` names the box's color. Both materials use `envMapIntensity={0.45}`;
+the different finishes come from their roughness and metalness, not a different
+reflection strength.
+
+The sphere's `sphereGeometry` starts with radius 1. Its two remaining arguments
+control how finely the surface is divided, which we will compare with the other
+curved shapes shortly.

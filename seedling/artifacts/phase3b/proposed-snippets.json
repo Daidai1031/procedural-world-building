@@ -1,0 +1,107 @@
+{
+  "box": {
+    "code": "<Selectable id=\"box\">\n  <mesh position={[-2.5, 0.75, 0]} castShadow receiveShadow>\n    <boxGeometry args={[1.5, 1.5, 1.5]} />\n    <meshStandardMaterial\n      color={BOX_ORANGE}\n      envMapIntensity={0.45}\n      roughness={0.65}\n      metalness={0.05}\n    />\n  </mesh>\n</Selectable>",
+    "language": "jsx",
+    "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
+    "name": "box",
+    "startLine": 42
+  },
+  "sphere": {
+    "code": "<mesh position={[0, 1, 0]} castShadow receiveShadow>\n  <sphereGeometry args={[1, 48, 48]} />\n  <meshStandardMaterial\n    color={SPHERE_BLUE}\n    envMapIntensity={0.45}\n    roughness={0.15}\n    metalness={0.9}\n  />\n</mesh>",
+    "language": "jsx",
+    "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
+    "name": "sphere",
+    "startLine": 57
+  },
+  "cone": {
+    "code": "<mesh position={[2.5, 0.9, 0]} castShadow>\n  <cylinderGeometry args={[0, 0.9, 1.8, 32]} />\n  <meshBasicMaterial color={CONE_YELLOW} />\n</mesh>",
+    "language": "jsx",
+    "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
+    "name": "cone",
+    "startLine": 72
+  },
+  "torus": {
+    "code": "<mesh position={[0, 1, -3]} castShadow>\n  <torusKnotGeometry args={[0.6, 0.2, 160, 32]} />\n  <meshStandardMaterial\n    color={TORUS_GREEN}\n    envMapIntensity={0.45}\n    roughness={0.25}\n    metalness={0.4}\n  />\n</mesh>",
+    "language": "jsx",
+    "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
+    "name": "torus",
+    "startLine": 80
+  },
+  "matte-and-metal": {
+    "code": "<Selectable id=\"box\">\n  <mesh position={[-2.5, 0.75, 0]} castShadow receiveShadow>\n    <boxGeometry args={[1.5, 1.5, 1.5]} />\n    <meshStandardMaterial\n      color={BOX_ORANGE}\n      envMapIntensity={0.45}\n      roughness={0.65}\n      metalness={0.05}\n    />\n  </mesh>\n</Selectable>\n<Selectable id=\"sphere\">\n  <mesh position={[0, 1, 0]} castShadow receiveShadow>\n    <sphereGeometry args={[1, 48, 48]} />\n    <meshStandardMaterial\n      color={SPHERE_BLUE}\n      envMapIntensity={0.45}\n      roughness={0.15}\n      metalness={0.9}\n    />\n  </mesh>\n</Selectable>",
+    "language": "jsx",
+    "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
+    "name": "matte-and-metal",
+    "startLine": 41
+  },
+  "curved-geometry": {
+    "code": "<Selectable id=\"sphere\">\n  <mesh position={[0, 1, 0]} castShadow receiveShadow>\n    <sphereGeometry args={[1, 48, 48]} />\n    <meshStandardMaterial\n      color={SPHERE_BLUE}\n      envMapIntensity={0.45}\n      roughness={0.15}\n      metalness={0.9}\n    />\n  </mesh>\n</Selectable>\n\n<Selectable id=\"cone\">\n  <mesh position={[2.5, 0.9, 0]} castShadow>\n    <cylinderGeometry args={[0, 0.9, 1.8, 32]} />\n    <meshBasicMaterial color={CONE_YELLOW} />\n  </mesh>\n</Selectable>\n<Selectable id=\"torus\">\n  <mesh position={[0, 1, -3]} castShadow>\n    <torusKnotGeometry args={[0.6, 0.2, 160, 32]} />\n    <meshStandardMaterial\n      color={TORUS_GREEN}\n      envMapIntensity={0.45}\n      roughness={0.25}\n      metalness={0.4}\n    />\n  </mesh>\n</Selectable>",
+    "language": "jsx",
+    "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
+    "name": "curved-geometry",
+    "startLine": 55
+  },
+  "floor": {
+    "code": "<mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>\n  <planeGeometry args={[60, 60]} />\n  <shadowMaterial opacity={0.35} />\n</mesh>",
+    "language": "jsx",
+    "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
+    "name": "floor",
+    "startLine": 101
+  },
+  "grid": {
+    "code": "<Grid\n  position={[0, 0.01, 0]}\n  args={[10, 10]}\n  infiniteGrid\n  cellSize={0.5}\n  cellThickness={0.6}\n  cellColor={GRID_LINE}\n  sectionSize={2.5}\n  sectionThickness={1.2}\n  sectionColor={GRID_SECTION}\n  fadeDistance={35}\n  fadeStrength={1}\n/>",
+    "language": "jsx",
+    "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
+    "name": "grid",
+    "startLine": 107
+  },
+  "floor-and-grid": {
+    "code": "<mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>\n  <planeGeometry args={[60, 60]} />\n  <shadowMaterial opacity={0.35} />\n</mesh>\n<Grid\n  position={[0, 0.01, 0]}\n  args={[10, 10]}\n  infiniteGrid\n  cellSize={0.5}\n  cellThickness={0.6}\n  cellColor={GRID_LINE}\n  sectionSize={2.5}\n  sectionThickness={1.2}\n  sectionColor={GRID_SECTION}\n  fadeDistance={35}\n  fadeStrength={1}\n/>",
+    "language": "jsx",
+    "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
+    "name": "floor-and-grid",
+    "startLine": 100
+  },
+  "scene-lights": {
+    "code": "<ambientLight intensity={0.4} />\n<hemisphereLight args={[SKY_BOUNCE, GROUND_BOUNCE, 0.5]} />\n<directionalLight\n  position={[8, 12, 5]}\n  intensity={2.5}\n  castShadow\n  shadow-mapSize={[2048, 2048]}\n/>",
+    "language": "jsx",
+    "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
+    "name": "scene-lights",
+    "startLine": 20
+  },
+  "fill-lights": {
+    "code": "<ambientLight intensity={0.4} />\n<hemisphereLight args={[SKY_BOUNCE, GROUND_BOUNCE, 0.5]} />",
+    "language": "jsx",
+    "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
+    "name": "fill-lights",
+    "startLine": 21
+  },
+  "key-light": {
+    "code": "<directionalLight\n  position={[8, 12, 5]}\n  intensity={2.5}\n  castShadow\n  shadow-mapSize={[2048, 2048]}\n/>",
+    "language": "jsx",
+    "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
+    "name": "key-light",
+    "startLine": 25
+  },
+  "structure": {
+    "code": "// The scene groups its environment, lights, entities, and ground.\nexport default function SceneAnatomyDemo() {\n  return (\n    <>\n      <color attach=\"background\" args={[GROUND]} />\n      <StudioEnvironment />\n      <SceneLights />\n      <SceneEntities />\n      <SceneGround />\n    </>\n  )\n}",
+    "language": "jsx",
+    "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
+    "name": "SceneAnatomyDemo",
+    "startLine": 131
+  },
+  "canvas-camera": {
+    "code": "<Canvas\n  shadows\n  camera={{ position: [6, 5, 8], fov: 50, near: 0.1, far: 200 }}\n  resize={{ debounce: 0 }}\n>",
+    "language": "jsx",
+    "file": "src/scene/SceneHost.jsx",
+    "name": "canvas-camera",
+    "startLine": 48
+  },
+  "orbit-controls": {
+    "code": "<OrbitControls\n  makeDefault\n  enableDamping\n  dampingFactor={0.08}\n  minDistance={3}\n  maxDistance={40}\n  maxPolarAngle={Math.PI / 2.05}\n  target={DEFAULT_TARGET}\n/>",
+    "language": "jsx",
+    "file": "src/scene/SceneHost.jsx",
+    "name": "orbit-controls",
+    "startLine": 55
+  }
+}

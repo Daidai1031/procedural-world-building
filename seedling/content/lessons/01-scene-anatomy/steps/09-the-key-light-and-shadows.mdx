@@ -1,0 +1,32 @@
+---
+title: The key light and shadows
+goal: Trace a shadow back through the four settings that have to agree for it to appear.
+keywords: [directional light, key light, shadow map, castShadow]
+scene:
+  demo: scene-anatomy
+  unlock: [selectedEntity]
+code:
+  file: src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx
+  region: key-light
+  highlight: [2, 3, 4, 5]
+  editable: false
+---
+
+The `directionalLight` below shines in parallel lines, like sunlight. Its position
+is `[8, 12, 5]`: 8 units right, 12 up, and 5 forward. At intensity 2.5 it is stronger
+than the fill lights, so it determines the main highlights and shadows.
+
+`castShadow` tells this light to calculate shadows. `shadow-mapSize={[2048, 2048]}`
+sets the width and height of the image it uses to record which surfaces are hidden
+from the light. A larger shadow map can preserve smaller details, but costs more
+memory and rendering work.
+
+Four settings must agree before a shadow can appear:
+
+1. The shared `Canvas` must enable `shadows`.
+2. The light must enable `castShadow`, as this one does.
+3. The object must enable `castShadow`, as each of our four meshes does.
+4. The surface below must enable `receiveShadow`, as the floor does.
+
+When a shadow is missing, check those settings in order. The camera excerpt in the
+next step also shows where shadow rendering is enabled on the shared canvas.
