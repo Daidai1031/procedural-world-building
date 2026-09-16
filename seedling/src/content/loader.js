@@ -56,7 +56,9 @@ function splitPrefixedName(name, filePath) {
   return { order: Number(match[1]), slug: match[2] }
 }
 
-function validateStepFrontmatter(frontmatter, filePath) {
+const PRACTICE_KINDS = ['match', 'fill', 'implement']
+
+export function validateStepFrontmatter(frontmatter, filePath) {
   if (!frontmatter || typeof frontmatter !== 'object') {
     throw new Error(`${filePath} has no frontmatter block`)
   }
@@ -78,6 +80,23 @@ function validateStepFrontmatter(frontmatter, filePath) {
 
     if (frontmatter.scene.unlock !== undefined && !Array.isArray(frontmatter.scene.unlock)) {
       throw new Error(`${filePath} frontmatter field "scene.unlock" must be a list of param keys`)
+    }
+  }
+
+  if (frontmatter.practice !== undefined) {
+    if (typeof frontmatter.practice !== 'object' || Array.isArray(frontmatter.practice)) {
+      throw new Error(`${filePath} frontmatter field "practice" must be a map`)
+    }
+
+    if (!PRACTICE_KINDS.includes(frontmatter.practice.kind)) {
+      throw new Error(`${filePath} frontmatter field "practice.kind" must be one of ${PRACTICE_KINDS.join(', ')}`)
+    }
+
+    // A fill renders a code block with controls in it and nothing else. Without
+    // a prompt the learner is looking at a dropdown with no question attached.
+    const { kind, prompt } = frontmatter.practice
+    if (kind === 'fill' && (typeof prompt !== 'string' || prompt.trim() === '')) {
+      throw new Error(`${filePath} frontmatter field "practice.prompt" is required for a fill — say what the learner should achieve`)
     }
   }
 }
