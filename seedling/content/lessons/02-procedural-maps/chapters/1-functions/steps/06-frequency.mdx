@@ -12,6 +12,18 @@ scene:
   unlock:
     - mapFrequency
     - mapResolution
+practice:
+  kind: match
+  prompt: Spread this landscape over twice as much ground, so each feature is
+    twice as wide and half as many of them fit across the map.
+  target:
+    frequency: 0.16
+  compare:
+    - frequency
+  tolerance: 0.015
+  hints:
+    - Frequency multiplies a position before the function reads it, so a smaller
+      number moves through the field more slowly.
 ---
 
 Frequency controls how quickly the function's input coordinates change as you move across the terrain. A low frequency spreads features over a larger area. A high frequency packs more hills and valleys into the same space.

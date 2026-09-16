@@ -56,28 +56,31 @@ test('all eleven Lesson 01 steps show the approved code and keep the shared canv
   })
   expect(steps).toHaveLength(11)
   for (const [index, step] of steps.entries()) {
+    // A step's own block is the anchor directly under the card body; a practice
+    // task renders its own code block further in.
+    const ownCode = page.locator('.step-card__body > .code-block-anchor .code-block')
     await expect(page.locator('.step-card__title')).toHaveText(step.title)
-    await expect(page.locator('.code-block')).toHaveCount(index === 0 ? 0 : 1)
+    await expect(ownCode).toHaveCount(index === 0 ? 0 : 1)
     if (index > 0) {
-      await expect(page.locator('.code-block__line[data-highlighted="true"]').first()).toBeAttached()
-      await expect(page.locator('.code-block__scroll')).not.toContainText('#region')
+      await expect(ownCode.locator('.code-block__line[data-highlighted="true"]').first()).toBeAttached()
+      await expect(ownCode.locator('.code-block__scroll')).not.toContainText('#region')
     }
     if (index === 1) {
-      await expect(page.locator('.code-block')).toContainText('<StudioEnvironment />')
+      await expect(ownCode).toContainText('<StudioEnvironment />')
       await expect(page.locator('.step-card__prose')).toContainText('capital letter')
     }
     if (index === 2) {
-      await expect(page.locator('.code-block')).toContainText('<Selectable id="box">')
+      await expect(ownCode).toContainText('<Selectable id="box">')
       await expect(page.locator('.step-card__prose')).toContainText('Selectable is an imported')
     }
     if (index === 5) {
-      for (const name of ['sphereGeometry', 'cylinderGeometry', 'torusKnotGeometry']) await expect(page.locator('.code-block')).toContainText(name)
+      for (const name of ['sphereGeometry', 'cylinderGeometry', 'torusKnotGeometry']) await expect(ownCode).toContainText(name)
       await expect(page.locator('.step-card__prose')).toContainText('48, 48')
     }
     if ([1, 2, 5, 9].includes(index)) {
       await page.getByRole('separator', { name: 'Card width' }).focus()
       await page.keyboard.press('End')
-      await page.locator('.code-block').screenshot({ path: `${evidence}/step-${String(index + 1).padStart(2, '0')}-code.png` })
+      await ownCode.screenshot({ path: `${evidence}/step-${String(index + 1).padStart(2, '0')}-code.png` })
     }
     expect(await canvas.evaluate((element) => element === document.querySelector('.scene-host canvas'))).toBe(true)
     if (index < steps.length - 1) await page.locator('.step-card__nav a[rel="next"]').click()

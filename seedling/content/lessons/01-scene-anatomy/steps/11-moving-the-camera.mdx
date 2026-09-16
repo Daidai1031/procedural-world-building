@@ -11,6 +11,20 @@ code:
   region: orbit-controls
   highlight: [4, 5, 6, 7, 8]
   editable: false
+practice:
+  kind: fill
+  prompt: >-
+    This is the camera from the previous step. Give it a drawing range that keeps
+    the whole scene visible everywhere the controls above can take you.
+  from:
+    file: src/scene/SceneHost.jsx
+    region: canvas-camera
+  blanks:
+    - line: 3
+      answer: "near: 0.1, far: 200"
+      options: ["near: 0.1, far: 200", "near: 3, far: 40", "near: 0.1, far: 40"]
+      hint: The controls hold you between 3 and 40 units from the target. Drawing
+        has to begin closer than you can ever get and end further than you can go.
 ---
 
 The `OrbitControls` below sit inside the shared `Canvas`. They are another component

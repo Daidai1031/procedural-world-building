@@ -1,0 +1,26 @@
+[
+  {
+    "step": "white-to-value-noise",
+    "evaluatedMs": 158,
+    "sceneChangedMs": 165,
+    "framesSampledBefore": 0,
+    "distinctIntermediateFrames": 0,
+    "heldLastGoodFrame": true
+  },
+  {
+    "step": "perlin-versus-worley",
+    "evaluatedMs": 299,
+    "sceneChangedMs": 305,
+    "framesSampledBefore": 0,
+    "distinctIntermediateFrames": 0,
+    "heldLastGoodFrame": true
+  },
+  {
+    "step": "erosion-removes-terrain",
+    "evaluatedMs": 86,
+    "sceneChangedMs": 190,
+    "framesSampledBefore": 1,
+    "distinctIntermediateFrames": 1,
+    "heldLastGoodFrame": true
+  }
+]

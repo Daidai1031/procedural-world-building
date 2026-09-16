@@ -18,8 +18,9 @@ code:
     - 6
     - 7
     - 9
+  editable: true
 ---
 
 Choose White in Noise function. Nearby positions can have very different values, so the map looks speckled and the terrain becomes jagged. White noise does not try to make neighbors agree.
 
-Now choose Value. This function starts with random values at grid corners and blends between them. The highlighted lines blend pairs of corners, then blend those results together. The easing function softens the joins. Nearby positions now tend to have similar heights: this relationship is called coherence. Both choices are deterministic; smoothness and repeatability are separate properties.
+Now choose Value. This function starts with random values at grid corners and blends between them. The highlighted lines blend pairs of corners, then blend those results. Swap the eased `tx` for the plain `x - x0` below and apply it: the joins harden into creases. Nearby positions still tend to have similar heights, a relationship called coherence. Both choices are deterministic; smoothness and repeatability are separate properties.

@@ -13,15 +13,16 @@ scene:
     - erosionStrength
 code:
   file: src/scene/demos/proceduralMaps/simulationMath.js
-  region: erosion-deposition
+  fn: stepHydraulicErosion
   highlight:
-    - 5
-    - 6
-    - 7
-    - 10
-    - 11
+    - 43
+    - 44
+    - 45
+    - 48
+    - 49
+  editable: true
 ---
 
-When carried sediment is below capacity, flowing water can pick up material. The code subtracts that material from terrain and adds the same amount to carried sediment. Soil changes location in the model; it does not simply vanish when erosion occurs.
+When carried sediment is below capacity, flowing water can pick up material. The highlighted lines subtract that material from terrain and add the same amount to carried sediment. Soil moves in this model; it does not vanish.
 
-Erosion strength controls how quickly the gap between current sediment and capacity is filled. Compare a gentle setting with a stronger one while watching sloping areas. A lower-height limit prevents this rule from digging indefinitely. Changing strength affects future updates without rebuilding the current landscape, so pause or reset when you want a controlled comparison.
+Erosion strength controls how quickly the gap between current sediment and capacity is filled. Compare a gentle setting with a stronger one on sloping areas. The timestep is editable: take the lower-height limit out of this rule, apply it, and the water digs with no floor. Changing strength affects later updates without rebuilding the landscape, so pause or reset to compare.

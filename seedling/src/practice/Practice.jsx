@@ -70,12 +70,15 @@ function Fill({ stepId, task, snippet, result }) {
   const blanks = task.blanks.map((blank, i) => ({ ...blank, render: () => blank.options ?
     <select aria-label={`Blank ${i + 1}`} value={answers[i] ?? ''} onChange={(event) => change(i, event.target.value)}><option value="">Choose...</option>{blank.options.map((option) => <option key={option}>{option}</option>)}</select> :
     <input aria-label={`Blank ${i + 1}`} value={answers[i] ?? ''} onChange={(event) => change(i, event.target.value)} autoComplete="off" spellCheck={false} /> }))
-  return <form onSubmit={check}>
-    <CodeBlock stepId={`${stepId}-fill`} reference={task.from} snippet={snippet} blanks={blanks} />
-    <button type="submit">Check answers</button>
-    {checked && task.blanks.map((blank, i) => !answerMatches(answers[i], blank.answer) && <div key={i} role="status"><p>{blank.hint}</p><TutorOffer context={{ stepId, blank: { ...blank, response: answers[i] ?? '' }, source: { file: snippet.file, startLine: snippet.startLine + blank.line - 1 } }} /></div>)}
-    <Result result={result} />
-  </form>
+  return <>
+    <p>{task.prompt}</p>
+    <form onSubmit={check}>
+      <CodeBlock stepId={`${stepId}-fill`} reference={task.from} snippet={snippet} blanks={blanks} />
+      <button type="submit">Check answers</button>
+      {checked && task.blanks.map((blank, i) => !answerMatches(answers[i], blank.answer) && <div key={i} role="status"><p>{blank.hint}</p><TutorOffer context={{ stepId, blank: { ...blank, response: answers[i] ?? '' }, source: { file: snippet.file, startLine: snippet.startLine + blank.line - 1 } }} /></div>)}
+      <Result result={result} />
+    </form>
+  </>
 }
 
 function MapImage({ label, values }) {
