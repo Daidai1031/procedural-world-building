@@ -1,139 +1,142 @@
 import { Grid } from '@react-three/drei'
-import { useThree } from '@react-three/fiber'
-import { useEffect, useMemo } from 'react'
-import { PMREMGenerator } from 'three'
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import { readToken } from '../../../styles/readToken.js'
-import { useSceneStore } from '../../../store/sceneStore.js'
-import { entities, SELECTED_SCALE } from './entities.js'
+import Selectable from './Selectable.jsx'
+import useStudioEnvironment from './useStudioEnvironment.js'
 
-// Held well below 1: the metal needs the reflection, but at full strength the
-// environment also floods the matte surfaces and drains the palette back out of
-// them. Step 07 quotes the ambient light's 0.4, so that one cannot be turned
-// down to compensate.
-const ENVIRONMENT_INTENSITY = 0.45
+const BOX_ORANGE = readToken('--object-box')
+const SPHERE_BLUE = readToken('--water')
+const CONE_YELLOW = readToken('--summit')
+const TORUS_GREEN = readToken('--moss')
+const GROUND = readToken('--paper-2')
+const GRID_LINE = readToken('--line')
+const GRID_SECTION = readToken('--ink-faint')
+const SKY_BOUNCE = readToken('--studio-bounce-down')
+const GROUND_BOUNCE = readToken('--studio-bounce-up')
 
-// A metal surface shows you its surroundings and nothing else. With nothing to
-// reflect, the sphere renders black and step 03 — "most of what you see is the
-// scene reflected back at you" — contradicts the picture beside it.
-// RoomEnvironment is generated in memory, so this costs no network request.
-function useStudioEnvironment() {
-  const renderer = useThree((state) => state.gl)
-
-  const environment = useMemo(() => {
-    const generator = new PMREMGenerator(renderer)
-    const texture = generator.fromScene(new RoomEnvironment(), 0.04).texture
-    generator.dispose()
-    return texture
-  }, [renderer])
-
-  useEffect(() => () => environment.dispose(), [environment])
-
-  return environment
-}
-
-function EntityGeometry({ geometry }) {
-  if (geometry.kind === 'box') return <boxGeometry args={geometry.args} />
-  if (geometry.kind === 'sphere') return <sphereGeometry args={geometry.args} />
-  if (geometry.kind === 'cylinder') return <cylinderGeometry args={geometry.args} />
-  return <torusKnotGeometry args={geometry.args} />
-}
-
-function EntityMaterial({ material, color }) {
-  if (material.kind === 'basic') return <meshBasicMaterial color={color} />
-
-  return (
-    <meshStandardMaterial
-      color={color}
-      envMapIntensity={ENVIRONMENT_INTENSITY}
-      roughness={material.roughness}
-      metalness={material.metalness}
-    />
-  )
-}
-
-function SelectableEntity({ entity, color, isSelected, onSelect }) {
-  return (
-    <mesh
-      position={entity.position}
-      scale={isSelected ? SELECTED_SCALE : 1}
-      castShadow={entity.castShadow}
-      receiveShadow={entity.receiveShadow}
-      onClick={(event) => {
-        event.stopPropagation()
-        onSelect(entity.id)
-      }}
-    >
-      <EntityGeometry geometry={entity.geometry} />
-      <EntityMaterial material={entity.material} color={color} />
-    </mesh>
-  )
-}
-
-export default function SceneAnatomyDemo() {
-  const selectedEntity = useSceneStore((state) => state.params.selectedEntity)
-  const setParam = useSceneStore((state) => state.setParam)
-  const studioEnvironment = useStudioEnvironment()
-
-  // Paper, ruled twice: fine lines in --line, section lines in --ink-faint. The
-  // ground is --paper-2 rather than --paper so the white card reads against it
-  // without needing anything ramped behind the card.
-  const palette = useMemo(
-    () => ({
-      ground: readToken('--paper-2'),
-      grid: readToken('--line'),
-      gridSection: readToken('--ink-faint'),
-      skyBounce: readToken('--studio-bounce-down'),
-      groundBounce: readToken('--studio-bounce-up'),
-      entities: Object.fromEntries(
-        entities.map((entity) => [entity.id, readToken(entity.colorToken)]),
-      ),
-    }),
-    [],
-  )
-
+function SceneLights() {
   return (
     <>
-      <color attach="background" args={[palette.ground]} />
-      <primitive object={studioEnvironment} attach="environment" />
-
+      {/* #region scene-lights */}
+      {/* #region fill-lights */}
       <ambientLight intensity={0.4} />
-      <hemisphereLight args={[palette.skyBounce, palette.groundBounce, 0.5]} />
+      <hemisphereLight args={[SKY_BOUNCE, GROUND_BOUNCE, 0.5]} />
+      {/* #endregion */}
+      {/* #region key-light */}
       <directionalLight
         position={[8, 12, 5]}
         intensity={2.5}
         castShadow
         shadow-mapSize={[2048, 2048]}
       />
+      {/* #endregion */}
+      {/* #endregion */}
+    </>
+  )
+}
 
-      {entities.map((entity) => (
-        <SelectableEntity
-          key={entity.id}
-          entity={entity}
-          color={palette.entities[entity.id]}
-          isSelected={entity.id === selectedEntity}
-          onSelect={(entityId) => setParam('selectedEntity', entityId)}
-        />
-      ))}
+function SceneEntities() {
+  return (
+    <>
+      {/* #region matte-and-metal */}
+      {/* #region box */}
+      <Selectable id="box">
+        <mesh position={[-2.5, 0.75, 0]} castShadow receiveShadow>
+          <boxGeometry args={[1.5, 1.5, 1.5]} />
+          <meshStandardMaterial
+            color={BOX_ORANGE}
+            envMapIntensity={0.45}
+            roughness={0.65}
+            metalness={0.05}
+          />
+        </mesh>
+      </Selectable>
+      {/* #endregion box */}
+      {/* #region curved-geometry */}
+      <Selectable id="sphere">
+        {/* #region sphere */}
+        <mesh position={[0, 1, 0]} castShadow receiveShadow>
+          <sphereGeometry args={[1, 48, 48]} />
+          <meshStandardMaterial
+            color={SPHERE_BLUE}
+            envMapIntensity={0.45}
+            roughness={0.15}
+            metalness={0.9}
+          />
+        </mesh>
+        {/* #endregion */}
+      </Selectable>
+      {/* #endregion matte-and-metal */}
 
+      <Selectable id="cone">
+        {/* #region cone */}
+        <mesh position={[2.5, 0.9, 0]} castShadow>
+          <cylinderGeometry args={[0, 0.9, 1.8, 32]} />
+          <meshBasicMaterial color={CONE_YELLOW} />
+        </mesh>
+        {/* #endregion */}
+      </Selectable>
+      <Selectable id="torus">
+        {/* #region torus */}
+        <mesh position={[0, 1, -3]} castShadow>
+          <torusKnotGeometry args={[0.6, 0.2, 160, 32]} />
+          <meshStandardMaterial
+            color={TORUS_GREEN}
+            envMapIntensity={0.45}
+            roughness={0.25}
+            metalness={0.4}
+          />
+        </mesh>
+        {/* #endregion */}
+      </Selectable>
+      {/* #endregion */}
+    </>
+  )
+}
+
+function SceneGround() {
+  return (
+    <>
+      {/* #region floor-and-grid */}
+      {/* #region floor */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[60, 60]} />
         <shadowMaterial opacity={0.35} />
       </mesh>
-
+      {/* #endregion */}
+      {/* #region grid */}
       <Grid
         position={[0, 0.01, 0]}
         args={[10, 10]}
         infiniteGrid
         cellSize={0.5}
         cellThickness={0.6}
-        cellColor={palette.grid}
+        cellColor={GRID_LINE}
         sectionSize={2.5}
         sectionThickness={1.2}
-        sectionColor={palette.gridSection}
+        sectionColor={GRID_SECTION}
         fadeDistance={35}
         fadeStrength={1}
       />
+      {/* #endregion */}
+      {/* #endregion */}
+    </>
+  )
+}
+
+function StudioEnvironment() {
+  const studioEnvironment = useStudioEnvironment()
+  return <primitive object={studioEnvironment} attach="environment" />
+}
+
+// The scene groups its environment, lights, entities, and ground.
+export default function SceneAnatomyDemo() {
+  return (
+    <>
+      <color attach="background" args={[GROUND]} />
+      <StudioEnvironment />
+      <SceneLights />
+      <SceneEntities />
+      <SceneGround />
     </>
   )
 }

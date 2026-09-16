@@ -1,11 +1,10 @@
 import { OrbitControls } from '@react-three/drei'
 import { Canvas, useThree } from '@react-three/fiber'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useSceneStore } from '../store/sceneStore.js'
 import { demoRegistry } from './demoRegistry.js'
 import { getInset } from './insetRegistry.js'
 
-const DEFAULT_CAMERA = { position: [6, 5, 8], fov: 50, near: 0.1, far: 200 }
 const DEFAULT_TARGET = [0, 0.75, 0]
 
 // Only ever runs for a step whose frontmatter asks for it. Navigation on its own
@@ -13,15 +12,16 @@ const DEFAULT_TARGET = [0, 0.75, 0]
 function CameraReset() {
   const cameraResetToken = useSceneStore((state) => state.cameraResetToken)
   const camera = useThree((state) => state.camera)
+  const initialPosition = useMemo(() => camera.position.clone(), [camera])
   const controls = useThree((state) => state.controls)
 
   useEffect(() => {
     if (cameraResetToken === 0 || !controls) return
 
-    camera.position.set(...DEFAULT_CAMERA.position)
+    camera.position.copy(initialPosition)
     controls.target.set(...DEFAULT_TARGET)
     controls.update()
-  }, [cameraResetToken, camera, controls])
+  }, [cameraResetToken, camera, controls, initialPosition])
 
   return null
 }
@@ -44,7 +44,14 @@ export default function SceneHost() {
         {/* The canvas follows its slot frame by frame during the swap rather
             than snapping at the end of it, which is the whole point of
             animating the trade in the first place. */}
-        <Canvas shadows camera={DEFAULT_CAMERA} resize={{ debounce: 0 }}>
+        {/* #region canvas-camera */}
+        <Canvas
+          shadows
+          camera={{ position: [6, 5, 8], fov: 50, near: 0.1, far: 200 }}
+          resize={{ debounce: 0 }}
+        >
+          {/* #endregion */}
+          {/* #region orbit-controls */}
           <OrbitControls
             makeDefault
             enableDamping
@@ -54,6 +61,7 @@ export default function SceneHost() {
             maxPolarAngle={Math.PI / 2.05}
             target={DEFAULT_TARGET}
           />
+          {/* #endregion */}
           <CameraReset />
           {Demo && <Demo key={demoKey} />}
         </Canvas>
