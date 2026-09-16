@@ -1,0 +1,437 @@
+[
+  {
+    "question": "What makes a mesh different from its geometry and material?",
+    "stepId": "scene-anatomy/entities-geometry-and-transform",
+    "translation": "None",
+    "top": [
+      {
+        "id": "step:scene-anatomy/entities-geometry-and-transform",
+        "title": "Entities, geometry, and transform",
+        "url": "/lesson/scene-anatomy/entities-geometry-and-transform",
+        "score": 0.4532699860547185
+      },
+      {
+        "id": "step:scene-anatomy/matte-and-metal",
+        "title": "Matte and metal",
+        "url": "/lesson/scene-anatomy/matte-and-metal",
+        "score": 0.41375280215765214
+      },
+      {
+        "id": "step:scene-anatomy/unlit-surfaces",
+        "title": "Unlit surfaces",
+        "url": "/lesson/scene-anatomy/unlit-surfaces",
+        "score": 0.3686068144865712
+      },
+      {
+        "id": "step:procedural-maps/grid-positions",
+        "title": "Grid positions, cells, and vertices",
+        "url": "/lesson/procedural-maps/grid-positions",
+        "score": 0.3535007458116575
+      },
+      {
+        "id": "step:procedural-maps/frequency",
+        "title": "Frequency sets feature size",
+        "url": "/lesson/procedural-maps/frequency",
+        "score": 0.33567938840902306
+      },
+      {
+        "id": "source:content/sources/threejs-react-scene.md:13",
+        "title": "7. Materials: Color and Type",
+        "url": "/sources/threejs-react-scene.md",
+        "score": 0.3123300264642402
+      }
+    ]
+  },
+  {
+    "question": "Why does the metal sphere need an environment to reflect?",
+    "stepId": "scene-anatomy/matte-and-metal",
+    "translation": "None",
+    "top": [
+      {
+        "id": "code:src/scene/demos/sceneAnatomy/useStudioEnvironment.js:useStudioEnvironment",
+        "title": "useStudioEnvironment",
+        "url": "/sources/code/src/scene/demos/sceneAnatomy/useStudioEnvironment.js",
+        "score": 0.5796440984859511
+      },
+      {
+        "id": "step:scene-anatomy/matte-and-metal",
+        "title": "Matte and metal",
+        "url": "/lesson/scene-anatomy/matte-and-metal",
+        "score": 0.5689980393419025
+      },
+      {
+        "id": "step:scene-anatomy/lights-that-cast-no-shadow",
+        "title": "Lights that cast no shadow",
+        "url": "/lesson/scene-anatomy/lights-that-cast-no-shadow",
+        "score": 0.48338507298132816
+      },
+      {
+        "id": "step:scene-anatomy/unlit-surfaces",
+        "title": "Unlit surfaces",
+        "url": "/lesson/scene-anatomy/unlit-surfaces",
+        "score": 0.3595213755308794
+      },
+      {
+        "id": "source:content/sources/threejs-react-scene.md:15",
+        "title": "9. The Complete Scene",
+        "url": "/sources/threejs-react-scene.md",
+        "score": 0.34808051190075
+      },
+      {
+        "id": "source:content/sources/threejs-react-scene.md:11",
+        "title": "6. Lights",
+        "url": "/sources/threejs-react-scene.md",
+        "score": 0.34567535669871574
+      }
+    ]
+  },
+  {
+    "question": "Why do the same coordinates and seed always give the same noise?",
+    "stepId": "procedural-maps/position-function-value",
+    "translation": "None",
+    "top": [
+      {
+        "id": "step:procedural-maps/position-function-value",
+        "title": "Position, function, value",
+        "url": "/lesson/procedural-maps/position-function-value",
+        "score": 0.776603762426244
+      },
+      {
+        "id": "step:procedural-maps/a-map-that-remembers",
+        "title": "A map that remembers",
+        "url": "/lesson/procedural-maps/a-map-that-remembers",
+        "score": 0.5360694953675349
+      },
+      {
+        "id": "step:procedural-maps/white-to-value-noise",
+        "title": "From white noise to value noise",
+        "url": "/lesson/procedural-maps/white-to-value-noise",
+        "score": 0.48923778298471066
+      },
+      {
+        "id": "step:procedural-maps/perlin-versus-worley",
+        "title": "Perlin versus Worley",
+        "url": "/lesson/procedural-maps/perlin-versus-worley",
+        "score": 0.4865893395623655
+      },
+      {
+        "id": "step:procedural-maps/seed-the-height-field",
+        "title": "Seed the height field",
+        "url": "/lesson/procedural-maps/seed-the-height-field",
+        "score": 0.4634564907159282
+      },
+      {
+        "id": "step:procedural-maps/domain-warping",
+        "title": "Warp the sampling positions",
+        "url": "/lesson/procedural-maps/domain-warping",
+        "score": 0.43616177648663684
+      }
+    ]
+  },
+  {
+    "question": "How does perlin2d calculate smooth gradient noise?",
+    "stepId": "procedural-maps/perlin-versus-worley",
+    "translation": "None",
+    "top": [
+      {
+        "id": "step:procedural-maps/perlin-versus-worley",
+        "title": "Perlin versus Worley",
+        "url": "/lesson/procedural-maps/perlin-versus-worley",
+        "score": 0.6304477005717359
+      },
+      {
+        "id": "code:src/scene/demos/proceduralMaps/noiseMath.js:perlin2d",
+        "title": "perlin2d",
+        "url": "/lesson/procedural-maps/perlin-versus-worley",
+        "score": 0.6236716147577029
+      },
+      {
+        "id": "step:procedural-maps/white-to-value-noise",
+        "title": "From white noise to value noise",
+        "url": "/lesson/procedural-maps/white-to-value-noise",
+        "score": 0.4834294215800761
+      },
+      {
+        "id": "step:procedural-maps/domain-warping",
+        "title": "Warp the sampling positions",
+        "url": "/lesson/procedural-maps/domain-warping",
+        "score": 0.368713612849186
+      },
+      {
+        "id": "step:procedural-maps/shape-the-output",
+        "title": "Shape the output",
+        "url": "/lesson/procedural-maps/shape-the-output",
+        "score": 0.36532352440398214
+      },
+      {
+        "id": "code:src/scene/demos/proceduralMaps/NoiseTerrainDemo.jsx:NoiseTerrainDemo",
+        "title": "NoiseTerrainDemo",
+        "url": "/sources/code/src/scene/demos/proceduralMaps/NoiseTerrainDemo.jsx",
+        "score": 0.3189496078019902
+      }
+    ]
+  },
+  {
+    "question": "How can I make the surface rougher without changing the size of the broad hills?",
+    "stepId": "procedural-maps/persistence",
+    "translation": "None",
+    "top": [
+      {
+        "id": "practice:procedural-maps/persistence",
+        "title": "Persistence sets each layer’s strength — practice",
+        "url": "/lesson/procedural-maps/persistence",
+        "score": 0.661536127224742
+      },
+      {
+        "id": "step:procedural-maps/erosion-removes-terrain",
+        "title": "Erosion removes terrain",
+        "url": "/lesson/procedural-maps/erosion-removes-terrain",
+        "score": 0.4698370306584228
+      },
+      {
+        "id": "practice:procedural-maps/values-become-height",
+        "title": "Values become terrain height — practice",
+        "url": "/lesson/procedural-maps/values-become-height",
+        "score": 0.4578181352896139
+      },
+      {
+        "id": "step:procedural-maps/octaves",
+        "title": "Octaves add smaller detail",
+        "url": "/lesson/procedural-maps/octaves",
+        "score": 0.4379181180940362
+      },
+      {
+        "id": "step:procedural-maps/values-become-height",
+        "title": "Values become terrain height",
+        "url": "/lesson/procedural-maps/values-become-height",
+        "score": 0.4318647820871839
+      },
+      {
+        "id": "step:procedural-maps/white-to-value-noise",
+        "title": "From white noise to value noise",
+        "url": "/lesson/procedural-maps/white-to-value-noise",
+        "score": 0.3757396250386473
+      }
+    ]
+  },
+  {
+    "question": "相机的裁剪距离和 OrbitControls 的距离限制有什么区别？",
+    "englishQuery": "What is the difference between camera clipping distances and OrbitControls distance limits?",
+    "stepId": "scene-anatomy/moving-the-camera",
+    "translation": "Hand-translated evaluation query; not a live API translation",
+    "top": [
+      {
+        "id": "step:scene-anatomy/moving-the-camera",
+        "title": "Moving the camera",
+        "url": "/lesson/scene-anatomy/moving-the-camera",
+        "score": 0.488895564959134
+      },
+      {
+        "id": "source:content/sources/threejs-react-scene.md:9",
+        "title": "4. The Orbit Camera",
+        "url": "/sources/threejs-react-scene.md",
+        "score": 0.4864247188392742
+      },
+      {
+        "id": "step:scene-anatomy/what-the-camera-sees",
+        "title": "What the camera sees",
+        "url": "/lesson/scene-anatomy/what-the-camera-sees",
+        "score": 0.4052733091729636
+      },
+      {
+        "id": "source:content/sources/threejs-react-scene.md:17",
+        "title": "11. Quick Reference",
+        "url": "/sources/threejs-react-scene.md",
+        "score": 0.3135827850781348
+      },
+      {
+        "id": "practice:scene-anatomy/moving-the-camera",
+        "title": "Moving the camera — practice",
+        "url": "/lesson/scene-anatomy/moving-the-camera",
+        "score": 0.3117177592420982
+      },
+      {
+        "id": "source:content/sources/threejs-react-scene.md:1",
+        "title": "The Exercise",
+        "url": "/sources/threejs-react-scene.md",
+        "score": 0.27484718649826445
+      }
+    ]
+  },
+  {
+    "question": "这个练习要我让球体正好放在地板上，应该怎样思考？",
+    "englishQuery": "How should I reason about the practice task to place the sphere resting on the floor?",
+    "stepId": "scene-anatomy/entities-geometry-and-transform",
+    "translation": "Hand-translated evaluation query; not a live API translation",
+    "top": [
+      {
+        "id": "practice:scene-anatomy/entities-geometry-and-transform",
+        "title": "Entities, geometry, and transform — practice",
+        "url": "/lesson/scene-anatomy/entities-geometry-and-transform",
+        "score": 0.704301936936949
+      },
+      {
+        "id": "source:content/sources/threejs-react-scene.md:10",
+        "title": "5. Sample Geometry",
+        "url": "/sources/threejs-react-scene.md",
+        "score": 0.3613814481794189
+      },
+      {
+        "id": "step:scene-anatomy/the-floor-and-the-grid",
+        "title": "The floor and the grid",
+        "url": "/lesson/scene-anatomy/the-floor-and-the-grid",
+        "score": 0.3433577468977561
+      },
+      {
+        "id": "step:scene-anatomy/matte-and-metal",
+        "title": "Matte and metal",
+        "url": "/lesson/scene-anatomy/matte-and-metal",
+        "score": 0.33711841346626825
+      },
+      {
+        "id": "step:scene-anatomy/lights-that-cast-no-shadow",
+        "title": "Lights that cast no shadow",
+        "url": "/lesson/scene-anatomy/lights-that-cast-no-shadow",
+        "score": 0.3242499217120567
+      },
+      {
+        "id": "step:scene-anatomy/curved-geometry",
+        "title": "Curved geometry",
+        "url": "/lesson/scene-anatomy/curved-geometry",
+        "score": 0.32212443349185166
+      }
+    ]
+  },
+  {
+    "question": "为什么水会沿着地面加水的表面高度往下流？",
+    "englishQuery": "Why does water flow downhill following terrain plus water surface height?",
+    "stepId": "procedural-maps/water-follows-surface-height",
+    "translation": "Hand-translated evaluation query; not a live API translation",
+    "top": [
+      {
+        "id": "step:procedural-maps/water-follows-surface-height",
+        "title": "Water follows surface height",
+        "url": "/lesson/procedural-maps/water-follows-surface-height",
+        "score": 0.7105933475565611
+      },
+      {
+        "id": "step:procedural-maps/carrying-sediment",
+        "title": "Moving water carries sediment",
+        "url": "/lesson/procedural-maps/carrying-sediment",
+        "score": 0.5607646700858612
+      },
+      {
+        "id": "step:procedural-maps/erosion-removes-terrain",
+        "title": "Erosion removes terrain",
+        "url": "/lesson/procedural-maps/erosion-removes-terrain",
+        "score": 0.5388127361024211
+      },
+      {
+        "id": "practice:procedural-maps/water-follows-surface-height",
+        "title": "Water follows surface height — practice",
+        "url": "/lesson/procedural-maps/water-follows-surface-height",
+        "score": 0.5333923728454031
+      },
+      {
+        "id": "step:procedural-maps/transport-and-evaporation",
+        "title": "Transport and evaporation",
+        "url": "/lesson/procedural-maps/transport-and-evaporation",
+        "score": 0.5073840060562954
+      },
+      {
+        "id": "step:procedural-maps/rain-adds-water",
+        "title": "Rain adds water",
+        "url": "/lesson/procedural-maps/rain-adds-water",
+        "score": 0.49480988919198354
+      }
+    ]
+  },
+  {
+    "question": "我在实现 octave 循环，如何理解频率和振幅每层的变化？",
+    "englishQuery": "I am implementing the octave loop. How do frequency and amplitude change in each layer?",
+    "stepId": "procedural-maps/values-become-height",
+    "translation": "Hand-translated evaluation query; not a live API translation",
+    "top": [
+      {
+        "id": "step:procedural-maps/octaves",
+        "title": "Octaves add smaller detail",
+        "url": "/lesson/procedural-maps/octaves",
+        "score": 0.555596644804986
+      },
+      {
+        "id": "step:procedural-maps/frequency",
+        "title": "Frequency sets feature size",
+        "url": "/lesson/procedural-maps/frequency",
+        "score": 0.4628534528438609
+      },
+      {
+        "id": "step:procedural-maps/persistence",
+        "title": "Persistence sets each layer’s strength",
+        "url": "/lesson/procedural-maps/persistence",
+        "score": 0.43193328922101737
+      },
+      {
+        "id": "practice:procedural-maps/values-become-height",
+        "title": "Values become terrain height — practice",
+        "url": "/lesson/procedural-maps/values-become-height",
+        "score": 0.42382576580732045
+      },
+      {
+        "id": "step:procedural-maps/values-become-height",
+        "title": "Values become terrain height",
+        "url": "/lesson/procedural-maps/values-become-height",
+        "score": 0.4148907696518525
+      },
+      {
+        "id": "code:src/scene/demos/proceduralMaps/noiseMath.js:fractalNoise",
+        "title": "fractalNoise",
+        "url": "/lesson/procedural-maps/domain-warping",
+        "score": 0.3930781218392856
+      }
+    ]
+  },
+  {
+    "question": "React 的 props 和 state 有什么不同？",
+    "englishQuery": "What is the difference between React props and state?",
+    "stepId": null,
+    "translation": "Hand-translated evaluation query; not a live API translation",
+    "top": [
+      {
+        "id": "source:content/sources/react-basics.md:3",
+        "title": "1. What Is React?",
+        "url": "/sources/react-basics.md",
+        "score": 0.666059256051003
+      },
+      {
+        "id": "source:content/sources/react-basics.md:20",
+        "title": "10. Quick Reference",
+        "url": "/sources/react-basics.md",
+        "score": 0.6171575316009432
+      },
+      {
+        "id": "source:content/sources/react-basics.md:1",
+        "title": "What You Will Learn",
+        "url": "/sources/react-basics.md",
+        "score": 0.574590603735151
+      },
+      {
+        "id": "source:content/sources/react-basics.md:14",
+        "title": "6. State: Data That Changes",
+        "url": "/sources/react-basics.md",
+        "score": 0.49015684461821357
+      },
+      {
+        "id": "source:content/sources/react-basics.md:23",
+        "title": "13. Troubleshooting",
+        "url": "/sources/react-basics.md",
+        "score": 0.4773873909791282
+      },
+      {
+        "id": "source:content/sources/react-basics.md:21",
+        "title": "11. How Does This Work with Three.js? (Preview)",
+        "url": "/sources/react-basics.md",
+        "score": 0.4304792696763049
+      }
+    ]
+  }
+]

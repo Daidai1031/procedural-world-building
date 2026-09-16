@@ -31,3 +31,9 @@ playwright-report/
 CLAUDE.md
 
 tests/fixtures/phase4a-snippet.json
+
+.env*
+!.env.example
+.cache/
+public/rag-index.json
+public/sources/

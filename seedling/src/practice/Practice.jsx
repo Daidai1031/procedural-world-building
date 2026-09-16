@@ -1,3 +1,5 @@
+import { useTutorStore } from '../tutor/tutorStore.js'
+import { safeContext } from '../tutor/context.js'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { DEFAULT_MAP_SETTINGS } from '../scene/demos/proceduralMaps/noiseMath.js'
 import CodeBlock from '../components/CodeBlock.jsx'
@@ -6,7 +8,6 @@ import { useProgressStore } from '../store/progressStore.js'
 import { useSceneStore } from '../store/sceneStore.js'
 import { mapSettingsFromParams } from '../scene/demos/proceduralMaps/params.js'
 import { matchDistance, normalizeWhitespace, withinTolerance } from './scoring.js'
-import { sourceWithMath } from './mathSource.js'
 import { runSandbox } from './sandbox.js'
 import './practice.css'
 
@@ -16,7 +17,8 @@ function answerMatches(answer, expected) {
 }
 
 function TutorOffer({ context }) {
-  return <button type="button" disabled data-tutor-context={JSON.stringify(context)} title="Available in Phase 5">Ask about this {context.blank ? 'blank' : 'task'}</button>
+  const safe = safeContext(context)
+  return <button type="button" data-tutor-context={JSON.stringify(safe)} onClick={() => useTutorStore.getState().open(safe, 'Help me reason through this practice task without giving me the answer.')}>Ask about this {context.blank ? 'blank' : 'task'}</button>
 }
 
 function Result({ result }) {
@@ -49,7 +51,7 @@ function Match({ stepId, task, result }) {
     <label>Distance <meter min="0" max="1" value={distance} low={task.tolerance} optimum="0" /></label>
     <output aria-live="polite">{distance.toFixed(4)}</output>
     <button type="button" onClick={() => saveAttempt(stepId, { passed: distance <= task.tolerance, distance, params: settings })}>Check match</button>
-    {distance > task.tolerance && <><p>{task.hints?.[0]}</p><TutorOffer context={{ stepId, task, params: settings }} /></>}
+    {distance > task.tolerance && <><p>{task.hints?.[0]}</p><TutorOffer context={{ stepId, task, params: settings, attempt: JSON.stringify(settings) }} /></>}
     <Result result={result} />
   </>
 }
@@ -57,6 +59,7 @@ function Match({ stepId, task, result }) {
 function Fill({ stepId, task, snippet, result }) {
   const [answers, setAnswers] = useState(result?.answers ?? {})
   const [checked, setChecked] = useState((result?.attempts ?? 0) > 0)
+  const [revealed, setRevealed] = useState({})
   function change(index, value) {
     const next = { ...answers, [index]: value }
     setAnswers(next)
@@ -75,7 +78,13 @@ function Fill({ stepId, task, snippet, result }) {
     <form onSubmit={check}>
       <CodeBlock stepId={`${stepId}-fill`} reference={task.from} snippet={snippet} blanks={blanks} />
       <button type="submit">Check answers</button>
-      {checked && task.blanks.map((blank, i) => !answerMatches(answers[i], blank.answer) && <div key={i} role="status"><p>{blank.hint}</p><TutorOffer context={{ stepId, blank: { ...blank, response: answers[i] ?? '' }, source: { file: snippet.file, startLine: snippet.startLine + blank.line - 1 } }} /></div>)}
+      {checked && task.blanks.map((blank, i) => !answerMatches(answers[i], blank.answer) && <div key={i} role="status">
+        <p>{blank.hint}</p>
+        <TutorOffer context={{ stepId, task, blank: true, attempt: answers[i] ?? '', selectionSource: `${snippet.file}:${snippet.startLine + blank.line - 1}` }} />
+        {revealed[i]
+          ? <p className="practice__answer">Answer: <code>{blank.answer}</code></p>
+          : <button type="button" onClick={() => setRevealed((previous) => ({ ...previous, [i]: true }))}>Show answer</button>}
+      </div>)}
       <Result result={result} />
     </form>
   </>
@@ -115,6 +124,7 @@ function Implement({ stepId, task, snippet, result }) {
     setBusy(true)
     setMaps(null)
     try {
+      const { sourceWithMath } = await import('./mathSource.js')
       const inputs = task.cases.map((entry) => entry.args)
       const name = task.reference.fn
       const [actual, expected] = await Promise.all([
@@ -144,7 +154,7 @@ function Implement({ stepId, task, snippet, result }) {
       <div className="code-block"><header className="code-block__header"><span className="code-block__name">{task.signature}</span><span className="code-block__file">{snippet.file.split('/').at(-1)}</span></header><CodeEditor label={`Implementation for ${stepId}`} value={source} onChange={change} /></div>
       <button type="submit" disabled={busy}>{busy ? 'Running...' : 'Run cases'}</button>
     </form>
-    {error && <><p role="alert">{error}</p><TutorOffer context={{ stepId, task, source, error }} /></>}
+    {error && <><p role="alert">{error}</p><TutorOffer context={{ stepId, task, attempt: source, error }} /></>}
     {maps && <div className="practice__maps"><MapImage label="Your map" values={maps.learner} /><MapImage label="Course map" values={maps.reference} /><MapImage label="Absolute difference" values={maps.difference} /></div>}
     {(result?.failures ?? 0) >= 3 && <button type="button" onClick={() => setReveal(true)}>Compare with the course version</button>}
     {reveal && <CodeBlock stepId={`${stepId}-reference`} reference={task.reference} snippet={snippet} />}

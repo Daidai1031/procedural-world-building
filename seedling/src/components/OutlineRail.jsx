@@ -1,3 +1,4 @@
+import { useTutorStore } from '../tutor/tutorStore.js'
 import { Link, useMatch } from 'react-router-dom'
 import { lessons } from '../content/loader.js'
 import { useProgressStore } from '../store/progressStore.js'
@@ -13,6 +14,16 @@ function PinIcon({ pinned }) {
     <svg className="rail__icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="M9.5 1.5 14.5 6.5 12 7 9 10l-.5 4L2 7.5l4-.5 3-3z" fill={pinned ? 'currentcolor' : 'none'} />
       <line x1="8.5" y1="10.5" x2="4" y2="15" />
+    </svg>
+  )
+}
+
+function TutorIcon() {
+  return (
+    <svg className="rail__icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M2.5 3.5h11a1 1 0 0 1 1 1V10a1 1 0 0 1-1 1H6l-2.5 2.5V11H2.5a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z" />
+      <line x1="5" y1="6.25" x2="11" y2="6.25" />
+      <line x1="5" y1="8.5" x2="8.5" y2="8.5" />
     </svg>
   )
 }
@@ -94,6 +105,10 @@ export default function OutlineRail() {
       </div>
 
       <div className="rail__foot">
+        <button type="button" className="rail__tutor" aria-label="Open course tutor" aria-controls="tutor-drawer" onClick={() => useTutorStore.getState().open()} title="Course tutor (Ctrl/Cmd+K)">
+          <TutorIcon />
+          <span className="rail__tutor-label">Ask tutor</span>
+        </button>
         {lessons.filter((entry) => entry.slug !== lessonSlug).map((entry) => (
           <Link className="rail__step" key={entry.slug} to={`/lesson/${entry.slug}`}>
             <span className="rail__mark" aria-hidden="true" />

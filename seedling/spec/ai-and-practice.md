@@ -308,8 +308,10 @@ fails.
 
 Render the extracted snippet with the answer spans replaced by a select (when `options`
 is present) or a text input (when it is not). Text answers are normalised for
-whitespace before comparing. Wrong answer: the hint, and an offer to ask the tutor with
-the blank pre-loaded as context.
+whitespace before comparing. Wrong answer: the hint, an offer to ask the tutor with the
+blank pre-loaded as context, and a "Show answer" button — unlike `implement`, a `fill`
+blank has no exploratory value once the learner is stuck, so the correct value is one
+click away rather than gated behind a failure count.
 
 ### G3 — `implement`
 
