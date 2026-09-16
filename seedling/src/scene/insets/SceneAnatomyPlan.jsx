@@ -3,30 +3,17 @@ import { readToken } from '../../styles/readToken.js'
 import { useSceneStore } from '../../store/sceneStore.js'
 import { entities } from '../demos/sceneAnatomy/entities.js'
 
-// The floor in SceneAnatomyDemo is 20 units square, so the plan draws the same
-// extent. Both views are the same numbers seen from different places.
+// The plan shows the central 20-unit square of the 60-unit floor.
 const WORLD_EXTENT = 20
 // 2.5 world units per cell, the same section spacing the 3D grid is drawn at.
 const GRID_DIVISIONS = 8
-// DEFAULT_CAMERA and DEFAULT_TARGET in SceneHost.jsx, dropped onto the ground.
+// The Canvas camera position and DEFAULT_TARGET in SceneHost.jsx, on the ground.
 const CAMERA_START = [6, 8]
 const CAMERA_TARGET = [0, 0]
 const CAMERA_DOT_RADIUS = 4
 const SELECTION_RING_GAP = 4
 const SELECTION_RING_WIDTH = 2
 const GRID_LINE_WIDTH = 1
-
-// Half-width of each entity's footprint, in world units, taken from its geometry
-// arguments in entities.js.
-function footprintRadius(entity) {
-  const [first, second] = entity.geometry.args
-
-  if (entity.geometry.kind === 'box') return first / 2
-  if (entity.geometry.kind === 'cylinder') return Math.max(first, second)
-  if (entity.geometry.kind === 'torusKnot') return first + second
-
-  return first
-}
 
 // The same drawing serves the 220px corner and the full viewport, so the world
 // is scaled to the shorter side and centred rather than stretched.
@@ -70,8 +57,8 @@ function drawPlan(canvas, selectedEntityId) {
   }
 
   for (const entity of entities) {
-    const [x, , z] = entity.position
-    const radius = footprintRadius(entity) * scale
+    const [x, z] = entity.planPosition
+    const radius = entity.planRadius * scale
 
     context.beginPath()
     context.arc(toPixelsX(x), toPixelsY(z), radius, 0, Math.PI * 2)
