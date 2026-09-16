@@ -14,7 +14,7 @@
   /* §2 Ink. */
   --ink: #101014;
   --ink-dim: #55555f;
-  --ink-faint: #70707e;
+  --ink-faint: #626270;
 
   /* §2 Accents — the terrain's elevation ramp, saturated. These FILL. */
   --water: #c3b2f5;
@@ -26,10 +26,10 @@
   /* §2 Deeps — the same five hues, dark enough to be read. These WRITE.
      Every one clears AA against --paper and against --paper-2. */
   --water-deep: #5744b8;
-  --moss-deep: #0b7a44;
+  --moss-deep: #086e3c;
   --meadow-deep: #4f7a12;
   --summit-deep: #8a6a00;
-  --clay-deep: #b03a78;
+  --clay-deep: #a33470;
 
   /* Anything that floats over the canvas. A flat alpha is not a gradient, and
      there is no scrim — at 0.94 the ink clears 16:1 over the darkest terrain. */
@@ -91,6 +91,7 @@
   --duration-press: 120ms;
   --duration-inset-enter: 180ms;
   --duration-swap: 300ms;
+  --duration-compare: 400ms;
   --duration-rail: 200ms;
   --duration-pulse: 600ms;
 
@@ -128,4 +129,9 @@
   --object-box: #f5793b;
   --studio-bounce-down: #bcd4ff;
   --studio-bounce-up: #4a3b2a;
+  --erosion-bounce-down: #c4ddff;
+  --erosion-bounce-up: #493d31;
+  --terrain-grid: #cbced2;
+  --terrain-grid-section: #f296bd;
+  --erosion-water: #446cc8;
 }
