@@ -316,7 +316,9 @@ Within a step card, top to bottom:
 │ │ …                           │ │
 │ └────────────────────────────┘ │
 │                                │
-│ [ Try it ]                     │   practice — collapsed block, opens in place
+│ ┌────────────────────────────┐ │
+│ │ practice                   │ │   practice — inline, in the flow, open
+│ └────────────────────────────┘ │
 │                                │
 │ ┌────────────────────────────┐ │
 │ │ Ask about this step      → │ │   I3 inline tutor input
@@ -326,9 +328,15 @@ Within a step card, top to bottom:
 └────────────────────────────────┘
 ```
 
-Prose and code are stacked because they explain each other. Practice is a collapsed
-disclosure so a step does not *look* long when the learner is not ready for it — but it
-is in the flow, not behind a tab, so it cannot be missed.
+Prose and code are stacked because they explain each other. Practice is rendered inline
+below them, open, in the flow rather than behind a tab or a disclosure, so it cannot be
+missed.
+
+One consequence is load-bearing for authoring: **a step shows its own code block and its
+practice at the same time.** A `fill` that reads the fragment the step displays, or an
+`implement` whose reference is the function the step displays, prints its own answer. A
+task therefore reads from a fragment the step does not show — usually the one the
+previous step showed. See `ai-and-practice.md` §5.
 
 ## 5. Controls
 

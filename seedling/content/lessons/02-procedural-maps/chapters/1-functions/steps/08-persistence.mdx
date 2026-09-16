@@ -12,6 +12,20 @@ scene:
   unlock:
     - mapPersistence
     - mapOctaves
+practice:
+  kind: match
+  prompt: Make the surface rougher, with small bumps competing against the broad
+    hills, without changing how large those broad hills are.
+  target:
+    octaves: 5
+    persistence: 0.65
+  compare:
+    - octaves
+    - persistence
+  tolerance: 0.008
+  hints:
+    - One setting decides how many layers there are, the other decides how loud
+      the later layers stay. Roughness needs both of them.
 ---
 
 Octaves decide how many layers contribute. Persistence decides how much influence each successive layer keeps. With persistence at 0.5, the layer weights begin at one, then one half, then one quarter. The finer layers become progressively quieter.

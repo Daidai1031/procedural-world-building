@@ -50,6 +50,8 @@ test('approved Lesson 01 has eleven stable steps, introduced code, and bounded p
     'lights-that-cast-no-shadow', 'the-key-light-and-shadows', 'what-the-camera-sees', 'moving-the-camera',
   ])
   const report = []
+  const practiceSteps = []
+  const target = (reference) => `${reference.file}#${reference.fn ?? reference.region}`
   for (const [index, file] of files.entries()) {
     assert.equal(Number(file.slice(0, 2)), index + 1)
     const [, header, body] = (await readFile(`${directory}/${file}`, 'utf8')).split('---')
@@ -57,7 +59,22 @@ test('approved Lesson 01 has eleven stable steps, introduced code, and bounded p
     const words = body.trim().split(/\s+/).length
     assert.ok(words >= 60 && words <= 200, `${file}: ${words} words`)
     assert.equal(Boolean(frontmatter.code), index > 0)
-    assert.equal(frontmatter.practice, undefined)
+    // This lesson's scene is declarative JSX with no maths behind it, so there
+    // is nothing for match to score or for a live edit to override: fill is the
+    // only kind it can carry. A fill must also read from a fragment this step
+    // does not itself display, because StepCard renders the step's own code
+    // block directly above its practice.
+    if (frontmatter.practice) {
+      practiceSteps.push(file)
+      assert.equal(frontmatter.practice.kind, 'fill')
+      assert.notEqual(target(frontmatter.practice.from), target(frontmatter.code))
+      const blanked = extractSnippet(await readFile(frontmatter.practice.from.file, 'utf8'), frontmatter.practice.from, file)
+      for (const blank of frontmatter.practice.blanks) {
+        const line = blanked.code.split('\n')[blank.line - 1] ?? ''
+        assert.ok(line.includes(blank.answer), `${file}: blank ${blank.line} is not on its line`)
+        assert.ok(blank.hint && (blank.options ?? [blank.answer]).includes(blank.answer))
+      }
+    }
     if (frontmatter.code) {
       const snippet = extractSnippet(await readFile(frontmatter.code.file, 'utf8'), frontmatter.code, file)
       assert.ok(snippet.code.length > 0)
@@ -79,6 +96,7 @@ test('approved Lesson 01 has eleven stable steps, introduced code, and bounded p
       report.push({ step: file, words, lines: snippet.code.split('\n').length, target: frontmatter.code, startLine: snippet.startLine })
     } else report.push({ step: file, words, lines: 0 })
   }
+  assert.deepEqual(practiceSteps, ['03-entities-geometry-and-transform.mdx', '11-moving-the-camera.mdx'])
   const source = await readFile(demo, 'utf8')
   const environment = extractSnippet(source, { file: demo, fn: 'StudioEnvironment' }, 'phase3b')
   assert.match(environment.code, /<primitive object=\{studioEnvironment\} attach="environment"/)
