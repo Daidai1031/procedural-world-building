@@ -1,0 +1,4 @@
+slug: simulation
+title: Simulation
+summary: Evolve a stored height field with rain, flow, erosion, and deposition.
+estimatedMinutes: 30

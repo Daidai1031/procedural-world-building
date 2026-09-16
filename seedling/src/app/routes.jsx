@@ -1,6 +1,5 @@
-import { Link, Navigate, Route, Routes, useParams } from 'react-router-dom'
+import { Navigate, Route, Routes, useParams } from 'react-router-dom'
 import { flatOrder, lessons, stepsBySlug } from '../content/loader.js'
-import { legacyLessons } from '../lessons/index.js'
 import { useProgressStore } from '../store/progressStore.js'
 import AppLayout from './AppLayout.jsx'
 import StepView from './StepView.jsx'
@@ -33,22 +32,6 @@ export default function AppRoutes() {
         <Route path="/lesson/:lessonSlug" element={<FirstStepOfLesson />} />
         <Route path="/lesson/:lessonSlug/:stepSlug" element={<StepView />} />
       </Route>
-      {/* Lesson 02 until it migrates in Phase 3. It brings its own canvases, so it
-          lives outside AppLayout and never renders alongside SceneHost. */}
-      {legacyLessons.map((lesson) => (
-        <Route
-          key={lesson.id}
-          path={lesson.path}
-          element={
-            <>
-              <nav className="legacy-back" aria-label="Back to the course">
-                <Link to="/">← Back to Lesson 01</Link>
-              </nav>
-              <lesson.component />
-            </>
-          }
-        />
-      ))}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

@@ -1,0 +1,24 @@
+---
+title: Position, function, value
+goal: Recreate a terrain by returning to the same seed and settings.
+keywords:
+  - determinism
+  - seed
+  - function
+  - hash
+scene:
+  demo: noise-terrain
+  inset: noise-map
+  unlock:
+    - mapSeed
+code:
+  file: src/scene/demos/proceduralMaps/noiseMath.js
+  fn: hash2D
+  highlight:
+    - 2
+    - 3
+---
+
+A procedural function takes a position and returns a number. Its apparent randomness comes from repeatable arithmetic. Give it the same coordinates, seed, and settings, and it gives you the same result, even after visiting another part of the map.
+
+Note the Seed value, change it, then restore it. The original landscape returns. A seed chooses one repeatable arrangement from many possibilities. The extracted function below turns integer coordinates and a seed into a value between zero and one; the noise functions use those values as their raw material.

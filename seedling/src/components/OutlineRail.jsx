@@ -1,6 +1,5 @@
 import { Link, useMatch } from 'react-router-dom'
 import { lessons } from '../content/loader.js'
-import { legacyLessons } from '../lessons/index.js'
 import { useProgressStore } from '../store/progressStore.js'
 import { useUiStore } from '../store/uiStore.js'
 import './OutlineRail.css'
@@ -94,13 +93,12 @@ export default function OutlineRail() {
         ))}
       </div>
 
-      {/* Lesson 02 until it migrates in Phase 3. */}
       <div className="rail__foot">
-        {legacyLessons.map((legacy) => (
-          <Link className="rail__step" key={legacy.id} to={legacy.path}>
+        {lessons.filter((entry) => entry.slug !== lessonSlug).map((entry) => (
+          <Link className="rail__step" key={entry.slug} to={`/lesson/${entry.slug}`}>
             <span className="rail__mark" aria-hidden="true" />
-            <span className="rail__number">{legacy.number}</span>
-            <span className="rail__title">{legacy.title}</span>
+            <span className="rail__number">{entry.number}</span>
+            <span className="rail__title">{entry.title}</span>
           </Link>
         ))}
       </div>

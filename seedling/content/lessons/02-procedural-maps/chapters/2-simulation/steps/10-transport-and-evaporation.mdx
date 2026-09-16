@@ -1,0 +1,27 @@
+---
+title: Transport and evaporation
+goal: Distinguish sediment transport from water loss through evaporation.
+keywords:
+  - transport
+  - evaporation
+  - sediment
+  - water
+scene:
+  demo: simulation-terrain
+  inset: simulation-map
+  unlock:
+    - erosionEvaporation
+code:
+  file: src/scene/demos/proceduralMaps/simulationMath.js
+  region: evaporation
+  highlight:
+    - 2
+    - 4
+    - 5
+    - 6
+    - 7
+---
+
+Moving water takes a matching fraction of its carried sediment into the next cell. After those transfers, evaporation removes a fraction of the remaining water. It does not remove the terrain with it. Very dry cells also return some remaining sediment to the ground.
+
+Increase Evaporation and watch the blue overlay in the 2D inset. Water has less time to remain in the system, although new rain continues to arrive each timestep. The highlighted code shows the water reduction followed by the dry-cell deposit. Pause to inspect a moment without the next update changing it.

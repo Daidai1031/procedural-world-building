@@ -1,0 +1,24 @@
+---
+title: Rain adds water
+goal: Predict how rainfall changes the water added during one update.
+keywords:
+  - rainfall
+  - water
+  - surface height
+  - timestep
+scene:
+  demo: simulation-terrain
+  inset: simulation-map
+  unlock:
+    - erosionRainfall
+code:
+  file: src/scene/demos/proceduralMaps/simulationMath.js
+  region: rainfall
+  highlight:
+    - 1
+    - 2
+---
+
+Rain adds the same amount of water to every cell during an update. The first highlighted line combines stored water with new rainfall. The next line adds that water to the ground height to find the cell's water surface.
+
+Pause the simulation and change Rainfall per step. Press Step once to observe a controlled update, or run several steps to make the blue water overlay easier to see. More rain supplies more water to move, but the terrain and neighboring water levels still determine where it can go. Rainfall is measured per timestep, not per second.

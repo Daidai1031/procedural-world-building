@@ -1,0 +1,18 @@
+---
+title: Terraces and power curves
+goal: Distinguish stepped height bands from a continuous height bias.
+keywords:
+  - terracing
+  - quantization
+  - power curve
+  - height
+scene:
+  demo: noise-terrain
+  inset: noise-map
+  unlock:
+    - mapShaping
+---
+
+Choose Terracing in Shaping. A continuous range of values is rounded into a small number of levels. Many neighboring samples now share the same height, creating shelves separated by sharper rises. This is quantization: replacing many possible answers with a smaller set.
+
+Switch to Power curve. Heights still vary continuously, but values between zero and one become smaller when raised to this power. Lower ground becomes more prominent. Terracing changes the available levels; a power curve changes how values occupy the range. Return to Normal to compare both with the original field.

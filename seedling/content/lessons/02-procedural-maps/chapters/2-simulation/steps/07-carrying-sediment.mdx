@@ -1,0 +1,18 @@
+---
+title: Moving water carries sediment
+goal: Relate sediment capacity to the amount of flowing water and the drop.
+keywords:
+  - sediment
+  - capacity
+  - flow
+  - slope
+scene:
+  demo: simulation-terrain
+  inset: simulation-map
+  unlock:
+    - erosionSedimentCapacity
+---
+
+Sediment is loose material carried by water. This model estimates a carrying capacity from flowing water, the drop toward its chosen neighbor, and the Sediment capacity setting. More moving water or a larger drop usually raises that capacity.
+
+Increase Sediment capacity and let the simulation run. Where the water carries less material than its capacity, it can remove more terrain. Where it carries too much, material can settle. The setting is a multiplier in that estimate, not a fixed amount of soil removed everywhere. The local conditions still decide which rule applies.

@@ -1,0 +1,19 @@
+---
+title: Persistence sets each layer’s strength
+goal: Control how strongly fine noise detail affects the larger terrain forms.
+keywords:
+  - persistence
+  - amplitude
+  - falloff
+  - octave
+scene:
+  demo: noise-terrain
+  inset: noise-map
+  unlock:
+    - mapPersistence
+    - mapOctaves
+---
+
+Octaves decide how many layers contribute. Persistence decides how much influence each successive layer keeps. With persistence at 0.5, the layer weights begin at one, then one half, then one quarter. The finer layers become progressively quieter.
+
+Use at least three octaves and move Persistence from low to high. Low values favor the broad underlying forms. Higher values let small features compete with them, making the surface rougher. With only one octave, changing persistence has no visible effect because there is no later layer whose contribution can change.

@@ -1,0 +1,26 @@
+---
+title: Read the neighborhood
+goal: Identify which neighboring cells can exchange water in this model.
+keywords:
+  - neighborhood
+  - four-neighborhood
+  - flood fill
+  - cell spacing
+scene:
+  demo: simulation-terrain
+  inset: simulation-map
+  unlock:
+    - erosionWorldSize
+code:
+  file: src/scene/demos/proceduralMaps/simulationMath.js
+  region: four-neighbors
+  highlight:
+    - 2
+    - 3
+    - 4
+    - 5
+---
+
+Each cell looks north, east, south, and west. The coordinate offsets below describe those four neighbors; diagonal cells are excluded. At the edge of the map, an offset that would leave the grid is skipped.
+
+World size changes the span of ground sampled by the grid. With the same cell count, a larger world puts neighboring samples farther apart and rebuilds the simulation. Flood fill also visits neighbors, but usually follows a connected region with a queue or stack. This erosion model instead updates every cell on every timestep.

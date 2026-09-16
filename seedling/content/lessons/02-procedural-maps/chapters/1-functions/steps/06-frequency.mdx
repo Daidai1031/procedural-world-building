@@ -1,0 +1,19 @@
+---
+title: Frequency sets feature size
+goal: Change feature size without changing the number of mesh vertices.
+keywords:
+  - frequency
+  - scale
+  - sampling
+  - resolution
+scene:
+  demo: noise-terrain
+  inset: noise-map
+  unlock:
+    - mapFrequency
+    - mapResolution
+---
+
+Frequency controls how quickly the function's input coordinates change as you move across the terrain. A low frequency spreads features over a larger area. A high frequency packs more hills and valleys into the same space.
+
+Raise Frequency while keeping Mesh resolution fixed. More features appear, but the surface still has the same number of vertices. Then raise resolution: the mesh can describe those features more faithfully. If a field changes faster than the mesh can sample it, its smaller patterns can be missed or appear misleadingly coarse.

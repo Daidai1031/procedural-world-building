@@ -1,0 +1,18 @@
+---
+title: Deposition returns sediment
+goal: Recognize the conditions that return carried material to the ground.
+keywords:
+  - deposition
+  - sediment
+  - capacity
+  - settling
+scene:
+  demo: simulation-terrain
+  inset: simulation-map
+  unlock:
+    - erosionDepositionRate
+---
+
+Water deposits material when it carries more sediment than its current capacity allows. Capacity can fall as the available drop or flow becomes smaller. This model also deposits some sediment when a cell has no lower neighbor to send water toward.
+
+Deposition rate controls the fraction returned during each update. Raise it and watch the evolving terrain after water has had time to carry material away from slopes. Erosion and deposition are paired transfers: one lowers ground and loads sediment, the other raises ground and unloads it. A single cell can behave differently at different times.
