@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import CodeEditor from './CodeEditor.jsx'
+import ExpandableCode from '../components/ExpandableCode.jsx'
 import { evaluateOverride } from './overrides.js'
 import { useSceneStore } from '../store/sceneStore.js'
 import './practice.css'
@@ -27,7 +28,7 @@ export default function EditableCode({ stepId, reference, snippet }) {
     setError('')
     setBusy(false)
   }
-  return <section className="code-block practice" aria-label={`Edit ${snippet.name}`}>
+  return <ExpandableCode className="practice" aria-label={`Edit ${snippet.name}`}>
     <header className="code-block__header"><span className="code-block__name">{snippet.name}()</span><span className="code-block__file">{snippet.file.split('/').at(-1)}</span></header>
     <form onSubmit={(event) => { event.preventDefault(); apply(source) }} onKeyDown={(event) => { if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') { event.preventDefault(); if (!busy) apply(source) } }}>
       <CodeEditor label={`Code for ${stepId}`} value={source} onChange={setSource} />
@@ -35,6 +36,6 @@ export default function EditableCode({ stepId, reference, snippet }) {
       <button type="button" onClick={reset}>Reset to original</button>
       {(error || simulationError) && <p role="alert">{error || simulationError}</p>}
     </form>
-  </section>
+  </ExpandableCode>
 }
 

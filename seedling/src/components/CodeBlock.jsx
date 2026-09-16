@@ -6,6 +6,7 @@ import jsx from 'shiki/langs/jsx.mjs'
 import { createCodeTheme } from '../styles/codeTheme.js'
 import { readToken } from '../styles/readToken.js'
 import './CodeBlock.css'
+import ExpandableCode from './ExpandableCode.jsx'
 
 let highlighter
 
@@ -47,7 +48,7 @@ export default function CodeBlock({ stepId, reference, snippet, blanks = [] }) {
   }
 
   return (
-    <section className="code-block" aria-labelledby={labelId}>
+    <ExpandableCode aria-labelledby={labelId}>
       <header className="code-block__header">
         <span id={labelId} className="code-block__name">{snippet.name}{reference.fn ? '()' : ''}</span>
         <span className="code-block__file" title={`${snippet.file}:${snippet.startLine}`}>
@@ -62,6 +63,6 @@ export default function CodeBlock({ stepId, reference, snippet, blanks = [] }) {
           </span>
         ))}</code>
       </pre>
-    </section>
+    </ExpandableCode>
   )
 }
