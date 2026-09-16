@@ -34,7 +34,9 @@ test('all 24 actual steps render and navigate across chapters without replacing 
   for (const [index, step] of lesson.steps.entries()) {
     await expect(page.locator('.step-card__title')).toHaveText(step.title)
     await expect(page.locator('.step-card__lesson-title')).toHaveText(step.chapter)
-    await expect(page.locator('.code-block')).toHaveCount(step.code ? 1 : 0)
+    // A step's own block is the anchor directly under the card body; a practice
+    // task renders its own code block further in.
+    await expect(page.locator('.step-card__body > .code-block-anchor .code-block')).toHaveCount(step.code ? 1 : 0)
     expect(await canvas.evaluate((element) => element === document.querySelector('.scene-host canvas'))).toBe(true)
     if (index < lesson.steps.length - 1) await page.locator('.step-card__nav a[rel="next"]').click()
   }
