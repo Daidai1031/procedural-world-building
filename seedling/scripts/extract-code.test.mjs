@@ -63,3 +63,81 @@ test('nested content uses the lesson slug, and a renamed function stops the buil
     await rm(root, { recursive: true, force: true })
   }
 })
+
+test('practice references use the extractor and match is restricted to chapter 1', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'seedling-practice-'))
+  try {
+    const filename = path.join(root, 'content/lessons/02-maps/chapters/01-functions/steps/01-fill.mdx')
+    await mkdir(path.dirname(filename), { recursive: true })
+    await mkdir(path.join(root, 'src'))
+    await writeFile(path.join(root, 'content/lessons/02-maps/lesson.yaml'), 'slug: maps\n')
+    await writeFile(path.join(root, file), 'function shapeValue(value) { return value }')
+    await writeFile(filename, '---\npractice:\n  kind: fill\n  from: { file: src/math.js, fn: shapeValue }\n---\n')
+    assert.equal((await extractAll(root))['maps/fill:practice'].name, 'shapeValue')
+    await writeFile(filename, '---\npractice:\n  kind: implement\n  reference: { file: src/math.js, fn: missing }\n---\n')
+    await assert.rejects(extractAll(root), /missing function "missing"/)
+    await writeFile(filename, '---\npractice:\n  kind: match\n---\n')
+    await extractAll(root)
+    const other = path.join(root, 'content/lessons/02-maps/chapters/02-simulation/steps/02-match.mdx')
+    await mkdir(path.dirname(other), { recursive: true })
+    await writeFile(other, '---\npractice:\n  kind: match\n---\n')
+    await assert.rejects(extractAll(root), /only supported in chapter 1/)
+  } finally {
+    assert.ok(path.resolve(root).startsWith(path.resolve(tmpdir()) + path.sep))
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
+test('JSX regions extract and dedent real markup, including mixed nested markers and CRLF', () => {
+  const source = [
+    'function Demo() {',
+    '  return (',
+    '    <>',
+    '      {/* #region entity */}',
+    '      <mesh position={[1, 2, 3]}>',
+    '        {/* #region geometry */}',
+    '        <boxGeometry args={[1, 1, 1]} />',
+    '        {/* #endregion */}',
+    '      </mesh>',
+    '      {/* #endregion */}',
+    '    </>',
+    '  )',
+    '}',
+  ].join('\r\n')
+  const result = extractSnippet(source, { file: 'src/Demo.jsx', region: 'entity', highlight: [2] }, step)
+  assert.equal(result.language, 'jsx')
+  assert.equal(result.startLine, 5)
+  assert.equal(result.code, '<mesh position={[1, 2, 3]}>\n  <boxGeometry args={[1, 1, 1]} />\n</mesh>')
+  assert.equal(extractSnippet(source, { file: 'src/Demo.jsx', fn: 'Demo' }, step).code.includes('#region'), false)
+  const mixed = '// #region outer\nconst x = 1\n{/* #region inner */}\n<mesh />\n{/* #endregion */}\n// #endregion'
+  assert.equal(extractSnippet(mixed, { file: 'src/Demo.jsx', region: 'outer' }, step).code, 'const x = 1\n<mesh />')
+  assert.throws(() => extractSnippet('{/* #region unfinished */}\n<mesh />', { file: 'src/Demo.jsx', region: 'unfinished' }, step), /unclosed region/)
+  assert.throws(() => extractSnippet('{/* #endregion */}', { file: 'src/Demo.jsx', region: 'missing' }, step), /unmatched/)
+  assert.throws(() => extractSnippet(source, { file: 'src/Demo.jsx', region: 'absent' }, step), /missing region/)
+})
+
+test('function extraction parses JSX components and preserves attached export comments', () => {
+  for (const prefix of ['', 'export ', 'export default ']) {
+    const source = `// A real mesh\n${prefix}function Box() {\n  return <mesh><boxGeometry args={[1, 1, 1]} /></mesh>\n}`
+    const result = extractSnippet(source, { file: 'src/Box.jsx', fn: 'Box' }, step)
+    assert.equal(result.language, 'jsx')
+    assert.equal(result.startLine, 1)
+    assert.equal(result.code, source)
+  }
+})
+
+test('named region endings let shared JSX belong to overlapping teaching snippets', () => {
+  const source = [
+    '{/* #region materials */}',
+    '<Box />',
+    '{/* #region curves */}',
+    '<Sphere />',
+    '{/* #endregion materials */}',
+    '<Cone />',
+    '<Knot />',
+    '{/* #endregion curves */}',
+  ].join('\n')
+  assert.equal(extractSnippet(source, { file: 'Scene.jsx', region: 'materials' }, step).code, '<Box />\n<Sphere />')
+  assert.equal(extractSnippet(source, { file: 'Scene.jsx', region: 'curves' }, step).code, '<Sphere />\n<Cone />\n<Knot />')
+  assert.throws(() => extractSnippet('// #region a\n1\n// #endregion b', { file, region: 'a' }, step), /unmatched #endregion b/)
+})
