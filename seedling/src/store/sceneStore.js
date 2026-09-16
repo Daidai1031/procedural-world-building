@@ -10,6 +10,8 @@ export const useSceneStore = create((set) => ({
   params: getDefaultParams(),
   unlocked: [],
   compare: null,
+  compareSide: 'a',
+  compareRevision: 0,
   isRunning: false,
   cameraResetToken: 0,
 
@@ -18,7 +20,20 @@ export const useSceneStore = create((set) => ({
   setInsetSwapped: (insetSwapped) => set({ insetSwapped }),
   toggleInsetSwapped: () => set((state) => ({ insetSwapped: !state.insetSwapped })),
   setUnlocked: (unlocked) => set({ unlocked }),
-  setCompare: (compare) => set({ compare }),
+  setCompare: (compare) => set((state) => ({
+    compare,
+    compareSide: 'a',
+    params: compare ? { ...state.params, ...compare.a.params } : state.params,
+    compareRevision: state.compareRevision + (compare ? 1 : 0),
+  })),
+  selectCompare: (compareSide) => set((state) => {
+    if (!state.compare?.[compareSide] || state.compareSide === compareSide) return state
+    return {
+      compareSide,
+      params: { ...state.params, ...state.compare[compareSide].params },
+      compareRevision: state.compareRevision + 1,
+    }
+  }),
   setIsRunning: (isRunning) => set({ isRunning }),
   setParam: (key, value) =>
     set((state) => ({ params: { ...state.params, [key]: value } })),

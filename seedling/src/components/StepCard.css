@@ -9,7 +9,7 @@
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
   width: var(--card-width, var(--card-default-width));
-  max-width: calc(100vw - var(--rail-width) - var(--space-5) * 2);
+  max-width: var(--card-available-width);
   border: var(--hairline) solid var(--line);
   border-radius: var(--radius-lg);
   background: var(--float-surface);

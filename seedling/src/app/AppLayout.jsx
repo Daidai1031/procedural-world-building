@@ -11,6 +11,8 @@ import './layout.css'
 
 export default function AppLayout() {
   const railPinned = useUiStore((state) => state.railPinned)
+  const cardWidth = useUiStore((state) => state.cardWidth)
+  const cardCollapsed = useUiStore((state) => state.cardCollapsed)
   const toggleRailPinned = useUiStore((state) => state.toggleRailPinned)
   const toggleCardCollapsed = useUiStore((state) => state.toggleCardCollapsed)
   const unpinRail = useUiStore((state) => state.unpinRail)
@@ -28,7 +30,11 @@ export default function AppLayout() {
   })
 
   return (
-    <div className="app" data-rail-pinned={railPinned}>
+    <div
+      className="app"
+      data-rail-pinned={railPinned}
+      style={{ '--layout-card-width': cardCollapsed ? 'var(--card-collapsed-width)' : `${cardWidth}px` }}
+    >
       <SceneHost />
       <OutlineRail />
       <div className="app__content">
