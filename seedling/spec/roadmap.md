@@ -91,6 +91,26 @@ Accept when:
 Review cards from `keywords`, progress in the outline, lesson overview pages, empty and
 error states, deployment.
 
+Two debts recorded in Phase 4B, both measured, neither urgent enough to hold up practice:
+
+**The simulation rate control lies above about 10 updates per second.** A lesson page
+sustains ~9.8 timesteps per second whether or not a live edit is driving it, while
+`erosionStepsPerSecond` goes to 20 — so the top half of the slider does nothing. This is
+not the worker: Phase 4A's fixture reached 19.5/s at the same setting
+(`artifacts/phase4a/browser-rate.json`) against ~9.8/s on the real page
+(`artifacts/phase4b/erosion-override-rate.json`), which points at per-step work on the
+page — the terrain mesh rebuild and the 2D inset redraw. Either cut that cost or lower
+the slider's maximum to a number the page can actually deliver. A control that stops
+responding halfway is worse than a smaller range.
+
+**`mathSource.js` is imported both ways.** The build reports
+`INEFFECTIVE_DYNAMIC_IMPORT`: `simulationState.js` imports it dynamically, while
+`Practice.jsx` and `overrides.js` import it statically, so the dynamic import cannot move
+it into its own chunk and it stays in the main bundle. It carries both maths modules
+inline as `?raw` text. Nothing is duplicated and nothing is broken, but the lazy loading
+it was written for does not happen. Settle it together with Phase 5's lazily loaded
+embedding model, when the chunking strategy is being decided anyway.
+
 Accept when:
 
 - [ ] End-of-chapter review generated from `keywords` and `goal`
@@ -98,6 +118,8 @@ Accept when:
 - [ ] Every error and empty state says what happened and what to do
 - [ ] Deployed to Vercel with environment variables set
 - [ ] A person who has never seen the site can finish Lesson 01 without asking anything
+- [ ] Every updates-per-second setting the control offers is one the page can hold
+- [ ] `npm run build` reports no ineffective dynamic imports
 
 ---
 

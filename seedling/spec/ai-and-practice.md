@@ -290,6 +290,7 @@ Complete the code. Good for the step right after a concept lands.
 ```yaml
 practice:
   kind: fill
+  prompt: Make the smoothing ease in and out of each grid cell.   # required
   from: { file: …, fn: perlin2d }   # same extractor as §1
   blanks:
     - line: 4
@@ -297,6 +298,13 @@ practice:
       options: ["xf", "xf * xf * (3 - 2 * xf)", "Math.round(xf)"]
       hint: Smoothing should ease in and out, not move at a constant rate.
 ```
+
+**`prompt` is required**, and carries the same meaning as `match`'s `prompt` and
+`implement`'s `brief`: say what the learner should achieve, never which answer to pick.
+It renders above the code block, before any control, so the learner reads the question
+before meeting the blanks. A `fill` without one is a dropdown with nothing attached to
+it, so both the loader and `scripts/extract-code.mjs` reject it by name and the build
+fails.
 
 Render the extracted snippet with the answer spans replaced by a select (when `options`
 is present) or a text input (when it is not). Text answers are normalised for
@@ -337,6 +345,10 @@ Never auto-reveal the reference implementation. After three failed attempts, off
 
 ### Shared behaviour
 
+- **A task never reads the fragment its own step displays.** A step renders its code
+  block and its practice together (`SPEC.md` §4), so a `fill` whose `from` is the
+  fragment above it, or an `implement` whose `reference` is the function above it,
+  prints its own answer. Read from what the previous step showed instead.
 - Practice is never a gate. Next is always enabled.
 - Pass marks the step complete and shows a quiet `--moss` check. No confetti.
 - Every failure state offers the tutor with the task pre-loaded as context.
