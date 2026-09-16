@@ -1,0 +1,17 @@
+---
+title: A map that remembers
+goal: Distinguish a stored simulation state from a freshly evaluated function.
+keywords:
+  - simulation
+  - state
+  - timestep
+  - height field
+scene:
+  demo: simulation-terrain
+  inset: simulation-map
+  unlock: []
+---
+
+A function can answer a question about any position independently. A simulation remembers what happened. Its next answer depends on stored terrain, water, and sediment from the previous timestep. Two landscapes with the same starting seed can develop differently if their update settings differ.
+
+The terrain now starts from your noise recipe, then keeps its own state. Press Step once and watch the timestep counter advance. The 2D inset combines height colors with a blue water overlay. Unlike the grayscale noise map, it shows a changing state rather than only the original function.

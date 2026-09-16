@@ -1,0 +1,18 @@
+---
+title: Advance one timestep
+goal: Use playback controls without confusing update speed with the update rule.
+keywords:
+  - timestep
+  - playback
+  - state
+  - double buffer
+scene:
+  demo: simulation-terrain
+  inset: simulation-map
+  unlock:
+    - erosionStepsPerSecond
+---
+
+One timestep reads the previous grids and writes the next grids. Keeping those separate means a cell later in the loop does not accidentally read a mixture of old and new values. Every cell gets the same starting moment.
+
+Press Start erosion, then Pause erosion. Step once lets you advance carefully while paused. Updates per second changes how quickly timesteps run, not what one timestep does. Playback and stored terrain continue as you move through this chapter. Reset terrain discards the evolved state and returns to your current starting recipe.

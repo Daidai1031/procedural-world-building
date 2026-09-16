@@ -1,0 +1,27 @@
+---
+title: Water follows surface height
+goal: Predict flow from differences in terrain-plus-water height.
+keywords:
+  - flow
+  - surface height
+  - slope
+  - neighbor
+scene:
+  demo: simulation-terrain
+  inset: simulation-map
+  unlock:
+    - erosionFlowRate
+code:
+  file: src/scene/demos/proceduralMaps/simulationMath.js
+  region: downhill-flow
+  highlight:
+    - 10
+    - 11
+    - 12
+    - 13
+    - 14
+---
+
+Water responds to the height of the whole surface: ground plus water. A cell checks its four neighbors and chooses the largest positive drop. If none is lower, it keeps its water for now. A low patch of ground can stop attracting flow once enough water has gathered there.
+
+Flow rate controls how much water moves for a given drop, capped by the amount available. Try a lower rate, then a higher one. This model sends water toward one chosen neighbor per update; it is a simplified local rule, not a full fluid solver.

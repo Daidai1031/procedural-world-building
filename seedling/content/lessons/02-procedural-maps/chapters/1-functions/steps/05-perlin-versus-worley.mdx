@@ -1,0 +1,36 @@
+---
+title: Perlin versus Worley
+goal: Tell gradient-based hills from distance-based cellular patterns.
+keywords:
+  - Perlin
+  - Worley
+  - gradient
+  - feature point
+scene:
+  demo: noise-terrain
+  inset: noise-map
+  unlock:
+    - mapSeed
+  compare:
+    label: Perlin versus Worley
+    a:
+      params:
+        mapNoiseType: perlin
+      caption: Perlin
+    b:
+      params:
+        mapNoiseType: worley
+      caption: Worley
+code:
+  file: src/scene/demos/proceduralMaps/noiseMath.js
+  fn: perlin2d
+  highlight:
+    - 8
+    - 9
+    - 13
+    - 14
+---
+
+Perlin noise blends directional influences at grid corners. Worley noise scatters feature points and measures the distance to the nearest one. Both produce repeatable fields, but the patterns come from different questions: how do nearby directions blend, or how far away is a point?
+
+Switch between Perlin and Worley below, or focus the toggle and use the arrow keys. Watch the terrain morph while the seed stays fixed. Drag the divider on the 2D map to compare the same locations directly. The code shows Perlin's corner contributions before they are blended.

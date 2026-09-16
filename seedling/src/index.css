@@ -1,5 +1,4 @@
-/* Reset only. Everything with a colour or a typeface is scoped to .app so the
-   legacy Lesson 02 route, which is deleted in Phase 3, keeps its own look. */
+/* Reset only. Color and typography belong to the app shell. */
 
 * {
   box-sizing: border-box;

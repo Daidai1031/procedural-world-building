@@ -1,0 +1,19 @@
+---
+title: Values become terrain height
+goal: Separate the sampled height field from its vertical display scale.
+keywords:
+  - height field
+  - amplitude
+  - mesh
+  - elevation
+scene:
+  demo: noise-terrain
+  inset: noise-map
+  unlock:
+    - mapAmplitude
+    - mapResolution
+---
+
+The terrain multiplies each sampled value by Height amplitude to place a vertex vertically. Raising amplitude exaggerates the relief without changing the underlying field. Watch the grayscale inset as you adjust it: the values stay the same while the hills grow taller.
+
+The elevation legend follows the field's low, middle, and high values, using lavender, green, and yellow. Press W to inspect the mesh. You now have the complete function pipeline: choose positions, sample a repeatable field, shape its values, and use those values to build a surface.

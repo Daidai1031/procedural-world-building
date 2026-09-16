@@ -1,0 +1,30 @@
+---
+title: Calibrate the scales
+goal: Choose display detail separately from the simulation grid and world span.
+keywords:
+  - calibration
+  - resolution
+  - world size
+  - interpolation
+scene:
+  demo: simulation-terrain
+  inset: simulation-map
+  unlock:
+    - erosionResolution
+    - erosionWorldSize
+    - mapResolution
+    - mapAmplitude
+code:
+  file: src/scene/demos/proceduralMaps/simulationMath.js
+  fn: sampleSimulationGrid
+  highlight:
+    - 2
+    - 3
+    - 10
+    - 11
+    - 13
+---
+
+Simulation resolution sets how many cells evolve. Mesh resolution sets how many vertices display their heights. The code blends neighboring simulation samples when a mesh vertex falls between them. Adding display vertices smooths that representation; it cannot create new simulated processes.
+
+Compare cell spacing, cell count, and mesh vertices in the readout. Start with mesh resolution at least as high as simulation resolution. World size changes the sampled span and rebuilds the state; Height amplitude only exaggerates its display. Changing mesh resolution or amplitude preserves the existing simulation, so you can inspect the same moment at different scales.

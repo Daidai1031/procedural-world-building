@@ -1,0 +1,27 @@
+---
+title: Warp the sampling positions
+goal: Explain why domain warping changes sample locations rather than just heights.
+keywords:
+  - domain warping
+  - coordinates
+  - input
+  - distortion
+scene:
+  demo: noise-terrain
+  inset: noise-map
+  unlock:
+    - mapShaping
+    - mapWarpStrength
+code:
+  file: src/scene/demos/proceduralMaps/noiseMath.js
+  region: domain-warp
+  highlight:
+    - 7
+    - 8
+    - 9
+    - 10
+---
+
+Choose Domain warping in Shaping, then increase Warp strength from zero. Features bend and stretch because the function is sampled at displaced positions. Imagine pulling a printed map sideways before reading its heights.
+
+The code creates two smooth offset fields, one for each ground coordinate. Warp strength scales those offsets before they are added to the original position. Unlike a terrace or power curve, the change happens before the final noise value is sampled. At zero strength, the offsets vanish and you read the original, unwarped field again.

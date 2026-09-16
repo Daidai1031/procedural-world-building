@@ -1,0 +1,17 @@
+---
+title: From samples to a 2D map
+goal: Locate a high point in both the grayscale map and the terrain.
+keywords:
+  - sampling
+  - grayscale
+  - height field
+  - map
+scene:
+  demo: noise-terrain
+  inset: noise-map
+  unlock: []
+---
+
+The small map shows samples as brightness: black is zero, white is one, and gray lies between. The terrain uses the same function at ground positions, but turns its answers into heights. A bright patch marks higher ground; a dark patch marks lower ground.
+
+Click the map to bring it forward. Find a bright patch, then use the 3D inset caption to bring the terrain back. Orbit until you can recognize the corresponding raised area. These are two views of one field, even though their sampling grids have different resolutions.

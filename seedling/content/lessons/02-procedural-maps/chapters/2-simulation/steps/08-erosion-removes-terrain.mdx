@@ -1,0 +1,27 @@
+---
+title: Erosion removes terrain
+goal: Explain when flowing water removes material from the ground.
+keywords:
+  - erosion
+  - capacity
+  - sediment
+  - conservation
+scene:
+  demo: simulation-terrain
+  inset: simulation-map
+  unlock:
+    - erosionStrength
+code:
+  file: src/scene/demos/proceduralMaps/simulationMath.js
+  region: erosion-deposition
+  highlight:
+    - 5
+    - 6
+    - 7
+    - 10
+    - 11
+---
+
+When carried sediment is below capacity, flowing water can pick up material. The code subtracts that material from terrain and adds the same amount to carried sediment. Soil changes location in the model; it does not simply vanish when erosion occurs.
+
+Erosion strength controls how quickly the gap between current sediment and capacity is filled. Compare a gentle setting with a stronger one while watching sloping areas. A lower-height limit prevents this rule from digging indefinitely. Changing strength affects future updates without rebuilding the current landscape, so pause or reset when you want a controlled comparison.

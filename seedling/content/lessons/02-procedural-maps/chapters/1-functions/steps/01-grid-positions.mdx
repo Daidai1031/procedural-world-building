@@ -1,0 +1,18 @@
+---
+title: Grid positions, cells, and vertices
+goal: Distinguish a sample point from the space between samples.
+keywords:
+  - grid
+  - vertex
+  - cell
+  - resolution
+scene:
+  demo: noise-terrain
+  inset: noise-map
+  unlock:
+    - mapResolution
+---
+
+A grid gives the terrain an address system. Each vertex is a point with a position across the ground: X goes one way, Z the other. The spaces between neighboring points are cells. Connecting the points makes the surface you see.
+
+Press W to reveal the wireframe, then change Mesh resolution. More segments create more vertices to sample, so small features become easier to represent. They also cost more computation. Resolution changes how finely we measure the field; it does not change the function we are measuring. Press W again to hide the lines.

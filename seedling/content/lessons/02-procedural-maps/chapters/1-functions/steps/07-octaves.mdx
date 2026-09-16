@@ -1,0 +1,26 @@
+---
+title: Octaves add smaller detail
+goal: Identify the extra detail contributed by higher-frequency noise layers.
+keywords:
+  - octave
+  - fractal noise
+  - frequency
+  - noise stack
+scene:
+  demo: noise-terrain
+  inset: noise-map
+  unlock:
+    - mapOctaves
+    - mapFrequency
+code:
+  file: src/scene/demos/proceduralMaps/noiseMath.js
+  region: noise-octaves
+  highlight:
+    - 6
+    - 7
+    - 10
+---
+
+One noise layer gives the landscape a single main feature scale. A noise stack samples several layers and combines their values. Each layer is called an octave. Here, each new octave doubles the frequency, adding smaller features to the larger forms.
+
+Set Octaves to one, then increase it gradually. Look for new detail inside shapes you already recognize. The loop below repeats the sampling process, accumulating a weighted total. Its final division keeps the combined result on a comparable scale instead of making the terrain taller simply because more layers were added.

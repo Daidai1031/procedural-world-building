@@ -1,0 +1,27 @@
+---
+title: Seed the height field
+goal: Identify the three grids that form the initial erosion state.
+keywords:
+  - initialization
+  - height
+  - water
+  - sediment
+scene:
+  demo: simulation-terrain
+  inset: simulation-map
+  unlock:
+    - erosionResolution
+    - mapSeed
+code:
+  file: src/scene/demos/proceduralMaps/simulationMath.js
+  fn: createErosionState
+  highlight:
+    - 15
+    - 22
+    - 23
+    - 24
+---
+
+The simulation begins with three equally sized grids. Height is filled by sampling your noise recipe. Water and sediment begin at zero. Each grid address refers to the same location, so a cell can hold a ground height, a water amount, and a sediment amount together.
+
+Change Simulation resolution to rebuild these grids with a different number of cells. Changing the seed also rebuilds the starting terrain. Both actions pause playback and return the timestep to zero. Reset terrain keeps the current settings and creates that same initial state again.

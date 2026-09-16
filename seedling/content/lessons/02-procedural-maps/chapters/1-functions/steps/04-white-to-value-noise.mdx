@@ -1,0 +1,25 @@
+---
+title: From white noise to value noise
+goal: Recognize how interpolation connects otherwise independent samples.
+keywords:
+  - white noise
+  - value noise
+  - interpolation
+  - coherence
+scene:
+  demo: noise-terrain
+  inset: noise-map
+  unlock:
+    - mapNoiseType
+code:
+  file: src/scene/demos/proceduralMaps/noiseMath.js
+  fn: valueNoise2D
+  highlight:
+    - 6
+    - 7
+    - 9
+---
+
+Choose White in Noise function. Nearby positions can have very different values, so the map looks speckled and the terrain becomes jagged. White noise does not try to make neighbors agree.
+
+Now choose Value. This function starts with random values at grid corners and blends between them. The highlighted lines blend pairs of corners, then blend those results together. The easing function softens the joins. Nearby positions now tend to have similar heights: this relationship is called coherence. Both choices are deterministic; smoothness and repeatability are separate properties.

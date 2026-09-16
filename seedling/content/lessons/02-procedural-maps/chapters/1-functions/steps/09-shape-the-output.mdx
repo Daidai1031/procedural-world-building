@@ -1,0 +1,23 @@
+---
+title: Shape the output
+goal: Recognize how remapping values changes the character of a noise field.
+keywords:
+  - shaping
+  - ridged
+  - billow
+  - turbulence
+scene:
+  demo: noise-terrain
+  inset: noise-map
+  unlock:
+    - mapShaping
+code:
+  file: src/scene/demos/proceduralMaps/noiseMath.js
+  fn: shapeValue
+  highlight:
+    - 2
+---
+
+A noise function supplies values, but their final shape is a design choice. Choose Ridged: values near the middle of the original range become high, while both extremes become low. This fold turns smooth variation into crests.
+
+Compare Billow and Turbulence next. Billow folds and rounds values into bulges; this implementation of Turbulence emphasizes their distance from the middle. The sample positions stay the same. The highlighted line shows the ridged transformation, while the surrounding lines show other ways to reinterpret the same input value.

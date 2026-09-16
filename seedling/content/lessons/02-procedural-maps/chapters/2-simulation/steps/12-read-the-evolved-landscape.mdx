@@ -1,0 +1,19 @@
+---
+title: Read the evolved landscape
+goal: Trace an evolved terrain back through initialization and local updates.
+keywords:
+  - terrain
+  - erosion
+  - measurement
+  - simulation pipeline
+scene:
+  demo: simulation-terrain
+  inset: simulation-map
+  unlock:
+    - mapAmplitude
+    - mapResolution
+---
+
+Pause erosion and inspect the landscape from several angles. Press W to reveal the mesh. Note the timestep, water amount, and height range before resetting. Reset terrain restores your current starting recipe; run it again to watch the changes accumulate from the beginning.
+
+The pipeline now has memory: noise initializes a height field, local rules move water and sediment, and the updated field drives the visible surface. Use the 2D map to locate water and the 3D view to judge relief. Neither view alone tells you everything about the stored state.
