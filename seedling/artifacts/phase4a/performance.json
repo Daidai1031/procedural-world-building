@@ -1,0 +1,10 @@
+{
+  "baseline48GridMs": 1.4222600000000056,
+  "resolver48GridMs": 1.7558599999999955,
+  "erosionStepMs": 0.15116830000000003,
+  "configuredHz": 10,
+  "maximumHz": 20,
+  "maximumRateBudgetMs": 50,
+  "erosionBudgetPercent": 0.30233660000000007,
+  "resolverGridOverheadMs": 0.3335999999999899
+}
