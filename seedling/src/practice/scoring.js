@@ -2,8 +2,17 @@ import { tokenizer } from 'acorn'
 import { withFunctionOverrides } from '../scene/demos/proceduralMaps/functionOverrides.js'
 import { DEFAULT_MAP_SETTINGS, sampleProceduralMap } from '../scene/demos/proceduralMaps/noiseMath.js'
 
+// A blank's answer is usually a JavaScript expression, where spacing carries no
+// meaning. JSX fragments such as `</mesh>` or `/>` are not a JavaScript token
+// stream at all — acorn reads the slash as a regular expression and throws — so
+// those fall back to plain whitespace collapsing. Both sides of a comparison
+// run through here, so a correct answer still matches itself.
 export function normalizeWhitespace(value) {
-  return Array.from(tokenizer(value, { ecmaVersion: 'latest' })).map((token) => value.slice(token.start, token.end)).join(' ')
+  try {
+    return Array.from(tokenizer(value, { ecmaVersion: 'latest' })).map((token) => value.slice(token.start, token.end)).join(' ')
+  } catch {
+    return value.trim().replace(/\s+/g, ' ')
+  }
 }
 
 export function meanAbsoluteDifference(a, b) {
