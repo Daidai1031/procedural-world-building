@@ -1,18 +1,18 @@
 [
   {
     "configuredStepsPerSecond": 10,
-    "withoutOverride": 9.84,
-    "withOverride": 9.95,
-    "fractionOfConfigured": 0.995,
-    "fractionOfAchievable": 1.011,
+    "withoutOverride": 9.76,
+    "withOverride": 9.94,
+    "fractionOfConfigured": 0.994,
+    "fractionOfAchievable": 1.019,
     "floor": 0.8
   },
   {
     "configuredStepsPerSecond": 20,
-    "withoutOverride": 9.84,
+    "withoutOverride": 9.73,
     "withOverride": 9.95,
-    "fractionOfConfigured": 0.497,
-    "fractionOfAchievable": 1.011,
+    "fractionOfConfigured": 0.498,
+    "fractionOfAchievable": 1.023,
     "floor": 0.8
   }
 ]
