@@ -22,13 +22,17 @@ export const useSceneStore = create((set) => ({
   insetSwapped: false,
   params: getDefaultParams(),
   unlocked: [],
+  hiddenEntities: [],
   compare: null,
   compareSide: 'a',
   compareRevision: 0,
   isRunning: false,
   cameraResetToken: 0,
+  projection: 'perspective',
+  wireframe: false,
+  axesVisible: false,
 
-  setDemoKey: (demoKey) => set({ demoKey }),
+  setDemoKey: (demoKey) => set({ demoKey, hiddenEntities: [] }),
   setInsetKey: (insetKey) => set({ insetKey }),
   setInsetSwapped: (insetSwapped) => set({ insetSwapped }),
   toggleInsetSwapped: () => set((state) => ({ insetSwapped: !state.insetSwapped })),
@@ -48,8 +52,18 @@ export const useSceneStore = create((set) => ({
     }
   }),
   setIsRunning: (isRunning) => set({ isRunning }),
+  toggleEntityHidden: (id) =>
+    set((state) => ({
+      hiddenEntities: state.hiddenEntities.includes(id)
+        ? state.hiddenEntities.filter((hiddenId) => hiddenId !== id)
+        : [...state.hiddenEntities, id],
+    })),
   setParam: (key, value) =>
     set((state) => ({ params: { ...state.params, [key]: value } })),
   requestCameraReset: () =>
     set((state) => ({ cameraResetToken: state.cameraResetToken + 1 })),
+  toggleProjection: () =>
+    set((state) => ({ projection: state.projection === 'perspective' ? 'orthographic' : 'perspective' })),
+  toggleWireframe: () => set((state) => ({ wireframe: !state.wireframe })),
+  toggleAxes: () => set((state) => ({ axesVisible: !state.axesVisible })),
 }))

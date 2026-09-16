@@ -117,6 +117,7 @@
   --z-canvas: 0;
   --z-card: 10;
   --z-inset: 12;
+  --z-panel: 13;
   --z-strip: 15;
   --z-rail: 18;
   --z-drawer: 20;
@@ -129,6 +130,7 @@
   --object-box: #f5793b;
   --studio-bounce-down: #bcd4ff;
   --studio-bounce-up: #4a3b2a;
+  --studio-grid-section: #b4b4be;
   --erosion-bounce-down: #c4ddff;
   --erosion-bounce-up: #493d31;
   --terrain-grid: #cbced2;

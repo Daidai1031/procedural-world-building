@@ -11,11 +11,11 @@ test('Lesson 01 scene and plan remain pixel-identical for each selection', async
   page.on('pageerror', (error) => errors.push(error.message))
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/lesson/scene-anatomy/what-the-camera-sees')
-  await expect(page.getByRole('combobox', { name: 'Selected entity' })).toBeVisible()
+  await expect(page.locator('.entity-panel')).toBeVisible()
   await page.evaluate(() => document.fonts.ready)
   const rows = []
   for (const id of ['box', 'sphere', 'cone', 'torus']) {
-    await page.getByRole('combobox', { name: 'Selected entity' }).selectOption(id)
+    await page.locator(`.entity-panel__select[data-entity-id="${id}"]`).click()
     await page.evaluate(() => new Promise((resolve) => {
       let frames = 0
       function frame() { if (++frames >= 20) resolve(); else requestAnimationFrame(frame) }

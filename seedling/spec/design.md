@@ -193,6 +193,39 @@ different colour, which is the entire reason to use blocks.
   solid `--summit` fill once over 600ms — a fill, not a text colour, because a yellow
   word on paper does not read. Once. This is the only attention-grabbing motion in the
   app.
+- The strip always renders now, even with no unlocked parameters, because the
+  viewport toolbar below lives in the same pill. Its own controls still only appear
+  once a step unlocks them; a hairline divider separates the two groups, and only
+  shows when both are present.
+
+### The viewport toolbar
+
+- The first group in the control strip, before the divider. Acts on the one shared
+  canvas rather than a lesson's params, so it is identical and always present on
+  every step of every lesson — Rhino's viewport toolbar, not a per-demo control.
+- Four toggle-style buttons, same chip styling as the compare toggle and simulation
+  controls: **Perspective / Orthographic** (one button, label names the current
+  state, click switches to the other), **Wireframe**, **Axes**, and **Recenter** (a
+  plain action, not a toggle — it re-fires `cameraResetToken`, the same mechanism a
+  step's frontmatter can request).
+- Switching projection keeps the framing continuous: the idle camera tracks the
+  active one every frame, so toggling back and forth never snaps to a stale pose.
+  Wireframe flips every material's `wireframe` flag scene-wide; axes toggles a
+  5-unit `axesHelper` at the origin.
+
+### The entity panel
+
+- Right edge, `--space-5` from the edge, same `220px` width as the inset so the two
+  read as one column when both are present. Stacks below the inset when the inset is
+  in its corner slot this step; otherwise sits at `--space-5` from the top.
+- Lesson 01 (scene-anatomy) only, shown once a step unlocks `selectedEntity`. Lists
+  every entity with its colour swatch and a one-line property, so the mapping to the
+  2D plan's dots is immediate. Clicking a row selects that entity, exactly like
+  clicking the mesh itself or its dot on the plan. A per-row eye toggle hides an
+  entity from the 3D scene and the plan, to see past it.
+- `--paper` at 0.94, `--radius-lg`, `--shadow-float`, same floating treatment as the
+  inset and the control strip. `--z-panel` (13) sits between the inset (12) and the
+  control strip (15).
 
 ### The outline rail
 
