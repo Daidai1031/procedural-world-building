@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { getDemoParams } from '../scene/demoParams.js'
 import { useSceneStore } from '../store/sceneStore.js'
+import CompareToggle from './CompareToggle.jsx'
+import SimulationControls from './SimulationControls.jsx'
+import TerrainLegend from './TerrainLegend.jsx'
 import './ControlStrip.css'
 
 // §5 Long enough for the label to pulse --summit once and settle.
@@ -63,6 +66,15 @@ function RangeControl({ paramKey, param, value, onChange }) {
   )
 }
 
+function BooleanControl({ paramKey, param, value, onChange }) {
+  return (
+    <label className="control control--boolean">
+      <span className="control__label">{param.label}</span>
+      <input type="checkbox" checked={value} onChange={(event) => onChange(paramKey, event.target.checked)} />
+    </label>
+  )
+}
+
 // §5 A control the previous step did not offer fades in and pulses --summit
 // once. This is the only attention-seeking motion in the app.
 function splitSignature(signature) {
@@ -98,19 +110,23 @@ export default function ControlStrip() {
   const unlocked = useSceneStore((state) => state.unlocked)
   const params = useSceneStore((state) => state.params)
   const setParam = useSceneStore((state) => state.setParam)
+  const compare = useSceneStore((state) => state.compare)
 
   const demoParams = getDemoParams(demoKey)
   const visible = unlocked.filter((key) => demoParams[key])
   const pulsingKeys = useJustUnlocked(visible)
 
-  if (visible.length === 0) return null
+  if (visible.length === 0 && !compare && demoKey !== 'simulation-terrain') return null
 
   return (
     <div className="control-strip">
       <div className="control-strip__panel" role="group" aria-label="Scene controls">
+        {compare && <CompareToggle />}
+        {demoKey === 'simulation-terrain' && <SimulationControls />}
+        {['noise-terrain', 'simulation-terrain'].includes(demoKey) && <TerrainLegend simulation={demoKey === 'simulation-terrain'} />}
         {visible.map((key) => {
           const param = demoParams[key]
-          const Control = param.type === 'select' ? SelectControl : RangeControl
+          const Control = param.type === 'select' ? SelectControl : param.type === 'boolean' ? BooleanControl : RangeControl
 
           return (
             <div className="control-strip__slot" key={key} data-unlocked={pulsingKeys.includes(key)}>

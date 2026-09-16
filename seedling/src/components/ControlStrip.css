@@ -5,7 +5,7 @@
   position: fixed;
   right: 0;
   bottom: var(--space-5);
-  left: var(--rail-width);
+  left: calc(var(--rail-width) + min(var(--layout-card-width, var(--card-default-width)), var(--card-available-width)) + var(--space-5));
   z-index: var(--z-strip);
   display: flex;
   justify-content: center;
@@ -175,3 +175,42 @@
 .control-strip__slot[data-unlocked='true'] .control__label {
   animation: control-unlock-label var(--duration-pulse) var(--ease-step) 1;
 }
+
+.compare-toggle, .simulation-controls__buttons {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.compare-toggle button, .simulation-controls button {
+  min-height: var(--hit-target);
+  padding: var(--space-2) var(--space-3);
+  border: var(--hairline) solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper-2);
+  color: var(--ink);
+  font-family: var(--font-chrome);
+  font-size: var(--text-xs);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.compare-toggle button[aria-checked='true'] { background: var(--summit); }
+.simulation-controls button:disabled { color: var(--ink-faint); cursor: default; }
+.simulation-controls { display: grid; gap: var(--space-1); }
+.simulation-controls__measurements { font-size: var(--text-xs); }
+.simulation-controls__measurements summary { cursor: pointer; }
+.simulation-controls__measurements dl { margin: var(--space-2) 0 0; }
+.simulation-controls__measurements dl > div { display: flex; justify-content: space-between; gap: var(--space-3); }
+.simulation-controls__measurements dd { margin: 0; font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+.control--boolean { min-width: auto; align-content: center; }
+.control--boolean input { accent-color: var(--ink); }
+
+.terrain-legend { display: grid; align-content: center; gap: var(--space-2); }
+.terrain-legend div, .terrain-legend div > span { display: flex; align-items: center; gap: var(--space-1); }
+.terrain-legend div { gap: var(--space-3); font-size: var(--text-xs); white-space: nowrap; }
+.terrain-legend i { width: var(--space-3); height: var(--space-3); border-radius: var(--radius-sm); }
+.terrain-legend__low { background: var(--water); }
+.terrain-legend__middle { background: var(--moss); }
+.terrain-legend__high { background: var(--summit); }
+.terrain-legend__water { background: var(--erosion-water); }

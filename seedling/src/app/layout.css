@@ -14,6 +14,7 @@
   /* The rail only pushes the card aside when it is pinned. On hover it floats
      over instead, so a glance at the outline never reflows the prose. */
   --rail-width: var(--rail-collapsed-width);
+  --card-available-width: calc(100vw - var(--rail-width) - var(--space-5) * 3 - var(--control-width));
 }
 
 .app[data-rail-pinned='true'] {
@@ -117,14 +118,6 @@
   outline: var(--focus-width) solid var(--ink);
   outline-offset: var(--focus-offset);
   border-radius: var(--radius-sm);
-}
-
-/* Fixed so it does not disturb the legacy lesson's own layout. */
-.legacy-back {
-  position: fixed;
-  top: var(--space-2);
-  right: var(--space-4);
-  z-index: 20;
 }
 
 /* §8 One orchestrated moment and nothing else. Reduced motion removes even
