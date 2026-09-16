@@ -34,6 +34,11 @@ function SceneLights() {
   )
 }
 
+// These teaching regions overlap; they are not nested:
+//                     box     sphere     cone     torus
+// matte-and-metal     [------------]
+// curved-geometry             [-----------------------]
+// Editing the sphere changes both extracted snippets.
 function SceneEntities() {
   return (
     <>
