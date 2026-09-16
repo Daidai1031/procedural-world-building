@@ -19,7 +19,7 @@
       ],
       "editable": false
     },
-    "startLine": 131
+    "startLine": 136
   },
   {
     "step": "03-entities-geometry-and-transform.mdx",
@@ -29,13 +29,13 @@
       "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
       "region": "box",
       "highlight": [
-        1,
         2,
-        3
+        3,
+        4
       ],
       "editable": false
     },
-    "startLine": 42
+    "startLine": 47
   },
   {
     "step": "04-matte-and-metal.mdx",
@@ -52,7 +52,7 @@
       ],
       "editable": false
     },
-    "startLine": 41
+    "startLine": 46
   },
   {
     "step": "05-unlit-surfaces.mdx",
@@ -67,7 +67,7 @@
       ],
       "editable": false
     },
-    "startLine": 72
+    "startLine": 77
   },
   {
     "step": "06-curved-geometry.mdx",
@@ -83,7 +83,7 @@
       ],
       "editable": false
     },
-    "startLine": 55
+    "startLine": 60
   },
   {
     "step": "07-the-floor-and-the-grid.mdx",
@@ -101,7 +101,7 @@
       ],
       "editable": false
     },
-    "startLine": 100
+    "startLine": 105
   },
   {
     "step": "08-lights-that-cast-no-shadow.mdx",
