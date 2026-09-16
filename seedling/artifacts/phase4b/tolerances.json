@@ -1,0 +1,61 @@
+{
+  "match": {
+    "content/lessons/02-procedural-maps/chapters/1-functions/steps/06-frequency.mdx": {
+      "target": {
+        "frequency": 0.16
+      },
+      "tolerance": 0.015,
+      "distances": {
+        "frequency 0.14": 0.02543,
+        "frequency 0.15": 0.014,
+        "frequency 0.17": 0.01399,
+        "frequency 0.18": 0.02589,
+        "arrival 0.32": 0.11203
+      }
+    },
+    "content/lessons/02-procedural-maps/chapters/1-functions/steps/08-persistence.mdx": {
+      "target": {
+        "octaves": 5,
+        "persistence": 0.65
+      },
+      "tolerance": 0.008,
+      "distances": {
+        "more layers only": 0.01686,
+        "louder layers only": 0.01548,
+        "arrival 4, 0.50": 0.02064,
+        "one layer": 0.08389,
+        "5, 0.60": 0.00565,
+        "6, 0.65": 0.00617
+      }
+    }
+  },
+  "implement": {
+    "content/lessons/02-procedural-maps/chapters/1-functions/steps/10-terraces-and-power.mdx": {
+      "reference": "shapeValue",
+      "tolerance": 0.000001,
+      "cases": 8,
+      "differences": {
+        "rounds before scaling": 5,
+        "three bands": 0.167,
+        "twelve bands": 0.0833,
+        "floors instead of rounds": 0.167,
+        "squares instead of 2.2": 0.0324,
+        "multiplies by 2.2": 0.882,
+        "drops the final return": 0.2
+      }
+    },
+    "content/lessons/02-procedural-maps/chapters/1-functions/steps/12-values-become-height.mdx": {
+      "reference": "fractalNoise",
+      "tolerance": 0.000001,
+      "cases": 4,
+      "differences": {
+        "never applies persistence": 0.0174,
+        "forgets to double the frequency": 0.168,
+        "divides by octaves": 0.473,
+        "same seed every octave": 0.0849,
+        "doubles the frequency before sampling": 0.376,
+        "adds every layer at full strength": 1.78
+      }
+    }
+  }
+}
