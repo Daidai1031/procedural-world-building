@@ -1,9 +1,27 @@
-.code-block {
+.code-block-anchor {
   margin-block: var(--space-5);
+}
+
+.code-block {
   background: var(--paper-2);
   border-radius: var(--radius-md);
   overflow: hidden;
 }
+
+.code-block-anchor > .code-block { margin-block: 0; }
+
+.code-block[popover] {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  padding: 0;
+  border: none;
+  color: inherit;
+  overflow: auto;
+  box-shadow: var(--shadow-float);
+}
+
+.code-block::backdrop { pointer-events: none; }
 
 .code-block__header {
   display: flex;
