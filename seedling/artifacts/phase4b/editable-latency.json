@@ -1,24 +1,24 @@
 [
   {
     "step": "white-to-value-noise",
-    "evaluatedMs": 158,
-    "sceneChangedMs": 165,
+    "evaluatedMs": 298,
+    "sceneChangedMs": 309,
     "framesSampledBefore": 0,
     "distinctIntermediateFrames": 0,
     "heldLastGoodFrame": true
   },
   {
     "step": "perlin-versus-worley",
-    "evaluatedMs": 299,
-    "sceneChangedMs": 305,
+    "evaluatedMs": 493,
+    "sceneChangedMs": 509,
     "framesSampledBefore": 0,
     "distinctIntermediateFrames": 0,
     "heldLastGoodFrame": true
   },
   {
     "step": "erosion-removes-terrain",
-    "evaluatedMs": 86,
-    "sceneChangedMs": 190,
+    "evaluatedMs": 144,
+    "sceneChangedMs": 286,
     "framesSampledBefore": 1,
     "distinctIntermediateFrames": 1,
     "heldLastGoodFrame": true

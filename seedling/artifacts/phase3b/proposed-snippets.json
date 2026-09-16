@@ -49,14 +49,14 @@
     "startLine": 106
   },
   "grid": {
-    "code": "<Grid\n  position={[0, 0.01, 0]}\n  args={[10, 10]}\n  infiniteGrid\n  cellSize={0.5}\n  cellThickness={0.6}\n  cellColor={GRID_LINE}\n  sectionSize={2.5}\n  sectionThickness={1.2}\n  sectionColor={GRID_SECTION}\n  fadeDistance={35}\n  fadeStrength={1}\n/>",
+    "code": "<Grid\n  position={[0, 0.01, 0]}\n  args={[10, 10]}\n  infiniteGrid\n  cellSize={0.5}\n  cellThickness={0.6}\n  cellColor={GRID_LINE}\n  sectionSize={2.5}\n  sectionThickness={0.9}\n  sectionColor={GRID_SECTION}\n  fadeDistance={35}\n  fadeStrength={1}\n/>",
     "language": "jsx",
     "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
     "name": "grid",
     "startLine": 112
   },
   "floor-and-grid": {
-    "code": "<mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>\n  <planeGeometry args={[60, 60]} />\n  <shadowMaterial opacity={0.35} />\n</mesh>\n<Grid\n  position={[0, 0.01, 0]}\n  args={[10, 10]}\n  infiniteGrid\n  cellSize={0.5}\n  cellThickness={0.6}\n  cellColor={GRID_LINE}\n  sectionSize={2.5}\n  sectionThickness={1.2}\n  sectionColor={GRID_SECTION}\n  fadeDistance={35}\n  fadeStrength={1}\n/>",
+    "code": "<mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>\n  <planeGeometry args={[60, 60]} />\n  <shadowMaterial opacity={0.35} />\n</mesh>\n<Grid\n  position={[0, 0.01, 0]}\n  args={[10, 10]}\n  infiniteGrid\n  cellSize={0.5}\n  cellThickness={0.6}\n  cellColor={GRID_LINE}\n  sectionSize={2.5}\n  sectionThickness={0.9}\n  sectionColor={GRID_SECTION}\n  fadeDistance={35}\n  fadeStrength={1}\n/>",
     "language": "jsx",
     "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
     "name": "floor-and-grid",
@@ -95,13 +95,13 @@
     "language": "jsx",
     "file": "src/scene/SceneHost.jsx",
     "name": "canvas-camera",
-    "startLine": 48
+    "startLine": 130
   },
   "orbit-controls": {
     "code": "<OrbitControls\n  makeDefault\n  enableDamping\n  dampingFactor={0.08}\n  minDistance={3}\n  maxDistance={40}\n  maxPolarAngle={Math.PI / 2.05}\n  target={DEFAULT_TARGET}\n/>",
     "language": "jsx",
     "file": "src/scene/SceneHost.jsx",
     "name": "orbit-controls",
-    "startLine": 55
+    "startLine": 137
   }
 }

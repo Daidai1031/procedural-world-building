@@ -23,7 +23,7 @@
   },
   {
     "step": "03-entities-geometry-and-transform.mdx",
-    "words": 167,
+    "words": 171,
     "lines": 11,
     "target": {
       "file": "src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx",
@@ -147,7 +147,7 @@
       ],
       "editable": false
     },
-    "startLine": 48
+    "startLine": 130
   },
   {
     "step": "11-moving-the-camera.mdx",
@@ -165,6 +165,6 @@
       ],
       "editable": false
     },
-    "startLine": 55
+    "startLine": 137
   }
 ]
