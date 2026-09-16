@@ -11,6 +11,32 @@ scene:
   inset: simulation-map
   unlock:
     - erosionSedimentCapacity
+practice:
+  kind: fill
+  prompt: >-
+    Capacity is built from the water that moves and the drop it moves down.
+    Complete the search that finds that drop: how far a neighbor lies below this
+    cell, and which of the four is worth keeping.
+  from:
+    file: src/scene/demos/proceduralMaps/simulationMath.js
+    region: downhill-flow
+  blanks:
+    - line: 11
+      answer: "surface - neighborSurface"
+      options:
+        - "surface - neighborSurface"
+        - "neighborSurface - surface"
+        - "state.height[index] - neighborSurface"
+      hint: A drop counts as downhill when this cell's surface stands above its
+        neighbor's.
+    - line: 12
+      answer: "drop > largestDrop"
+      options:
+        - "drop > largestDrop"
+        - "drop < largestDrop"
+        - "drop > 0"
+      hint: Only the steepest of the four is kept, and largestDrop starts at zero
+        so an uphill neighbor never wins.
 ---
 
 Sediment is loose material carried by water. This model estimates a carrying capacity from flowing water, the drop toward its chosen neighbor, and the Sediment capacity setting. More moving water or a larger drop usually raises that capacity.

@@ -11,6 +11,40 @@ scene:
   inset: noise-map
   unlock:
     - mapShaping
+practice:
+  kind: implement
+  signature: shapeValue(value, shaping)
+  brief: >-
+    Write the two shapings this step describes. Terracing rounds a value to the
+    nearest of six evenly spaced levels, so neighbouring samples land on the same
+    height. The power curve keeps every value between zero and one but pushes
+    them down, by raising each one to the power 2.2. The other shapings are
+    already written for you.
+  starter: |
+    function shapeValue(value, shaping) {
+      if (shaping === 'ridged') return 1 - Math.abs(value * 2 - 1)
+      if (shaping === 'billow') return Math.sqrt(Math.abs(value * 2 - 1))
+      if (shaping === 'turbulence') return clamp01(Math.abs(value - 0.5) * 2.4)
+      if (shaping === 'terracing') return value // your code here
+      if (shaping === 'power') return value // your code here
+      return value
+    }
+  reference:
+    file: src/scene/demos/proceduralMaps/noiseMath.js
+    fn: shapeValue
+  cases:
+    - args: [0.45, terracing]
+    - args: [0.96, terracing]
+    - args: [0.5, power]
+    - args: [0.12, power]
+    - args: [0.64, ridged]
+    - args: [0.3, billow]
+    - args: [0.72, turbulence]
+    - args: [0.2, normal]
+  tolerance: 0.000001
+  visual: true
+  visualSettings:
+    shaping: terracing
 ---
 
 Choose Terracing in Shaping. A continuous range of values is rounded into a small number of levels. Many neighboring samples now share the same height, creating shelves separated by sharper rises. This is quantization: replacing many possible answers with a smaller set.

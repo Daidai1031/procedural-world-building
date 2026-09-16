@@ -29,8 +29,9 @@ code:
     - 9
     - 13
     - 14
+  editable: true
 ---
 
 Perlin noise blends directional influences at grid corners. Worley noise scatters feature points and measures the distance to the nearest one. Both produce repeatable fields, but the patterns come from different questions: how do nearby directions blend, or how far away is a point?
 
-Switch between Perlin and Worley below, or focus the toggle and use the arrow keys. Watch the terrain morph while the seed stays fixed. Drag the divider on the 2D map to compare the same locations directly. The code shows Perlin's corner contributions before they are blended.
+Switch between Perlin and Worley below, or focus the toggle and use the arrow keys. Watch the terrain morph while the seed stays fixed. Drag the divider on the 2D map to compare the same locations directly. The highlighted lines are Perlin's corner contributions. Set one to 0 and apply it: only the Perlin half moves.

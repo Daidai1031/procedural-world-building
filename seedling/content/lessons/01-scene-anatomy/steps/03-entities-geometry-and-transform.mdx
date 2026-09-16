@@ -11,6 +11,20 @@ code:
   region: box
   highlight: [2, 3, 4]
   editable: false
+practice:
+  kind: fill
+  prompt: >-
+    Here is the blue sphere, which the next step opens properly. Place it so that
+    it rests on the floor, neither sunk into the ground nor hovering above it.
+  from:
+    file: src/scene/demos/sceneAnatomy/SceneAnatomyDemo.jsx
+    region: sphere
+  blanks:
+    - line: 1
+      answer: "[0, 1, 0]"
+      options: ["[0, 0.5, 0]", "[0, 1, 0]", "[0, 2, 0]"]
+      hint: A mesh sits at the centre of its own shape, and the line below gives
+        this shape its size.
 ---
 
 Select the orange box with a click or the control below. `Selectable` is an imported
