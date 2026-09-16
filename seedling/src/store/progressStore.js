@@ -10,12 +10,15 @@ export const useProgressStore = create(
       notes: {},
       practiceResults: {},
 
+      savePractice: (stepId, patch) => set((state) => ({
+        practiceResults: { ...state.practiceResults, [stepId]: { ...state.practiceResults[stepId], ...patch } },
+      })),
       setLastStepId: (stepId) => set({ lastStepId: stepId }),
       markStepComplete: (stepId) => {
         if (get().completedStepIds.includes(stepId)) return
         set((state) => ({ completedStepIds: [...state.completedStepIds, stepId] }))
       },
     }),
-    { name: 'seedling.progress.v1' },
+    { name: 'seedling.progress.v2' },
   ),
 )

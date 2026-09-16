@@ -1,4 +1,5 @@
-﻿import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import { useSceneStore } from '../../../store/sceneStore.js'
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { sampleProceduralMap } from './noiseMath.js'
@@ -8,6 +9,7 @@ import { readToken } from '../../../styles/readToken.js'
 const TERRAIN_SIZE = 10
 
 export default function TerrainPreview({ settings, wireframe, compareRevision }) {
+  const overrideRevision = useSceneStore((state) => state.overrideRevision)
   const mesh = useRef(null)
   const transition = useRef(null)
   const previousRevision = useRef(compareRevision)
@@ -47,7 +49,7 @@ export default function TerrainPreview({ settings, wireframe, compareRevision })
       activeGeometry.computeVertexNormals()
       activeGeometry.computeBoundingSphere()
     }
-  }, [geometry, settings, compareRevision])
+  }, [geometry, settings, compareRevision, overrideRevision])
 
   useFrame((_, delta) => {
     const morph = transition.current

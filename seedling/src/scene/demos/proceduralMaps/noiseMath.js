@@ -1,3 +1,5 @@
+import { resolveFunction } from './functionOverrides.js'
+
 const UINT32_MAX = 4294967295
 
 function clamp01(value) {
@@ -22,7 +24,7 @@ function whiteNoise2D(x, y, seed) {
   return hash2D(Math.floor(x), Math.floor(y), seed)
 }
 
-function valueNoise2D(x, y, seed) {
+export function valueNoise2D(x, y, seed) {
   const x0 = Math.floor(x)
   const y0 = Math.floor(y)
   const tx = fade(x - x0)
@@ -41,7 +43,7 @@ function gradientDot(ix, iy, x, y, seed) {
 }
 
 // Blend the corner gradients with eased distances inside this grid cell.
-function perlin2d(x, y, seed) {
+export function perlin2d(x, y, seed) {
   const x0 = Math.floor(x)
   const y0 = Math.floor(y)
   const tx = fade(x - x0)
@@ -81,12 +83,12 @@ function worleyNoise2D(x, y, seed) {
 
 function baseNoise(type, x, y, seed) {
   if (type === 'white') return whiteNoise2D(x * 16, y * 16, seed)
-  if (type === 'value') return valueNoise2D(x, y, seed)
+  if (type === 'value') return resolveFunction('valueNoise2D', valueNoise2D)(x, y, seed)
   if (type === 'worley') return worleyNoise2D(x, y, seed)
-  return perlin2d(x, y, seed)
+  return resolveFunction('perlin2d', perlin2d)(x, y, seed)
 }
 
-function fractalNoise(type, x, y, settings) {
+export function fractalNoise(type, x, y, settings) {
   // #region noise-octaves
   let value = 0
   let amplitude = 1
@@ -104,7 +106,7 @@ function fractalNoise(type, x, y, settings) {
   // #endregion
 }
 
-function shapeValue(value, shaping) {
+export function shapeValue(value, shaping) {
   if (shaping === 'ridged') return 1 - Math.abs(value * 2 - 1) // Fold into crests.
   if (shaping === 'billow') return Math.sqrt(Math.abs(value * 2 - 1))
   if (shaping === 'turbulence') return clamp01(Math.abs(value - 0.5) * 2.4)
@@ -114,6 +116,8 @@ function shapeValue(value, shaping) {
 }
 
 export function sampleProceduralMap(x, y, settings) {
+  const override = resolveFunction('sampleProceduralMap', null)
+  if (override) return override(x, y, settings)
   let sampleX = x
   let sampleY = y
 
@@ -124,15 +128,15 @@ export function sampleProceduralMap(x, y, settings) {
       frequency: settings.frequency * 0.65,
       octaves: Math.min(settings.octaves, 3),
     }
-    const warpX = fractalNoise('perlin', x + 19.1, y + 7.7, warpSettings) - 0.5
-    const warpY = fractalNoise('perlin', x - 5.2, y + 31.4, warpSettings) - 0.5
+    const warpX = resolveFunction('fractalNoise', fractalNoise)('perlin', x + 19.1, y + 7.7, warpSettings) - 0.5
+    const warpY = resolveFunction('fractalNoise', fractalNoise)('perlin', x - 5.2, y + 31.4, warpSettings) - 0.5
     sampleX += warpX * settings.warpStrength
     sampleY += warpY * settings.warpStrength
   }
   // #endregion
 
-  const value = fractalNoise(settings.noiseType, sampleX, sampleY, settings)
-  return shapeValue(value, settings.shaping)
+  const value = resolveFunction('fractalNoise', fractalNoise)(settings.noiseType, sampleX, sampleY, settings)
+  return resolveFunction('shapeValue', shapeValue)(value, settings.shaping)
 }
 
 export const DEFAULT_MAP_SETTINGS = {

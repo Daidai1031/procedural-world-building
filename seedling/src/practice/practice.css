@@ -1,0 +1,11 @@
+.practice { margin-block: var(--space-5); padding: var(--space-4); background: var(--paper-2); border-radius: var(--radius-md); }
+.practice button { margin: var(--space-2); min-height: 44px; padding: var(--space-2) var(--space-3); border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--paper); color: var(--ink); }
+.practice button:disabled { color: var(--ink-faint); cursor: default; }
+.practice input, .practice select { font: inherit; font-size: 16px; max-width: 100%; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius-sm); min-height: 44px; }
+.practice__pass { display: inline-block; background: var(--moss); color: var(--ink); border-radius: var(--radius-sm); padding-inline: var(--space-1); }
+.practice__maps { display: flex; gap: var(--space-2); }
+.practice__maps figure { margin: 0; min-width: 0; flex: 1; }
+.practice__maps canvas { width: 100%; image-rendering: pixelated; }
+.practice__maps figcaption { font-size: var(--text-xs); }
+.practice output { margin-inline: var(--space-2); font-family: var(--font-data); }
+.practice :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }

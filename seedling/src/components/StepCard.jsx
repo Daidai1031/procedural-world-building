@@ -1,5 +1,7 @@
 import { useRef } from 'react'
 import { Link } from 'react-router-dom'
+import Practice from '../practice/Practice.jsx'
+import EditableCode from '../practice/EditableCode.jsx'
 import CodeBlock from './CodeBlock.jsx'
 import snippets from '../generated/snippets.json'
 import { CARD_MAX_WIDTH, CARD_MIN_WIDTH, useUiStore } from '../store/uiStore.js'
@@ -194,8 +196,8 @@ export default function StepCard({ step, previousStep, nextStep }) {
           <Component />
         </div>
 
-        {frontmatter.code && <CodeBlock stepId={step.id} reference={frontmatter.code} snippet={snippets[step.id]} />}
-        {/* Practice disclosure, from frontmatter.practice, in Phase 4. */}
+        {frontmatter.code && (frontmatter.code.editable ? <EditableCode stepId={step.id} reference={frontmatter.code} snippet={snippets[step.id]} /> : <CodeBlock stepId={step.id} reference={frontmatter.code} snippet={snippets[step.id]} />)}
+        {frontmatter.practice && <Practice stepId={step.id} task={frontmatter.practice} snippet={snippets[`${step.id}:practice`]} />}
         {/* Inline tutor input (I3) in Phase 5. */}
       </div>
 
