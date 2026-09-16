@@ -1,0 +1,24 @@
+---
+title: Matte and metal
+goal: Predict how a surface will look from its roughness and metalness values.
+keywords: [material, roughness, metalness, highlight]
+scene:
+  demo: scene-anatomy
+  unlock: [selectedEntity]
+---
+
+Select the sphere, then switch back to the box a few times. The same three lights
+fall on both, yet they look nothing alike. Two numbers on their materials account
+for almost all of that difference.
+
+**Roughness** describes how uneven a surface is up close. The box is set to 0.65 —
+rough, so light scatters off it in every direction and the brightness spreads evenly
+across each face. The sphere is 0.15 — smooth, so light bounces in a consistent
+direction and gathers into one tight, bright spot.
+
+**Metalness** decides where the colour comes from. The box is 0.05, essentially
+non-metal, so you see its own orange. The sphere is 0.9, near-metal, so most of what
+you see is the scene reflected back at you, tinted blue.
+
+Rough and non-metal reads as chalk, clay, or unfinished wood. Smooth and metallic
+reads as chrome or polished steel.

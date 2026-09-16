@@ -1,0 +1,131 @@
+/* The only place in src/ where a literal colour, size, radius, or duration is
+   written. Every value here is fixed by spec/design.md §2–§4. A raw hex or px
+   anywhere else in src/ is a bug.
+
+   Imported once, from main.jsx. */
+
+:root {
+  /* §2 Surfaces — paper, not grey. */
+  --paper: #ffffff;
+  --paper-2: #f5f5f9;
+  --paper-3: #ebebf2;
+  --line: #e2e2ec;
+
+  /* §2 Ink. */
+  --ink: #101014;
+  --ink-dim: #55555f;
+  --ink-faint: #70707e;
+
+  /* §2 Accents — the terrain's elevation ramp, saturated. These FILL. */
+  --water: #c3b2f5;
+  --moss: #24d67b;
+  --meadow: #cff58c;
+  --summit: #ffe05c;
+  --clay: #fba5d0;
+
+  /* §2 Deeps — the same five hues, dark enough to be read. These WRITE.
+     Every one clears AA against --paper and against --paper-2. */
+  --water-deep: #5744b8;
+  --moss-deep: #0b7a44;
+  --meadow-deep: #4f7a12;
+  --summit-deep: #8a6a00;
+  --clay-deep: #b03a78;
+
+  /* Anything that floats over the canvas. A flat alpha is not a gradient, and
+     there is no scrim — at 0.94 the ink clears 16:1 over the darkest terrain. */
+  --float-surface: rgb(255 255 255 / 94%);
+  --float-blur: blur(20px);
+
+  /* §3 Type — one superfamily, four roles. Self-hosted, no CDN. */
+  --font-prose: 'IBM Plex Serif', Georgia, 'Times New Roman', serif;
+  --font-chrome: 'IBM Plex Sans Variable', 'IBM Plex Sans', system-ui, sans-serif;
+  --font-data: 'IBM Plex Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 15px;
+  --text-body: 17px;
+  --text-lg: 20px;
+  --text-xl: 28px;
+  --text-2xl: 38px;
+
+  --leading-tight: 1.2;
+  --leading-chrome: 1.45;
+  --leading-prose: 1.65;
+
+  /* Prose never exceeds this, whatever the card is dragged to. */
+  --measure: 64ch;
+
+  /* §4 Space. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* §4 Shape — three radii, assigned by elevation, not applied uniformly.
+     --radius-pill is a shape, not a fourth radius: it never goes on a surface
+     holding more than one line of text. */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+
+  /* §4 One shadow, only on things that float over the canvas. No colour block
+     ever gets one — a block separates by being a different colour. */
+  --shadow-float: 0 8px 32px rgb(16 16 20 / 10%);
+
+  /* §9 Focus. Ink, not --summit: a yellow ring vanishes on paper, and the ring
+     has to hold up on the accent blocks too, where --ink clears 9.9:1. */
+  --focus-width: 2px;
+  --focus-offset: 2px;
+
+  /* §8 Motion. --duration-step is the one orchestrated moment; the rest are
+     responses to an action. */
+  --ease-step: cubic-bezier(0.2, 0, 0, 1);
+  --duration-step: 220ms;
+  --rise-step: 8px;
+  --duration-press: 120ms;
+  --duration-inset-enter: 180ms;
+  --duration-swap: 300ms;
+  --duration-rail: 200ms;
+  --duration-pulse: 600ms;
+
+  /* §5 Layout. */
+  --rail-collapsed-width: 48px;
+  --rail-expanded-width: 280px;
+  --card-min-width: 360px;
+  --card-default-width: 440px;
+  --card-max-width: 760px;
+  --card-collapsed-width: 44px;
+  --inset-size: 220px;
+  --caption-height: 28px;
+  --control-width: 160px;
+  --hit-target: 32px;
+  --icon-size: 16px;
+  --hairline: 1px;
+  --marker-width: 2px;
+  --dot-size: 6px;
+  --underline-offset: 3px;
+
+  /* Stacking. design.md fixes canvas 0, card 10, drawer 20; the rest slot
+     between them in the order they overlap. */
+  --z-canvas: 0;
+  --z-card: 10;
+  --z-inset: 12;
+  --z-strip: 15;
+  --z-rail: 18;
+  --z-drawer: 20;
+
+  /* Lesson 01's studio. These are the world, not the interface, and the lesson
+     prose names each one — the box is "its own orange", the hemisphere light
+     sends "a cool blue down from above and a warm brown up from below". Their
+     values are fixed by content, not by the palette. The other three entities
+     are palette accents and stay that way. */
+  --object-box: #f5793b;
+  --studio-bounce-down: #bcd4ff;
+  --studio-bounce-up: #4a3b2a;
+}
