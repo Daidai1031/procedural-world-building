@@ -10,6 +10,10 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+src/generated/snippets.json
+tests/fixtures/snippet.json
+test-results/
+playwright-report/
 *.local
 
 # Editor directories and files

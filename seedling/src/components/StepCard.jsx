@@ -1,5 +1,7 @@
 import { useRef } from 'react'
 import { Link } from 'react-router-dom'
+import CodeBlock from './CodeBlock.jsx'
+import snippets from '../generated/snippets.json'
 import { CARD_MAX_WIDTH, CARD_MIN_WIDTH, useUiStore } from '../store/uiStore.js'
 import './StepCard.css'
 
@@ -192,7 +194,7 @@ export default function StepCard({ step, previousStep, nextStep }) {
           <Component />
         </div>
 
-        {/* CodeBlock, from frontmatter.code, in Phase 3. */}
+        {frontmatter.code && <CodeBlock stepId={step.id} reference={frontmatter.code} snippet={snippets[step.id]} />}
         {/* Practice disclosure, from frontmatter.practice, in Phase 4. */}
         {/* Inline tutor input (I3) in Phase 5. */}
       </div>
