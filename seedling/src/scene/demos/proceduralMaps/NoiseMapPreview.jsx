@@ -1,3 +1,4 @@
+import { useSceneStore } from '../../../store/sceneStore.js'
 import { useEffect, useRef } from 'react'
 import { sampleProceduralMap } from './noiseMath.js'
 
@@ -5,6 +6,7 @@ const MAP_SIZE = 220
 const SAMPLE_SPAN = 10
 
 export default function NoiseMapPreview({ settings }) {
+  const overrideRevision = useSceneStore((state) => state.overrideRevision)
   const canvasRef = useRef(null)
 
   useEffect(() => {
@@ -27,7 +29,7 @@ export default function NoiseMapPreview({ settings }) {
     }
 
     context.putImageData(image, 0, 0)
-  }, [settings])
+  }, [settings, overrideRevision])
 
   return <canvas className="inset__canvas" ref={canvasRef} width={MAP_SIZE} height={MAP_SIZE} aria-label="Noise values from low black to high white" />
 }

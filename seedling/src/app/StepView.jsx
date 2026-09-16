@@ -39,6 +39,7 @@ export default function StepView() {
   useEffect(() => {
     if (!step) return
 
+    useSceneStore.getState().setStep(step.id)
     const scene = step.frontmatter.scene ?? {}
     setDemoKey(scene.demo ?? null)
     setInsetKey(scene.inset ?? null)
@@ -49,6 +50,7 @@ export default function StepView() {
     setLastStepId(step.id)
 
     if (scene.resetCamera) requestCameraReset()
+    return () => useSceneStore.getState().setStep(null)
   }, [
     step,
     setDemoKey,

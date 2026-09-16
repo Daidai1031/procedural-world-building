@@ -1,9 +1,22 @@
+import { setFunctionOverrides } from '../scene/demos/proceduralMaps/functionOverrides.js'
 import { create } from 'zustand'
 import { getDefaultParams } from '../scene/demoParams.js'
 
 // Every param always holds a value. scene.unlock decides what is visible, never
 // what exists, so a value set on step 3 is still set on step 9.
 export const useSceneStore = create((set) => ({
+  stepId: null,
+  overrides: {},
+  overrideError: '',
+  overrideRevision: 0,
+  setStep: (stepId) => {
+    setFunctionOverrides({})
+    set((state) => ({ stepId, overrides: {}, overrideError: '', overrideRevision: state.overrideRevision + (Object.keys(state.overrides).length ? 1 : 0) }))
+  },
+  publishOverrides: (overrides, sampler) => {
+    if (sampler !== undefined) setFunctionOverrides(sampler ? { sampleProceduralMap: sampler } : {})
+    set((state) => ({ overrides, overrideError: '', overrideRevision: state.overrideRevision + 1 }))
+  },
   demoKey: null,
   insetKey: null,
   insetSwapped: false,
