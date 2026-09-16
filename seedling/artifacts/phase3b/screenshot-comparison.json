@@ -1,0 +1,34 @@
+[
+  {
+    "name": "scene-box",
+    "identical": true
+  },
+  {
+    "name": "plan-box",
+    "identical": true
+  },
+  {
+    "name": "scene-sphere",
+    "identical": true
+  },
+  {
+    "name": "plan-sphere",
+    "identical": true
+  },
+  {
+    "name": "scene-cone",
+    "identical": true
+  },
+  {
+    "name": "plan-cone",
+    "identical": true
+  },
+  {
+    "name": "scene-torus",
+    "identical": true
+  },
+  {
+    "name": "plan-torus",
+    "identical": true
+  }
+]

@@ -1,0 +1,58 @@
+[
+  {
+    "view": "plan-box",
+    "width": 218,
+    "height": 218,
+    "changedPixels": 0,
+    "maximumChannelDifference": 0
+  },
+  {
+    "view": "plan-cone",
+    "width": 218,
+    "height": 218,
+    "changedPixels": 0,
+    "maximumChannelDifference": 0
+  },
+  {
+    "view": "plan-sphere",
+    "width": 218,
+    "height": 218,
+    "changedPixels": 0,
+    "maximumChannelDifference": 0
+  },
+  {
+    "view": "plan-torus",
+    "width": 218,
+    "height": 218,
+    "changedPixels": 0,
+    "maximumChannelDifference": 0
+  },
+  {
+    "view": "scene-box",
+    "width": 1440,
+    "height": 1000,
+    "changedPixels": 0,
+    "maximumChannelDifference": 0
+  },
+  {
+    "view": "scene-cone",
+    "width": 1440,
+    "height": 1000,
+    "changedPixels": 0,
+    "maximumChannelDifference": 0
+  },
+  {
+    "view": "scene-sphere",
+    "width": 1440,
+    "height": 1000,
+    "changedPixels": 0,
+    "maximumChannelDifference": 0
+  },
+  {
+    "view": "scene-torus",
+    "width": 1440,
+    "height": 1000,
+    "changedPixels": 0,
+    "maximumChannelDifference": 0
+  }
+]

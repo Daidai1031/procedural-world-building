@@ -1,0 +1,32 @@
+---
+title: What the camera sees
+goal: Read a camera's position, target, and field of view, and say what each one changes.
+keywords: [camera, target, field of view, clipping plane]
+scene:
+  demo: scene-anatomy
+  inset: scene-plan
+  unlock: [selectedEntity]
+code:
+  file: src/scene/SceneHost.jsx
+  region: canvas-camera
+  highlight: [3]
+  editable: false
+---
+
+The opening `Canvas` tag below comes from `SceneHost.jsx`. It owns the one shared
+camera used throughout the course. This is an excerpt of the opening tag; the
+controls and scene sit inside it.
+
+Inside `camera={{...}}`, the named properties describe the camera's initial setup.
+`position: [6, 5, 8]` places it 6 units right, 5 up, and 8 forward. `fov: 50` sets a
+vertical field of view of 50 degrees. Widening that angle fits more into the view
+but exaggerates perspective; narrowing it crops the view like a longer lens. The
+controls aim it at `[0, 0.75, 0]`, just above the floor. You will see that target next.
+
+`near: 0.1` and `far: 200` set the distances at which the camera starts and stops
+drawing surfaces. Geometry outside that range is clipped. These values do not
+limit where you can move the camera; the controls do that.
+
+`shadows` enables the rendering needed by the previous step. `resize` with
+`debounce: 0` lets the canvas follow size changes immediately when you swap it with
+the plan inset. The camera stays where you move it as you navigate the lesson.
