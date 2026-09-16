@@ -176,13 +176,13 @@
   animation: control-unlock-label var(--duration-pulse) var(--ease-step) 1;
 }
 
-.compare-toggle, .simulation-controls__buttons {
+.compare-toggle, .simulation-controls__buttons, .viewport-toolbar {
   display: flex;
   align-items: center;
   gap: var(--space-1);
 }
 
-.compare-toggle button, .simulation-controls button {
+.compare-toggle button, .simulation-controls button, .viewport-toolbar button {
   min-height: var(--hit-target);
   padding: var(--space-2) var(--space-3);
   border: var(--hairline) solid var(--line);
@@ -196,6 +196,14 @@
 }
 
 .compare-toggle button[aria-checked='true'] { background: var(--summit); }
+.viewport-toolbar button[aria-pressed='true'] { background: var(--summit); }
+
+/* Between the always-present viewport toolbar and this step's own params. */
+.control-strip__divider {
+  align-self: stretch;
+  width: var(--hairline);
+  background: var(--line);
+}
 .simulation-controls button:disabled { color: var(--ink-faint); cursor: default; }
 .simulation-controls { display: grid; gap: var(--space-1); }
 .simulation-controls__measurements { font-size: var(--text-xs); }

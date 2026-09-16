@@ -17,7 +17,7 @@ const GRID_LINE_WIDTH = 1
 
 // The same drawing serves the 220px corner and the full viewport, so the world
 // is scaled to the shorter side and centred rather than stretched.
-function drawPlan(canvas, selectedEntityId) {
+function drawPlan(canvas, selectedEntityId, hiddenEntityIds) {
   const context = canvas.getContext('2d')
   const width = canvas.clientWidth
   const height = canvas.clientHeight
@@ -57,6 +57,8 @@ function drawPlan(canvas, selectedEntityId) {
   }
 
   for (const entity of entities) {
+    if (hiddenEntityIds.includes(entity.id)) continue
+
     const [x, z] = entity.planPosition
     const radius = entity.planRadius * scale
 
@@ -97,15 +99,16 @@ function drawPlan(canvas, selectedEntityId) {
 export default function SceneAnatomyPlan() {
   const canvasRef = useRef(null)
   const selectedEntity = useSceneStore((state) => state.params.selectedEntity)
+  const hiddenEntities = useSceneStore((state) => state.hiddenEntities)
 
   useEffect(() => {
     const canvas = canvasRef.current
-    drawPlan(canvas, selectedEntity)
+    drawPlan(canvas, selectedEntity, hiddenEntities)
 
-    const observer = new ResizeObserver(() => drawPlan(canvas, selectedEntity))
+    const observer = new ResizeObserver(() => drawPlan(canvas, selectedEntity, hiddenEntities))
     observer.observe(canvas)
     return () => observer.disconnect()
-  }, [selectedEntity])
+  }, [selectedEntity, hiddenEntities])
 
   return <canvas className="inset__canvas" ref={canvasRef} />
 }

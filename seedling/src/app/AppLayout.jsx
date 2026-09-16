@@ -1,6 +1,8 @@
+import TutorDrawer from '../tutor/Tutor.jsx'
 import { useCallback } from 'react'
 import { Outlet } from 'react-router-dom'
 import ControlStrip from '../components/ControlStrip.jsx'
+import EntityPanel from '../components/EntityPanel.jsx'
 import InsetCard from '../components/InsetCard.jsx'
 import OutlineRail from '../components/OutlineRail.jsx'
 import { useShellKeys } from '../hooks/useKeyboardShortcuts.js'
@@ -41,8 +43,9 @@ export default function AppLayout() {
         <Outlet />
       </div>
       <InsetCard />
+      <EntityPanel />
       <ControlStrip />
-      {/* TutorDrawer goes here in Phase 5. */}
+      <TutorDrawer />
     </div>
   )
 }

@@ -4,6 +4,7 @@ import { useSceneStore } from '../store/sceneStore.js'
 import CompareToggle from './CompareToggle.jsx'
 import SimulationControls from './SimulationControls.jsx'
 import TerrainLegend from './TerrainLegend.jsx'
+import ViewportToolbar from './ViewportToolbar.jsx'
 import './ControlStrip.css'
 
 // §5 Long enough for the label to pulse --summit once and settle.
@@ -113,14 +114,15 @@ export default function ControlStrip() {
   const compare = useSceneStore((state) => state.compare)
 
   const demoParams = getDemoParams(demoKey)
-  const visible = unlocked.filter((key) => demoParams[key])
+  const visible = unlocked.filter((key) => demoParams[key] && !demoParams[key].hideFromStrip)
   const pulsingKeys = useJustUnlocked(visible)
-
-  if (visible.length === 0 && !compare && demoKey !== 'simulation-terrain') return null
+  const hasDemoControls = visible.length > 0 || Boolean(compare) || demoKey === 'simulation-terrain'
 
   return (
     <div className="control-strip">
       <div className="control-strip__panel" role="group" aria-label="Scene controls">
+        <ViewportToolbar />
+        {hasDemoControls && <div className="control-strip__divider" aria-hidden="true" />}
         {compare && <CompareToggle />}
         {demoKey === 'simulation-terrain' && <SimulationControls />}
         {['noise-terrain', 'simulation-terrain'].includes(demoKey) && <TerrainLegend simulation={demoKey === 'simulation-terrain'} />}

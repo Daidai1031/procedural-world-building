@@ -9,7 +9,7 @@ const CONE_YELLOW = readToken('--summit')
 const TORUS_GREEN = readToken('--moss')
 const GROUND = readToken('--paper-2')
 const GRID_LINE = readToken('--line')
-const GRID_SECTION = readToken('--ink-faint')
+const GRID_SECTION = readToken('--studio-grid-section')
 const SKY_BOUNCE = readToken('--studio-bounce-down')
 const GROUND_BOUNCE = readToken('--studio-bounce-up')
 
@@ -117,7 +117,7 @@ function SceneGround() {
         cellThickness={0.6}
         cellColor={GRID_LINE}
         sectionSize={2.5}
-        sectionThickness={1.2}
+        sectionThickness={0.9}
         sectionColor={GRID_SECTION}
         fadeDistance={35}
         fadeStrength={1}

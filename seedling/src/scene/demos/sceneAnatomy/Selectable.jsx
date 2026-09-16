@@ -5,7 +5,10 @@ const SELECTED_SCALE = 1.08
 
 export default function Selectable({ id, children }) {
   const isSelected = useSceneStore((state) => state.params.selectedEntity === id)
+  const isHidden = useSceneStore((state) => state.hiddenEntities.includes(id))
   const setParam = useSceneStore((state) => state.setParam)
+
+  if (isHidden) return null
 
   // Apply scale to the mesh itself: scaling a parent group would also move it.
   return cloneElement(children, {
