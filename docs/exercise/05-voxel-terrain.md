@@ -54,9 +54,9 @@ Two common voxel representations are:
 
 For this exercise, a convenient convention is:
 
-- field value (d(p) < 0): point (p) is inside the solid;
-- field value (d(p) > 0): point (p) is outside the solid;
-- field value (d(p) = 0): the surface.
+- field value `d(p) < 0`: point `p` is inside the solid;
+- field value `d(p) > 0`: point `p` is outside the solid;
+- field value `d(p) = 0`: the surface.
 
 The **isovalue** does not have to be zero, but every density shape, CSG formula,
 and meshing step must use the same convention.
@@ -70,17 +70,17 @@ exact distance everywhere.
 ## 2. Resolution
 
 **Voxel resolution** is the number of samples used along the X, Y, and Z axes.
-For a cubic grid with resolution (N):
+For a cubic grid with resolution `N`:
 
-- stored samples grow as (N^3);
-- Marching Cubes evaluates ((N - 1)^3) cells;
-- cell size is approximately (	ext{world size} / (N - 1)).
+- stored samples grow as `N³`;
+- Marching Cubes evaluates `(N - 1)³` cells;
+- cell size is approximately `world size / (N - 1)`.
 
 | Resolution | Samples | Marching Cubes cells | Practical effect |
 | ---: | ---: | ---: | --- |
-| (16^3) | 4,096 | 3,375 | fast, coarse silhouette |
-| (32^3) | 32,768 | 29,791 | more detail at roughly 8× the samples |
-| (64^3) | 262,144 | 250,047 | smoother detail, much higher memory and meshing cost |
+| `16³` | 4,096 | 3,375 | fast, coarse silhouette |
+| `32³` | 32,768 | 29,791 | more detail at roughly 8× the samples |
+| `64³` | 262,144 | 250,047 | smoother detail, much higher memory and meshing cost |
 
 Halving the voxel size along every axis produces about eight times as many
 samples. Therefore, a visually small increase in detail can create a large CPU,
@@ -95,21 +95,21 @@ density cannot recover detail that was never sampled in the voxel field.
 A scalar field can describe terrain that a height field cannot: caves,
 overhangs, floating islands, enclosed rooms, and a fully volumetric planet.
 
-Let (p = (x,y,z)). The following fields are starting points; their signs may
+Let `p = (x, y, z)`. The following fields are starting points; their signs may
 need to be inverted to match the chosen inside/outside convention.
 
 | Shape | Example field term | Produces |
 | --- | --- | --- |
-| Ground plane | (h(x,z) - y) | heightfield-like terrain |
-| 3D fBm | (operatorname{fbm3d}(p)) | blobby, sponge-like mass |
-| Ridged 3D | (1 - |operatorname{fbm3d}(p)|) | sheets and walls |
+| Ground plane | `h(x, z) - y` | heightfield-like terrain |
+| 3D fBm | `fbm3d(p)` | blobby, sponge-like mass |
+| Ridged 3D | `1 - abs(fbm3d(p))` | sheets and walls |
 | Terraced | quantize or smooth-step the vertical term | mesas and stepped cliffs |
-| Floating islands | (operatorname{fbm3d}(p) - operatorname{falloff}(y)) | separated sky islands |
-| Planet | (r + h(operatorname{normalize}(p)) - |p|) | a spherical, diggable world |
-| Strata | ground term plus (sin(y k + operatorname{fbm2d}(x,z))) | layered sedimentary bands |
+| Floating islands | `fbm3d(p) - falloff(y)` | separated sky islands |
+| Planet | `r + h(normalize(p)) - length(p)` | a spherical, diggable world |
+| Strata | `ground + sin(y * k + fbm2d(x, z))` | layered sedimentary bands |
 
-The slide's ground expression (h(x,z)-y) is positive below the terrain. If the
-implementation uses “negative = inside,” use (y-h(x,z)), or invert the final
+The slide's ground expression `h(x, z) - y` is positive below the terrain. If the
+implementation uses “negative = inside,” use `y - h(x, z)`,  or invert the final
 field. The important rule is consistency, not which sign convention is chosen.
 
 ### Cave-generation options
@@ -121,7 +121,7 @@ field. The important rule is consistency, not which sign convention is chosen.
 | Worms | intentional winding tunnels | no | path growth and cross-chunk lookup; control length, radius, and direction |
 | 3D cellular automata | organic connected pockets | no | repeated updates across up to 26 neighbors; less direct artistic control |
 
-“Directly evaluable” means that the field value at (p) can be computed from a
+“Directly evaluable” means that the field value at `p` can be computed from a
 formula without first simulating or storing a path/history.
 
 ## 4. CSG — Constructive Solid Geometry
@@ -131,11 +131,11 @@ simpler fields. With the “negative = inside” SDF convention:
 
 | Operation | Formula | Use |
 | --- | --- | --- |
-| Union | (min(a,b)) | add a rock or join two volumes |
-| Intersection | (max(a,b)) | keep only the overlapping region |
-| Subtraction | (max(a,-b)) | carve a tunnel, room, or crater from (a) |
-| Smooth union | (operatorname{smin}(a,b,k)) | make an organic join without a hard crease |
-| Shell | (|a|-	ext{thickness}) | create hollow objects or walls |
+| Union | `min(a, b)` | add a rock or join two volumes |
+| Intersection | `max(a, b)` | keep only the overlapping region |
+| Subtraction | `max(a, -b)` | carve a tunnel, room, or crater from `a` |
+| Smooth union | `smin(a, b, k)` | make an organic join without a hard crease |
+| Shell | `abs(a) - thickness` | create hollow objects or walls |
 
 CSG operations are **sequential**, so order matters. A possible experiment is:
 
@@ -172,7 +172,7 @@ Marching Cubes examines each grid cell formed by eight neighboring samples.
 5. Connect the interpolated vertices into triangles.
 6. Compute or estimate normals, preferably from the field gradient.
 
-Because eight corners yield (2^8 = 256) configurations, the algorithm uses a
+Because eight corners yield `2⁸ = 256` configurations, the algorithm uses a
 case table. Interpolation places vertices between voxel samples, producing a
 smoother surface than rendering one cube per occupied voxel.
 
