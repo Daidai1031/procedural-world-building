@@ -32,7 +32,7 @@ This project will explore how procedural systems can be used to create interacti
 <summary>View weekly details</summary>
 
 - **Progress:** Built an interactive React Three Fiber practice scene with geometry, materials, lighting, shadows, a world grid, and orbit camera controls. Added a reusable learning UI that connects DOM entity selection with the 3D scene, then documented both the prerequisite concepts and hands-on observations.
-- **Key files:** `seedling/src/App.jsx`, `seedling/src/App.css`, `seedling/src/index.css`, `docs/tutorials/react-basics.md`, `docs/tutorials/threejs-react-scene.md`, `docs/exercise/01-r3f-baseline-scene.md`, `docs/exercise/02-scene-learning-ui.md`
+- **Key files:** `worldbuilding-guidebook/src/App.jsx`, `worldbuilding-guidebook/src/App.css`, `worldbuilding-guidebook/src/index.css`, `docs/tutorials/react-basics.md`, `docs/tutorials/threejs-react-scene.md`, `docs/exercise/01-r3f-baseline-scene.md`, `docs/exercise/02-scene-learning-ui.md`
 - **Keywords:** React, JSX, CSS, Three.js, React Three Fiber, Drei, geometry, materials, lighting, shadows, camera, OrbitControls, DOM overlay, shared state, reusable UI
 
 </details>
@@ -43,7 +43,7 @@ This project will explore how procedural systems can be used to create interacti
 <summary>View weekly details</summary>
 
 - **Progress:** Built a function-based procedural map pipeline (grid → noise stack → 2D map → height field → 3D terrain) with White, Value, Perlin, and Cellular/Worley noise, plus adjustable frequency, octaves, persistence, and shaping controls, where the 2D map and 3D mesh read the same sampled values. Extended this into a simulation-driven map: a simplified hydraulic-erosion simulation that stores height, water, and sediment per cell, updates through double-buffered grids so every cell shares one definition of a timestep, and exposes Start/Pause/Step/Reset controls, a height-based material, and a wireframe toggle. Calibrated simulation resolution, terrain mesh resolution, world size, and height amplitude together to produce believable topography.
-- **Key files:** `seedling/src/lessons/NoiseTerrainLesson.jsx`, `seedling/src/lessons/proceduralMaps/noiseMath.js`, `seedling/src/lessons/proceduralMaps/NoiseMapPreview.jsx`, `seedling/src/lessons/proceduralMaps/TerrainPreview.jsx`, `seedling/src/lessons/proceduralMaps/simulationMath.js`, `seedling/src/lessons/proceduralMaps/SimulationMapPreview.jsx`, `seedling/src/lessons/proceduralMaps/SimulationTerrainPreview.jsx`, `docs/exercise/03-interactive-terrain-playground.md`, `docs/exercise/04-simulation-driven-maps.md`
+- **Key files:** `worldbuilding-guidebook/src/lessons/NoiseTerrainLesson.jsx`, `worldbuilding-guidebook/src/lessons/proceduralMaps/noiseMath.js`, `worldbuilding-guidebook/src/lessons/proceduralMaps/NoiseMapPreview.jsx`, `worldbuilding-guidebook/src/lessons/proceduralMaps/TerrainPreview.jsx`, `worldbuilding-guidebook/src/lessons/proceduralMaps/simulationMath.js`, `worldbuilding-guidebook/src/lessons/proceduralMaps/SimulationMapPreview.jsx`, `worldbuilding-guidebook/src/lessons/proceduralMaps/SimulationTerrainPreview.jsx`, `docs/exercise/03-interactive-terrain-playground.md`, `docs/exercise/04-simulation-driven-maps.md`
 - **Keywords:** procedural maps, noise functions, Perlin noise, Worley/cellular noise, octave stack, height field, vertex displacement, hydraulic erosion simulation, double-buffered grid state, calibration, wireframe toggle
 
 </details>
