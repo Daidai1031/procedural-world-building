@@ -1,8 +1,8 @@
 # Exercise 02 — Scene Learning UI
 
 **Date:** 2026-09-02  
-**Project:** [`seedling`](../../seedling/)  
-**Implementation:** [`src/App.jsx`](../../seedling/src/App.jsx), [`src/App.css`](../../seedling/src/App.css)  
+**Project:** [`worldbuilding-guidebook`](../../worldbuilding-guidebook/)  
+**Implementation:** [`src/App.jsx`](../../worldbuilding-guidebook/src/App.jsx), [`src/App.css`](../../worldbuilding-guidebook/src/App.css)  
 **Status:** Complete
 
 ## Exercise goal

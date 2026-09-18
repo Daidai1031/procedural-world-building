@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-17  
 **Course section:** Lesson 3 — Voxels  
-**Project:** [`seedling`](../../seedling/)  
+**Project:** [`worldbuilding-guidebook`](../../worldbuilding-guidebook/)  
 **Main implementation:** Not started  
 **Status:** Planned
 

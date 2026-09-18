@@ -13,7 +13,7 @@ Machinery only: the three throwaway tasks live in `tests/fixtures/phase4a.jsx`. 
 - `fill` uses the Phase 3 extractor and Shiki `CodeBlock`, replacing answer spans with accessible controls. Whitespace normalization uses JavaScript tokens so whitespace inside strings remains significant. Malformed input is an incorrect answer, not a render error.
 - `implement` runs learner and extracted course source on identical cases. Visual results are three 2D canvases. Three failures make the reference-reveal button available; the code remains hidden until chosen.
 - CodeMirror uses `codeTheme.js` and the existing CSS tokens. Read-only and editable code use the same 16px data font and line height.
-- `seedling.progress.v2` stores attempts, failures, pass state and current work. Tutor buttons contain context objects and remain disabled. Navigation is independent of practice.
+- `worldbuilding-guidebook.progress.v2` stores attempts, failures, pass state and current work. Tutor buttons contain context objects and remain disabled. Navigation is independent of practice.
 
 ## Added noise exports
 
