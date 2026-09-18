@@ -2,8 +2,8 @@
 
 **Date:** 2026-09-09  
 **Course section:** Lesson 2.2 — Simulation  
-**Project:** [`seedling`](../../seedling/)  
-**Main implementation:** [`src/lessons/proceduralMaps/simulationMath.js`](../../seedling/src/lessons/proceduralMaps/simulationMath.js)  
+**Project:** [`worldbuilding-guidebook`](../../worldbuilding-guidebook/)  
+**Main implementation:** [`src/lessons/proceduralMaps/simulationMath.js`](../../worldbuilding-guidebook/src/lessons/proceduralMaps/simulationMath.js)  
 **Status:** Complete
 
 ## Exercise goal
@@ -16,10 +16,10 @@ topography together.
 
 | File | Why it matters in this exercise |
 | --- | --- |
-| [`src/lessons/proceduralMaps/simulationMath.js`](../../seedling/src/lessons/proceduralMaps/simulationMath.js) | State creation, erosion step, bilinear grid sampling, and statistics |
-| [`src/lessons/proceduralMaps/SimulationMapPreview.jsx`](../../seedling/src/lessons/proceduralMaps/SimulationMapPreview.jsx) | 2D state view of height and water |
-| [`src/lessons/proceduralMaps/SimulationTerrainPreview.jsx`](../../seedling/src/lessons/proceduralMaps/SimulationTerrainPreview.jsx) | 3D height field and height-based material |
-| [`src/lessons/NoiseTerrainLesson.jsx`](../../seedling/src/lessons/NoiseTerrainLesson.jsx) | React state, timer, controls, wireframe shortcut, and concept explanations |
+| [`src/lessons/proceduralMaps/simulationMath.js`](../../worldbuilding-guidebook/src/lessons/proceduralMaps/simulationMath.js) | State creation, erosion step, bilinear grid sampling, and statistics |
+| [`src/lessons/proceduralMaps/SimulationMapPreview.jsx`](../../worldbuilding-guidebook/src/lessons/proceduralMaps/SimulationMapPreview.jsx) | 2D state view of height and water |
+| [`src/lessons/proceduralMaps/SimulationTerrainPreview.jsx`](../../worldbuilding-guidebook/src/lessons/proceduralMaps/SimulationTerrainPreview.jsx) | 3D height field and height-based material |
+| [`src/lessons/NoiseTerrainLesson.jsx`](../../worldbuilding-guidebook/src/lessons/NoiseTerrainLesson.jsx) | React state, timer, controls, wireframe shortcut, and concept explanations |
 
 ## Required
 

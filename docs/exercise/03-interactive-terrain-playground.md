@@ -2,8 +2,8 @@
 
 **Date:** 2026-09-09  
 **Course section:** Lesson 2.1 — Functions  
-**Project:** [`seedling`](../../seedling/)  
-**Main implementation:** [`src/lessons/NoiseTerrainLesson.jsx`](../../seedling/src/lessons/NoiseTerrainLesson.jsx)  
+**Project:** [`worldbuilding-guidebook`](../../worldbuilding-guidebook/)  
+**Main implementation:** [`src/lessons/NoiseTerrainLesson.jsx`](../../worldbuilding-guidebook/src/lessons/NoiseTerrainLesson.jsx)  
 **Status:** In progress
 
 ## Exercise goal
@@ -20,11 +20,11 @@ grid → positions → noise stack → 2D map → height field → 3D terrain
 
 | File | Why it matters in this exercise |
 | --- | --- |
-| [`src/lessons/NoiseTerrainLesson.jsx`](../../seedling/src/lessons/NoiseTerrainLesson.jsx) | React state, noise/terrain controls, and the linked 2D/3D previews |
-| [`src/lessons/proceduralMaps/noiseMath.js`](../../seedling/src/lessons/proceduralMaps/noiseMath.js) | Repeatable hash, white/value/Perlin/cellular noise, and the octave stack |
-| [`src/lessons/proceduralMaps/NoiseMapPreview.jsx`](../../seedling/src/lessons/proceduralMaps/NoiseMapPreview.jsx) | Draws the sampled values as a 2D grayscale map |
-| [`src/lessons/proceduralMaps/TerrainPreview.jsx`](../../seedling/src/lessons/proceduralMaps/TerrainPreview.jsx) | Displaces mesh vertices to show the same map as 3D terrain |
-| [`src/lessons/index.js`](../../seedling/src/lessons/index.js) | Registers this lesson as `02 — Creating Procedural Maps` in the navigation |
+| [`src/lessons/NoiseTerrainLesson.jsx`](../../worldbuilding-guidebook/src/lessons/NoiseTerrainLesson.jsx) | React state, noise/terrain controls, and the linked 2D/3D previews |
+| [`src/lessons/proceduralMaps/noiseMath.js`](../../worldbuilding-guidebook/src/lessons/proceduralMaps/noiseMath.js) | Repeatable hash, white/value/Perlin/cellular noise, and the octave stack |
+| [`src/lessons/proceduralMaps/NoiseMapPreview.jsx`](../../worldbuilding-guidebook/src/lessons/proceduralMaps/NoiseMapPreview.jsx) | Draws the sampled values as a 2D grayscale map |
+| [`src/lessons/proceduralMaps/TerrainPreview.jsx`](../../worldbuilding-guidebook/src/lessons/proceduralMaps/TerrainPreview.jsx) | Displaces mesh vertices to show the same map as 3D terrain |
+| [`src/lessons/index.js`](../../worldbuilding-guidebook/src/lessons/index.js) | Registers this lesson as `02 — Creating Procedural Maps` in the navigation |
 
 ## Required
 
