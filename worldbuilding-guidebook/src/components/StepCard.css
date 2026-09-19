@@ -12,7 +12,9 @@
   max-width: var(--card-available-width);
   border: var(--hairline) solid var(--line);
   border-radius: var(--radius-lg);
-  background: var(--float-surface);
+  /* A little of the shared canvas remains visible without compromising the
+     reading surface. This is intentionally local to the main step panel. */
+  background: rgb(255 255 255 / 90%);
   box-shadow: var(--shadow-float);
   backdrop-filter: var(--float-blur);
 }
@@ -310,7 +312,7 @@
   padding: var(--space-2) 0;
   border: var(--hairline) solid var(--line);
   border-radius: var(--radius-lg);
-  background: var(--float-surface);
+  background: rgb(255 255 255 / 90%);
   box-shadow: var(--shadow-float);
   backdrop-filter: var(--float-blur);
 }
