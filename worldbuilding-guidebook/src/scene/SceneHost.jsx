@@ -1,6 +1,7 @@
 import { OrbitControls, OrthographicCamera } from '@react-three/drei'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useLayoutEffect, useRef } from 'react'
+import { MOUSE } from 'three'
 import { useSceneStore } from '../store/sceneStore.js'
 import { demoRegistry } from './demoRegistry.js'
 import { getInset } from './insetRegistry.js'
@@ -142,6 +143,7 @@ export default function SceneHost() {
             maxDistance={40}
             maxPolarAngle={Math.PI / 2.05}
             target={DEFAULT_TARGET}
+            mouseButtons={{ LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.PAN, RIGHT: MOUSE.PAN }}
           />
           {/* #endregion */}
           <ProjectionRig />
