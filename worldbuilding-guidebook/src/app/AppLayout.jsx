@@ -5,6 +5,8 @@ import ControlStrip from '../components/ControlStrip.jsx'
 import EntityPanel from '../components/EntityPanel.jsx'
 import InsetCard from '../components/InsetCard.jsx'
 import OutlineRail from '../components/OutlineRail.jsx'
+import SceneLegend from '../components/SceneLegend.jsx'
+import TerrainLegend from '../components/TerrainLegend.jsx'
 import { useShellKeys } from '../hooks/useKeyboardShortcuts.js'
 import SceneHost from '../scene/SceneHost.jsx'
 import { useSceneStore } from '../store/sceneStore.js'
@@ -44,6 +46,8 @@ export default function AppLayout() {
       </div>
       <InsetCard />
       <EntityPanel />
+      <SceneLegend />
+      <TerrainLegend />
       <ControlStrip />
       <TutorDrawer />
     </div>

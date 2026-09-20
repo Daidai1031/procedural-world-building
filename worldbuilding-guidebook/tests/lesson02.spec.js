@@ -3,18 +3,64 @@ import { mkdir } from 'node:fs/promises'
 
 const lessonUrl = '/lesson/procedural-maps/'
 
-test('wide cards and pinned outlines leave simulation controls reachable at 1024 pixels', async ({ page }) => {
+test('scene controls start screen-centred and move from their drag handle', async ({ page }) => {
   await page.setViewportSize({ width: 1024, height: 900 })
+  await page.goto(`${lessonUrl}position-function-value`)
+  const strip = page.locator('.control-strip')
+  const initialBounds = await strip.boundingBox()
+  expect(initialBounds.x + initialBounds.width / 2).toBeCloseTo(512, 0)
+
+  const handle = page.getByRole('button', { name: 'Move scene controls' })
+  const handleBounds = await handle.boundingBox()
+  await page.mouse.move(handleBounds.x + handleBounds.width / 2, handleBounds.y + handleBounds.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(handleBounds.x + handleBounds.width / 2 + 70, handleBounds.y + handleBounds.height / 2 - 80, { steps: 5 })
+  await page.mouse.up()
+  const draggedBounds = await strip.boundingBox()
+  expect(draggedBounds.y).toBeLessThan(initialBounds.y)
+
+  await handle.focus()
+  await page.keyboard.press('Home')
+  const resetBounds = await strip.boundingBox()
+  expect(resetBounds.x + resetBounds.width / 2).toBeCloseTo(512, 0)
+})
+
+test('calibration controls use a vertically centred two-by-two layout', async ({ page }) => {
   await page.goto(`${lessonUrl}calibrate-the-scales`)
-  await page.getByRole('separator', { name: 'Card width' }).focus()
-  await page.keyboard.press('End')
-  await page.getByRole('button', { name: 'Keep the outline open' }).click()
-  const card = await page.locator('.step-card').boundingBox()
-  const strip = await page.locator('.control-strip__panel').boundingBox()
-  expect(strip.x).toBeGreaterThanOrEqual(card.x + card.width)
-  expect(strip.width).toBeGreaterThanOrEqual(160)
-  await page.locator('.step-card__nav a[rel="next"]').click()
-  await expect(page.locator('.step-card__title')).toHaveText('Read the evolved landscape')
+  const strip = page.locator('.control-strip')
+  await expect(strip).toHaveAttribute('data-layout', 'calibration')
+  await expect(strip.getByRole('group', { name: 'Terrain elevation colours' })).toHaveCount(0)
+
+  const parameterGroup = strip.getByRole('group', { name: 'Scene parameters' })
+  const controls = await Promise.all([
+    'Simulation resolution',
+    'World size',
+    'Mesh resolution',
+    'Height amplitude',
+  ].map((label) => parameterGroup.getByLabel(label, { exact: true }).boundingBox()))
+
+  expect(controls[0].y).toBeCloseTo(controls[1].y, 0)
+  expect(controls[2].y).toBeCloseTo(controls[3].y, 0)
+  expect(controls[2].y).toBeGreaterThan(controls[0].y)
+  expect(controls[0].x).toBeCloseTo(controls[2].x, 0)
+  expect(controls[1].x).toBeCloseTo(controls[3].x, 0)
+
+  const panelBounds = await strip.locator('.control-strip__panel').boundingBox()
+  const viewportBounds = await strip.getByRole('group', { name: 'Viewport' }).boundingBox()
+  expect(viewportBounds.y + viewportBounds.height / 2).toBeCloseTo(panelBounds.y + panelBounds.height / 2, 0)
+
+  const legend = page.getByRole('group', { name: 'Terrain elevation colours' })
+  await expect(legend).toBeVisible()
+  await expect(legend.getByText('Low', { exact: true })).toBeVisible()
+  await expect(legend.getByText('Mid', { exact: true })).toBeVisible()
+  await expect(legend.getByText('High', { exact: true })).toBeVisible()
+  await expect(legend.getByText('Water', { exact: true })).toBeVisible()
+  await expect(legend.getByRole('img', { name: /Elevation from low terrain/ })).toHaveCSS('background-image', /linear-gradient/)
+
+  const insetBounds = await page.locator('.inset[data-slot="corner"]').boundingBox()
+  const legendBounds = await legend.boundingBox()
+  expect(legendBounds.x).toBeCloseTo(insetBounds.x, 0)
+  expect(legendBounds.y).toBeGreaterThan(insetBounds.y + insetBounds.height)
 })
 
 test('all 24 actual steps render and navigate across chapters without replacing the canvas', async ({ page }) => {

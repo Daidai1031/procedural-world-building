@@ -3,30 +3,87 @@
 
 .control-strip {
   position: fixed;
-  right: 0;
   bottom: var(--space-5);
-  left: calc(var(--rail-width) + min(var(--layout-card-width, var(--card-default-width)), var(--card-available-width)) + var(--space-5));
+  left: 50%;
   z-index: var(--z-strip);
   display: flex;
-  justify-content: center;
-  padding: 0 var(--space-5);
-  pointer-events: none;
-}
-
-.control-strip__panel {
-  display: flex;
-  gap: var(--space-5);
-  max-width: 100%;
-  padding: var(--space-3) var(--space-5);
-  overflow-x: auto;
+  max-width: calc(100vw - var(--space-7));
+  overflow: hidden;
   border: var(--hairline) solid var(--line);
   border-radius: var(--radius-lg);
   background: var(--float-surface);
   box-shadow: var(--shadow-float);
   backdrop-filter: var(--float-blur);
+  transform: translateX(-50%);
   pointer-events: auto;
+}
+
+.control-strip[data-positioned='true'] {
+  bottom: auto;
+  transform: none;
+}
+
+.control-strip__drag-handle {
+  display: grid;
+  width: var(--space-7);
+  min-width: var(--space-7);
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-right: var(--hairline) solid var(--line);
+  background: transparent;
+  color: var(--ink-faint);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.control-strip__drag-handle svg {
+  width: var(--space-3);
+  height: calc(var(--space-4) + var(--marker-width));
+  fill: currentcolor;
+}
+
+.control-strip[data-dragging='true'] .control-strip__drag-handle {
+  color: var(--ink);
+  cursor: grabbing;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .control-strip__drag-handle:hover {
+    background: var(--paper-3);
+    color: var(--ink);
+  }
+}
+
+.control-strip__panel {
+  display: flex;
+  min-width: 0;
+  gap: var(--space-5);
+  max-width: 100%;
+  padding: var(--space-3) var(--space-5);
+  overflow-x: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--line) transparent;
+}
+
+.control-strip__parameters {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+/* This step exposes two simulation-scale controls and two display-scale
+   controls together. Keep each pair on one row so the strip stays compact. */
+.control-strip[data-layout='calibration'] .control-strip__panel {
+  align-items: center;
+}
+
+.control-strip[data-layout='calibration'] .control-strip__parameters {
+  display: grid;
+  grid-template-columns: repeat(2, var(--control-width));
+  gap: var(--space-3) var(--space-5);
 }
 
 /* ---- one control ------------------------------------------------------ */
@@ -213,12 +270,3 @@
 .simulation-controls__measurements dd { margin: 0; font-family: var(--font-data); font-variant-numeric: tabular-nums; }
 .control--boolean { min-width: auto; align-content: center; }
 .control--boolean input { accent-color: var(--ink); }
-
-.terrain-legend { display: grid; align-content: center; gap: var(--space-2); }
-.terrain-legend div, .terrain-legend div > span { display: flex; align-items: center; gap: var(--space-1); }
-.terrain-legend div { gap: var(--space-3); font-size: var(--text-xs); white-space: nowrap; }
-.terrain-legend i { width: var(--space-3); height: var(--space-3); border-radius: var(--radius-sm); }
-.terrain-legend__low { background: var(--water); }
-.terrain-legend__middle { background: var(--moss); }
-.terrain-legend__high { background: var(--summit); }
-.terrain-legend__water { background: var(--erosion-water); }
