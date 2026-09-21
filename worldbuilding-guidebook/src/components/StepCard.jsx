@@ -1,11 +1,13 @@
 import { TutorForm, TutorAccessNote } from '../tutor/Tutor.jsx'
 import { stepContext } from '../tutor/stepContext.js'
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Practice from '../practice/Practice.jsx'
 import EditableCode from '../practice/EditableCode.jsx'
 import CodeBlock from './CodeBlock.jsx'
+import StepNote, { STEP_NOTE_ID } from './StepNote.jsx'
 import snippets from '../generated/snippets.json'
+import { useProgressStore } from '../store/progressStore.js'
 import { CARD_MAX_WIDTH, CARD_MIN_WIDTH, useUiStore } from '../store/uiStore.js'
 import './StepCard.css'
 
@@ -18,6 +20,18 @@ function stepPath(step) {
 
 function padOrdinal(value) {
   return String(value).padStart(2, '0')
+}
+
+// A sticky note: a page with a folded corner and two lines of writing.
+function NoteIcon() {
+  return (
+    <svg className="note-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M3.5 2.5h9a1 1 0 0 1 1 1V10l-3.5 3.5H3.5a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1z" />
+      <path d="M13.5 10H11a1 1 0 0 0-1 1v2.5" />
+      <path d="M5.5 6h5" />
+      <path d="M5.5 8.5h3" />
+    </svg>
+  )
 }
 
 function Chevron({ direction }) {
@@ -142,6 +156,25 @@ export default function StepCard({ step, previousStep, nextStep }) {
   const cardWidth = useUiStore((state) => state.cardWidth)
   const cardCollapsed = useUiStore((state) => state.cardCollapsed)
   const toggleCardCollapsed = useUiStore((state) => state.toggleCardCollapsed)
+  const hasNote = useProgressStore((state) => Boolean(state.notes[step.id]))
+  // Keyed by step, so a note left open on one step is closed on the next.
+  const [editingStepId, setEditingStepId] = useState(null)
+  const noteButtonRef = useRef(null)
+  const isEditingNote = editingStepId === step.id
+  const [closedNoteCount, setClosedNoteCount] = useState(0)
+
+  function closeNote() {
+    setEditingStepId(null)
+    setClosedNoteCount((count) => count + 1)
+  }
+
+  // The note is at the foot of the card and the button is at the top. When the
+  // editor closes, focus goes to the note if one was kept, so the view stays
+  // where the learner was, and to the button if there is none.
+  useEffect(() => {
+    if (closedNoteCount === 0) return
+    ;(document.getElementById(STEP_NOTE_ID) ?? noteButtonRef.current)?.focus()
+  }, [closedNoteCount])
 
   if (cardCollapsed) {
     return (
@@ -188,9 +221,23 @@ export default function StepCard({ step, previousStep, nextStep }) {
             </span>
           </p>
 
-          <h1 id="step-card-title" className="step-card__title">
-            {frontmatter.title}
-          </h1>
+          <div className="step-card__title-row">
+            <h1 id="step-card-title" className="step-card__title">
+              {frontmatter.title}
+            </h1>
+            <button
+              type="button"
+              ref={noteButtonRef}
+              className="step-card__toggle step-card__note-button"
+              aria-label={hasNote ? 'Edit your note' : 'Add a note'}
+              aria-expanded={isEditingNote}
+              aria-controls={STEP_NOTE_ID}
+              data-has-note={hasNote}
+              onClick={() => setEditingStepId(isEditingNote ? null : step.id)}
+            >
+              <NoteIcon />
+            </button>
+          </div>
           <p className="step-card__goal">{frontmatter.goal}</p>
         </header>
 
@@ -202,6 +249,7 @@ export default function StepCard({ step, previousStep, nextStep }) {
         {frontmatter.practice && <Practice stepId={step.id} task={frontmatter.practice} snippet={snippets[`${step.id}:practice`]} />}
         <TutorAccessNote />
         <TutorForm context={stepContext(step)} />
+        <StepNote stepId={step.id} isEditing={isEditingNote} onEdit={() => setEditingStepId(step.id)} onClose={closeNote} />
       </div>
 
       <nav className="step-card__nav" aria-label="Step navigation">

@@ -31,6 +31,13 @@
   --summit-deep: #8a6a00;
   --clay-deep: #a33470;
 
+  /* The learner's own note, a sticky note. One flat, very light yellow, so it
+     reads as theirs and not the course's, and a slightly deeper yellow for its
+     folded corner. The only tinted surfaces in the interface; see the exception
+     in spec/design.md §2. --ink clears 17:1 on the surface, --summit-deep 4.8:1. */
+  --note-surface: #fff8d1;
+  --note-fold: #ecdc8c;
+
   /* Anything that floats over the canvas. A flat alpha is not a gradient, and
      there is no scrim — at 0.94 the ink clears 16:1 over the darkest terrain. */
   --float-surface: rgb(255 255 255 / 94%);

@@ -81,6 +81,13 @@ Rules:
   ramped across the canvas to make prose readable — which was the only reason a scrim
   ever existed.
 - Body text must clear 7:1 against the card background. Check it, do not assume it.
+- **One exception to "never a tint".** The learner's own note, at the foot of a
+  step, is a sticky note: square corners, a folded lower-right corner, and a
+  single flat, very light yellow fill (`--note-surface`, `#FFF8D1`; the fold is
+  `--note-fold`), so it reads as theirs and not the course's. It is a solid fill
+  with no alpha, wash, or gradient, and it is the only tinted, square-cornered
+  surface in the interface. Its text is `--ink`, and its label is `--summit-deep`
+  (4.8:1).
 
 `TerrainPreview.jsx` and the simulation preview read `--water`, `--moss`, and `--summit` through `readToken.js`. Their legend uses those same tokens. The string, number, and comment text colors were darkened in Phase 3 to clear 4.5:1 on solid `--summit` highlight rows as well as `--paper-2`.
 

@@ -13,6 +13,14 @@ export const useProgressStore = create(
       savePractice: (stepId, patch) => set((state) => ({
         practiceResults: { ...state.practiceResults, [stepId]: { ...state.practiceResults[stepId], ...patch } },
       })),
+      // An empty note removes the entry, so a step never holds a blank quote.
+      saveNote: (stepId, text) => set((state) => {
+        const notes = { ...state.notes }
+        const trimmed = text.trim()
+        if (trimmed) notes[stepId] = trimmed
+        else delete notes[stepId]
+        return { notes }
+      }),
       setLastStepId: (stepId) => set({ lastStepId: stepId }),
       markStepComplete: (stepId) => {
         if (get().completedStepIds.includes(stepId)) return

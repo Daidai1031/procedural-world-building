@@ -351,3 +351,259 @@
 .step-card__stub-nav .chevron {
   transform: rotate(90deg);
 }
+
+/* ---- learner's note --------------------------------------------------- */
+
+/* The note button sits right after the title text, not at the far edge, so it reads
+   as part of the title. The title shrinks first if the card is narrow. */
+.step-card__title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-1);
+  max-width: var(--measure);
+  margin-bottom: var(--space-3);
+}
+
+.step-card__title-row .step-card__title {
+  flex: 0 1 auto;
+  margin: 0;
+}
+
+.step-card__note-button {
+  flex: none;
+  margin-top: calc(var(--space-1) * -1);
+}
+
+.step-card__note-button[data-has-note='true'],
+.step-card__note-button[aria-expanded='true'] {
+  color: var(--ink);
+}
+
+.step-card__note-button[aria-expanded='true'] {
+  background: var(--paper-3);
+}
+
+.note-icon {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* A sticky note at the foot of the step: square corners and a flat pale yellow,
+   so it reads as the learner's and never as part of the lesson. Text stays
+   --ink. The corner is folded with two flat triangles, not a gradient. */
+.step-note {
+  position: relative;
+  max-width: var(--measure);
+  margin-top: var(--space-6);
+  padding: var(--space-3) var(--space-4) var(--space-5);
+  border-radius: 0;
+  background: var(--note-surface);
+  color: var(--ink);
+  font-family: var(--font-prose);
+  font-size: var(--text-body);
+  line-height: var(--leading-prose);
+}
+
+.step-note__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--hit-target);
+}
+
+/* The lower-right corner is turned up. The first triangle cuts the corner away
+   and the second is the flap that lies over the note. */
+.step-note::before,
+.step-note::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  pointer-events: none;
+}
+
+.step-note::before {
+  border-width: 0 0 var(--space-4) var(--space-4);
+  border-color: transparent transparent var(--paper) transparent;
+}
+
+.step-note::after {
+  border-width: var(--space-4) var(--space-4) 0 0;
+  border-color: var(--note-fold) transparent transparent transparent;
+}
+
+/* Deeps write: the label is text, so it takes the deep yellow. */
+.step-note__label {
+  margin: 0;
+  color: var(--summit-deep);
+  font-family: var(--font-chrome);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+}
+
+.step-note__menu {
+  position: relative;
+  margin-right: calc(var(--space-2) * -1);
+}
+
+.dots-icon {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  fill: currentcolor;
+}
+
+.step-note__menu-list {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 1;
+  display: grid;
+  min-width: 9rem;
+  padding: var(--space-1);
+  border: var(--hairline) solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+}
+
+.step-note__menu-item {
+  min-height: var(--hit-target);
+  padding: 0 var(--space-3);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--ink);
+  font-family: var(--font-chrome);
+  font-size: var(--text-sm);
+  text-align: left;
+  cursor: pointer;
+}
+
+.step-note__menu-item:hover {
+  background: var(--paper-3);
+}
+
+.step-note__menu-item[data-danger='true'] {
+  color: var(--clay-deep);
+}
+
+.step-note__quote {
+  margin: 0;
+}
+
+.step-note__quote p {
+  margin: 0 0 var(--space-3);
+}
+
+.step-note__quote p:last-child {
+  margin-bottom: 0;
+}
+
+.step-note__quote strong {
+  font-weight: 600;
+}
+
+.step-note__confirm {
+  display: grid;
+  gap: var(--space-2);
+  font-family: var(--font-chrome);
+}
+
+.step-note__confirm p {
+  margin: 0;
+  font-size: var(--text-sm);
+}
+
+.step-note__cancel.step-note__delete {
+  border-color: var(--clay-deep);
+  color: var(--clay-deep);
+}
+
+.step-note--editing {
+  display: grid;
+  gap: var(--space-2);
+  font-family: var(--font-chrome);
+}
+
+.step-note__toolbar {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.step-note__format,
+.step-note__save,
+.step-note__cancel {
+  min-height: var(--hit-target);
+  border: var(--hairline) solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-chrome);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.step-note__format {
+  width: var(--hit-target);
+  padding: 0;
+}
+
+.step-note__format[data-format='bold'] {
+  font-weight: 700;
+}
+
+.step-note__format[data-format='italic'] {
+  font-family: var(--font-prose);
+  font-style: italic;
+}
+
+.step-note__save,
+.step-note__cancel {
+  padding: 0 var(--space-4);
+}
+
+/* A solid fill marks the one action that keeps the note. */
+.step-note__save {
+  border-color: var(--ink);
+  background: var(--summit);
+}
+
+.step-note__format:hover,
+.step-note__cancel:hover {
+  background: var(--paper-3);
+}
+
+/* 16px or more, so a phone does not zoom the page when the field is focused. */
+.step-note__input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 7rem;
+  padding: var(--space-2) var(--space-3);
+  border: var(--hairline) solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-prose);
+  font-size: var(--text-body);
+  line-height: var(--leading-prose);
+  resize: vertical;
+}
+
+.step-note__hint {
+  margin: 0;
+  color: var(--ink-dim);
+  font-size: var(--text-xs);
+}
+
+.step-note__actions {
+  display: flex;
+  gap: var(--space-2);
+}
