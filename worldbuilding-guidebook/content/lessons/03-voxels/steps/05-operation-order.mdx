@@ -1,0 +1,62 @@
+---
+title: Operation order
+goal: Explain why CSG operations run in sequence, and predict how swapping two of them changes the result.
+keywords:
+  - CSG order
+  - sequential operations
+  - subtraction
+  - union
+  - carving
+scene:
+  demo: voxel-csg-order
+  compare:
+    label: Which operation comes first
+    a:
+      params:
+        voxelCsgOrder: room-first
+      caption: Carve, then add
+    b:
+      params:
+        voxelCsgOrder: rock-first
+      caption: Add, then carve
+  legend:
+    title: Three fields, two orders
+    items:
+      - swatch: moss
+        shape: block
+        label: Ground
+        formula: y - height
+        note: The starting field.
+      - swatch: clay
+        shape: grid
+        label: Room
+        note: A sphere, drawn as an outline. It is always carved out.
+      - swatch: summit
+        shape: grid
+        label: Rock
+        note: A second sphere, drawn as an outline. It is always added.
+      - label: Carve the room, then add the rock
+        formula: union(subtract(ground, room), rock)
+        note: The rock comes last, so it can fill part of the hollow again.
+        when:
+          voxelCsgOrder: room-first
+      - label: Add the rock, then carve the room
+        formula: subtract(union(ground, rock), room)
+        note: The room comes last, so it stays empty and takes a bite out of the rock.
+        when:
+          voxelCsgOrder: rock-first
+code:
+  file: src/scene/demos/voxels/voxelMath.js
+  fn: roomThenRockDensity
+  highlight:
+    - 4
+    - 5
+---
+
+CSG is not one operation but a sequence. The result of each operation becomes the input `a` of the next, so the order you write them in is part of the recipe.
+
+Here the same three fields, the ground, a spherical room, and a rock, are combined in two orders. When you **carve the room first and add the rock second**, the rock arrives last and can push back into the hollow, refilling part of it. When you **add the rock first and carve the room second**, the room is carved last, so nothing can refill it, and it takes a bite out of the rock as well.
+
+Switch between the two and watch the hollow. No field changed, only which operation ran first. In the highlighted lines, `withRoom` is the ground with the room already removed, and it becomes the `a` of the union that follows.
+
+Where two edits overlap, the later one wins.

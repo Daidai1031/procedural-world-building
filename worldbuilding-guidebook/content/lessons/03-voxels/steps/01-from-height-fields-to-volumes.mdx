@@ -1,0 +1,84 @@
+---
+title: From height fields to volumes
+goal: Explain why a height field cannot hold a cave, and what a voxel grid stores instead.
+keywords:
+  - height field
+  - voxel
+  - signed distance field
+  - density
+  - overhang
+scene:
+  demo: volume-diagram
+  resetCamera: true
+  compare:
+    label: Height field versus voxel volume
+    a:
+      params:
+        voxelDiagramMode: heightField
+      caption: Height field
+    b:
+      params:
+        voxelDiagramMode: volume
+      caption: Voxel volume
+  legend:
+    title: Reading the diagram
+    items:
+      - swatch: summit
+        shape: dot
+        label: Ground height
+        note: The one number stored for each position on the map.
+        when:
+          voxelDiagramMode: heightField
+      - swatch: moss
+        shape: block
+        label: Solid ground
+        formula: y - height < 0
+        note: Below the ground height the value is negative, so the sample is solid.
+        when:
+          voxelDiagramMode: heightField
+      - label: Air
+        formula: y - height > 0
+        note: Above the ground height the value is positive, so the sample is air.
+        when:
+          voxelDiagramMode: heightField
+      - swatch: moss
+        shape: block
+        label: Solid
+        formula: sdf(p) < 0
+        note: Inside the ground.
+        when:
+          voxelDiagramMode: volume
+      - swatch: ink-faint
+        shape: dot
+        label: Open air
+        formula: sdf(p) > 0
+        note: Outside the ground.
+        when:
+          voxelDiagramMode: volume
+      - swatch: clay
+        shape: dot
+        label: Air under ground
+        formula: sdf(p) > 0
+        note: Empty, with solid ground above it. A height field cannot store this.
+        when:
+          voxelDiagramMode: volume
+      - label: Surface
+        formula: sdf(p) = 0
+        note: Where the sign flips. It is not drawn here; the next steps extract it.
+        when:
+          voxelDiagramMode: volume
+---
+
+Behind this card is a slice through some ground. In the **height field** view, every position on the map stores exactly one number: how high the ground reaches, shown as a yellow dot. Below the dot is solid and above it is air, so a height field can never hold a cave. One height cannot say "solid, then empty, then solid again."
+
+Switch to the voxel view. A **voxel** is a pixel with a third dimension: one sample in a regular grid along x, y, and z. Each sample stores its own **density** value, so the grid can hold a chamber, the hollow under an **overhang**, even blocks floating in the air. The pink dots mark empty samples with ground above them.
+
+The sign of that value follows the negative-inside **signed distance field** (SDF) rule:
+
+- `sdf(p) < 0` is inside the solid.
+- `sdf(p) > 0` is air.
+- `sdf(p) = 0` is the surface.
+
+For the ground, the value is `y - height`. It is negative below the ground and positive above it.
+
+Voxel data is not a picture yet. It only records inside and outside. The next steps turn that boundary into geometry.

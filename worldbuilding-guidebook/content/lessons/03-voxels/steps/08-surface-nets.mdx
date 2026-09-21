@@ -1,0 +1,58 @@
+---
+title: Surface Nets
+goal: Explain how Surface Nets builds a surface from one point per cell, and how its faces differ from Marching Cubes.
+keywords:
+  - Surface Nets
+  - quad
+  - mesh quality
+  - Marching Cubes
+  - Dual Contouring
+scene:
+  demo: voxel-mesh
+  unlock:
+    - voxelShape
+    - voxelResolution
+  compare:
+    label: Marching Cubes versus Surface Nets
+    a:
+      params:
+        voxelMeshMode: surface
+      caption: Marching Cubes
+    b:
+      params:
+        voxelMeshMode: nets
+      caption: Surface Nets
+  legend:
+    title: Two smooth meshes
+    items:
+      - label: Marching Cubes
+        note: One point on every crossed edge, joined into triangles by the table. About one in ten comes out as a thin sliver.
+        when:
+          voxelMeshMode: surface
+      - label: Surface Nets
+        note: One point inside every cell the surface passes through, joined into quads across every crossed edge. Slivers are rare.
+        when:
+          voxelMeshMode: nets
+      - swatch: summit
+        shape: block
+        label: High
+        note: Both views are coloured by height.
+      - swatch: moss
+        shape: block
+        label: Middle
+      - swatch: meadow-deep
+        shape: block
+        label: Low
+code:
+  file: src/scene/demos/voxels/surfaceNets.js
+  fn: averagePoint
+  highlight:
+    - 3
+    - 4
+---
+
+Marching Cubes is one way to mesh a volume, not the only one. **Surface Nets** turns the recipe around. Instead of a point on every crossed edge, it puts one point inside every cell the surface passes through, at the average of that cell's crossing points (the highlighted lines). Then, for every crossed edge, it joins the four cells around that edge into a **quad**.
+
+Switch between the two and turn on Wireframe. Both make about the same number of faces, but the faces have different shapes. Marching Cubes cuts each cell by a table, and about one triangle in ten comes out as a thin sliver. Surface Nets lays its quads out in a regular grid, so its faces are more even and easier to smooth or edit.
+
+The price is accuracy. An averaged point can sit a little off the true surface, and neither method keeps a sharp corner: both round it off. Dual Contouring is built to fix that.

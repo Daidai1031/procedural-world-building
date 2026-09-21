@@ -84,7 +84,10 @@ function Fill({ stepId, task, snippet, result }) {
         <p>{blank.hint}</p>
         <TutorOffer context={{ stepId, task, blank: true, attempt: answers[i] ?? '', selectionSource: `${snippet.file}:${snippet.startLine + blank.line - 1}` }} />
         {revealed[i]
-          ? <p className="practice__answer">Answer: <code>{blank.answer}</code></p>
+          ? <div className="practice__answer">
+            <p>Answer: <code>{blank.answer}</code></p>
+            {blank.explanation && <pre className="practice__explanation">{blank.explanation}</pre>}
+          </div>
           : <button type="button" onClick={() => setRevealed((previous) => ({ ...previous, [i]: true }))}>Show answer</button>}
       </div>)}
       <Result result={result} />

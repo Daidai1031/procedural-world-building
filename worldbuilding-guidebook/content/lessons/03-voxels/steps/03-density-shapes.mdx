@@ -1,0 +1,56 @@
+---
+title: Density shapes
+goal: Explain how the formula behind a density field decides whether the volume becomes ground, caves, or floating islands.
+keywords:
+  - density field
+  - signed distance field
+  - 3D noise
+  - threshold
+  - floating islands
+scene:
+  demo: voxel-terrain
+  unlock:
+    - voxelShape
+    - voxelResolution
+  legend:
+    title: Density shapes
+    items:
+      - label: Solid in every shape
+        formula: sdf(p) < 0
+        note: Each shape below is only a different formula for the same value.
+      - swatch: moss
+        shape: block
+        label: Ground
+        formula: y - height
+        note: One height per position, so a solid sample never has air beneath it.
+        when:
+          voxelShape: ground
+      - swatch: moss
+        shape: block
+        label: Caves
+        formula: max(ground, chamber)
+        note: Where 3D noise is high, chamber is positive, so max lifts the value above zero and carves the solid away.
+        when:
+          voxelShape: caves
+      - swatch: moss
+        shape: block
+        label: Floating islands
+        formula: required - noise3d
+        note: There is no ground. The value is negative only where 3D noise beats a threshold that rises away from mid altitude.
+        when:
+          voxelShape: islands
+code:
+  file: src/scene/demos/voxels/voxelMath.js
+  fn: cavesDensity
+  highlight:
+    - 4
+    - 5
+---
+
+A voxel grid only stores numbers, so the formula that produces those numbers decides what world you get. Every shape here is a different formula for the same `sdf(p)` value.
+
+Choose a shape in the control panel. **Ground** is the height-field rule from Step 01, `y - height`. **Caves** starts from that ground, then uses 3D noise to push the value above zero in scattered pockets, which removes the solid there. **Floating islands** drops the ground completely: the value falls below zero only where the noise is high near a middle altitude, so separate masses hang in the air.
+
+The 3D noise is the layered noise from Lesson 2 with a third coordinate. A height field looks it up once per map position. A density field looks it up at every `(x, y, z)`, so it can vary in all three directions, and that is what makes hollows and overhangs possible.
+
+The highlighted lines are the whole cave recipe: a chamber value from noise, and `max` to subtract it from the ground.

@@ -11,6 +11,12 @@ import { MODEL_ID, VECTOR_DIMENSIONS } from '../src/tutor/model.js'
 export const INDEX_MODEL_ID = MODEL_ID
 const parser = Parser.extend(jsx())
 
+// Demo code that no step shows yet has no lesson to send a learner to, and it
+// takes up room in an index with a size budget. Inside these folders only the
+// functions a step displays through `code.fn` are indexed, so a function joins
+// the index on its own once a step shows it.
+const CODE_INDEXED_ONLY_WHEN_SHOWN = ['src/scene/demos/voxels/']
+
 async function filesUnder(directory, extension) {
   const files = []
   for (const entry of await readdir(directory, { withFileTypes: true })) {
@@ -102,7 +108,9 @@ export async function collectChunks(root) {
           if (ast.body.some((entry) => entry.type === 'FunctionDeclaration' && entry.id.name === specifier.local.name)) names.add(specifier.local.name)
         }
       }
+      const shownOnly = CODE_INDEXED_ONLY_WHEN_SHOWN.some((folder) => relative.startsWith(folder))
       for (const name of names) {
+        if (shownOnly && !codeSteps.has(`${relative}:${name}`)) continue
         const snippet = extractSnippet(source, { file: relative, fn: name }, relative)
         const step = codeSteps.get(`${relative}:${name}`) ?? codeSteps.get(`${relative}:`)
         const publicPath = `sources/code/${relative}`

@@ -1,0 +1,6 @@
+slug: voxels
+number: "03"
+title: Voxels
+summary: Build volumetric terrain with density fields, CSG operations, surface extraction, and chunk-based optimization.
+shape: flat
+estimatedMinutes: 45

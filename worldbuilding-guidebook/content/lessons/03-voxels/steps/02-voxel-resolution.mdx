@@ -1,0 +1,64 @@
+---
+title: Voxel resolution
+goal: Show that resolution sets how much detail the grid can hold, and that the cost of that detail grows cubically.
+keywords:
+  - voxel resolution
+  - sample spacing
+  - cubic growth
+  - sampling
+scene:
+  demo: voxel-terrain
+  resetCamera: true
+  unlock:
+    - voxelResolution
+  compare:
+    label: Coarse grid versus fine grid
+    a:
+      params:
+        voxelResolution: 8
+      caption: 8 samples per side
+    b:
+      params:
+        voxelResolution: 32
+      caption: 32 samples per side
+practice:
+  kind: fill
+  prompt: >-
+    A grid with this many samples along one side has one fewer gap between
+    neighbouring samples. Finish the line that gives the distance between two
+    neighbouring samples, so that every sample lands inside the world.
+  from:
+    file: src/scene/demos/voxels/voxelMath.js
+    fn: sampleSpacing
+  blanks:
+    - line: 3
+      answer: "VOXEL_WORLD_SIZE / (resolution - 1)"
+      options:
+        - "VOXEL_WORLD_SIZE / resolution"
+        - "VOXEL_WORLD_SIZE / (resolution - 1)"
+        - "VOXEL_WORLD_SIZE * resolution"
+      explanation: |-
+        5 samples in a row:
+
+        o---o---o---o---o
+          1   2   3   4     <- 4 gaps
+
+        The world's length is shared
+        between the gaps:
+
+        size / 4         for 5 samples
+        size / (N - 1)   for N samples
+      hint: Draw three dots in a row. The world's length is shared between the gaps, and three dots have two of them. How many gaps do this many dots have?
+---
+
+Each cube here is one voxel sample that sits on the ground surface, coloured by height. **Voxel resolution** is how many samples the grid uses along each of x, y, and z. Raise it and the same terrain is described by smaller cubes, so slopes, ridges, and small bumps appear that the coarse grid simply stepped over.
+
+The size of the world does not change. Only the spacing between samples changes. Samples are like fence posts: three posts in a row have two gaps between them, and it is the gaps that share out the length of the world.
+
+The cost grows in three directions at once. Doubling the resolution makes the cubes half as wide along every axis, so the grid holds about eight times as many samples.
+
+- `16 × 16 × 16` is 4,096 samples.
+- `32 × 32 × 32` is 32,768 samples.
+- `64 × 64 × 64` is 262,144 samples.
+
+Resolution limits the detail the field can hold. Nothing added later can bring back a feature that was never sampled.

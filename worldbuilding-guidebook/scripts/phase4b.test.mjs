@@ -80,7 +80,8 @@ function worstDifference(candidate, reference, cases) {
 
 test('every authored blank accepts its answer, rejects its distractors, and sits where CodeBlock looks for it', async () => {
   const fills = (await authoredSteps()).filter((step) => step.frontmatter.practice?.kind === 'fill')
-  assert.equal(fills.length, 4)
+  // Not a count: the loop below judges every fill that exists. This only stops it passing on nothing.
+  assert.ok(fills.length > 0, 'no fill practice was found, so nothing below was checked')
   for (const { file, frontmatter } of fills) {
     const { from, blanks, prompt } = frontmatter.practice
     // A fill renders nothing but a code block and its controls, so the prompt is
@@ -134,17 +135,19 @@ test('no task reads the fragment its own step displays, and live editing stays o
     const snippet = extractSnippet(await readFile(code.file, 'utf8'), code, file)
     for (const line of code.highlight) assert.ok(snippet.code.split('\n')[line - 1].trim(), `${file}: highlight ${line} is blank`)
   }
-  assert.equal(editable.length, 3)
-  assert.deepEqual(kinds.toSorted(), ['fill', 'fill', 'fill', 'fill', 'implement', 'implement', 'match', 'match'])
+  assert.ok(editable.length > 0, 'no editable code block was found, so nothing above was checked')
+  for (const kind of kinds) assert.ok(['fill', 'implement', 'match'].includes(kind), `unknown practice kind "${kind}"`)
 })
 
 test('match tolerances separate the target from the settings a learner arrives with', async () => {
   const steps = (await authoredSteps()).filter((step) => step.frontmatter.practice?.kind === 'match')
-  assert.equal(steps.length, 2)
+  assert.ok(steps.length > 0, 'no match practice was found, so nothing below was checked')
   const measured = {}
   for (const { file, frontmatter } of steps) {
     const { target, compare, tolerance } = frontmatter.practice
     assert.ok(file.includes('/chapters/1-'), `${file}: match only scores in chapter 1`)
+    // The analysis below is written for these two parameter sets. A task that compares anything else needs its own.
+    assert.ok((compare.length === 1 && compare[0] === 'frequency') || (compare.includes('octaves') && compare.includes('persistence')), `${file}: no tolerance analysis exists for compare [${compare}]`)
     assert.equal(matchDistance(target, target, compare), 0)
     const readings = {}
     const record = (label, settings) => {
@@ -180,11 +183,12 @@ test('match tolerances separate the target from the settings a learner arrives w
 
 test('implement tolerances separate the reference from plausible near misses, and the starter never passes', async () => {
   const steps = (await authoredSteps()).filter((step) => step.frontmatter.practice?.kind === 'implement')
-  assert.equal(steps.length, 2)
+  assert.ok(steps.length > 0, 'no implement practice was found, so nothing below was checked')
   const measured = {}
   for (const { file, frontmatter } of steps) {
     const { reference, cases, tolerance, visual, starter } = frontmatter.practice
     assert.equal(visual, true, `${file}: an implement without a difference map cannot be judged by eye`)
+    assert.ok(['shapeValue', 'fractalNoise'].includes(reference.fn), `${file}: no near-miss variants exist for ${reference.fn}`)
     assert.ok(reference.fn && cases.length >= 4)
     const args = cases.map((entry) => entry.args)
     const original = reference.fn === 'shapeValue' ? shapeValue : fractalNoise

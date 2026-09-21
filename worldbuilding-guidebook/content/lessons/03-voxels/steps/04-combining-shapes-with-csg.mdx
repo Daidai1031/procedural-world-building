@@ -1,0 +1,76 @@
+---
+title: Combining shapes with CSG
+goal: Combine two density fields with union, subtraction, and intersection, and predict each result from the sign rule.
+keywords:
+  - constructive solid geometry
+  - union
+  - subtraction
+  - intersection
+  - sphere field
+scene:
+  demo: voxel-csg
+  unlock:
+    - voxelCsgOperation
+  legend:
+    title: Two fields, one operation
+    items:
+      - swatch: moss
+        shape: block
+        label: Field a
+        formula: y - height
+        note: The ground from Step 03.
+      - swatch: clay
+        shape: grid
+        label: Field b
+        note: A sphere, drawn as an outline. Its value is negative inside it.
+      - label: Union
+        formula: min(a, b)
+        note: Solid if either field is solid. The sphere is added to the ground.
+        when:
+          voxelCsgOperation: union
+      - label: Subtraction
+        formula: max(a, -b)
+        note: Solid in a and outside b. The sphere is carved out of the ground.
+        when:
+          voxelCsgOperation: subtract
+      - label: Intersection
+        formula: max(a, b)
+        note: Solid only where both fields are solid. Only the ground inside the sphere is left.
+        when:
+          voxelCsgOperation: intersect
+code:
+  file: src/scene/demos/voxels/voxelMath.js
+  fn: unionDensity
+  highlight:
+    - 4
+practice:
+  kind: fill
+  prompt: >-
+    Now dig a hole: carve the sphere out of the ground. Finish the line so that a
+    sample is solid only when it is inside the ground and outside the sphere.
+  from:
+    file: src/scene/demos/voxels/voxelMath.js
+    fn: subtractDensity
+  blanks:
+    - line: 3
+      answer: "Math.max(a, -b)"
+      options:
+        - "Math.max(a, b)"
+        - "Math.max(a, -b)"
+        - "Math.min(a, -b)"
+      explanation: |-
+        Solid in a:        a < 0
+        Outside b:         b > 0
+        Flip b:            -b < 0
+
+        Both values must be negative,
+        so the larger of the two must
+        still be negative.
+      hint: Outside the sphere means b is positive, so flip its sign before combining. Then ask which of the two values, the smaller or the larger, has to be negative when both conditions hold.
+---
+
+So far one formula described the whole world. **Constructive solid geometry** (CSG) builds a volume from two simpler ones instead. Here the ground is field `a` and a sphere is field `b`. Every sample gets a value from both, and one small rule combines them.
+
+Because negative means solid, a smaller value is more inside. That keeps the rules short. **Union** keeps the smaller value, so a sample is solid if either field says so. **Intersection** keeps the larger value, so it is solid only when both agree. **Subtraction** flips `b` first, so what was inside the sphere becomes air.
+
+Switch the operation in the control panel. The same two fields give a boulder on the ground, a hollow in it, and a lens of ground trapped inside the sphere. The highlighted line is the whole union rule. Subtraction is one small step longer, and the caves in Step 03 used it too, with the chamber already flipped.

@@ -1,0 +1,88 @@
+---
+title: Reading one cell
+goal: Explain how the corner values of a cell decide where the surface crosses it, and roughly what shape it takes.
+keywords:
+  - cell
+  - isosurface
+  - interpolation
+  - case index
+  - Marching Cubes
+scene:
+  demo: voxel-cell
+  resetCamera: true
+  unlock:
+    - voxelCellCase
+  compare:
+    label: Surface points versus the surface
+    a:
+      params:
+        voxelCellView: points
+      caption: Surface points
+    b:
+      params:
+        voxelCellView: surface
+      caption: With the surface
+  legend:
+    title: One cell, eight corners
+    items:
+      - swatch: moss
+        shape: block
+        label: Inside corner
+        formula: value < 0
+        note: Negative, so this corner counts as solid.
+      - swatch: ink-faint
+        shape: dot
+        label: Outside corner
+        formula: value > 0
+        note: Positive, so this corner is air.
+      - swatch: clay
+        shape: dot
+        label: Surface point
+        note: One on every edge whose two ends disagree. There are none when all eight corners agree.
+      - swatch: summit
+        shape: block
+        label: Surface
+        note: The dots joined into flat triangles, with each triangle outlined. Inside corners lie on one side of it, outside corners on the other.
+        when:
+          voxelCellView: surface
+code:
+  file: src/scene/demos/voxels/voxelMath.js
+  fn: findCrossingPoints
+  highlight:
+    - 4
+practice:
+  kind: fill
+  prompt: >-
+    A surface point sits where the value along an edge reaches zero. Finish the
+    line that says how far along the edge that happens, from 0 at corner A to 1
+    at corner B.
+  from:
+    file: src/scene/demos/voxels/voxelMath.js
+    fn: crossingFraction
+  blanks:
+    - line: 3
+      answer: "valueA / (valueA - valueB)"
+      options:
+        - "0.5"
+        - "valueA / (valueA + valueB)"
+        - "valueA / (valueA - valueB)"
+      explanation: |-
+        An edge from A to B:
+
+        A = -0.2 (inside)
+        B =  0.6 (outside)
+
+        The value rises 0.8 in total.
+        Reaching zero uses 0.2 of that:
+
+        0.2 / 0.8 = 0.25 of the way
+      hint: Treat the whole rise from A to B as one length, then ask what share of it is used up by the time the value reaches zero. Which option compares that distance with the total rise?
+---
+
+Voxel data is only numbers, so the surface has to be found between them. Marching Cubes looks at one **cell** at a time: the small cube between eight neighbouring samples. Each corner is inside (negative) or outside (positive), and the question is how the surface passes through the cell.
+
+If all eight corners agree, the surface misses the cell. If they disagree, it must cross every edge with an inside end and an outside end. That is what the highlighted line keeps. Pick a pattern in the control panel and find the pink dots: they sit on exactly those edges. A dot is not always in the middle. It sits closer to the corner whose value is closer to zero.
+
+Now switch to the surface view. Joining the dots that share a face gives flat pieces of skin, and every pattern gives a different shape.
+
+The number in brackets is the pattern's **case index**, a label the next step uses to look up how to join the dots.

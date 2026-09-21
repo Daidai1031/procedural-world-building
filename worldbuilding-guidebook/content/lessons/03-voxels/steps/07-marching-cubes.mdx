@@ -1,0 +1,58 @@
+---
+title: Marching Cubes
+goal: Explain how running the one-cell rule on every cell of a grid produces a smooth surface, and why it does not leave cracks.
+keywords:
+  - Marching Cubes
+  - lookup table
+  - case index
+  - isosurface
+  - interpolation
+scene:
+  demo: voxel-mesh
+  resetCamera: true
+  unlock:
+    - voxelShape
+    - voxelResolution
+  compare:
+    label: Cubes versus the Marching Cubes surface
+    a:
+      params:
+        voxelMeshMode: cubes
+      caption: Cubes
+    b:
+      params:
+        voxelMeshMode: surface
+      caption: Marching Cubes
+  legend:
+    title: Two ways to draw one volume
+    items:
+      - label: Cubes
+        note: One block for every solid sample that touches air. The shape can only change in whole steps of the grid.
+        when:
+          voxelMeshMode: cubes
+      - label: Marching Cubes
+        note: One point on every crossed edge, joined by the table. The points slide along their edges, so slopes come out smooth.
+        when:
+          voxelMeshMode: surface
+      - swatch: summit
+        shape: block
+        label: High
+        note: Both views are coloured by height.
+      - swatch: moss
+        shape: block
+        label: Middle
+      - swatch: meadow-deep
+        shape: block
+        label: Low
+code:
+  file: src/scene/demos/voxels/marchingCubes.js
+  fn: trianglesForCell
+  highlight:
+    - 3
+---
+
+Last step, one cell told us where the surface crosses it and roughly what shape it takes. **Marching Cubes** does that for every cell in the grid, one after another, and the pieces of skin fit together edge to edge into one surface.
+
+For each cell it needs three things. First, the case index of its corners. Second, the row of the table for that index, which lists how to join the dots (the highlighted line). Third, where each dot sits on its edge. Nobody works the pattern out again for every cell: the table is built once, so reading a cell is almost free.
+
+Switch between the two views and change the shape. The cubes can only step in whole cells. The Marching Cubes surface slides each point along its edge, so slopes and overhangs come out smooth. Neighbouring cells always agree on how a shared face is cut, so the surface has no cracks.
