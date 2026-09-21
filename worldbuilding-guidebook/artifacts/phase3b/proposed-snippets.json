@@ -95,13 +95,13 @@
     "language": "jsx",
     "file": "src/scene/SceneHost.jsx",
     "name": "canvas-camera",
-    "startLine": 130
+    "startLine": 131
   },
   "orbit-controls": {
-    "code": "<OrbitControls\n  makeDefault\n  enableDamping\n  dampingFactor={0.08}\n  minDistance={3}\n  maxDistance={40}\n  maxPolarAngle={Math.PI / 2.05}\n  target={DEFAULT_TARGET}\n/>",
+    "code": "<OrbitControls\n  makeDefault\n  enableDamping\n  dampingFactor={0.08}\n  minDistance={3}\n  maxDistance={40}\n  maxPolarAngle={Math.PI / 2.05}\n  target={DEFAULT_TARGET}\n  mouseButtons={{ LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.PAN, RIGHT: MOUSE.PAN }}\n/>",
     "language": "jsx",
     "file": "src/scene/SceneHost.jsx",
     "name": "orbit-controls",
-    "startLine": 137
+    "startLine": 138
   }
 }
