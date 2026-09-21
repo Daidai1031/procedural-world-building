@@ -1,0 +1,62 @@
+---
+title: Chunking
+goal: Explain why a big volume is cut into chunks, and why each chunk needs a border of samples from its neighbours to meet them without a gap.
+keywords:
+  - chunk
+  - chunking
+  - border
+  - seam
+  - boundary layer
+scene:
+  demo: voxel-chunks
+  unlock:
+    - voxelShape
+    - voxelResolution
+    - voxelChunksPerSide
+  compare:
+    label: No border versus a shared border
+    a:
+      params:
+        voxelChunkBorder: none
+      caption: No border
+    b:
+      params:
+        voxelChunkBorder: shared
+      caption: Shared border
+  legend:
+    title: Chunks and their seams
+    items:
+      - swatch: terrain-grid-section
+        shape: grid
+        label: Chunk
+        note: One box for each chunk. Every chunk has its own samples and its own mesh.
+      - label: No border
+        note: Each chunk keeps only its own samples. The row of cells between two chunks has corners that neither can read, so nobody draws it and a slit opens.
+        when:
+          voxelChunkBorder: none
+      - label: Shared border
+        note: Each chunk also keeps a border of its neighbours' samples, so every cell has all its corners and the surface runs across the seam.
+        when:
+          voxelChunkBorder: shared
+      - swatch: summit
+        shape: block
+        label: High
+        note: Both views are coloured by height.
+      - swatch: moss
+        shape: block
+        label: Middle
+      - swatch: meadow-deep
+        shape: block
+        label: Low
+code:
+  file: src/scene/demos/voxels/chunks.js
+  fn: meshableCells
+  highlight:
+    - 5
+---
+
+So far the whole volume has been one grid. That stops working as the world grows. Double the resolution and there are eight times as many samples, and changing one spot means building the surface of the whole volume again. **Chunking** cuts the volume into boxes, drawn here as outlines. Each chunk has its own samples and its own mesh, so it can be built, drawn or rebuilt on its own.
+
+The catch is at the seams. A cell reaches one sample past the edge of its chunk, into the neighbour. If every chunk keeps only its own samples, the row of cells between two chunks belongs to nobody, and a slit opens. Switch to No border and raise the number of chunks to see it.
+
+The fix is a **border**: each chunk also keeps a two-sample strip of its neighbours (the highlighted line). Both chunks work those samples out, so the same numbers are computed twice, but the surface now runs across the seam. With the border on, the chunks together make exactly the triangles of one big grid. The smaller the chunks, the more of their samples are border.

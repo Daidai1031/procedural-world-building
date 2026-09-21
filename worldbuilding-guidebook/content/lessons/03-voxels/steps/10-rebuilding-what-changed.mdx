@@ -1,0 +1,71 @@
+---
+title: Rebuilding what changed
+goal: Show that an edit only forces the chunks it reaches to be rebuilt, and that every other chunk can keep the mesh it already has.
+keywords:
+  - dirty chunk
+  - remesh
+  - cache
+  - edit
+  - reuse
+scene:
+  demo: voxel-edit
+  unlock:
+    - voxelResolution
+    - voxelChunksPerSide
+    - voxelDentX
+    - voxelDentZ
+  compare:
+    label: Rebuild everything versus only what changed
+    a:
+      params:
+        voxelEditMode: all
+      caption: Rebuild every chunk
+    b:
+      params:
+        voxelEditMode: changed
+      caption: Rebuild only what changed
+  legend:
+    title: Which chunks are built again
+    items:
+      - swatch: clay
+        shape: grid
+        label: Dent
+        note: A ball of change dug into the ground. Nothing outside it is different.
+      - swatch: ink
+        shape: grid
+        label: Built again
+        note: These chunks have their samples worked out and their mesh made from scratch.
+      - swatch: terrain-grid
+        shape: grid
+        label: Kept
+        note: These chunks keep the mesh they had before the edit.
+      - label: Rebuild every chunk
+        note: Every chunk is built again, though most of them come out exactly as they were.
+        when:
+          voxelEditMode: all
+      - label: Rebuild only what changed
+        note: Only the chunks the dent comes near are built again. The rest are taken from memory.
+        when:
+          voxelEditMode: changed
+      - swatch: summit
+        shape: block
+        label: High
+        note: Both views are coloured by height.
+      - swatch: moss
+        shape: block
+        label: Middle
+      - swatch: meadow-deep
+        shape: block
+        label: Low
+code:
+  region: reuse-unchanged-chunks
+  file: src/scene/demos/voxels/chunks.js
+  highlight:
+    - 3
+---
+
+Chunks pay off most when something changes. Move the dent and only the samples inside its ball change. A chunk that holds none of them, border included, is exactly what it was, so its mesh can be kept.
+
+Switch to Rebuild only what changed and drag the dent. The dark boxes are built again and the pale ones are not: the highlighted line looks a chunk up in memory before making it. The terrain comes out the same either way. Only the work differs. With 32 samples in 4 × 4 × 4 chunks, a dent reaches 13 of the 64 chunks on average, and rebuilding just those took about a quarter of the time.
+
+A dent near a seam reaches both chunks, because both hold the border samples. Smaller chunks mean fewer samples to rebuild for each edit, but more borders to keep in step.
