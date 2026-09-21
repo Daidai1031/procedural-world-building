@@ -1,5 +1,6 @@
 import { useTutorStore } from '../tutor/tutorStore.js'
 import { safeContext } from '../tutor/context.js'
+import { TUTOR_ENABLED } from '../tutor/tutorEnabled.js'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { DEFAULT_MAP_SETTINGS } from '../scene/demos/proceduralMaps/noiseMath.js'
 import CodeBlock from '../components/CodeBlock.jsx'
@@ -17,6 +18,7 @@ function answerMatches(answer, expected) {
 }
 
 function TutorOffer({ context }) {
+  if (!TUTOR_ENABLED) return null
   const safe = safeContext(context)
   return <button type="button" data-tutor-context={JSON.stringify(safe)} onClick={() => useTutorStore.getState().open(safe, 'Help me reason through this practice task without giving me the answer.')}>Ask about this {context.blank ? 'blank' : 'task'}</button>
 }

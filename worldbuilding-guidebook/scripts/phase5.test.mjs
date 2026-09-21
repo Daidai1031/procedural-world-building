@@ -16,7 +16,9 @@ import { generationInput, systemPrompt } from '../api/_prompt.js'
 import Anthropic from '@anthropic-ai/sdk'
 import { EventEmitter } from 'node:events'
 
-test('builder and browser use the same actual model id; generated vectors have complete metadata', async () => {
+// Phase 5 is shelved, so prebuild no longer generates public/rag-index.json and
+// this has nothing to read. Remove the skip when the index build returns.
+test('builder and browser use the same actual model id; generated vectors have complete metadata', { skip: 'Phase 5 (course tutor) is shelved until every lesson is written' }, async () => {
   assert.equal(INDEX_MODEL_ID, 'Xenova/all-MiniLM-L6-v2')
   assert.equal(INDEX_MODEL_ID, RETRIEVAL_MODEL_ID)
   const raw = await readFile('public/rag-index.json', 'utf8')

@@ -1,7 +1,15 @@
 import { test, expect } from '@playwright/test'
 import { readFile } from 'node:fs/promises'
 
-const courseIndex = JSON.parse(await readFile('public/rag-index.json', 'utf8'))
+// Phase 5 is shelved: the tutor has no interface and the search index is no
+// longer built, so there is nothing here to test. See src/tutor/tutorEnabled.js
+// for how to bring it back. Delete this line and restore the index in the
+// prebuild script when it returns.
+test.skip(true, 'Phase 5 (course tutor) is shelved until every lesson is written')
+
+// The file does not exist while the tutor is shelved, and a failed read at the
+// top of the file would stop it from loading at all, so a missing index is null.
+const courseIndex = await readFile('public/rag-index.json', 'utf8').then(JSON.parse, () => null)
 
 async function mockServices(page, { authenticated = false, failModel = true, chatStatus = 200 } = {}) {
   const requests = []

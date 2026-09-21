@@ -1,5 +1,6 @@
 import { TutorForm, TutorAccessNote } from '../tutor/Tutor.jsx'
 import { stepContext } from '../tutor/stepContext.js'
+import { TUTOR_ENABLED } from '../tutor/tutorEnabled.js'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Practice from '../practice/Practice.jsx'
@@ -247,8 +248,12 @@ export default function StepCard({ step, previousStep, nextStep }) {
 
         {frontmatter.code && (frontmatter.code.editable ? <EditableCode stepId={step.id} reference={frontmatter.code} snippet={snippets[step.id]} /> : <CodeBlock stepId={step.id} reference={frontmatter.code} snippet={snippets[step.id]} />)}
         {frontmatter.practice && <Practice stepId={step.id} task={frontmatter.practice} snippet={snippets[`${step.id}:practice`]} />}
-        <TutorAccessNote />
-        <TutorForm context={stepContext(step)} />
+        {TUTOR_ENABLED && (
+          <>
+            <TutorAccessNote />
+            <TutorForm context={stepContext(step)} />
+          </>
+        )}
         <StepNote stepId={step.id} isEditing={isEditingNote} onEdit={() => setEditingStepId(step.id)} onClose={closeNote} />
       </div>
 

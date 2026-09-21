@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { SelectionTutor } from '../tutor/Tutor.jsx'
 import { stepContext } from '../tutor/stepContext.js'
+import { TUTOR_ENABLED } from '../tutor/tutorEnabled.js'
 import { stepsBySlug } from '../content/loader.js'
 import { createHighlighterCoreSync } from 'shiki/core'
 import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
@@ -92,7 +93,7 @@ export default function CodeBlock({ stepId, reference, snippet, blanks = [] }) {
         ))}</code>
       </pre>
     </ExpandableCode>
-    {selection && createPortal(explaining ? <SelectionTutor context={selection.context} position={selection.position} onClose={() => setSelection(null)} /> : <button type="button" className="tutor-selection-button" style={selection.position} onClick={() => setExplaining(true)} onKeyDown={(event) => { if (event.key === 'Escape') setSelection(null) }}>Explain this</button>, document.body)}
+    {TUTOR_ENABLED && selection && createPortal(explaining ? <SelectionTutor context={selection.context} position={selection.position} onClose={() => setSelection(null)} /> : <button type="button" className="tutor-selection-button" style={selection.position} onClick={() => setExplaining(true)} onKeyDown={(event) => { if (event.key === 'Escape') setSelection(null) }}>Explain this</button>, document.body)}
     </>
   )
 }

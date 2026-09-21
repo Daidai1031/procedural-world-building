@@ -1,4 +1,5 @@
 import TutorDrawer from '../tutor/Tutor.jsx'
+import { TUTOR_ENABLED } from '../tutor/tutorEnabled.js'
 import { useCallback } from 'react'
 import { Outlet } from 'react-router-dom'
 import ControlStrip from '../components/ControlStrip.jsx'
@@ -49,7 +50,7 @@ export default function AppLayout() {
       <SceneLegend />
       <TerrainLegend />
       <ControlStrip />
-      <TutorDrawer />
+      {TUTOR_ENABLED && <TutorDrawer />}
     </div>
   )
 }

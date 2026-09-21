@@ -1,4 +1,5 @@
 import { useTutorStore } from '../tutor/tutorStore.js'
+import { TUTOR_ENABLED } from '../tutor/tutorEnabled.js'
 import { Link, useMatch } from 'react-router-dom'
 import { lessons } from '../content/loader.js'
 import { useProgressStore } from '../store/progressStore.js'
@@ -105,10 +106,12 @@ export default function OutlineRail() {
       </div>
 
       <div className="rail__foot">
-        <button type="button" className="rail__tutor" aria-label="Open course tutor" aria-controls="tutor-drawer" onClick={() => useTutorStore.getState().open()} title="Course tutor (Ctrl/Cmd+K)">
-          <TutorIcon />
-          <span className="rail__tutor-label">Ask tutor</span>
-        </button>
+        {TUTOR_ENABLED && (
+          <button type="button" className="rail__tutor" aria-label="Open course tutor" aria-controls="tutor-drawer" onClick={() => useTutorStore.getState().open()} title="Course tutor (Ctrl/Cmd+K)">
+            <TutorIcon />
+            <span className="rail__tutor-label">Ask tutor</span>
+          </button>
+        )}
         {lessons.filter((entry) => entry.slug !== lessonSlug).map((entry) => (
           <Link className="rail__step" key={entry.slug} to={`/lesson/${entry.slug}`}>
             <span className="rail__mark" aria-hidden="true" />
