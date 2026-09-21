@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo } from 'react'
 import { BufferGeometry, Color, Float32BufferAttribute } from 'three'
 import { useSceneStore } from '../../../store/sceneStore.js'
 import { elevationColors, heightColor } from '../proceduralMaps/worldPalette.js'
+import { buildCulledMesh, buildGreedyMesh } from './greedyMeshing.js'
 import { buildMarchingMesh } from './marchingCubes.js'
 import { meshSettingsFromParams } from './params.js'
 import { buildSurfaceNetsMesh } from './surfaceNets.js'
@@ -12,6 +13,8 @@ import { COLOR_TOP_HEIGHT, VoxelVolume } from './VoxelTerrainDemo.jsx'
 const SURFACE_BUILDERS = {
   surface: buildMarchingMesh,
   nets: buildSurfaceNetsMesh,
+  culled: buildCulledMesh,
+  greedy: buildGreedyMesh,
 }
 
 // Draws a finished mesh, coloured by height. Also used by the chunk demo, one

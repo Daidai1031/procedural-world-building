@@ -1,0 +1,58 @@
+---
+title: Fewer faces
+goal: Show how greedy meshing joins the flat faces of a blocky volume into rectangles, and name the other savings that chunks make possible.
+keywords:
+  - greedy meshing
+  - culled faces
+  - face count
+  - Web Worker
+  - Dual Contouring
+scene:
+  demo: voxel-mesh
+  unlock:
+    - voxelShape
+    - voxelResolution
+  compare:
+    label: Culled faces versus greedy meshing
+    a:
+      params:
+        voxelMeshMode: culled
+      caption: Culled faces
+    b:
+      params:
+        voxelMeshMode: greedy
+      caption: Greedy meshing
+  legend:
+    title: Two ways to draw a blocky volume
+    items:
+      - label: Culled faces
+        note: One square for every side of a solid voxel that meets air. Sides between two solid voxels are never drawn.
+        when:
+          voxelMeshMode: culled
+      - label: Greedy meshing
+        note: The same squares, joined into the fewest flat rectangles the sweep finds. About a third to two fifths as many faces.
+        when:
+          voxelMeshMode: greedy
+      - swatch: summit
+        shape: block
+        label: High
+        note: Both views are coloured by height.
+      - swatch: moss
+        shape: block
+        label: Middle
+      - swatch: meadow-deep
+        shape: block
+        label: Low
+code:
+  file: src/scene/demos/voxels/greedyMeshing.js
+  fn: growRectangle
+  highlight:
+    - 9
+    - 12
+---
+
+Marching Cubes and Surface Nets smooth the surface. Sometimes you want the blocky look, and then the cost is faces. Culled meshing draws a square wherever a solid voxel meets air, so a flat field of a hundred voxels still costs a hundred squares.
+
+**Greedy meshing** joins those squares. For one slice at a time it takes the first free square, grows a rectangle across the row as far as it can, then down while every row stays as wide (the highlighted lines), and draws that as one face. Switch between the two and turn on Wireframe. The two meshes cover exactly the same area, but greedy needs about a third to two fifths of the faces. The price is that big rectangles no longer line up with their small neighbours, and that can leave T-junctions.
+
+Chunks make other savings possible too. The next step builds one of them, coarser chunks far from the viewer. This lesson does not build the rest: chunks made in a Web Worker so the page stays responsive, and Dual Contouring, which keeps sharp corners that Marching Cubes rounds off.
