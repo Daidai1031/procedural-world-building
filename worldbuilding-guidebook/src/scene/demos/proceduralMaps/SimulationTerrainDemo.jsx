@@ -1,9 +1,11 @@
 import { useEffect, useMemo } from 'react'
 import { useSceneStore } from '../../../store/sceneStore.js'
 import { mapSettingsFromParams, simulationSettingsFromParams } from './params.js'
+import RainFall from './RainFall.jsx'
 import { useSimulationState } from './simulationState.js'
 import SimulationTerrainPreview from './SimulationTerrainPreview.jsx'
 import TerrainWorld from './TerrainWorld.jsx'
+import WaterSurface from './WaterSurface.jsx'
 import { useWireframeShortcut } from './useWireframeShortcut.js'
 
 export default function SimulationTerrainDemo() {
@@ -24,6 +26,8 @@ export default function SimulationTerrainDemo() {
   return (
     <TerrainWorld simulation worldSize={settings.worldSize}>
       <SimulationTerrainPreview simulation={simulation} settings={settings} mapSettings={mapSettings} wireframe={params.mapWireframe} />
+      <WaterSurface simulation={simulation} settings={settings} mapSettings={mapSettings} />
+      <RainFall settings={settings} mapSettings={mapSettings} />
     </TerrainWorld>
   )
 }
