@@ -1,5 +1,41 @@
+import { useLayoutEffect, useRef } from 'react'
 import { Grid } from '@react-three/drei'
 import { readToken } from '../../../styles/readToken.js'
+
+// The key light's shadow map only covers the box its shadow camera sees. That
+// box has to grow with the world, or a large world is lit and shadowed only in
+// the middle and the rest looks flat and pale.
+const LIGHT_DIRECTION = [0.7, 1, 0.5]
+const BASE_WORLD_SIZE = 10
+
+function KeyLight({ simulation, worldSize }) {
+  const lightRef = useRef(null)
+  const scale = Math.max(1, worldSize / BASE_WORLD_SIZE)
+  const reach = worldSize * 0.9
+
+  useLayoutEffect(() => {
+    const camera = lightRef.current.shadow.camera
+    camera.left = -reach
+    camera.right = reach
+    camera.top = reach
+    camera.bottom = -reach
+    camera.near = 0.5
+    camera.far = 40 * scale
+    camera.updateProjectionMatrix()
+  }, [reach, scale])
+
+  return (
+    <directionalLight
+      ref={lightRef}
+      position={LIGHT_DIRECTION.map((component) => component * 10 * scale)}
+      intensity={simulation ? 2.15 : 2.1}
+      castShadow
+      shadow-mapSize={[2048, 2048]}
+      shadow-bias={-0.0004}
+      shadow-normalBias={0.03 * scale}
+    />
+  )
+}
 
 export default function TerrainWorld({ simulation = false, worldSize = 10, children }) {
   return (
@@ -11,7 +47,7 @@ export default function TerrainWorld({ simulation = false, worldSize = 10, child
         readToken(simulation ? '--erosion-bounce-up' : '--studio-bounce-up'),
         0.45,
       ]} />
-      <directionalLight position={[7, 10, 5]} intensity={simulation ? 2.15 : 2.1} castShadow shadow-mapSize={[1024, 1024]} />
+      <KeyLight simulation={simulation} worldSize={worldSize} />
       {children}
       <Grid
         position={[0, -0.03, 0]}
