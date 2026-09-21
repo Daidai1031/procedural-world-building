@@ -219,6 +219,13 @@ different colour, which is the entire reason to use blocks.
   active one every frame, so toggling back and forth never snaps to a stale pose.
   Wireframe flips every material's `wireframe` flag scene-wide; axes toggles a
   5-unit `axesHelper` at the origin.
+- **Two more toggles, present only on the demos they act on.** This departs from
+  "identical on every step". **Grayscale** shows on the terrain demos, which colour
+  by height. **Chunk outlines** shows on the demos that cut the volume into chunks
+  (Steps 09, 10 and 12 of Lesson 03), and is pressed by default: pressing it hides
+  the coloured boxes that mark each chunk, so the seams between chunks can be judged
+  without them. Both use the same chip styling, and the flag lives in the scene
+  store like Wireframe and Axes, so it survives a change of step.
 
 ### The entity panel
 

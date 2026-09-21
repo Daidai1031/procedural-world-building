@@ -32,6 +32,7 @@ export const useSceneStore = create((set) => ({
   wireframe: false,
   axesVisible: false,
   grayscale: false,
+  outlinesVisible: true,
 
   setDemoKey: (demoKey) => set({ demoKey, hiddenEntities: [] }),
   setInsetKey: (insetKey) => set({ insetKey }),
@@ -68,4 +69,5 @@ export const useSceneStore = create((set) => ({
   toggleWireframe: () => set((state) => ({ wireframe: !state.wireframe })),
   toggleAxes: () => set((state) => ({ axesVisible: !state.axesVisible })),
   toggleGrayscale: () => set((state) => ({ grayscale: !state.grayscale })),
+  toggleOutlines: () => set((state) => ({ outlinesVisible: !state.outlinesVisible })),
 }))

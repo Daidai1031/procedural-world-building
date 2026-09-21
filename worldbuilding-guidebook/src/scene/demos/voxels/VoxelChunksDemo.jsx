@@ -30,11 +30,15 @@ function chunkOutlineGeometry(chunks) {
   return outline
 }
 
-// The boxes of some chunks, in one colour. The edit demo draws two sets.
+// The boxes of some chunks, in one colour. The edit demo draws two sets. The
+// viewport toolbar's Chunk outlines button hides them.
 export function ChunkOutlines({ chunks, colorToken }) {
+  const outlinesVisible = useSceneStore((state) => state.outlinesVisible)
   const outline = useMemo(() => chunkOutlineGeometry(chunks), [chunks])
 
   useEffect(() => () => outline.dispose(), [outline])
+
+  if (!outlinesVisible) return null
 
   return (
     <lineSegments geometry={outline}>
