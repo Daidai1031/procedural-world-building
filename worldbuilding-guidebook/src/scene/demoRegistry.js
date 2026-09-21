@@ -8,6 +8,7 @@ import VoxelChunksDemo from './demos/voxels/VoxelChunksDemo.jsx'
 import VoxelCsgDemo from './demos/voxels/VoxelCsgDemo.jsx'
 import VoxelCsgOrderDemo from './demos/voxels/VoxelCsgOrderDemo.jsx'
 import VoxelEditDemo from './demos/voxels/VoxelEditDemo.jsx'
+import VoxelLodDemo from './demos/voxels/VoxelLodDemo.jsx'
 import VoxelMeshDemo from './demos/voxels/VoxelMeshDemo.jsx'
 import VoxelTerrainDemo from './demos/voxels/VoxelTerrainDemo.jsx'
 
@@ -21,6 +22,7 @@ export const demoRegistry = {
   'voxel-mesh': { component: VoxelMeshDemo, params: demoParams['voxel-mesh'] },
   'voxel-chunks': { component: VoxelChunksDemo, params: demoParams['voxel-chunks'] },
   'voxel-edit': { component: VoxelEditDemo, params: demoParams['voxel-edit'] },
+  'voxel-lod': { component: VoxelLodDemo, params: demoParams['voxel-lod'] },
   'volume-diagram': { component: VolumeDiagramDemo, params: demoParams['volume-diagram'] },
   'scene-anatomy': {
     component: SceneAnatomyDemo,

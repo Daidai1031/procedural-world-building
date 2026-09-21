@@ -1,0 +1,68 @@
+---
+title: Level of detail
+goal: Show that chunks far from the camera can be built from fewer samples, and that where two levels meet a gap opens that snapping the finer edge to the coarser one closes.
+keywords:
+  - level of detail
+  - LOD
+  - snapping
+  - seam
+  - Transvoxel
+scene:
+  demo: voxel-lod
+  unlock:
+    - voxelLodLevels
+  compare:
+    label: Snapped together versus left open
+    a:
+      params:
+        voxelSeamMode: snapped
+      caption: Snapped
+    b:
+      params:
+        voxelSeamMode: gaps
+      caption: Left open
+  legend:
+    title: Levels of detail
+    items:
+      - swatch: ink
+        shape: grid
+        label: Finest
+        note: Close to your camera. Every sample is used.
+      - swatch: terrain-grid-section
+        shape: grid
+        label: Half detail
+        note: Every second sample. About a quarter of the triangles.
+      - swatch: terrain-grid
+        shape: grid
+        label: Quarter detail
+        note: Every fourth sample. About a sixteenth of the triangles.
+      - label: Snapped
+        note: The finer chunk moves every point on its edge onto the coarser chunk's edge, and takes its normal, so the two surfaces meet and the light matches.
+        when:
+          voxelSeamMode: snapped
+      - label: Left open
+        note: Neighbouring chunks of different levels end at different heights, so a slit opens along the seam. Look at one from the side.
+        when:
+          voxelSeamMode: gaps
+      - swatch: summit
+        shape: block
+        label: High
+        note: Both views are coloured by height.
+      - swatch: moss
+        shape: block
+        label: Middle
+      - swatch: meadow-deep
+        shape: block
+        label: Low
+code:
+  file: src/scene/demos/voxels/lodChunks.js
+  fn: chunkLevel
+  highlight:
+    - 5
+---
+
+Far away, small detail cannot be seen, so building it is wasted work. **Level of detail** gives each column of chunks a level by its distance from your camera (the highlighted line). Near chunks use every sample, the next ring every second sample, and the farthest every fourth. Orbit and zoom, and the levels follow you. Each step down needs about a quarter of the triangles of the one before.
+
+The catch is at the seams. A coarse chunk and a fine chunk end at slightly different heights along the edge they share, so a slit opens between them. Switch to Left open and look at a seam from the side.
+
+The fix here is to **snap** the finer chunk to the coarser one: every point on its edge slides onto the coarser chunk's edge and borrows its normal there. That closes the height difference from up to 0.36 world units to about 0.01, under a tenth of a finest cell. The two meshes still do not share vertices, so a hairline can remain. Stitching them properly, as the Transvoxel method does, is more work and is not built here.
