@@ -31,6 +31,7 @@ export const useSceneStore = create((set) => ({
   projection: 'perspective',
   wireframe: false,
   axesVisible: false,
+  grayscale: false,
 
   setDemoKey: (demoKey) => set({ demoKey, hiddenEntities: [] }),
   setInsetKey: (insetKey) => set({ insetKey }),
@@ -66,4 +67,5 @@ export const useSceneStore = create((set) => ({
     set((state) => ({ projection: state.projection === 'perspective' ? 'orthographic' : 'perspective' })),
   toggleWireframe: () => set((state) => ({ wireframe: !state.wireframe })),
   toggleAxes: () => set((state) => ({ axesVisible: !state.axesVisible })),
+  toggleGrayscale: () => set((state) => ({ grayscale: !state.grayscale })),
 }))

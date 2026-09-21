@@ -10,6 +10,7 @@ const TERRAIN_SIZE = 10
 
 export default function TerrainPreview({ settings, wireframe, compareRevision }) {
   const overrideRevision = useSceneStore((state) => state.overrideRevision)
+  const grayscale = useSceneStore((state) => state.grayscale)
   const mesh = useRef(null)
   const transition = useRef(null)
   const previousRevision = useRef(compareRevision)
@@ -28,7 +29,7 @@ export default function TerrainPreview({ settings, wireframe, compareRevision })
     const fromColors = colors.array.slice()
     const toPositions = positions.array.slice()
     const toColors = colors.array.slice()
-    const palette = elevationColors()
+    const palette = elevationColors(grayscale)
     const color = new THREE.Color()
     for (let index = 0; index < positions.count; index += 1) {
       const value = sampleProceduralMap(positions.getX(index), positions.getZ(index), settings)
@@ -49,7 +50,7 @@ export default function TerrainPreview({ settings, wireframe, compareRevision })
       activeGeometry.computeVertexNormals()
       activeGeometry.computeBoundingSphere()
     }
-  }, [geometry, settings, compareRevision, overrideRevision])
+  }, [geometry, settings, compareRevision, overrideRevision, grayscale])
 
   useFrame((_, delta) => {
     const morph = transition.current

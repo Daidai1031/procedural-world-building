@@ -5,6 +5,7 @@ import './TerrainLegend.css'
 export default function TerrainLegend() {
   const demoKey = useSceneStore((state) => state.demoKey)
   const insetKey = useSceneStore((state) => state.insetKey)
+  const grayscale = useSceneStore((state) => state.grayscale)
   const isTerrain = ['noise-terrain', 'simulation-terrain'].includes(demoKey)
   const isSimulation = demoKey === 'simulation-terrain'
 
@@ -14,6 +15,7 @@ export default function TerrainLegend() {
     <div
       className="terrain-legend"
       data-below-inset={getInset(insetKey) !== null}
+      data-grayscale={grayscale}
       role="group"
       aria-label="Terrain elevation colours"
     >

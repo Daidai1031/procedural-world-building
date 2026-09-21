@@ -25,7 +25,7 @@
 
   /* §2 Deeps — the same five hues, dark enough to be read. These WRITE.
      Every one clears AA against --paper and against --paper-2. */
-  --water-deep: #5744b8;
+  --water-deep: #2a5fc4;
   --moss-deep: #086e3c;
   --meadow-deep: #4f7a12;
   --summit-deep: #8a6a00;
@@ -135,5 +135,10 @@
   --erosion-bounce-up: #493d31;
   --terrain-grid: #cbced2;
   --terrain-grid-section: #f296bd;
-  --erosion-water: #446cc8;
+  --erosion-water: #556998;
+  /* The terrain's elevation ramp with the colour taken out, for the Grayscale
+     view: dark low ground to light high ground, so shadows still read. */
+  --terrain-gray-low: #7d8187;
+  --terrain-gray-mid: #b0b4b9;
+  --terrain-gray-high: #eceef0;
 }

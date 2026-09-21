@@ -36,7 +36,11 @@
 .terrain-legend__gradient {
   height: var(--space-3);
   border-radius: var(--radius-pill);
-  background: linear-gradient(90deg, var(--water) 0%, var(--moss) 52%, var(--summit) 100%);
+  background: linear-gradient(90deg, var(--meadow-deep) 0%, var(--moss) 52%, var(--summit) 100%);
+}
+
+.terrain-legend[data-grayscale='true'] .terrain-legend__gradient {
+  background: linear-gradient(90deg, var(--terrain-gray-low) 0%, var(--terrain-gray-mid) 52%, var(--terrain-gray-high) 100%);
 }
 
 .terrain-legend__labels {

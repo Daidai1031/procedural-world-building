@@ -2,11 +2,13 @@ import { useEffect, useMemo } from 'react'
 
 
 import * as THREE from 'three'
+import { useSceneStore } from '../../../store/sceneStore.js'
 import { sampleSimulationGrid } from './simulationMath.js'
 
 import { elevationColors, heightColor } from './worldPalette.js'
 
 export default function SimulationTerrainPreview({ simulation, settings, mapSettings, wireframe }) {
+  const grayscale = useSceneStore((state) => state.grayscale)
   const geometry = useMemo(() => {
     const segments = mapSettings.resolution
     const terrain = new THREE.PlaneGeometry(
@@ -20,7 +22,7 @@ export default function SimulationTerrainPreview({ simulation, settings, mapSett
     const positions = terrain.attributes.position
     const colors = new Float32Array(positions.count * 3)
     const color = new THREE.Color()
-    const palette = elevationColors()
+    const palette = elevationColors(grayscale)
 
     for (let index = 0; index < positions.count; index += 1) {
       const u = positions.getX(index) / settings.worldSize + 0.5
@@ -36,7 +38,7 @@ export default function SimulationTerrainPreview({ simulation, settings, mapSett
     terrain.setAttribute('color', new THREE.BufferAttribute(colors, 3))
     terrain.computeVertexNormals()
     return terrain
-  }, [mapSettings.amplitude, mapSettings.resolution, settings.worldSize, simulation])
+  }, [mapSettings.amplitude, mapSettings.resolution, settings.worldSize, simulation, grayscale])
 
   useEffect(() => () => geometry.dispose(), [geometry])
 

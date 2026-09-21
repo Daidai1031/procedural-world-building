@@ -1,8 +1,13 @@
 import { Color } from 'three'
 import { readToken } from '../../../styles/readToken.js'
 
-export function elevationColors() {
-  return [new Color(readToken('--water')), new Color(readToken('--moss')), new Color(readToken('--summit'))]
+// Low ground is olive green, so it never reads as water: the only blue in a
+// terrain is the water itself.
+export function elevationColors(grayscale = false) {
+  const tokens = grayscale
+    ? ['--terrain-gray-low', '--terrain-gray-mid', '--terrain-gray-high']
+    : ['--meadow-deep', '--moss', '--summit']
+  return tokens.map((token) => new Color(readToken(token)))
 }
 
 export function heightColor(value, target, colors, midpoint = 0.52) {

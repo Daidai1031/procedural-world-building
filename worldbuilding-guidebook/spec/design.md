@@ -53,7 +53,7 @@ legend prints its elevation bands — never as tints, washes, or gradients.
   --clay:   #FBA5D0;    /* flagged; practice not yet passing */
 
   /* Deeps — the same five hues, dark enough to be read. These WRITE. */
-  --water-deep:  #5744B8;
+  --water-deep:  #2A5FC4;
   --moss-deep:   #086E3C;
   --meadow-deep: #4F7A12;
   --summit-deep: #8A6A00;

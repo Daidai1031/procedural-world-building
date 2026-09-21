@@ -1,5 +1,8 @@
 import { useSceneStore } from '../store/sceneStore.js'
 
+// Only the terrain demos colour by height, so only they have a grayscale view.
+const TERRAIN_DEMOS = ['noise-terrain', 'simulation-terrain', 'voxel-terrain']
+
 // Rhino-style viewport controls: they act on the one shared canvas, not the
 // current lesson's params, so they render in every scene strip regardless of
 // which demo is active.
@@ -7,9 +10,12 @@ export default function ViewportToolbar() {
   const isOrthographic = useSceneStore((state) => state.projection === 'orthographic')
   const wireframe = useSceneStore((state) => state.wireframe)
   const axesVisible = useSceneStore((state) => state.axesVisible)
+  const grayscale = useSceneStore((state) => state.grayscale)
+  const demoKey = useSceneStore((state) => state.demoKey)
   const toggleProjection = useSceneStore((state) => state.toggleProjection)
   const toggleWireframe = useSceneStore((state) => state.toggleWireframe)
   const toggleAxes = useSceneStore((state) => state.toggleAxes)
+  const toggleGrayscale = useSceneStore((state) => state.toggleGrayscale)
   const requestCameraReset = useSceneStore((state) => state.requestCameraReset)
 
   return (
@@ -23,6 +29,11 @@ export default function ViewportToolbar() {
       <button type="button" aria-pressed={axesVisible} onClick={toggleAxes}>
         Axes
       </button>
+      {TERRAIN_DEMOS.includes(demoKey) && (
+        <button type="button" aria-pressed={grayscale} onClick={toggleGrayscale}>
+          Grayscale
+        </button>
+      )}
       <button type="button" onClick={requestCameraReset}>
         Recenter
       </button>

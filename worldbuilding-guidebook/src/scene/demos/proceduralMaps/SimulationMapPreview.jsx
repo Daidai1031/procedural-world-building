@@ -1,5 +1,6 @@
 ﻿import { useEffect, useRef } from 'react'
 import { Color } from 'three'
+import { useSceneStore } from '../../../store/sceneStore.js'
 import { readToken } from '../../../styles/readToken.js'
 
 function mix(a, b, amount) {
@@ -18,12 +19,13 @@ function terrainColor(height, palette) {
 }
 
 export default function SimulationMapPreview({ simulation }) {
+  const grayscale = useSceneStore((state) => state.grayscale)
   const canvasRef = useRef(null)
 
   useEffect(() => {
     const context = canvasRef.current.getContext('2d')
     const image = context.createImageData(simulation.size, simulation.size)
-    const palette = ['--water', '--moss', '--summit'].map(tokenChannels)
+    const palette = (grayscale ? ['--terrain-gray-low', '--terrain-gray-mid', '--terrain-gray-high'] : ['--meadow-deep', '--moss', '--summit']).map(tokenChannels)
     const waterColor = tokenChannels('--erosion-water')
 
     for (let index = 0; index < simulation.height.length; index += 1) {
@@ -37,7 +39,7 @@ export default function SimulationMapPreview({ simulation }) {
     }
 
     context.putImageData(image, 0, 0)
-  }, [simulation])
+  }, [simulation, grayscale])
 
   return (
     <canvas
