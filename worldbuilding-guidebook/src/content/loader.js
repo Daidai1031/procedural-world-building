@@ -81,6 +81,23 @@ export function validateStepFrontmatter(frontmatter, filePath) {
     if (frontmatter.scene.unlock !== undefined && !Array.isArray(frontmatter.scene.unlock)) {
       throw new Error(`${filePath} frontmatter field "scene.unlock" must be a list of param keys`)
     }
+
+    const { legend } = frontmatter.scene
+    if (legend !== undefined) {
+      const hasItems = legend && typeof legend === 'object' && Array.isArray(legend.items)
+      if (!hasItems || typeof legend.title !== 'string') {
+        throw new Error(`${filePath} frontmatter field "scene.legend" must have a "title" and a list of "items"`)
+      }
+
+      for (const item of legend.items) {
+        if (typeof item?.label !== 'string') {
+          throw new Error(`${filePath} every "scene.legend.items" entry needs a "label"`)
+        }
+        if (item.swatch !== undefined && typeof item.swatch !== 'string') {
+          throw new Error(`${filePath} "scene.legend.items" swatch must be a colour token name, for example "moss"`)
+        }
+      }
+    }
   }
 
   if (frontmatter.practice !== undefined) {
