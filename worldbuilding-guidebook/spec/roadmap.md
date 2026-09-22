@@ -116,7 +116,9 @@ Accept when:
 - [ ] End-of-chapter review generated from `keywords` and `goal`
 - [ ] Outline shows per-step and per-group completion
 - [ ] Every error and empty state says what happened and what to do
-- [ ] Deployed to Vercel with environment variables set
+- [x] Deployed to Firebase Hosting with environment variables set — changed
+      2026-09-21 from the original "Deployed to Vercel"; see `spec/SPEC.md` §1.
+      The Vercel `api/` functions stay on Vercel until Phase 5 (tutor) revives.
 - [ ] A person who has never seen the site can finish Lesson 01 without asking anything
 - [ ] Every updates-per-second setting the control offers is one the page can hold
 - [ ] `npm run build` reports no ineffective dynamic imports
@@ -130,5 +132,8 @@ In order, when the time comes:
 1. Write Lessons 03+.
 2. The `<Term>` syntax layer — after watching real learners, so it addresses real
    confusion rather than guessed confusion.
-3. Supabase accounts and cross-device progress.
+3. ~~Supabase accounts and cross-device progress.~~ Built 2026-09-21, ahead of this
+   list and with Firebase instead of Supabase, on the author's request. See
+   `spec/SPEC.md` §1 and §3's "Accounts and configuration sync" and
+   `docs/tutorials/firebase-setup.md`.
 4. Mobile.

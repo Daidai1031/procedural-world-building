@@ -28,9 +28,15 @@ Write these down so we do not drift into them:
   needs it, and that layer is deferred (see §8).
 - Not mobile. Desktop only for now. Do not spend effort on responsive breakpoints
   below 1024px beyond "does not crash".
-- Not multi-user. No accounts, no server-side progress, until every lesson is written.
 - Not a code playground. Free-form editing exists only inside bounded practice tasks.
 - Not a content management system. Lessons are files in git.
+
+> **Exception, 2026-09-21:** this section used to also say "Not multi-user. No
+> accounts, no server-side progress, until every lesson is written," and §8 deferred
+> accounts (as Supabase) until after every lesson and mobile. The author asked for
+> accounts and cross-device configuration sync ahead of that schedule, built with
+> Firebase instead of Supabase. See §3's "Accounts and configuration sync" and
+> `docs/tutorials/firebase-setup.md`. Everything else in this list still holds.
 
 ## 2. Content model
 
@@ -262,6 +268,32 @@ describe what a control looks like.
 `progressStore` uses `zustand/middleware` `persist` with key `worldbuilding-guidebook.progress.v1`.
 Version the key — a schema change bumps it rather than corrupting old data.
 
+### Accounts and configuration sync (2026-09-21 exception, see §1)
+
+Firebase Authentication (email/password) and Firestore only — no Storage,
+which now requires the paid Blaze plan; see the note in
+`docs/tutorials/firebase-setup.md` §1 for why that trade was made.
+`src/firebase/client.js` reads five `VITE_FIREBASE_*` env vars and exports
+`firebaseConfigured`; every other file in `src/firebase/` and
+`src/store/authStore.js` checks it, so a build without a Firebase project
+configured still runs — the account drawer just says so.
+
+- **What syncs:** `sceneStore.params` and its view toggles (`projection`,
+  `wireframe`, `axesVisible`, `grayscale`, `outlinesVisible`, `insetSwapped`),
+  plus all of `progressStore`. Not `demoKey`/`insetKey`/`unlocked`/`compare` —
+  those come from whichever step you are on, never from a saved configuration.
+- **Firestore:** one document per user, `users/{uid}`, holding the current
+  configuration — the latest save only, no history. `firestore.rules`
+  restricts it to its own owner.
+- **UI:** `src/components/AccountDrawer.jsx`, opened from an Account button in
+  the outline rail's foot (`src/components/OutlineRail.jsx`). Sign in/up,
+  Save configuration, Load configuration.
+- **Hosting:** the production deploy target moved from Vercel to Firebase
+  Hosting as part of this exception — `firebase.json` builds `dist/` and
+  `npm run deploy` publishes it together with the Firestore rules. The `api/`
+  Vercel functions (Phase 5's tutor, itself shelved) are unaffected and stay
+  on Vercel until that phase is revived; see `spec/roadmap.md`.
+
 ### Routing
 
 ```
@@ -373,5 +405,7 @@ Recorded so they are not forgotten and not built early.
   for `useState`, `=>`, `map()` and friends. The `<Term>` component and `keywords`
   field are designed to accommodate it. Build it after real learners have used the site
   and we know what actually confuses them.
-- **Supabase accounts and cross-device progress.** After every lesson is written.
+- ~~Supabase accounts and cross-device progress. After every lesson is written.~~
+  Built 2026-09-21, ahead of that schedule and with Firebase instead of Supabase —
+  see §1's exception note and §3's "Accounts and configuration sync".
 - **Mobile.** After the site is content-complete.
