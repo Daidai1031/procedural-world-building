@@ -1,0 +1,112 @@
+/* The account drawer. Same right-edge, floating treatment as the (currently
+   disabled) tutor drawer — the two never show at once, since the tutor is
+   shelved until every lesson is written (src/tutor/tutorEnabled.js). */
+
+.account-drawer {
+  position: fixed;
+  top: var(--space-5);
+  right: var(--space-5);
+  bottom: var(--space-5);
+  z-index: var(--z-drawer);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: var(--card-default-width);
+  overflow-y: auto;
+  border: var(--hairline) solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+  box-shadow: var(--shadow-float);
+  padding: var(--space-5);
+  color: var(--ink);
+}
+
+.account-drawer header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.account-drawer h2 {
+  margin: 0;
+  font-size: var(--text-lg);
+}
+
+.account-drawer__note {
+  margin: 0;
+  color: var(--ink-dim);
+  font-size: var(--text-sm);
+}
+
+.account-drawer__form,
+.account-drawer__config {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.account-drawer__form label {
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--ink-dim);
+}
+
+.account-drawer input {
+  width: 100%;
+  padding: var(--space-2);
+  border: var(--hairline) solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+}
+
+.account-drawer__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* §2 Primary action takes the --summit fill; everything else stays quiet. */
+.account-drawer__actions button[type='submit'],
+.account-drawer__config button:first-child {
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--summit);
+  color: var(--ink);
+  font-weight: 600;
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+}
+
+.account-drawer button {
+  border: var(--hairline) solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper-2);
+  color: var(--ink);
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+  font: inherit;
+}
+
+.account-drawer button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.account-drawer__link {
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--ink-dim);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.account-drawer [role='alert'] {
+  margin: 0;
+  color: var(--clay-deep);
+  font-size: var(--text-sm);
+}

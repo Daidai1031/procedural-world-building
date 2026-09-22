@@ -215,6 +215,33 @@
   white-space: nowrap;
 }
 
+/* A utility action, not a primary one, so it stays on the quiet --paper-2
+   chip rather than the tutor launcher's --summit fill. */
+.rail__account {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  margin-bottom: var(--space-2);
+  padding: var(--space-2);
+  border: var(--hairline) solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper-2);
+  color: var(--ink-dim);
+  cursor: pointer;
+}
+
+.rail__account:hover {
+  background: var(--paper-3);
+  color: var(--ink);
+}
+
+.rail__account-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .rail__sr-only {
   position: absolute;
   width: var(--hairline);

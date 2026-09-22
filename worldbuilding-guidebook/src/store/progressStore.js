@@ -26,6 +26,14 @@ export const useProgressStore = create(
         if (get().completedStepIds.includes(stepId)) return
         set((state) => ({ completedStepIds: [...state.completedStepIds, stepId] }))
       },
+      // Replaces the whole persisted shape with a saved snapshot. See
+      // src/firebase/configSync.js.
+      restoreProgress: (patch) => set({
+        completedStepIds: patch.completedStepIds ?? [],
+        lastStepId: patch.lastStepId ?? null,
+        notes: patch.notes ?? {},
+        practiceResults: patch.practiceResults ?? {},
+      }),
     }),
     { name: 'worldbuilding-guidebook.progress.v2' },
   ),

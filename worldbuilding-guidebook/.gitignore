@@ -37,3 +37,6 @@ tests/fixtures/phase4a-snippet.json
 .cache/
 public/rag-index.json
 public/sources/
+
+# Firebase CLI local state (deploy history, emulator data)
+.firebase/

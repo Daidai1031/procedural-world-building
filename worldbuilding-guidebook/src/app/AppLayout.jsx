@@ -1,7 +1,8 @@
 import TutorDrawer from '../tutor/Tutor.jsx'
 import { TUTOR_ENABLED } from '../tutor/tutorEnabled.js'
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
+import AccountDrawer from '../components/AccountDrawer.jsx'
 import ControlStrip from '../components/ControlStrip.jsx'
 import EntityPanel from '../components/EntityPanel.jsx'
 import InsetCard from '../components/InsetCard.jsx'
@@ -10,6 +11,7 @@ import SceneLegend from '../components/SceneLegend.jsx'
 import TerrainLegend from '../components/TerrainLegend.jsx'
 import { useShellKeys } from '../hooks/useKeyboardShortcuts.js'
 import SceneHost from '../scene/SceneHost.jsx'
+import { useAuthStore } from '../store/authStore.js'
 import { useSceneStore } from '../store/sceneStore.js'
 import { useUiStore } from '../store/uiStore.js'
 import './layout.css'
@@ -34,6 +36,11 @@ export default function AppLayout() {
     closeOverlays,
   })
 
+  // Once per app lifetime — subscribes to Firebase auth state, if configured.
+  useEffect(() => {
+    useAuthStore.getState().init()
+  }, [])
+
   return (
     <div
       className="app"
@@ -50,6 +57,7 @@ export default function AppLayout() {
       <SceneLegend />
       <TerrainLegend />
       <ControlStrip />
+      <AccountDrawer />
       {TUTOR_ENABLED && <TutorDrawer />}
     </div>
   )

@@ -70,4 +70,19 @@ export const useSceneStore = create((set) => ({
   toggleAxes: () => set((state) => ({ axesVisible: !state.axesVisible })),
   toggleGrayscale: () => set((state) => ({ grayscale: !state.grayscale })),
   toggleOutlines: () => set((state) => ({ outlinesVisible: !state.outlinesVisible })),
+
+  // Only the fields a learner actually chose — params and viewport prefs.
+  // demoKey/insetKey/unlocked/compare come from whichever step you are on
+  // (see setStep) and are never part of a saved configuration, so restoring
+  // one can never leave the store in a combination the current step disagrees
+  // with. See src/firebase/configSync.js.
+  restoreConfig: (patch) => set((state) => ({
+    params: { ...state.params, ...(patch.params ?? {}) },
+    projection: patch.projection ?? state.projection,
+    wireframe: patch.wireframe ?? state.wireframe,
+    axesVisible: patch.axesVisible ?? state.axesVisible,
+    grayscale: patch.grayscale ?? state.grayscale,
+    outlinesVisible: patch.outlinesVisible ?? state.outlinesVisible,
+    insetSwapped: patch.insetSwapped ?? state.insetSwapped,
+  })),
 }))
