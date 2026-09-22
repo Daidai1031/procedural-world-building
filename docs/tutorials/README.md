@@ -6,3 +6,4 @@ This folder will contain notes and materials from course tutorials, along with A
 
 - [React Basics (Beginner)](./react-basics.md) — JSX, components, props, state, with a Delirious NYC mini example
 - [Interactive 3D Canvas with Three.js + React (Beginner)](./threejs-react-scene.md) — orbit camera, geometry, lights, materials, a distance-fading world grid, and the scene background
+- [Firebase Setup (Beginner)](./firebase-setup.md) — creating a Firebase project, enabling Authentication, Firestore, and Hosting on the free Spark plan, and wiring the World Building Guidebook's save/load configuration feature to it
