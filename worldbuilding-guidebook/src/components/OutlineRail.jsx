@@ -15,7 +15,7 @@ function PinIcon({ pinned }) {
   return (
     <svg className="rail__icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="M9.5 1.5 14.5 6.5 12 7 9 10l-.5 4L2 7.5l4-.5 3-3z" fill={pinned ? 'currentcolor' : 'none'} />
-      <line x1="8.5" y1="10.5" x2="4" y2="15" />
+      <line x1="7.5" y1="9.5" x2="3" y2="14" />
     </svg>
   )
 }
@@ -26,6 +26,24 @@ function TutorIcon() {
       <path d="M2.5 3.5h11a1 1 0 0 1 1 1V10a1 1 0 0 1-1 1H6l-2.5 2.5V11H2.5a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1z" />
       <line x1="5" y1="6.25" x2="11" y2="6.25" />
       <line x1="5" y1="8.5" x2="8.5" y2="8.5" />
+    </svg>
+  )
+}
+
+function ExpandHintIcon() {
+  return (
+    <svg className="rail__icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <polyline points="10 4 6 8 10 12" />
+    </svg>
+  )
+}
+
+function HomeIcon() {
+  return (
+    <svg className="rail__icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M2 8 8 2.5 14 8" />
+      <path d="M3.5 7v6.5h9V7" />
+      <path d="M6.5 13.5v-4h3v4" />
     </svg>
   )
 }
@@ -54,6 +72,73 @@ function StepRow({ step, isCurrent, isComplete }) {
         {isComplete && <span className="rail__sr-only">Completed</span>}
       </Link>
     </li>
+  )
+}
+
+// A lesson the learner has not opened: one bold row, no nested steps.
+// Opening it — following the link — is what expands it.
+function LessonSummaryRow({ lesson }) {
+  return (
+    <Link className="rail__lesson-row" to={`/lesson/${lesson.slug}`}>
+      <span className="rail__number">{padOrdinal(lesson.number)}</span>
+      <span className="rail__title">{lesson.title}</span>
+    </Link>
+  )
+}
+
+// The open lesson: the same bold row (not a link — the learner is already
+// here), plus its chapters and steps indented underneath, one level down and
+// visibly lighter than the lesson row itself.
+function LessonDetail({ lesson, groups, currentStepId, completedStepIds }) {
+  return (
+    <div className="rail__lesson-open">
+      <p className="rail__lesson-row" aria-current="location">
+        <span className="rail__number">{padOrdinal(lesson.number)}</span>
+        <span className="rail__title">{lesson.title}</span>
+      </p>
+      <div className="rail__lesson-steps">
+        {groups.map((group) => (
+          <section className="rail__group" key={group.key}>
+            {group.title && <h2 className="rail__group-title">{group.title}</h2>}
+            <ol className="rail__steps">
+              {group.steps.map((step) => (
+                <StepRow
+                  key={step.id}
+                  step={step}
+                  isCurrent={step.id === currentStepId}
+                  isComplete={completedStepIds.includes(step.id)}
+                />
+              ))}
+            </ol>
+          </section>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// Collapsed-only progress rail: one dot per step in the open lesson, filled
+// for a completed step and solid for the one the learner is on right now —
+// visible exactly when the real step list (with its own marks) is not. See
+// .rail__progress in the stylesheet for the cross-fade with .rail__scroll.
+function CollapsedProgress({ steps, currentStepId, completedStepIds }) {
+  const completeCount = steps.filter((step) => completedStepIds.includes(step.id)).length
+
+  return (
+    <div className="rail__progress">
+      <span className="rail__sr-only">
+        {completeCount} of {steps.length} steps complete
+      </span>
+      {steps.map((step) => (
+        <span
+          key={step.id}
+          className="rail__progress-dot"
+          data-current={step.id === currentStepId}
+          data-complete={completedStepIds.includes(step.id)}
+          aria-hidden="true"
+        />
+      ))}
+    </div>
   )
 }
 
@@ -98,43 +183,51 @@ export default function OutlineRail() {
         </p>
       </div>
 
-      <div className="rail__scroll">
-        {groups.map((group) => (
-          <section className="rail__group" key={group.key}>
-            {group.title && <h2 className="rail__group-title">{group.title}</h2>}
-            <ol className="rail__steps">
-              {group.steps.map((step) => (
-                <StepRow
-                  key={step.id}
-                  step={step}
-                  isCurrent={step.id === currentStepId}
-                  isComplete={completedStepIds.includes(step.id)}
-                />
-              ))}
-            </ol>
-          </section>
-        ))}
-      </div>
+      <CollapsedProgress steps={lesson.steps} currentStepId={currentStepId} completedStepIds={completedStepIds} />
 
-      <div className="rail__foot">
-        <button type="button" className="rail__account" aria-label="Open account panel" aria-controls="account-drawer" onClick={() => useAuthStore.getState().open()}>
-          <AccountIcon />
-          <span className="rail__account-label">{accountUser ? accountUser.email : 'Account'}</span>
-        </button>
+      <div className="rail__scroll">
         {TUTOR_ENABLED && (
           <button type="button" className="rail__tutor" aria-label="Open course tutor" aria-controls="tutor-drawer" onClick={() => useTutorStore.getState().open()} title="Course tutor (Ctrl/Cmd+K)">
             <TutorIcon />
             <span className="rail__tutor-label">Ask tutor</span>
           </button>
         )}
-        {lessons.filter((entry) => entry.slug !== lessonSlug).map((entry) => (
-          <Link className="rail__step" key={entry.slug} to={`/lesson/${entry.slug}`}>
-            <span className="rail__mark" aria-hidden="true" />
-            <span className="rail__number">{entry.number}</span>
-            <span className="rail__title">{entry.title}</span>
-          </Link>
-        ))}
+        {/* Lessons 1–3 in order. Only the one the learner opened — the current
+            route — expands to show its chapters and steps; the rest are one
+            row each, and following a row's link is what opens it. */}
+        {lessons.map((entry) =>
+          entry.slug === lessonSlug ? (
+            <LessonDetail
+              key={entry.slug}
+              lesson={entry}
+              groups={groups}
+              currentStepId={currentStepId}
+              completedStepIds={completedStepIds}
+            />
+          ) : (
+            <LessonSummaryRow key={entry.slug} lesson={entry} />
+          ),
+        )}
       </div>
+
+      {/* Account and Home are utility exits, not lesson content, so they sit
+          below all of it. */}
+      <div className="rail__foot">
+        <button type="button" className="rail__exit" aria-label="Open account panel" aria-controls="account-drawer" onClick={() => useAuthStore.getState().open()}>
+          <AccountIcon />
+          <span className="rail__exit-label">{accountUser ? accountUser.email : 'Account'}</span>
+        </button>
+        <Link className="rail__exit" to="/" aria-label="Back to the last visited step">
+          <HomeIcon />
+          <span className="rail__exit-label">Home</span>
+        </Link>
+      </div>
+
+      {/* Decorative only — hovering, focusing, or pinning the rail is what
+          actually opens it. The only thing the 48px collapsed rail shows. */}
+      <span className="rail__hint" aria-hidden="true">
+        <ExpandHintIcon />
+      </span>
     </nav>
   )
 }

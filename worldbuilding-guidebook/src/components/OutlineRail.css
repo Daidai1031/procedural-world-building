@@ -9,6 +9,7 @@
   z-index: var(--z-rail);
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   width: var(--rail-collapsed-width);
   overflow: hidden;
   border-right: var(--hairline) solid var(--line);
@@ -24,9 +25,104 @@
   width: var(--rail-expanded-width);
 }
 
+/* ---- hint -------------------------------------------------------------- */
+
+/* A quiet ">" cue, bottom of the strip: the only thing a collapsed 48px rail
+   shows. Fades out once the rail is actually open, when the cue is no
+   longer needed. */
+.rail__hint {
+  position: absolute;
+  bottom: var(--space-4);
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: var(--rail-collapsed-width);
+  height: var(--icon-size);
+  color: var(--ink-faint);
+  opacity: 1;
+  pointer-events: none;
+  transition: opacity var(--duration-rail) var(--ease-step);
+}
+
+.rail:hover .rail__hint,
+.rail:focus-within .rail__hint,
+.rail[data-pinned='true'] .rail__hint {
+  opacity: 0;
+}
+
+/* ---- progress ------------------------------------------------------------ */
+
+/* Collapsed, .rail__scroll's row shows this instead: one dot per step in the
+   open lesson, so a glance at the 48px strip still says how far into the
+   lesson the learner is. Shares .rail__scroll's grid row and cross-fades
+   with it rather than taking a row of its own. */
+.rail__progress {
+  display: flex;
+  grid-row: 2;
+  grid-column: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) 0;
+  overflow: hidden;
+  opacity: 1;
+  pointer-events: none;
+  transition: opacity var(--duration-rail) var(--ease-step);
+}
+
+.rail:hover .rail__progress,
+.rail:focus-within .rail__progress,
+.rail[data-pinned='true'] .rail__progress {
+  opacity: 0;
+}
+
+.rail__progress-dot {
+  flex: none;
+  width: var(--dot-size);
+  height: var(--dot-size);
+  border-radius: var(--radius-pill);
+  border: var(--hairline) solid var(--line);
+}
+
+/* §2 State as a fill: moss for done, solid --summit for the current step —
+   the same two fills .rail__mark and .rail__step[data-current] already use. */
+.rail__progress-dot[data-complete='true'] {
+  border-color: transparent;
+  background: var(--moss);
+}
+
+.rail__progress-dot[data-current='true'] {
+  border-color: transparent;
+  background: var(--summit);
+}
+
 /* ---- head ------------------------------------------------------------ */
 
+/* Collapsed, the rail shows nothing but .rail__hint and .rail__progress —
+   head, steps and foot all wait for the rail to actually open before they
+   draw. */
+.rail__head,
+.rail__scroll,
+.rail__foot {
+  grid-column: 1;
+  opacity: 0;
+  transition: opacity var(--duration-rail) var(--ease-step);
+}
+
+.rail:hover .rail__head,
+.rail:hover .rail__scroll,
+.rail:hover .rail__foot,
+.rail:focus-within .rail__head,
+.rail:focus-within .rail__scroll,
+.rail:focus-within .rail__foot,
+.rail[data-pinned='true'] .rail__head,
+.rail[data-pinned='true'] .rail__scroll,
+.rail[data-pinned='true'] .rail__foot {
+  opacity: 1;
+}
+
 .rail__head {
+  grid-row: 1;
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -85,17 +181,66 @@
 .rail__lesson-title {
   overflow: hidden;
   color: var(--ink);
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
+  font-weight: 600;
   text-overflow: ellipsis;
 }
 
 /* ---- steps ----------------------------------------------------------- */
 
 .rail__scroll {
+  grid-row: 2;
   overflow-y: auto;
   padding: var(--space-3) 0;
   scrollbar-width: thin;
   scrollbar-color: var(--line) transparent;
+}
+
+/* Lessons 1–3, in order: the tutor launcher, then one row or one open detail
+   per lesson. */
+.rail__scroll > * + * {
+  margin-top: var(--space-1);
+}
+
+/* A lesson row — bold and full ink, one level up from a step, whether it's
+   open (a <p>, the learner is already there) or closed (a link to open it).
+   No leading dot: completion is a step idea, not a lesson one. */
+.rail__lesson-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  margin: 0;
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+a.rail__lesson-row:hover {
+  background: var(--paper-3);
+}
+
+/* One size up from the plain chrome baseline (.rail__title's own
+   --text-sm) — with the bold weight above, that's two cues, not one,
+   for "this is a lesson, not a step". */
+.rail__lesson-row .rail__title {
+  font-size: var(--text-base);
+}
+
+/* The open lesson's steps sit one level in, and their titles drop a size
+   below both the lesson row (--text-base) and the plain chrome baseline
+   (.rail__title's own --text-sm) — the lesson row reads as the heading,
+   the steps as its contents. */
+.rail__lesson-steps {
+  margin-top: var(--space-2);
+  padding-left: var(--space-4);
+  border-left: var(--hairline) solid var(--line);
+}
+
+.rail__lesson-steps .rail__title {
+  font-size: var(--text-xs);
 }
 
 .rail__group + .rail__group {
@@ -176,19 +321,14 @@
 
 /* ---- foot ------------------------------------------------------------ */
 
-/* At 48px a bare "02" beside the step numbers would read as another step, so
-   the other lessons only appear once their titles do. */
+/* Account and Home: utility exits, not lesson content, so they sit below the
+   lesson list rather than inside it. No border of its own — the --paper-2
+   background on .rail__exit is what sets it apart from the list above.
+   Opacity and its transition live with .rail__head and .rail__scroll
+   above — all three fade together. */
 .rail__foot {
-  padding: var(--space-2) 0;
-  border-top: var(--hairline) solid var(--line);
-  opacity: 0;
-  transition: opacity var(--duration-rail) var(--ease-step);
-}
-
-.rail:hover .rail__foot,
-.rail:focus-within .rail__foot,
-.rail[data-pinned='true'] .rail__foot {
-  opacity: 1;
+  grid-row: 3;
+  padding-top: var(--space-2);
 }
 
 /* §2 The tutor launcher is a primary action, not a lesson link, so it takes
@@ -215,28 +355,33 @@
   white-space: nowrap;
 }
 
-/* A utility action, not a primary one, so it stays on the quiet --paper-2
-   chip rather than the tutor launcher's --summit fill. */
-.rail__account {
+/* Account and Home: same quiet --paper-2 chip, whether the element underneath
+   is a <button> (Account opens a drawer) or a <Link> (Home is a route). No
+   outer border — the pair reads as one block, split by a single hairline
+   between the two rows rather than boxed individually. */
+.rail__exit {
   display: flex;
   align-items: center;
   gap: var(--space-2);
   width: 100%;
-  margin-bottom: var(--space-2);
-  padding: var(--space-2);
-  border: var(--hairline) solid var(--line);
-  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  border: none;
   background: var(--paper-2);
   color: var(--ink-dim);
+  text-decoration: none;
   cursor: pointer;
 }
 
-.rail__account:hover {
+.rail__exit + .rail__exit {
+  border-top: var(--hairline) solid var(--line);
+}
+
+.rail__exit:hover {
   background: var(--paper-3);
   color: var(--ink);
 }
 
-.rail__account-label {
+.rail__exit-label {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
