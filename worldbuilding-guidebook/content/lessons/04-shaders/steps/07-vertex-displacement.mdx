@@ -1,0 +1,25 @@
+---
+title: Vertex displacement
+goal: Predict what a vertex shader can move and where its limits come from.
+keywords:
+  - vertex displacement
+  - animation
+  - ripple
+  - resolution
+scene:
+  demo: voxel-terrain
+---
+
+The vertex stage can move mesh vertices before projection. A ripple might add a time-varying offset along each vertex normal:
+
+```glsl
+float wave = sin(length(position.xz) * uFrequency - uTime * uSpeed);
+vec3 moved = position + normal * (uAmplitude * wave);
+gl_Position = projectionMatrix * modelViewMatrix * vec4(moved, 1.0);
+```
+
+This is an illustrative **local-space** ripple on one mesh. A wave that must line up across terrain chunks should use a shared world-space position for its phase and transform its displaced result consistently. A fragment shader can colour between vertices, but cannot add silhouette detail that the vertex mesh lacks. Low-resolution geometry makes high-frequency waves alias or disappear.
+
+The existing erosion height grid and voxel density field remain unchanged by visual displacement. Their collision, picking, chunk boundaries, and remeshing still use the original CPU data. For real digging, edit the density field and remesh; reserve shader displacement for a cosmetic pulse, wind, or surface response unless all dependent systems are updated too.
+
+**Study record:** hold the camera still, compare amplitude zero with a modest amplitude, then compare coarse and fine mesh resolutions. Check silhouette, normals, seams, and whether a cursor hits what it appears to hit.

@@ -1,0 +1,23 @@
+---
+title: Build the shader lab
+goal: Translate the assignment into a switchable, testable section of the app.
+keywords:
+  - assignment
+  - shader switcher
+  - controls
+  - evaluation
+scene:
+  demo: voxel-terrain
+---
+
+Build a dedicated **Shaders** section in the app, using the same terrain or simulation state for every strategy. The selected strategy should be explicit in the UI and safe to switch while a scene is running.
+
+1. Add a `shaderMode` choice: standard baseline, flat, height/slope, and water diagnostic. Describe each choice in one sentence in the interface.
+2. Render the same geometry with the chosen material. Send time and display thresholds as uniforms; send per-location simulation values as attributes or a data texture, updating them when the CPU grid changes.
+3. For each study, write down its input data, coordinate space, colour rule, and the behaviour it is meant to reveal. Capture comparable screenshots and one observation that changed your decision.
+4. Inspect shader compile errors, low and high terrain resolution, camera movement, chunk boundaries, and the moment a water grid updates. Check that a colour change is not mistaken for a change to the underlying terrain.
+5. Record the exact source files and results in the repository's `docs/exercise/06-shader-studies.md`. Tick a requirement only after it is actually implemented and observed.
+
+The four assignment outcomes are: **create your own shader studies**; **demonstrate what shaders do for simulations**; **explain which shaders you want and why**; and **implement a dedicated app section that swaps strategies**. The first three need reasoning and visual evidence; the last needs working code and a real UI. This authored lesson prepares that work, but does not count it as complete.
+
+Further reading: [Three.js ShaderMaterial](https://threejs.org/docs/pages/ShaderMaterial.html), [Three.js Shadertoy guide](https://threejs.org/manual/pages/shadertoy.html), and [The Book of Shaders, shaping functions](https://thebookofshaders.com/05/).
