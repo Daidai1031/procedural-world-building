@@ -8,10 +8,14 @@ keywords:
   - fragment shader
   - simulation
 scene:
-  demo: voxel-terrain
+  demo: shader-lab
+  unlock:
+    - shaderMode
+    - voxelShape
+    - voxelResolution
 ---
 
-The terrain behind this lesson is the **existing voxel volume**, shown as instanced cubes with its current material. The shader studies described here are the next implementation exercise; this baseline is useful for comparing the eventual results.
+The scene behind this lesson is one Marching Cubes surface. Select **Standard material** and **Flat colour shader** in the control strip. The mesh and camera stay the same: only the material changes. The standard version responds to the scene lights; the flat shader draws one colour everywhere. Rotate the camera and compare the slope, cave, and silhouette.
 
 A shader is a small program that runs many times in parallel on the GPU. A **vertex shader** processes each input vertex and must produce a clip-space position. A **fragment shader** computes an output for each covered fragment, often a colour and optionally depth or other render targets. A fragment is a candidate pixel sample, so “one run per screen pixel” is a useful first picture but not an exact count: overlap and multisampling can cause more work.
 
@@ -25,5 +29,7 @@ simulation state (CPU grid, or later GPU texture)
 ```
 
 Each invocation receives inputs; it does not remember the previous invocation. A simulation needs persistent state and an update rule. A shader can **display** height, slope, water, sediment, or a voxel field only when the renderer supplies those values. GPU simulation is possible, but it requires explicit storage and a separate update pass; changing a colour shader alone does not perform erosion.
+
+This is the first shader study. The later height, slope, and water strategies in this lesson are still designs, not implemented modes.
 
 **Check:** If a water channel in the simulation grid changes but no attribute, texture, or uniform sent to the shader changes, should the rendered wetness update? No: the GPU has not received the new values.

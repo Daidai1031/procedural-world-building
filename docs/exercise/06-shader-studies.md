@@ -4,7 +4,7 @@
 **Course section:** Lesson 4 — Shaders  
 **Project:** [`worldbuilding-guidebook`](../../worldbuilding-guidebook/)  
 **Lesson content:** [`content/lessons/04-shaders/`](../../worldbuilding-guidebook/content/lessons/04-shaders/)  
-**Status:** Concept and implementation plan written; shader studies and switcher not yet implemented
+**Status:** In progress — first flat-colour shader and a two-mode switcher implemented; other studies and visual observations pending
 
 ## Exercise goal
 
@@ -14,10 +14,10 @@ The course assignment asks for four outcomes:
 
 | Requirement | Planned evidence | Status |
 | --- | --- | --- |
-| Create your own shader studies | flat control, height/slope, water/sediment diagnostic; source and comparable captures | Pending code and captures |
+| Create your own shader studies | flat control, height/slope, water/sediment diagnostic; source and comparable captures | Flat study coded; captures and remaining studies pending |
 | Demonstrate what shaders can do for simulations | live or stepped erosion values reach the GPU; explain what the visual result reveals | Pending implementation and observation |
 | Consider what shaders to use or develop, and why | rationale and trade-offs below | Written; revisit after visual experiments |
-| Implement a section dedicated to shaders with swappable strategies | navigable section, visible mode control, stable geometry/state while switching | Pending implementation |
+| Implement a section dedicated to shaders with swappable strategies | navigable section, visible mode control, stable geometry/state while switching | Lesson 04 first step has standard/flat switch; more strategies pending |
 
 **Completion rule:** The written lesson and this plan do not by themselves satisfy the implementation or visual-study requirements. Replace each pending status only after checking the running app and recording what happened.
 
@@ -28,6 +28,14 @@ The course assignment asks for four outcomes:
 - [`demoRegistry.js`](../../worldbuilding-guidebook/src/scene/demoRegistry.js) maps demo names to scene components; [`demoParams.js`](../../worldbuilding-guidebook/src/scene/demoParams.js) describes controls; [`sceneStore.js`](../../worldbuilding-guidebook/src/store/sceneStore.js) carries active demo and parameter state; [`ControlStrip.jsx`](../../worldbuilding-guidebook/src/components/ControlStrip.jsx) renders controls. A dedicated shader lab should use these existing seams rather than create a second unrelated canvas.
 
 > Verify these links and behaviour against the actual implementation when this note is updated; source files can evolve.
+
+## First implementation — standard versus flat
+
+[`ShaderLabDemo.jsx`](../../worldbuilding-guidebook/src/scene/demos/shaders/ShaderLabDemo.jsx) now builds one Marching Cubes mesh from the selected density shape and resolution. It keeps that `BufferGeometry` while the `shaderMode` control changes between the existing `MeshStandardMaterial` approach and an original GLSL `ShaderMaterial`. The vertex shader applies the model-view and projection matrices to the input position; the fragment shader outputs a constant `uColor`. This deliberately removes lighting response so the difference from the baseline is easy to study.
+
+[`params.js`](../../worldbuilding-guidebook/src/scene/demos/shaders/params.js) defines the strategy selector and reuses voxel shape and resolution controls. [`demoRegistry.js`](../../worldbuilding-guidebook/src/scene/demoRegistry.js) registers the lab. [Lesson 04 step 01](../../worldbuilding-guidebook/content/lessons/04-shaders/steps/01-what-a-shader-does.mdx) opens it and explains what to compare.
+
+**Initial values:** `shaderMode = standard`, `voxelShape = ground`, `voxelResolution = 16`, flat colour `#84a493`. A mode change does not resample density or rebuild the mesh; changing shape or resolution does. This is code-level verification, not a claim about observed pixels. `npm run build` passes; browser capture and visual inspection are still pending.
 
 ## Questions the studies should answer
 
@@ -74,8 +82,8 @@ Three.js `ShaderMaterial` uses the app's current WebGL/GLSL path. If later using
 
 | Study | Same-scene capture or link | Parameter values and data source | What changed on screen? | Problem or decision |
 | --- | --- | --- | --- | --- |
-| Standard baseline | Pending | Pending | Pending | Pending |
-| Flat control | Pending | Pending | Pending | Pending |
+| Standard baseline | Pending visual capture | Ground, resolution 16, standard material colour `#84a493` | Pending browser inspection | Compare lighting with flat mode |
+| Flat control | Pending visual capture | Same mesh; uniform `uColor = #84a493` | Pending browser inspection | Confirm constant colour and silhouette |
 | Height + slope | Pending | Pending | Pending | Pending |
 | Water / sediment diagnostic | Pending | Pending | Pending | Pending |
 
@@ -83,8 +91,8 @@ Record any compile errors and their fixes, plus one case where a visualization m
 
 ## Acceptance checks for the coding stage
 
-- [ ] The app has a discoverable, dedicated **Shaders** section.
-- [ ] The strategy selector changes the actual material or shader rule on the same scene.
+- [x] Lesson 04 has a first Shaders scene with a visible strategy selector.
+- [x] Standard and flat modes choose different materials on the same mesh (code and build checked; visual check pending).
 - [ ] At least three original shader studies have source code, labelled inputs, and comparable visual evidence.
 - [ ] A shader mode displays genuine simulation data and changes when that data changes.
 - [ ] The written analysis explains why each chosen study serves erosion, voxel terrain, or the future planet.

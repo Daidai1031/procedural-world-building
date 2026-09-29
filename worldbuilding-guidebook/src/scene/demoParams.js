@@ -1,4 +1,5 @@
 import { sceneAnatomyParams } from './demos/sceneAnatomy/params.js'
+import { shaderLabParams } from './demos/shaders/params.js'
 import { noiseParams, erosionParams } from './demos/proceduralMaps/params.js'
 import { cellParams, chunkParams, csgOrderParams, csgParams, editParams, lodParams, meshParams, voxelParams, volumeDiagramParams } from './demos/voxels/params.js'
 
@@ -6,6 +7,7 @@ import { cellParams, chunkParams, csgOrderParams, csgParams, editParams, lodPara
 // defaults without importing components, which import the store back.
 export const demoParams = {
   'scene-anatomy': sceneAnatomyParams,
+  'shader-lab': shaderLabParams,
   'noise-terrain': noiseParams,
   'simulation-terrain': { ...noiseParams, ...erosionParams },
   'voxel-terrain': voxelParams,
