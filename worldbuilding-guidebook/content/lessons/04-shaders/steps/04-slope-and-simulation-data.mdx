@@ -1,0 +1,32 @@
+---
+title: Slope and simulation data
+goal: Turn terrain orientation and erosion state into visual diagnostics.
+keywords:
+  - normal
+  - slope
+  - erosion
+  - water
+  - sediment
+scene:
+  demo: voxel-terrain
+---
+
+A slope mask can compare the **world-space surface normal** with world up:
+
+```glsl
+float steepness = 1.0 - clamp(dot(normalize(vWorldNormal),
+                                  vec3(0.0, 1.0, 0.0)), 0.0, 1.0);
+float rock = smoothstep(uSlopeStart, uSlopeEnd, steepness);
+vec3 color = mix(uSoilColor, uRockColor, rock);
+```
+
+Flat upward faces have steepness near zero; vertical walls have steepness near one. This makes cliff rock and soil bands respond to *orientation*, not just altitude. Use the inverse transpose normal transform when a mesh can have nonuniform scale. On an overhang, the upward-only clamp treats downward faces as maximally steep; choose that deliberately or use an absolute dot product for a different look.
+
+The erosion simulation in Lesson 02 stores **height, water, and sediment** in its grid. To draw a wetness or sediment study, upload the relevant channel as an attribute or texture and use a fixed display range. A moving maximum that changes every frame can make a stable cell appear to change colour even when its value does not.
+
+Two useful strategies to compare:
+
+1. **Scientific view:** grayscale height, blue water, or warm sediment, with a visible legend and fixed units/range. Use this to debug flow and deposition.
+2. **World view:** slope-based rock plus a restrained water-darkening mask. Use this to communicate what the simulation means as a landscape.
+
+If the CPU grid has more cells than the visible mesh, sample the same simulation coordinates used to construct the mesh. Document whether each sample is nearest-neighbour or bilinearly interpolated. The fragment stage only knows the values it receives.

@@ -1,0 +1,29 @@
+---
+title: Data and coordinate spaces
+goal: Choose the right input and coordinate space for a visual rule.
+keywords:
+  - attribute
+  - uniform
+  - varying
+  - local space
+  - world space
+  - view space
+scene:
+  demo: voxel-terrain
+---
+
+Three kinds of input answer different questions:
+
+| Input | Varies over | Worldbuilding example |
+| --- | --- | --- |
+| Attribute | mesh vertices | sampled height, wetness, normal, ore mask |
+| Uniform | a draw call | time, palette, sea level, effect strength |
+| Interpolated varying | fragments inside a triangle | position or wetness passed from vertices |
+
+An attribute sampled only at mesh vertices becomes interpolated across each triangle. If a narrow stream or ore seam needs finer detail, increase the sampling resolution or supply a texture. A uniform cannot carry a different wetness value for every cell by itself.
+
+Coordinates also have to match the question. **Local position** moves with an object, so it suits a pattern painted onto one rock. **World position** is shared by adjacent chunks, so a height band or world-aligned noise can continue across their borders. **View space** changes with the camera, so it suits a MatCap lookup or an effect based on how directly we face a surface. A world-space height test uses the transformed `worldPosition.y`; testing local `position.y` on a moved chunk can put its snow band at the wrong altitude.
+
+The voxel lesson used `field(p) < 0` for solid and `field(p) = 0` for its surface. That sign belongs to the **density field**. A shader may read a field value or a surface attribute, but its screen colour does not change the field or make new caves.
+
+**Try on paper:** If two neighboring terrain chunks share a cliff face, should a continuous altitude gradient read local height or world height? Use world height, and confirm both chunks use the same scale and origin.

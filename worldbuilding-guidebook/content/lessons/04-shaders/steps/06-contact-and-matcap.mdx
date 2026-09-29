@@ -1,0 +1,23 @@
+---
+title: Contact cues and MatCap
+goal: Separate surface styling from the geometry and lighting information a contact effect needs.
+keywords:
+  - ambient occlusion
+  - contact shadow
+  - MatCap
+  - normal
+scene:
+  demo: voxel-terrain
+---
+
+The lecture examples include ambient occlusion, contact shading, and MatCap. They solve different visual problems:
+
+| Study | Useful input | What it can show | Limitation |
+| --- | --- | --- | --- |
+| Curvature or crevice tint | geometry, neighbors, or a baked mask | recesses on the same surface | a normal alone does not reveal occlusion |
+| Contact shadow | light and nearby depth/geometry | where an object meets the ground | a flat colour shader cannot discover that contact by itself |
+| MatCap | view-space normal and an image | material and lighting look from one captured view | highlights track the camera, not actual scene lights |
+
+For a first study, a **baked crevice attribute** or a separate screen-space ambient-occlusion pass is easier to reason about than claiming that darkening downward normals is real ambient occlusion. MatCap can be a useful sculpting or shape-reading mode while inspecting an extracted voxel surface. Keep it explicitly labelled as a diagnostic material.
+
+On a terrain with caves and loose rocks, compare a MatCap view with a normally lit material while orbiting the camera. Look for silhouettes that appear solid but have poor contact cues. Record whether the contact treatment comes from a shadow, a baked mask, or postprocessing.

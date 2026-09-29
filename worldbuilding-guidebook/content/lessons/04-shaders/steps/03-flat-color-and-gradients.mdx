@@ -1,0 +1,33 @@
+---
+title: Flat colour and gradients
+goal: Build a first shader study from a constant colour and a position-based blend.
+keywords:
+  - flat shader
+  - gradient
+  - mix
+  - step
+  - smoothstep
+scene:
+  demo: voxel-terrain
+---
+
+Start with one constant colour. It is a control sample: if the mesh disappears, the shader pipeline or material setup is wrong before any palette mathematics matters. A self-lit `ShaderMaterial` does not automatically reproduce `MeshStandardMaterial` lighting and shadows.
+
+For a world-height gradient, normalize the height into `0..1` and blend two colours:
+
+```glsl
+float t = clamp((vWorldHeight - uLowHeight) /
+                max(uHighHeight - uLowHeight, 0.001), 0.0, 1.0);
+vec3 color = mix(uLowColor, uHighColor, t);
+```
+
+`mix(a, b, t)` interpolates between values. `step(edge, x)` makes a hard boundary. `smoothstep(low, high, x)` gives a softened transition when `low < high`. To make bands, combine several thresholds; to keep them readable, expose the thresholds and show the raw normalized height in a diagnostic mode.
+
+```glsl
+float snow = smoothstep(uSnowStart, uSnowEnd, vWorldHeight);
+color = mix(color, uSnowColor, snow);
+```
+
+This is **colour based on height**, not vertex displacement. It resembles the vertex-colour height palette in the earlier terrain exercises, but moves the colouring rule into a fragment shader. A CPU-authored colour attribute and a custom fragment shader are different implementation strategies with different update and interpolation costs.
+
+**Study record to capture after implementation:** same camera and terrain, flat colour versus linear height gradient versus soft snow band; note how the band behaves at chunk boundaries.

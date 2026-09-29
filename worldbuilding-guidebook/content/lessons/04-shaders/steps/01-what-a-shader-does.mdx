@@ -1,0 +1,29 @@
+---
+title: What a shader does
+goal: Distinguish GPU visual rules from the simulation data and geometry they display.
+keywords:
+  - GPU
+  - shader
+  - vertex shader
+  - fragment shader
+  - simulation
+scene:
+  demo: voxel-terrain
+---
+
+The terrain behind this lesson is the **existing voxel volume**, shown as instanced cubes with its current material. The shader studies described here are the next implementation exercise; this baseline is useful for comparing the eventual results.
+
+A shader is a small program that runs many times in parallel on the GPU. A **vertex shader** processes each input vertex and must produce a clip-space position. A **fragment shader** computes an output for each covered fragment, often a colour and optionally depth or other render targets. A fragment is a candidate pixel sample, so “one run per screen pixel” is a useful first picture but not an exact count: overlap and multisampling can cause more work.
+
+```text
+simulation state (CPU grid, or later GPU texture)
+  → geometry and attributes
+  → vertex shader: transform / optional displacement
+  → rasterization: interpolate varying values across triangles
+  → fragment shader: colour / surface appearance
+  → screen
+```
+
+Each invocation receives inputs; it does not remember the previous invocation. A simulation needs persistent state and an update rule. A shader can **display** height, slope, water, sediment, or a voxel field only when the renderer supplies those values. GPU simulation is possible, but it requires explicit storage and a separate update pass; changing a colour shader alone does not perform erosion.
+
+**Check:** If a water channel in the simulation grid changes but no attribute, texture, or uniform sent to the shader changes, should the rendered wetness update? No: the GPU has not received the new values.
