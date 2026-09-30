@@ -1,0 +1,57 @@
+:root {
+  font-family: ui-monospace, Consolas, monospace;
+  color: #353632;
+  background: #F3F1EB;
+  font-synthesis: none;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { position: relative; height: 100dvh; min-height: 360px; }
+header, footer, .debug, .terrain-panel { position: absolute; z-index: 1; }
+header { top: 28px; left: 32px; pointer-events: none; }
+header p { font-size: 11px; letter-spacing: 0.12em; margin: 0 0 6px; }
+h1 { margin: 0; font-size: 28px; font-weight: 500; }
+footer { bottom: 24px; left: 32px; display: flex; gap: 20px; flex-wrap: wrap; font-size: 11px; letter-spacing: 0.04em; pointer-events: none; }
+.debug { right: 24px; top: 24px; padding: 16px; width: min(300px, 45vw); background: #F3F1EB; border: 1px solid #c9c7c0; font-size: 12px; }
+.debug strong { font-size: 11px; font-weight: 500; }
+dl { display: grid; grid-template-columns: 60px 1fr; gap: 8px; margin-bottom: 0; }
+dt { color: #65655f; }
+dd { margin: 0; overflow-wrap: anywhere; }
+.fallback { padding: 140px 32px; }
+.terrain-panel { left: 32px; top: 100px; width: 250px; padding: 18px; background: rgba(243,241,235,.94); border: 1px solid #c9c7c0; }
+.tool-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 20px; }
+.tool-tabs button { min-height: 38px; border: 1px solid #b5b3ac; background: transparent; color: inherit; font: inherit; font-size: 11px; cursor: pointer; }
+.tool-tabs button[aria-pressed="true"] { background: #454641; color: #f3f1eb; }
+.tool-description { font-size: 11px; line-height: 1.5; color: #60615b; }
+.signal-legend { display: flex; justify-content: space-between; gap: 5px; margin-top: 18px; font-size: 10px; }
+.eyebrow { margin: 0 0 15px; font-size: 11px; letter-spacing: .1em; }
+.terrain-modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.terrain-modes button { min-height: 42px; padding: 4px; border: 1px solid #b5b3ac; background: transparent; color: inherit; font: inherit; font-size: 10px; cursor: pointer; }
+.terrain-modes button[aria-pressed="true"] { background: #454641; color: #f3f1eb; }
+.flatten-orientation { margin-top: 16px; font-size: 11px; }
+.orientation-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 7px; }
+.orientation-buttons button { min-height: 34px; border: 1px solid #b5b3ac; background: transparent; color: inherit; font: inherit; font-size: 10px; cursor: pointer; }
+.orientation-buttons button[aria-pressed="true"] { background: #454641; color: #f3f1eb; }
+.terrain-modes button:focus-visible, .tool-tabs button:focus-visible, .orientation-buttons button:focus-visible, input:focus-visible { outline: 2px solid #5e5d56; outline-offset: 2px; }
+.brush-control { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: 20px; font-size: 12px; }
+.brush-control input { width: 100%; accent-color: #5e5d56; }
+.remaining { display: flex; justify-content: space-between; gap: 8px; padding-top: 16px; border-top: 1px solid #c9c7c0; margin-top: 16px; font-size: 12px; }
+.remaining strong { font-weight: 500; }
+.action-message { min-height: 26px; margin: 18px 0 0; color: #60615b; font-size: 11px; line-height: 1.4; }
+@media (max-width: 600px) { header { top: 18px; left: 18px; } .terrain-panel { top: auto; bottom: 48px; left: 18px; width: min(250px, calc(100vw - 36px)); } .debug { top: 18px; right: 18px; } footer { bottom: 16px; left: 18px; } }
+.project-nav { position: absolute; z-index: 2; top: 24px; right: 24px; display: flex; gap: 18px; font-size: 11px; }
+.project-nav a { color: inherit; min-height: 44px; display: flex; align-items: center; text-decoration: none; }
+.project-nav a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.project-nav a:focus-visible { outline: 2px solid #5e5d56; outline-offset: 4px; }
+main:has(.debug) .project-nav { top: auto; bottom: 18px; }
+@media (max-width: 600px) { .project-nav { right: 18px; top: 16px; gap: 12px; } }
+
+.warehouse { margin-top: 16px; padding-top: 16px; border-top: 1px solid #c9c7c0; }
+.warehouse .eyebrow { display: block; margin-bottom: 10px; }
+.warehouse-slot { display: flex; align-items: center; gap: 10px; padding: 5px 0; font-size: 12px; }
+.slot-glyph { width: 18px; text-align: center; font-size: 16px; line-height: 1; }
+.slot-name { flex: 1; }
+.slot-count { font-weight: 500; font-variant-numeric: tabular-nums; animation: slot-bump 320ms cubic-bezier(0.2, 0, 0, 1); }
+@keyframes slot-bump { 0% { transform: scale(1.7); } 100% { transform: scale(1); } }
+.collect-chip { position: fixed; left: 0; top: 0; z-index: 5; pointer-events: none; font-size: 20px; line-height: 1; text-shadow: 0 0 8px currentColor, 0 0 16px currentColor; will-change: transform; }
+@media (prefers-reduced-motion: reduce) { .slot-count { animation: none; } }
