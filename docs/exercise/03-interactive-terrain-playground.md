@@ -24,7 +24,7 @@ grid → positions → noise stack → 2D map → height field → 3D terrain
 | [`src/lessons/proceduralMaps/noiseMath.js`](../../worldbuilding-guidebook/src/lessons/proceduralMaps/noiseMath.js) | Repeatable hash, white/value/Perlin/cellular noise, and the octave stack |
 | [`src/lessons/proceduralMaps/NoiseMapPreview.jsx`](../../worldbuilding-guidebook/src/lessons/proceduralMaps/NoiseMapPreview.jsx) | Draws the sampled values as a 2D grayscale map |
 | [`src/lessons/proceduralMaps/TerrainPreview.jsx`](../../worldbuilding-guidebook/src/lessons/proceduralMaps/TerrainPreview.jsx) | Displaces mesh vertices to show the same map as 3D terrain |
-| [`src/lessons/index.js`](../../worldbuilding-guidebook/src/lessons/index.js) | Registers this lesson as `02 — Creating Procedural Maps` in the navigation |
+| [`content/lessons/02-procedural-maps/lesson.yaml`](../../worldbuilding-guidebook/content/lessons/02-procedural-maps/lesson.yaml) | Names this lesson `02 — Terrain` in the navigation |
 
 ## Required
 
