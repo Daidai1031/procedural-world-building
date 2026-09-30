@@ -9,6 +9,8 @@ export const useProgressStore = create(
       lastStepId: null,
       notes: {},
       practiceResults: {},
+      // Steps the learner has starred as a technique they will use in the final project.
+      finalProjectStepIds: [],
 
       savePractice: (stepId, patch) => set((state) => ({
         practiceResults: { ...state.practiceResults, [stepId]: { ...state.practiceResults[stepId], ...patch } },
@@ -21,6 +23,11 @@ export const useProgressStore = create(
         else delete notes[stepId]
         return { notes }
       }),
+      toggleFinalProject: (stepId) => set((state) => ({
+        finalProjectStepIds: state.finalProjectStepIds.includes(stepId)
+          ? state.finalProjectStepIds.filter((id) => id !== stepId)
+          : [...state.finalProjectStepIds, stepId],
+      })),
       setLastStepId: (stepId) => set({ lastStepId: stepId }),
       markStepComplete: (stepId) => {
         if (get().completedStepIds.includes(stepId)) return
@@ -33,6 +40,7 @@ export const useProgressStore = create(
         lastStepId: patch.lastStepId ?? null,
         notes: patch.notes ?? {},
         practiceResults: patch.practiceResults ?? {},
+        finalProjectStepIds: patch.finalProjectStepIds ?? [],
       }),
     }),
     { name: 'worldbuilding-guidebook.progress.v2' },

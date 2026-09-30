@@ -186,6 +186,13 @@
   text-overflow: ellipsis;
 }
 
+.rail__lesson-subtitle {
+  overflow: hidden;
+  color: var(--ink-dim);
+  font-size: var(--text-xs);
+  text-overflow: ellipsis;
+}
+
 /* ---- steps ----------------------------------------------------------- */
 
 .rail__scroll {
@@ -275,6 +282,20 @@ a.rail__lesson-row:hover {
 .rail__step:hover {
   background: var(--paper-3);
   color: var(--ink);
+}
+
+/* A starred step gets a fourth column for its star, at the row's end. */
+.rail__step[data-final-project='true'] {
+  grid-template-columns: var(--dot-size) auto minmax(0, 1fr) auto;
+}
+
+.rail__star {
+  width: 12px;
+  height: 12px;
+  fill: currentcolor;
+  stroke: currentcolor;
+  stroke-width: 1.5;
+  stroke-linejoin: round;
 }
 
 /* §5 The current step sits on a solid --summit block. Not a 2px accent border:

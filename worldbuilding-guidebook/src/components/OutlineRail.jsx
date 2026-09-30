@@ -57,19 +57,31 @@ function AccountIcon() {
   )
 }
 
-function StepRow({ step, isCurrent, isComplete }) {
+// The same star as the step card's Final Project mark, filled.
+function StarMark() {
+  return (
+    <svg className="rail__star" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M8 1.75l1.85 3.95 4.3.5-3.2 2.95.85 4.25L8 11.3l-3.8 2.1.85-4.25-3.2-2.95 4.3-.5z" />
+    </svg>
+  )
+}
+
+function StepRow({ step, isCurrent, isComplete, isFinalProject }) {
   return (
     <li>
       <Link
         className="rail__step"
         to={`/lesson/${step.lessonSlug}/${step.stepSlug}`}
         data-current={isCurrent}
+        data-final-project={isFinalProject}
         aria-current={isCurrent ? 'step' : undefined}
       >
         <span className="rail__mark" data-complete={isComplete} aria-hidden="true" />
         <span className="rail__number">{padOrdinal(step.positionInLesson)}</span>
         <span className="rail__title">{step.frontmatter.title}</span>
+        {isFinalProject && <StarMark />}
         {isComplete && <span className="rail__sr-only">Completed</span>}
+        {isFinalProject && <span className="rail__sr-only">Applied to Final Project</span>}
       </Link>
     </li>
   )
@@ -89,7 +101,7 @@ function LessonSummaryRow({ lesson }) {
 // The open lesson: the same bold row (not a link — the learner is already
 // here), plus its chapters and steps indented underneath, one level down and
 // visibly lighter than the lesson row itself.
-function LessonDetail({ lesson, groups, currentStepId, completedStepIds }) {
+function LessonDetail({ lesson, groups, currentStepId, completedStepIds, finalProjectStepIds }) {
   return (
     <div className="rail__lesson-open">
       <p className="rail__lesson-row" aria-current="location">
@@ -107,6 +119,7 @@ function LessonDetail({ lesson, groups, currentStepId, completedStepIds }) {
                   step={step}
                   isCurrent={step.id === currentStepId}
                   isComplete={completedStepIds.includes(step.id)}
+                  isFinalProject={finalProjectStepIds.includes(step.id)}
                 />
               ))}
             </ol>
@@ -150,6 +163,7 @@ export default function OutlineRail() {
   const railPinned = useUiStore((state) => state.railPinned)
   const toggleRailPinned = useUiStore((state) => state.toggleRailPinned)
   const completedStepIds = useProgressStore((state) => state.completedStepIds)
+  const finalProjectStepIds = useProgressStore((state) => state.finalProjectStepIds)
   const accountUser = useAuthStore((state) => state.user)
 
   const lessonSlug = match?.params.lessonSlug
@@ -180,6 +194,7 @@ export default function OutlineRail() {
         <p className="rail__lesson">
           <span className="rail__lesson-number">Lesson {lesson.number}</span>
           <span className="rail__lesson-title">{lesson.title}</span>
+          {lesson.subtitle && <span className="rail__lesson-subtitle">{lesson.subtitle}</span>}
         </p>
       </div>
 
@@ -203,6 +218,7 @@ export default function OutlineRail() {
               groups={groups}
               currentStepId={currentStepId}
               completedStepIds={completedStepIds}
+              finalProjectStepIds={finalProjectStepIds}
             />
           ) : (
             <LessonSummaryRow key={entry.slug} lesson={entry} />
@@ -217,10 +233,10 @@ export default function OutlineRail() {
           <AccountIcon />
           <span className="rail__exit-label">{accountUser ? accountUser.email : 'Account'}</span>
         </button>
-        <Link className="rail__exit" to="/" aria-label="Back to the last visited step">
+        <a className="rail__exit" href="/" target="_top" aria-label="Back to project home">
           <HomeIcon />
           <span className="rail__exit-label">Home</span>
-        </Link>
+        </a>
       </div>
 
       {/* Decorative only — hovering, focusing, or pinning the rail is what

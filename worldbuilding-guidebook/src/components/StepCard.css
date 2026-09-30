@@ -233,6 +233,50 @@
   white-space: nowrap;
 }
 
+/* ---- final-project mark ------------------------------------------------ */
+
+/* A pill, so it reads as a tag on the step. Marked is a solid --meadow fill with
+   ink text: accents fill, and only --summit is reserved for "current". */
+.step-card__mark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 32px;
+  margin-top: var(--space-3);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: none;
+  color: var(--ink-dim);
+  font: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.step-card__mark:hover {
+  background: var(--paper-3);
+  color: var(--ink);
+}
+
+.step-card__mark[aria-pressed='true'] {
+  border-color: var(--meadow);
+  background: var(--meadow);
+  color: var(--ink);
+}
+
+.star-icon {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+.step-card__mark[aria-pressed='true'] .star-icon {
+  fill: currentcolor;
+}
+
 /* ---- collapse and resize --------------------------------------------- */
 
 .step-card__toggle {

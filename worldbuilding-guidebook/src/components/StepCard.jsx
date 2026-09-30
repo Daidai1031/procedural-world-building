@@ -35,6 +35,15 @@ function NoteIcon() {
   )
 }
 
+// A five-point star, outlined until the learner marks the step.
+function StarIcon() {
+  return (
+    <svg className="star-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M8 1.75l1.85 3.95 4.3.5-3.2 2.95.85 4.25L8 11.3l-3.8 2.1.85-4.25-3.2-2.95 4.3-.5z" />
+    </svg>
+  )
+}
+
 function Chevron({ direction }) {
   const points = direction === 'left' ? '9.5,3 5,8 9.5,13' : '6.5,3 11,8 6.5,13'
 
@@ -158,6 +167,8 @@ export default function StepCard({ step, previousStep, nextStep }) {
   const cardCollapsed = useUiStore((state) => state.cardCollapsed)
   const toggleCardCollapsed = useUiStore((state) => state.toggleCardCollapsed)
   const hasNote = useProgressStore((state) => Boolean(state.notes[step.id]))
+  const isFinalProject = useProgressStore((state) => state.finalProjectStepIds.includes(step.id))
+  const toggleFinalProject = useProgressStore((state) => state.toggleFinalProject)
   // Keyed by step, so a note left open on one step is closed on the next.
   const [editingStepId, setEditingStepId] = useState(null)
   const noteButtonRef = useRef(null)
@@ -240,6 +251,15 @@ export default function StepCard({ step, previousStep, nextStep }) {
             </button>
           </div>
           <p className="step-card__goal">{frontmatter.goal}</p>
+          <button
+            type="button"
+            className="step-card__mark"
+            aria-pressed={isFinalProject}
+            onClick={() => toggleFinalProject(step.id)}
+          >
+            <StarIcon />
+            {isFinalProject ? 'Applied to Final Project' : 'Apply to Final Project'}
+          </button>
         </header>
 
         <div className="step-card__prose">
