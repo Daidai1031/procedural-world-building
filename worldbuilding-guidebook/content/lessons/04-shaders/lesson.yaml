@@ -1,6 +1,6 @@
 slug: shaders
 number: "04"
-title: Shader Studies
+title: Shader
 summary: Study GPU shading, build visual rules for terrain, and plan a switchable shader lab for the world simulation.
 shape: flat
 estimatedMinutes: 50

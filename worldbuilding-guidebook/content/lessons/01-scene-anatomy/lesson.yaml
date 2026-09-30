@@ -1,6 +1,7 @@
 slug: scene-anatomy
 number: "01"
-title: Scene Anatomy
+title: Scene Basics
+subtitle: Three.js with React
 summary: Take one 3D scene apart — entities, materials, lighting, and camera — to see what every scene is built from.
 shape: flat
 estimatedMinutes: 15

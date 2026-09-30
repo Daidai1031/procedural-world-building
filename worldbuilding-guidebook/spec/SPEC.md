@@ -51,7 +51,7 @@ lesson                         lesson
                                    └── step × 8–12
 ```
 
-Lesson 01 (Scene Anatomy) is flat. Lesson 02 (Creating Procedural Maps) is nested with
+Lesson 01 (Scene Basics) is flat. Lesson 02 (Terrain) is nested with
 two chapters: `functions` and `simulation`.
 
 **Step granularity rule:** one step states one conclusion and introduces at most one
@@ -92,7 +92,8 @@ a rename. Slugs come from the filename with the prefix stripped.
 ```yaml
 slug: procedural-maps
 number: "02"
-title: Creating Procedural Maps
+title: Terrain
+subtitle: Noise & Erosion
 summary: Build maps two ways — functions that evaluate a position, and simulations
   that evolve stored state over time.
 shape: nested        # flat | nested
@@ -288,6 +289,10 @@ configured still runs — the account drawer just says so.
 - **UI:** `src/components/AccountDrawer.jsx`, opened from an Account button in
   the outline rail's foot (`src/components/OutlineRail.jsx`). Sign in/up,
   Save configuration, Load configuration.
+- **Auto-save (2026-09-30):** while signed in, the configuration is loaded once at sign-in and
+  then saved 2 seconds after any change, and at once when the tab is hidden. Nothing is saved
+  before that first load finishes, so a fresh browser's defaults never overwrite the cloud copy.
+  The manual buttons stay. `src/firebase/configSync.js` (`startAutoSync`).
 - **Hosting:** the production deploy target moved from Vercel to Firebase
   Hosting as part of this exception — `firebase.json` builds `dist/` and
   `npm run deploy` publishes it together with the Firestore rules. The `api/`

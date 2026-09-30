@@ -1,6 +1,7 @@
 slug: procedural-maps
 number: "02"
-title: Creating Procedural Maps
+title: Terrain
+subtitle: Noise & Erosion
 summary: Build maps with repeatable functions, then evolve their terrain with a water and sediment simulation.
 shape: nested
 estimatedMinutes: 55

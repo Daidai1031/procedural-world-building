@@ -50,4 +50,4 @@ npm.cmd run preview
 
 ## Lessons
 
-The site currently includes Lesson 01 — Scene Anatomy and Lesson 02 — Creating Procedural Maps. Lesson 02 is divided into 2.1 Functions and 2.2 Simulation. Use the lesson navigation at the top of the page to switch lessons without reloading.
+The site currently includes Lesson 01 — Scene Basics (Three.js with React) and Lesson 02 — Terrain (Noise & Erosion). Lesson 02 is divided into 2.1 Noise Generation and 2.2 Erosion Simulation. Use the lesson navigation at the top of the page to switch lessons without reloading.

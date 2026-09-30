@@ -130,6 +130,7 @@ function buildLesson(lessonDir) {
     slug: meta.slug ?? slug,
     number: meta.number === undefined ? String(order) : String(meta.number),
     title: meta.title,
+    subtitle: meta.subtitle,
     summary: meta.summary,
     shape: meta.shape ?? 'flat',
     estimatedMinutes: meta.estimatedMinutes,
