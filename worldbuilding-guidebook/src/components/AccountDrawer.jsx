@@ -25,8 +25,8 @@ function SignInForm() {
   return (
     <form className="account-drawer__form" onSubmit={submit}>
       <p className="account-drawer__note">
-        Sign in to save your settings and progress to your account, and load them on
-        another device.
+        Sign in to save your settings, progress, and shader lab presets to your account,
+        and load them on another device.
       </p>
       <label>
         Email
@@ -53,6 +53,7 @@ function ConfigPanel({ uid }) {
   const [status, setStatus] = useState('')
   const [savedAt, setSavedAt] = useState(null)
   const [error, setError] = useState('')
+  const syncStatus = useAuthStore((state) => state.syncStatus)
 
   async function handleSave() {
     setStatus('saving')
@@ -91,8 +92,14 @@ function ConfigPanel({ uid }) {
       </div>
       <p role="status" className="account-drawer__note">
         {status === 'saved' && `Saved ${savedAt.toLocaleTimeString()}.`}
-        {status === 'loaded' && 'Loaded. Your params, view toggles, and progress are restored.'}
+        {status === 'loaded' && 'Loaded. Your params, view toggles, progress, and shader lab presets are restored.'}
         {status === 'empty' && 'No saved configuration yet — save one first.'}
+      </p>
+      <p role="status" className="account-drawer__note">
+        {syncStatus === 'loading' && 'Auto-save: loading your saved configuration…'}
+        {syncStatus === 'saving' && 'Auto-save: saving…'}
+        {syncStatus === 'saved' && 'Auto-save is on. Changes are saved to your account a moment after you make them.'}
+        {syncStatus === 'error' && 'Auto-save could not reach your account. Use Save configuration, or check your connection.'}
       </p>
       {error && <p role="alert">{error}</p>}
     </div>

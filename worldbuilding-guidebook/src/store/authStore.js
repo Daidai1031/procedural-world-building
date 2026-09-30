@@ -6,6 +6,7 @@ import {
   signOut,
 } from 'firebase/auth'
 import { auth, firebaseConfigured } from '../firebase/client.js'
+import { flushAutoSync, startAutoSync, stopAutoSync } from '../firebase/configSync.js'
 
 // Mirrors tutorStore's shape: unknown until the listener reports in, then
 // either a user or null. `ready` distinguishes "still checking" from
@@ -17,6 +18,8 @@ export const useAuthStore = create((set) => ({
   busy: false,
   error: '',
   isOpen: false,
+  // off | loading | saving | saved | error — the state of automatic saving.
+  syncStatus: 'off',
 
   open: () => set({ isOpen: true }),
   close: () => set({ isOpen: false }),
@@ -26,7 +29,15 @@ export const useAuthStore = create((set) => ({
   // "not configured" note.
   init: () => {
     if (!firebaseConfigured || !auth) return
-    onAuthStateChanged(auth, (user) => set({ user, ready: true }))
+    onAuthStateChanged(auth, (user) => {
+      set({ user, ready: true })
+      if (user) {
+        startAutoSync(user.uid, (syncStatus) => set({ syncStatus }))
+      } else {
+        stopAutoSync()
+        set({ syncStatus: 'off' })
+      }
+    })
   },
 
   signUp: async (email, password) => {
@@ -54,6 +65,7 @@ export const useAuthStore = create((set) => ({
   },
 
   signOutUser: async () => {
+    await flushAutoSync()
     await signOut(auth)
   },
 }))
