@@ -1,0 +1,9 @@
+public/
+.firebase/
+*-debug.log
+home-desktop.png
+home-mobile.png
+
+home/scene/
+voxel-*.png
+header-*.png

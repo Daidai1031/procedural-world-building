@@ -1,0 +1,11 @@
+{
+  "name": "procedural-world-building-deployment",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "preview": "firebase emulators:start --only hosting --project worldbuilding-guidebook",
+    "verify:hosting": "node verify-hosting.mjs",
+    "deploy": "npm run build && firebase deploy --only hosting --project worldbuilding-guidebook"
+  }
+}

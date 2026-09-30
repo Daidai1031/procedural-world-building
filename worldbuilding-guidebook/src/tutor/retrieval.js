@@ -10,7 +10,7 @@ let requestId = 0
 const pending = new Map()
 
 async function loadIndex() {
-  indexPromise ??= fetch('/rag-index.json').then(async (response) => {
+  indexPromise ??= fetch(`${import.meta.env.BASE_URL}rag-index.json`).then(async (response) => {
     if (!response.ok) throw new Error('Course search could not load. Please try again.')
     const index = await response.json()
     if (index.modelId !== RETRIEVAL_MODEL_ID || index.dimensions !== VECTOR_DIMENSIONS) throw new Error('The search index needs rebuilding with the current model.')

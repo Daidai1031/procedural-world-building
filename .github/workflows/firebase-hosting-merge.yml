@@ -9,15 +9,19 @@ on:
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
-    # firebase.json lives in worldbuilding-guidebook/, not the repo root —
-    # the CLI-generated version of this file assumed a single-project repo
-    # and needs this to actually find package.json and firebase.json.
-    defaults:
-      run:
-        working-directory: worldbuilding-guidebook
     steps:
       - uses: actions/checkout@v4
-      - run: npm ci && npm run build
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            worldbuilding-guidebook/package-lock.json
+            terraforming-1380/package-lock.json
+      - run: npm ci --prefix worldbuilding-guidebook
+      - run: npm ci --prefix terraforming-1380
+      - run: npm --prefix terraforming-1380 test
+      - run: npm --prefix deployment run build
         env:
           VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
           VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
@@ -30,4 +34,4 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_WORLDBUILDING_GUIDEBOOK }}
           channelId: live
           projectId: worldbuilding-guidebook
-          entryPoint: worldbuilding-guidebook
+          entryPoint: deployment
