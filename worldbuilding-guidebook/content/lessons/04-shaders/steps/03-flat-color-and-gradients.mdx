@@ -1,33 +1,82 @@
 ---
 title: Flat colour and gradients
-goal: Build a first shader study from a constant colour and a position-based blend.
+goal: Turn a single height number into a smooth colour gradient with a snow line on top.
 keywords:
-  - flat shader
-  - gradient
+  - normalize
   - mix
   - step
   - smoothstep
+  - gradient
 scene:
-  demo: voxel-terrain
+  demo: shader-lab
+  unlock:
+    - voxelShape
+    - shaderSnowLine
+  compare:
+    label: Flat colour versus height gradient
+    a:
+      params:
+        shaderMode: flat
+      caption: Flat colour
+    b:
+      params:
+        shaderMode: height
+      caption: Height gradient
+  legend:
+    title: One number, three colours, one switch
+    items:
+      - swatch: meadow-deep
+        shape: block
+        label: Low ground
+      - swatch: moss
+        shape: block
+        label: Mid ground
+        formula: heightRatio = clamp(worldY / maxHeight, 0, 1)
+      - swatch: summit
+        shape: block
+        label: High ground
+      - label: Snow
+        formula: snow = smoothstep(snowLine, snowLine + 0.1, heightRatio)
+        note: Fades in over a short band as the Snow line control moves, not a hard on/off line.
+code:
+  file: src/scene/demos/shaders/ShaderLabDemo.jsx
+  region: heightRampStudy
+  highlight:
+    - 1
+practice:
+  kind: fill
+  prompt: >-
+    A gradient blends smoothly, but the snow cap needs a soft switch
+    instead of a colour mix. Finish the line using the right tool for a
+    threshold.
+  from:
+    file: src/scene/demos/shaders/ShaderLabDemo.jsx
+    region: snowBandStudy
+  blanks:
+    - line: 1
+      answer: "smoothstep(uSnowLine, uSnowLine + 0.1, heightRatio)"
+      options:
+        - "smoothstep(uSnowLine, uSnowLine + 0.1, heightRatio)"
+        - "step(uSnowLine, heightRatio)"
+        - "mix(uSnowLine, uSnowLine + 0.1, heightRatio)"
+      explanation: |-
+        step(edge, x) is a hard on/off switch:
+        0 right up to the edge, then instantly 1.
+        Dragging Snow line would make the white
+        cap snap on and off with no visible edge.
+
+        mix(a, b, t) blends two colours by t —
+        the right tool for the ramp above, but
+        not for testing a threshold.
+
+        smoothstep(low, high, x) is step() with a
+        soft ramp between low and high, which is
+        what gives the snow cap a visible edge.
+      hint: You want a threshold that fades in over a short band, not an instant on/off switch and not a colour blend.
 ---
 
-Start with one constant colour. It is a control sample: if the mesh disappears, the shader pipeline or material setup is wrong before any palette mathematics matters. A self-lit `ShaderMaterial` does not automatically reproduce `MeshStandardMaterial` lighting and shadows.
+Every point on the ground has a height number, but a colour blend wants a value from 0 to 1 — like turning "3.6 metres" into "72% of the way up," the way a fuel gauge reads a percentage instead of exact litres. That is what the highlighted line below does.
 
-For a world-height gradient, normalize the height into `0..1` and blend two colours:
+Toggle **Flat colour** and **Height gradient**: flat is one colour everywhere; the gradient blends three colours by that percentage, using `mix(a, b, t)` — literally mixing two paint colours by how far along `t` sits.
 
-```glsl
-float t = clamp((vWorldHeight - uLowHeight) /
-                max(uHighHeight - uLowHeight, 0.001), 0.0, 1.0);
-vec3 color = mix(uLowColor, uHighColor, t);
-```
-
-`mix(a, b, t)` interpolates between values. `step(edge, x)` makes a hard boundary. `smoothstep(low, high, x)` gives a softened transition when `low < high`. To make bands, combine several thresholds; to keep them readable, expose the thresholds and show the raw normalized height in a diagnostic mode.
-
-```glsl
-float snow = smoothstep(uSnowStart, uSnowEnd, vWorldHeight);
-color = mix(color, uSnowColor, snow);
-```
-
-This is **colour based on height**, not vertex displacement. It resembles the vertex-colour height palette in the earlier terrain exercises, but moves the colouring rule into a fragment shader. A CPU-authored colour attribute and a custom fragment shader are different implementation strategies with different update and interpolation costs.
-
-**Study record to capture after implementation:** same camera and terrain, flat colour versus linear height gradient versus soft snow band; note how the band behaves at chunk boundaries.
+A gradient blends smoothly, but the snow cap needs a *soft switch* instead. `step(edge, x)` flips instantly from 0 to 1, like a light switch. `smoothstep(low, high, x)` fades over a short band, like a dimmer. Drag **Snow line** and watch the white cap climb or retreat — the threshold moved, not the terrain.

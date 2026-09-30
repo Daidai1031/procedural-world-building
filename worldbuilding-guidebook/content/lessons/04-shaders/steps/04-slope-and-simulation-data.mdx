@@ -1,6 +1,6 @@
 ---
 title: Slope and simulation data
-goal: Turn terrain orientation and erosion state into visual diagnostics.
+goal: Turn which way a surface faces into a live rock mask, and name what erosion data would still need to reach the GPU.
 keywords:
   - normal
   - slope
@@ -8,25 +8,76 @@ keywords:
   - water
   - sediment
 scene:
-  demo: voxel-terrain
+  demo: shader-lab
+  unlock:
+    - voxelShape
+    - shaderSlopeThreshold
+  compare:
+    label: Height only versus height and slope
+    a:
+      params:
+        shaderMode: height
+      caption: Height only
+    b:
+      params:
+        shaderMode: heightSlope
+      caption: Height + slope
+  legend:
+    title: Which way is this patch facing?
+    items:
+      - swatch: ink-dim
+        shape: block
+        label: Rock
+        formula: steepness = 1 - dot(normal, up)
+        note: 0 for flat ground, 1 for a vertical wall. Covers the elevation colour once steepness passes Rock threshold.
+      - swatch: meadow-deep
+        shape: block
+        label: Low ground
+      - swatch: moss
+        shape: block
+        label: Mid ground
+      - swatch: summit
+        shape: block
+        label: High ground
+code:
+  file: src/scene/demos/shaders/ShaderLabDemo.jsx
+  region: slopeSteepnessStudy
+  highlight:
+    - 1
+practice:
+  kind: fill
+  prompt: >-
+    Steepness alone is just a number. Finish the line that turns it into a
+    soft-edged rock mask, the same kind of switch Step 03 used for snow.
+  from:
+    file: src/scene/demos/shaders/ShaderLabDemo.jsx
+    region: slopeRockStudy
+  blanks:
+    - line: 1
+      answer: "smoothstep(uSlopeThreshold, uSlopeThreshold + uSlopeWidth, steepness)"
+      options:
+        - "smoothstep(uSlopeThreshold, uSlopeThreshold + uSlopeWidth, steepness)"
+        - "step(uSlopeThreshold, steepness)"
+        - "mix(uSlopeThreshold, uSlopeThreshold + uSlopeWidth, steepness)"
+      explanation: |-
+        step(edge, x) flips instantly at the
+        edge — rock would snap on with a hard,
+        aliased line as the camera moves.
+
+        mix(a, b, t) blends two colours by t;
+        here it would blend two thresholds by
+        a steepness value, which is not a colour.
+
+        smoothstep(low, high, x) gives the soft
+        band Rock threshold needs, exactly like
+        Step 03's snow line.
+      hint: Same tool as Step 03's snow line — a threshold that fades over a short band, not an instant switch.
 ---
 
-A slope mask can compare the **world-space surface normal** with world up:
+Every little patch of ground faces some direction — imagine a tiny arrow poking straight out of it. On flat ground that arrow points straight up. On a cliff wall, it points sideways instead. **Steepness** measures how far that arrow has tipped away from "straight up": 0 for flat ground, 1 for a vertical wall.
 
-```glsl
-float steepness = 1.0 - clamp(dot(normalize(vWorldNormal),
-                                  vec3(0.0, 1.0, 0.0)), 0.0, 1.0);
-float rock = smoothstep(uSlopeStart, uSlopeEnd, steepness);
-vec3 color = mix(uSoilColor, uRockColor, rock);
-```
+Toggle **Height only** and **Height + slope**: slope adds a rock colour wherever steepness passes **Rock threshold**, fading in the same way Step 03's snow line did. Raise the threshold and only steeper patches turn to rock; lower it and gentler slopes join in too.
 
-Flat upward faces have steepness near zero; vertical walls have steepness near one. This makes cliff rock and soil bands respond to *orientation*, not just altitude. Use the inverse transpose normal transform when a mesh can have nonuniform scale. On an overhang, the upward-only clamp treats downward faces as maximally steep; choose that deliberately or use an absolute dot product for a different look.
+Orbit under a cave mouth: its downward-facing ceiling reads as maximally steep by this rule — a deliberate simplification of "steep," not a bug.
 
-The erosion simulation in Lesson 02 stores **height, water, and sediment** in its grid. To draw a wetness or sediment study, upload the relevant channel as an attribute or texture and use a fixed display range. A moving maximum that changes every frame can make a stable cell appear to change colour even when its value does not.
-
-Two useful strategies to compare:
-
-1. **Scientific view:** grayscale height, blue water, or warm sediment, with a visible legend and fixed units/range. Use this to debug flow and deposition.
-2. **World view:** slope-based rock plus a restrained water-darkening mask. Use this to communicate what the simulation means as a landscape.
-
-If the CPU grid has more cells than the visible mesh, sample the same simulation coordinates used to construct the mesh. Document whether each sample is nearest-neighbour or bilinearly interpolated. The fragment stage only knows the values it receives.
+The erosion simulation in Lesson 02 also tracks water and sediment, but neither reaches this shader yet — that comparison stays a design until a channel is actually uploaded.

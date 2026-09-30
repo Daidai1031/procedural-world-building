@@ -4,7 +4,7 @@
 **Course section:** Lesson 4 — Shaders  
 **Project:** [`worldbuilding-guidebook`](../../worldbuilding-guidebook/)  
 **Lesson content:** [`content/lessons/04-shaders/`](../../worldbuilding-guidebook/content/lessons/04-shaders/)  
-**Status:** In progress — first flat-colour shader and a two-mode switcher implemented; other studies and visual observations pending
+**Status:** In progress — flat colour and a height/slope study are implemented and screenshotted; the water/sediment diagnostic and the optional studies are still pending
 
 ## Exercise goal
 
@@ -14,10 +14,10 @@ The course assignment asks for four outcomes:
 
 | Requirement | Planned evidence | Status |
 | --- | --- | --- |
-| Create your own shader studies | flat control, height/slope, water/sediment diagnostic; source and comparable captures | Flat study coded; captures and remaining studies pending |
+| Create your own shader studies | flat control, height/slope, water/sediment diagnostic; source and comparable captures | Flat and height/slope coded and screenshotted; water/sediment diagnostic pending |
 | Demonstrate what shaders can do for simulations | live or stepped erosion values reach the GPU; explain what the visual result reveals | Pending implementation and observation |
-| Consider what shaders to use or develop, and why | rationale and trade-offs below | Written; revisit after visual experiments |
-| Implement a section dedicated to shaders with swappable strategies | navigable section, visible mode control, stable geometry/state while switching | Lesson 04 first step has standard/flat switch; more strategies pending |
+| Consider what shaders to use or develop, and why | rationale and trade-offs below | Written; confirmed by the flat and height/slope experiments, revisit once water/sediment is built |
+| Implement a section dedicated to shaders with swappable strategies | navigable section, visible mode control, stable geometry/state while switching | The Shaders section switches between standard, flat, and height/slope on the same mesh; the water/sediment strategy is still pending |
 
 **Completion rule:** The written lesson and this plan do not by themselves satisfy the implementation or visual-study requirements. Replace each pending status only after checking the running app and recording what happened.
 
@@ -37,10 +37,16 @@ The course assignment asks for four outcomes:
 
 **Initial values:** `shaderMode = standard`, `voxelShape = ground`, `voxelResolution = 16`, flat colour `#84a493`. A mode change does not resample density or rebuild the mesh; changing shape or resolution does. This is code-level verification, not a claim about observed pixels. `npm run build` passes; browser capture and visual inspection are still pending.
 
+## Second implementation — height and slope
+
+`ShaderLabDemo.jsx` gained a third `shaderMode`, `heightSlope`. Its vertex shader writes `vWorldPosition` and `vWorldNormal` from `modelMatrix`; its fragment shader blends `uLowColor → uMidColor → uHighColor` by world height (the exact two-mix, midpoint-0.52 rule `worldPalette.heightColor` already uses for the CPU-coloured voxel meshes, read from the same `--meadow-deep` / `--moss` / `--summit` tokens) and then mixes in `uRockColor` (`--ink-dim`) with `smoothstep(uSlopeThreshold, uSlopeThreshold + 0.18, steepness)`, where `steepness = 1 - dot(normalize(vWorldNormal), up)`. The uniforms live in a `useRef`, not a `useMemo`, and `uSlopeThreshold.value` is written during render every time the learner drags the **Rock threshold** control, so the material is never recompiled while dragging.
+
+[Lesson 04 step 04](../../worldbuilding-guidebook/content/lessons/04-shaders/steps/04-slope-and-simulation-data.mdx) unlocks `shaderMode` and `shaderSlopeThreshold` and extracts the slope half of the fragment shader with a `#region heightSlopeStudy` marker, so the learner reads the real running GLSL, not a hand-typed copy. Step 01 keeps unlocking `shaderMode` too, so `heightSlope` also appears there as a third option; its prose still only asks the learner to compare standard and flat, which is a known, accepted mismatch rather than an oversight.
+
 ## Questions the studies should answer
 
 1. What does a constant fragment colour show that the existing lit material does not? It tests the custom-material pipeline and makes a controlled comparison possible.
-2. Does a **world-space** height/slope palette remain continuous across voxel chunks, and does it make caves, overhangs, soil, and cliffs easier to read?
+2. Does a **world-space** height/slope palette remain continuous across voxel chunks, and does it make caves, overhangs, soil, and cliffs easier to read? Answered for a single mesh (this demo has no chunking yet): yes on Caves, where chamber walls and overhangs read clearly against the flat ceiling and floor; on Ground the rolling hill top rarely gets steep enough to show it. Continuity across separate chunk meshes is unverified.
 3. When water or sediment changes in the Lesson 02 simulation, does the visual diagnostic update from the same underlying state? Is the range stable enough to compare successive frames?
 4. Would a scan radius, resource mask, Fresnel selection rim, MatCap shape view, or cosmetic impact ripple help the eventual diggable planet? What data would each require?
 
@@ -84,7 +90,7 @@ Three.js `ShaderMaterial` uses the app's current WebGL/GLSL path. If later using
 | --- | --- | --- | --- | --- |
 | Standard baseline | Pending visual capture | Ground, resolution 16, standard material colour `#84a493` | Pending browser inspection | Compare lighting with flat mode |
 | Flat control | Pending visual capture | Same mesh; uniform `uColor = #84a493` | Pending browser inspection | Confirm constant colour and silhouette |
-| Height + slope | Pending | Pending | Pending | Pending |
+| Height + slope | Screenshotted at Rock threshold 0.15, 0.5, 0.85, Ground shape resolution 16, and again on Caves at resolution 32 | `ShaderLabDemo.jsx` `heightSlope` mode; `uSlopeThreshold` from the Rock threshold control, width fixed at 0.18; colours from `elevationColors()` and `--ink-dim` | On the default Ground shape the visible rock is almost entirely the box's own cut-away walls (steepness ≈ 1 there); the rolling hill top stayed green at every threshold from 0.15 to 0.85 with no visible difference between them. Sampling `buildMarchingMesh`'s own vertex normals confirms why: at resolution 16, Ground has 41.9% of vertices above 0.85 steepness (the walls) and only 1.0% between 0.32 and 0.85, versus 41.9%/19.3%/1.0%/0%/0%/41.9% across the six 0.17-wide bands from 0 to 1 — there is almost nothing in the middle. Caves at resolution 32 has a much flatter distribution (17.3%/14.9%/8.8%/5.0%/6.2%/47.8%) and visibly shows rock on chamber walls and overhangs at the same thresholds. | The Rock threshold control is real and does change `uSlopeThreshold`, verified by reading the live uniform object from the page (not just the control's displayed value); the Ground demo just does not have much terrain steeper than about 0.3 to show it with. Recorded here instead of quietly picking a steeper default shape, since the mismatch between "slider does something" and "picture does not change" is exactly the kind of claim this file exists to catch. |
 | Water / sediment diagnostic | Pending | Pending | Pending | Pending |
 
 Record any compile errors and their fixes, plus one case where a visualization made a simulation behaviour easier to understand. A screenshot of a coloured mesh without its input rule and comparison does not demonstrate what the shader added.
@@ -93,12 +99,12 @@ Record any compile errors and their fixes, plus one case where a visualization m
 
 - [x] Lesson 04 has a first Shaders scene with a visible strategy selector.
 - [x] Standard and flat modes choose different materials on the same mesh (code and build checked; visual check pending).
-- [ ] At least three original shader studies have source code, labelled inputs, and comparable visual evidence.
-- [ ] A shader mode displays genuine simulation data and changes when that data changes.
-- [ ] The written analysis explains why each chosen study serves erosion, voxel terrain, or the future planet.
-- [ ] Camera movement and neighboring chunks do not cause accidental coordinate discontinuities.
-- [ ] Vertex displacement, if used, is identified as cosmetic unless terrain data and interaction are updated too.
-- [ ] This note links implemented source files, exact parameters, observed results, problems, and next experiments.
+- [ ] At least three original shader studies have source code, labelled inputs, and comparable visual evidence. Two of three: flat and height/slope. Water/sediment is still a design only.
+- [ ] A shader mode displays genuine simulation data and changes when that data changes. Height/slope reads geometry (position, normal), not simulation state; no mode reads the Lesson 02 erosion grid yet.
+- [x] The written analysis explains why each chosen study serves erosion, voxel terrain, or the future planet. See the rationale table above and Lesson 04 Step 08.
+- [ ] Camera movement and neighboring chunks do not cause accidental coordinate discontinuities. Not yet checkable: the shader lab builds one mesh, not chunks; revisit once/if it reads chunked geometry.
+- [ ] Vertex displacement, if used, is identified as cosmetic unless terrain data and interaction are updated too. Not used yet.
+- [x] This note links implemented source files, exact parameters, observed results, problems, and next experiments.
 
 ## Learning resources
 

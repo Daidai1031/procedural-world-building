@@ -1,33 +1,82 @@
 ---
 title: Distance and Fresnel studies
-goal: Explain how proximity and viewing angle change the appearance of a surface.
+goal: Contrast a mask anchored to a world position with one that depends only on the camera.
 keywords:
   - distance field
   - proximity
   - Fresnel
   - view direction
 scene:
-  demo: voxel-terrain
+  demo: shader-lab
+  unlock:
+    - voxelShape
+    - shaderScanRadius
+    - shaderRimPower
+  compare:
+    label: Distance versus Fresnel
+    a:
+      params:
+        shaderMode: distance
+      caption: Distance
+    b:
+      params:
+        shaderMode: fresnel
+      caption: Fresnel
+  legend:
+    title: One point, one silhouette
+    items:
+      - swatch: clay
+        shape: dot
+        label: Scan probe
+        note: The world-space point Distance measures from — a fixed spot, marked so it is not just an invisible number.
+      - swatch: clay
+        shape: block
+        label: Near the probe
+        formula: nearProbe = 1 - smoothstep(radius, radius + width, distance)
+      - swatch: summit
+        shape: block
+        label: Fresnel rim
+        formula: rim = pow(1 - facing, rimPower)
+        note: Brightest where the surface faces away from the camera, not away from any fixed point.
+code:
+  file: src/scene/demos/shaders/ShaderLabDemo.jsx
+  region: distanceStudy
+  highlight:
+    - 2
+practice:
+  kind: fill
+  prompt: >-
+    A grazing angle should give a strong rim and a face-on angle almost
+    none. Finish the line that turns "facing" into that falloff.
+  from:
+    file: src/scene/demos/shaders/ShaderLabDemo.jsx
+    region: fresnelStudy
+  blanks:
+    - line: 2
+      answer: "pow(1.0 - facing, uRimPower)"
+      options:
+        - "pow(1.0 - facing, uRimPower)"
+        - "pow(facing, uRimPower)"
+        - "(1.0 - facing) * uRimPower"
+      explanation: |-
+        facing is near 1 when looking straight at
+        a surface, near 0 at a grazing angle.
+
+        pow(facing, uRimPower) would brighten the
+        face-on surfaces instead — backwards.
+
+        (1.0 - facing) * uRimPower scales instead
+        of curving, so raising Rim power would blow
+        past 1 rather than narrow the rim.
+
+        pow(1.0 - facing, uRimPower) is near 0 when
+        facing is near 1, and grows fast only near
+        a grazing angle — a narrow rim.
+      hint: You want a value that is small when looking straight at a surface and shoots up only at a grazing angle. Which option actually inverts "facing" first?
 ---
 
-A distance-driven shader can highlight an area around a probe, player, or planned excavation. Pass a world-space center as a uniform and measure from the fragment's world position:
+Drop a stone in still water and ripples fade out from where it landed — that is what **Distance** does here: a glow that fades around a fixed point, the small marker floating above the ground. It says "near this spot," nothing more; a real prospecting tool would still need actual resource data underneath it, not just proximity.
 
-```glsl
-float d = distance(vWorldPosition, uProbePosition);
-float nearProbe = 1.0 - smoothstep(uInnerRadius, uOuterRadius, d);
-vec3 color = mix(uBaseColor, uSignalColor, nearProbe);
-```
+**Fresnel** works differently. Look straight into a pond and you see through the water; look along its surface at a shallow angle and you mostly see a bright reflection instead. That grazing-angle brightening is what the rim mask reproduces, using the camera's own position rather than any fixed point.
 
-This is a **visual proximity cue**. It does not find buried material unless a separate resource field supplies that information. For a diggable planet, it could distinguish “within tool reach” from “resource confirmed by scanning” with separate data and legends.
-
-Fresnel-style rim intensity responds to the angle between the surface normal and direction toward the camera:
-
-```glsl
-float facing = clamp(dot(normalize(vWorldNormal),
-                         normalize(uCameraPosition - vWorldPosition)), 0.0, 1.0);
-float rim = pow(1.0 - facing, uRimPower);
-```
-
-A grazing angle gives a stronger rim. It can outline a selectable voxel chunk, shield, or water edge. The camera position, surface position, and normal must all be in **the same coordinate space**. This expression is a stylized rim mask; a physically based Fresnel reflectance model also needs material reflectance and lighting considerations.
-
-**Compare:** rotate the camera around a fixed rock. The distance-to-probe mask stays put in the world; the Fresnel rim moves with the view.
+Toggle **Distance** and **Fresnel**, then orbit the camera: the glow stays anchored to its marker; the rim slides around the silhouette instead, because it depends on how you are looking, not where anything is.

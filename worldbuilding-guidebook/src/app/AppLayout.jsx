@@ -3,6 +3,7 @@ import { TUTOR_ENABLED } from '../tutor/tutorEnabled.js'
 import { useCallback, useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
 import AccountDrawer from '../components/AccountDrawer.jsx'
+import CompositeLabPanel from '../components/CompositeLabPanel.jsx'
 import ControlStrip from '../components/ControlStrip.jsx'
 import EntityPanel from '../components/EntityPanel.jsx'
 import InsetCard from '../components/InsetCard.jsx'
@@ -56,6 +57,7 @@ export default function AppLayout() {
       <EntityPanel />
       <SceneLegend />
       <TerrainLegend />
+      <CompositeLabPanel />
       <ControlStrip />
       <AccountDrawer />
       {TUTOR_ENABLED && <TutorDrawer />}

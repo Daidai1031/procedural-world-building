@@ -1,0 +1,7 @@
+.matcap-legend-preview {
+  display: block;
+  width: 48px;
+  height: 48px;
+  margin-top: var(--space-2);
+  border-radius: var(--radius-md);
+}

@@ -1,23 +1,75 @@
 ---
 title: Contact cues and MatCap
-goal: Separate surface styling from the geometry and lighting information a contact effect needs.
+goal: Colour a surface by reading a picture instead of computing any light, and name why that differs from a true contact cue.
 keywords:
-  - ambient occlusion
-  - contact shadow
-  - MatCap
+  - view space
   - normal
+  - MatCap
+  - ambient occlusion
 scene:
-  demo: voxel-terrain
+  demo: shader-lab
+  unlock:
+    - voxelShape
+    - shaderMatcapAngle
+  compare:
+    label: Standard material versus MatCap
+    a:
+      params:
+        shaderMode: standard
+      caption: Standard material
+    b:
+      params:
+        shaderMode: matcap
+      caption: MatCap
+  legend:
+    title: Reading a photo instead of a light
+    items:
+      - label: The "photo"
+        note: A small picture of a lit sphere, drawn on a canvas instead of loaded from a file. Highlight angle moves the bright spot on it.
+        preview: matcap-photo
+      - label: UV from view-space normal
+        formula: matcapUv = normalize(viewNormal).xy * 0.5 + 0.5
+        note: A normal runs -1 to 1; a picture's coordinates only run 0 to 1 — this line stretches and shifts one range to fit the other.
+code:
+  file: src/scene/demos/shaders/ShaderLabDemo.jsx
+  region: matcapNormalStudy
+  highlight:
+    - 2
+practice:
+  kind: fill
+  prompt: >-
+    A view-space normal runs from -1 to 1, but the picture's coordinates
+    only run from 0 to 1. Finish the line that fits one range to the other.
+  from:
+    file: src/scene/demos/shaders/ShaderLabDemo.jsx
+    region: matcapUvStudy
+  blanks:
+    - line: 2
+      answer: "normalize(vViewNormal).xy * 0.5 + 0.5"
+      options:
+        - "normalize(vViewNormal).xy * 0.5 + 0.5"
+        - "normalize(vViewNormal).xy"
+        - "normalize(vViewNormal).xy + 0.5"
+      explanation: |-
+        normalize(vViewNormal).xy alone still
+        runs -1 to 1 — half the picture would
+        never be reached, and negative
+        coordinates read outside the image.
+
+        Adding 0.5 without scaling first shifts
+        the range to -0.5 to 1.5 — still not
+        0 to 1.
+
+        Scaling by 0.5 first shrinks -1..1 down
+        to -0.5..0.5, then + 0.5 slides that onto
+        0..1 exactly.
+      hint: You need two operations, not one — a normal's -1..1 range is twice as wide as a picture's 0..1 range, and starts in the wrong place too.
 ---
 
-The lecture examples include ambient occlusion, contact shading, and MatCap. They solve different visual problems:
+A **MatCap** photographs a shiny sphere once, then colours every point by only which way it faces the camera — no light needed. The small picture beside **The "photo"** in the legend is that photo, drawn on a canvas rather than loaded from a file.
 
-| Study | Useful input | What it can show | Limitation |
-| --- | --- | --- | --- |
-| Curvature or crevice tint | geometry, neighbors, or a baked mask | recesses on the same surface | a normal alone does not reveal occlusion |
-| Contact shadow | light and nearby depth/geometry | where an object meets the ground | a flat colour shader cannot discover that contact by itself |
-| MatCap | view-space normal and an image | material and lighting look from one captured view | highlights track the camera, not actual scene lights |
+Toggle **Standard material** and **MatCap**, then orbit the camera: the standard highlight stays fixed to the real light, while MatCap's highlight swims across the surface — read from the photo by angle, not computed from any light.
 
-For a first study, a **baked crevice attribute** or a separate screen-space ambient-occlusion pass is easier to reason about than claiming that darkening downward normals is real ambient occlusion. MatCap can be a useful sculpting or shape-reading mode while inspecting an extracted voxel surface. Keep it explicitly labelled as a diagnostic material.
+That angle is a **view-space normal**, the same camera-relative space Step 05 used. It runs -1 to 1, but the photo's coordinates only run 0 to 1 — the highlighted line stretches and shifts one range onto the other. Drag **Highlight angle** to move the bright spot on the photo.
 
-On a terrain with caves and loose rocks, compare a MatCap view with a normally lit material while orbiting the camera. Look for silhouettes that appear solid but have poor contact cues. Record whether the contact treatment comes from a shadow, a baked mask, or postprocessing.
+A **contact cue** is a different problem: the small shadow gathering exactly where two surfaces touch, like a fingertip on a table. It needs to know nearby geometry, not just a facing angle — something neither MatCap's one photo nor a standard light can tell you. Only MatCap runs here; contact shadows stay a named idea.

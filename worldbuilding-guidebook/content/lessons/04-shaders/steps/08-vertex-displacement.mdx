@@ -1,0 +1,79 @@
+---
+title: Vertex displacement
+goal: Predict what a vertex shader can move, and where that movement stops being real.
+keywords:
+  - vertex displacement
+  - animation
+  - aliasing
+  - resolution
+scene:
+  demo: shader-lab
+  unlock:
+    - voxelShape
+    - voxelResolution
+    - shaderRippleAmplitude
+  compare:
+    label: Still height versus a moving ripple
+    a:
+      params:
+        shaderMode: height
+      caption: Still
+    b:
+      params:
+        shaderMode: displacement
+      caption: Rippling
+  legend:
+    title: What moved, and along what?
+    items:
+      - swatch: meadow-deep
+        shape: block
+        label: Low ground
+      - swatch: moss
+        shape: block
+        label: Mid ground
+      - swatch: summit
+        shape: block
+        label: High ground
+      - swatch: ink-dim
+        shape: circle
+        label: Every study before this one only changed colour; this one moves the vertex itself, along its own normal.
+code:
+  file: src/scene/demos/shaders/ShaderLabDemo.jsx
+  region: worldPositionFromDisplacedStudy
+  highlight:
+    - 1
+practice:
+  kind: fill
+  prompt: >-
+    A vertex should lift along whatever direction it already faces, not
+    always straight up. Finish the line that moves it that way.
+  from:
+    file: src/scene/demos/shaders/ShaderLabDemo.jsx
+    region: rippleDisplacementStudy
+  blanks:
+    - line: 2
+      answer: "position + normal * (amplitude * wave)"
+      options:
+        - "position + normal * (amplitude * wave)"
+        - "position + vec3(0.0, amplitude * wave, 0.0)"
+        - "normal + position * (amplitude * wave)"
+      explanation: |-
+        vec3(0.0, amplitude * wave, 0.0) always lifts straight up the
+        world's y-axis, no matter which way a vertex faces — a wall or an
+        overhang would puff outward sideways instead, or not move at all.
+
+        normal + position * (amplitude * wave) scales the vertex's whole
+        position by the wave, dragging it toward or away from the origin
+        instead of displacing it a small amount from where it already is.
+
+        position + normal * (amplitude * wave) starts from the vertex's own
+        place and nudges it along its own facing direction — the one offset
+        that still looks like a ripple on a slope, not just on flat ground.
+      hint: Start from where the vertex already is, and move it along the direction it faces — not a fixed world axis.
+---
+
+Every study before this one only ever changed a colour; the mesh itself never moved. A vertex shader can also move the actual corner points before they are projected to the screen — here, each one slides a little along its own **normal** (the direction it faces), by an amount that rises and falls over time. Add that offset before computing world position, and lighting, colour, and distance to the camera all follow the new location automatically.
+
+Raise **Ripple amplitude** to make the wave larger. Then drag **Voxel resolution** down: the same wave that looked smooth at 16 breaks into jagged, misshapen steps by 8. A vertex shader can only move points that exist — it cannot invent new detail a coarse mesh never had.
+
+This ripple is a purely visual overlay: the density field this terrain was built from, and anything that reads it — collision, digging, remeshing — never changed. Use vertex displacement for a cosmetic pulse or surface response, not for a change the rest of the game needs to feel real.

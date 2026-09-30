@@ -1,6 +1,8 @@
 import { demoParams } from './demoParams.js'
 import SceneAnatomyDemo from './demos/sceneAnatomy/SceneAnatomyDemo.jsx'
 import NoiseTerrainDemo from './demos/proceduralMaps/NoiseTerrainDemo.jsx'
+import CompositeLabDemo from './demos/shaders/CompositeLabDemo.jsx'
+import CoordinateSpaceDemo from './demos/shaders/CoordinateSpaceDemo.jsx'
 import ShaderLabDemo from './demos/shaders/ShaderLabDemo.jsx'
 import SimulationTerrainDemo from './demos/proceduralMaps/SimulationTerrainDemo.jsx'
 import VolumeDiagramDemo from './demos/voxels/VolumeDiagramDemo.jsx'
@@ -15,6 +17,8 @@ import VoxelTerrainDemo from './demos/voxels/VoxelTerrainDemo.jsx'
 
 export const demoRegistry = {
   'shader-lab': { component: ShaderLabDemo, params: demoParams['shader-lab'] },
+  'composite-lab': { component: CompositeLabDemo, params: {} },
+  'coordinate-space': { component: CoordinateSpaceDemo, params: demoParams['coordinate-space'] },
   'noise-terrain': { component: NoiseTerrainDemo, params: demoParams['noise-terrain'] },
   'simulation-terrain': { component: SimulationTerrainDemo, params: demoParams['simulation-terrain'] },
   'voxel-terrain': { component: VoxelTerrainDemo, params: demoParams['voxel-terrain'] },

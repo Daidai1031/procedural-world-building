@@ -4,5 +4,14 @@
   "rules": {
     "react/rules-of-hooks": "error",
     "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
+  },
+  "overrides": [
+    {
+      "files": ["src/scene/demos/shaders/*.jsx"],
+      "rules": {
+        "react/refs": "off",
+        "react/immutability": "off"
+      }
+    }
+  ]
 }

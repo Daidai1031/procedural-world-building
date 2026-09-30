@@ -1,0 +1,82 @@
+---
+title: Water and sediment diagnostic
+goal: Turn a real, computed low point in the terrain into a visual diagnostic, not an invented one.
+keywords:
+  - flood fill
+  - data texture
+  - fixed range
+  - diagnostic
+scene:
+  demo: shader-lab
+  unlock:
+    - voxelShape
+    - shaderPuddleThreshold
+  compare:
+    label: Height only versus height and water
+    a:
+      params:
+        shaderMode: height
+      caption: Height only
+    b:
+      params:
+        shaderMode: water
+      caption: Height + water
+  legend:
+    title: Where would rain actually pool?
+    items:
+      - swatch: erosion-water
+        shape: block
+        label: Standing water
+        formula: puddle = smoothstep(threshold, threshold + 0.08, depth)
+        note: Computed once from the same height formula that builds Ground — water sits only where a real dip would trap it.
+      - swatch: meadow-deep
+        shape: block
+        label: Low ground
+      - swatch: moss
+        shape: block
+        label: Mid ground
+      - swatch: summit
+        shape: block
+        label: High ground
+code:
+  file: src/scene/demos/shaders/ShaderLabDemo.jsx
+  region: waterMaskStudy
+  highlight:
+    - 2
+practice:
+  kind: fill
+  prompt: >-
+    A world position needs to become a 0-to-1 texture lookup, the same
+    problem Step 06 solved for a normal. Finish the line that does it here.
+  from:
+    file: src/scene/demos/shaders/ShaderLabDemo.jsx
+    region: waterUvStudy
+  blanks:
+    - line: 2
+      answer: "vec2(vWorldPosition.x, vWorldPosition.z) / 6.0 + 0.5"
+      options:
+        - "vec2(vWorldPosition.x, vWorldPosition.z) / 6.0 + 0.5"
+        - "vec2(vWorldPosition.x, vWorldPosition.z) / 6.0"
+        - "vec2(vWorldPosition.x, vWorldPosition.z) + 0.5"
+      explanation: |-
+        Without + 0.5, half the map sits at
+        negative coordinates — the same mistake
+        Step 06's MatCap UV made without it.
+
+        Without / 6.0, world position (-3 to 3)
+        never gets scaled down to fit a 0-to-1
+        lookup at all.
+
+        Both together: divide by the world size to
+        shrink -3..3 down to -0.5..0.5, then add
+        0.5 to land on 0..1.
+      hint: Same two-step fix as Step 06's UV line — scale the range down to fit, then shift it to start at 0.
+---
+
+Imagine pouring rain evenly over the whole map and watching where it settles: water can only pool as high as the lowest rim it would have to spill over to reach the edge. That is computed once here, from the exact height formula that builds the Ground shape — so puddles sit in real dips of this terrain, not wherever looks convincing.
+
+That computation runs on the CPU as one flat grid of numbers. Turning it into something the GPU can read uses the same trick Step 06 used for a photo: take a world position, scale and shift it into a 0-to-1 lookup — except this picture is data, not a photograph.
+
+Drag **Puddle threshold** to hide shallow dips and keep only the deepest ones full, the same soft threshold Steps 03 and 04 used for snow and rock.
+
+Switch **Density shape**: Caves and Floating islands still show this same puddle pattern, because it only ever reads Ground's height formula — a mismatch worth noticing, not a bug.

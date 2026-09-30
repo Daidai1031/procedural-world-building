@@ -9,21 +9,78 @@ keywords:
   - world space
   - view space
 scene:
-  demo: voxel-terrain
+  demo: coordinate-space
+  unlock:
+    - coordinateStripeFrequency
+  compare:
+    label: Local position versus world position
+    a:
+      params:
+        coordinateSpace: local
+      caption: Local position
+    b:
+      params:
+        coordinateSpace: world
+      caption: World position
+  legend:
+    title: Two dots, two ideas
+    items:
+      - swatch: ink-dim
+        shape: dot
+        label: A chunk's own "zero"
+        note: Floats above each chunk. That chunk's own position.x is 0 right here, no matter where the chunk sits.
+      - swatch: clay
+        shape: dot
+        label: The one shared "zero"
+        note: Floats where the two chunks meet. World position counts from this single point for both chunks at once.
+      - swatch: meadow-deep
+        shape: block
+        label: Low stripe
+      - swatch: summit
+        shape: block
+        label: High stripe
+        formula: stripe = step(0.5, fract(x · frequency))
+code:
+  file: src/scene/demos/shaders/CoordinateSpaceDemo.jsx
+  region: localStripeVertexShader
+  highlight:
+    - 2
+practice:
+  kind: fill
+  prompt: >-
+    Local space restarts at each chunk's own origin, so the seam between
+    the two chunks never lines up. Finish the world-space version so the
+    stripe keeps counting across the seam instead.
+  from:
+    file: src/scene/demos/shaders/CoordinateSpaceDemo.jsx
+    region: worldStripeVertexShader
+  blanks:
+    - line: 2
+      answer: "(modelMatrix * vec4(position, 1.0)).x"
+      options:
+        - "position.x"
+        - "(viewMatrix * vec4(position, 1.0)).x"
+        - "(modelMatrix * vec4(position, 1.0)).x"
+      explanation: |-
+        position.x is local: it restarts at 0
+        for every chunk, wherever that chunk
+        sits in the world.
+
+        modelMatrix carries a chunk's own
+        placement — its offset, rotation, scale.
+        Multiplying position by it gives that
+        same point's world-space coordinate,
+        which keeps counting across chunks.
+
+        viewMatrix moves a point relative to
+        the camera instead. It changes every
+        time you orbit, so it cannot give a
+        seam one fixed, shared coordinate.
+      hint: You need the matrix that carries a chunk's own placement in the world, not the one that carries the camera.
 ---
 
-Three kinds of input answer different questions:
+A house blueprint says "the door sits 2 metres from the left wall" — measured from that house's own corner. Move the house anywhere in the city and the blueprint still reads 2 metres: that is **local position**. Now say where that same door sits on a city map instead — move the house, and that number changes. That is **world position**.
 
-| Input | Varies over | Worldbuilding example |
-| --- | --- | --- |
-| Attribute | mesh vertices | sampled height, wetness, normal, ore mask |
-| Uniform | a draw call | time, palette, sea level, effect strength |
-| Interpolated varying | fragments inside a triangle | position or wetness passed from vertices |
+The dark dots floating above each chunk mark its own local "zero". The pink dot marks the one shared world "zero", sitting right where the chunks meet. Toggle **Local position** and **World position** below: same stripe rule both times, only which dot it counts from changes. Local space restarts at each chunk's own dot, so the seam breaks. World space counts from the shared dot, so it does not.
 
-An attribute sampled only at mesh vertices becomes interpolated across each triangle. If a narrow stream or ore seam needs finer detail, increase the sampling resolution or supply a texture. A uniform cannot carry a different wetness value for every cell by itself.
-
-Coordinates also have to match the question. **Local position** moves with an object, so it suits a pattern painted onto one rock. **World position** is shared by adjacent chunks, so a height band or world-aligned noise can continue across their borders. **View space** changes with the camera, so it suits a MatCap lookup or an effect based on how directly we face a surface. A world-space height test uses the transformed `worldPosition.y`; testing local `position.y` on a moved chunk can put its snow band at the wrong altitude.
-
-The voxel lesson used `field(p) < 0` for solid and `field(p) = 0` for its surface. That sign belongs to the **density field**. A shader may read a field value or a surface attribute, but its screen colour does not change the field or make new caves.
-
-**Try on paper:** If two neighboring terrain chunks share a cliff face, should a continuous altitude gradient read local height or world height? Use world height, and confirm both chunks use the same scale and origin.
+A value can also come from a vertex's own data (an **attribute**), stay fixed for the whole chunk (a **uniform**), or blend smoothly between vertices the way this stripe colour does (a **varying**). A third space, **view space**, moves with the camera instead of any object — useful later for a camera-facing effect.

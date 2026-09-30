@@ -1,0 +1,46 @@
+---
+title: Shader strategies for this world
+goal: Match each visual question this world will ask to the strategy already built to answer it.
+keywords:
+  - shader strategy
+  - trade-off
+  - worldbuilding
+  - decision
+scene:
+  demo: shader-lab
+  unlock:
+    - shaderMode
+    - voxelShape
+    - voxelResolution
+  compare:
+    label: Reads the mesh versus reads outside data
+    a:
+      params:
+        shaderMode: heightSlope
+      caption: Height + slope
+    b:
+      params:
+        shaderMode: water
+      caption: Water diagnostic
+  legend:
+    title: Which question is this answering?
+    items:
+      - swatch: meadow-deep
+        shape: circle
+        label: "Mesh-derived — Flat, Height, Height + slope: only need this vertex's own position and facing direction."
+      - swatch: erosion-water
+        shape: circle
+        label: "Data-driven — Water diagnostic: needs a real value computed somewhere else and uploaded in."
+      - swatch: summit
+        shape: circle
+        label: "Camera-faked — Distance, Fresnel, MatCap: convincing without any real light or real proximity check."
+      - swatch: ink-dim
+        shape: circle
+        label: "Cosmetic — Vertex displacement: moves the picture on screen, never the data underneath."
+---
+
+Every study so far answered a different question by choosing what to read: a fixed colour, this vertex's own position, which way it faces, distance to a point, the camera's own angle, a photograph, precomputed water depth, or time. None of them is "the correct shader" — each is a tool built for one question, and most say nothing useful about the others.
+
+Reach for **Height + slope** when the question is "what should this ground look like," since it only needs the mesh itself. Reach for **Water diagnostic** when the question needs real state from somewhere else — a simulation, a save file, anything the mesh alone cannot answer. Reach for **MatCap** or **Fresnel** for a convincing look without computing real light. Keep **Vertex displacement** to a cosmetic flourish, never something a digging tool or a save file needs to be true.
+
+Switch **Shader strategy** through every option here on the same terrain — the geometry never changes, only which question is being asked of it.

@@ -13,23 +13,54 @@ scene:
     - shaderMode
     - voxelShape
     - voxelResolution
+  legend:
+    title: See the mesh itself
+    items:
+      - label: Turn on Wireframe
+        note: The button below draws only the triangle edges, so every corner point — every vertex — becomes visible where lines cross.
+      - label: Vertex
+        note: One corner of one triangle. The vertex shader decides where each one lands on screen.
+      - label: Fragment
+        note: One point inside a triangle, once it is filled in. The fragment shader decides its colour.
+code:
+  file: src/scene/demos/shaders/ShaderLabDemo.jsx
+  region: flatFragmentShader
+  highlight:
+    - 3
+practice:
+  kind: fill
+  prompt: >-
+    The fragment shader above always outputs the same colour. Finish the
+    vertex shader's line so it actually places each vertex in clip space,
+    not just somewhere in front of the camera.
+  from:
+    file: src/scene/demos/shaders/ShaderLabDemo.jsx
+    region: flatVertexShader
+  blanks:
+    - line: 2
+      answer: "projectionMatrix * modelViewMatrix * vec4(position, 1.0)"
+      options:
+        - "projectionMatrix * modelViewMatrix * vec4(position, 1.0)"
+        - "modelViewMatrix * vec4(position, 1.0)"
+        - "vec4(position, 1.0)"
+      explanation: |-
+        modelViewMatrix moves a point from
+        object space into camera (view) space.
+
+        projectionMatrix then maps that view-space
+        point into clip space, where the GPU tests
+        it against the screen frustum.
+
+        Drop modelViewMatrix and the mesh never
+        moves with the camera. Drop projectionMatrix
+        and it never gets perspective at all.
+      hint: Two matrices apply to `position`, right to left. One moves the point relative to the camera; the other adds the lens and the frustum. Which option has both?
 ---
 
-The scene behind this lesson is one Marching Cubes surface. Select **Standard material** and **Flat colour shader** in the control strip. The mesh and camera stay the same: only the material changes. The standard version responds to the scene lights; the flat shader draws one colour everywhere. Rotate the camera and compare the slope, cave, and silhouette.
+This terrain is really a tight mesh of tiny triangles (turn on **Wireframe** below to see them). Each triangle corner is a **vertex** — the GPU has to work out where every corner lands on your screen before it can draw anything. That placement job is the **vertex shader**.
 
-A shader is a small program that runs many times in parallel on the GPU. A **vertex shader** processes each input vertex and must produce a clip-space position. A **fragment shader** computes an output for each covered fragment, often a colour and optionally depth or other render targets. A fragment is a candidate pixel sample, so “one run per screen pixel” is a useful first picture but not an exact count: overlap and multisampling can cause more work.
+Once the triangles are placed, the GPU fills each one in, point by point. Every one of those points is a **fragment**, and the **fragment shader** decides its colour — like colouring inside pencilled lines. Select **Standard material** and **Flat colour shader** and compare: the triangles and camera never change, only this colouring rule does.
 
-```text
-simulation state (CPU grid, or later GPU texture)
-  → geometry and attributes
-  → vertex shader: transform / optional displacement
-  → rasterization: interpolate varying values across triangles
-  → fragment shader: colour / surface appearance
-  → screen
-```
+Neither shader remembers anything from one frame to the next — every vertex and fragment is worked out fresh, every time, from only what it is handed. That is why a shader can only show a number — height, water, colour — once that number actually reaches it; it cannot go looking for changes on its own.
 
-Each invocation receives inputs; it does not remember the previous invocation. A simulation needs persistent state and an update rule. A shader can **display** height, slope, water, sediment, or a voxel field only when the renderer supplies those values. GPU simulation is possible, but it requires explicit storage and a separate update pass; changing a colour shader alone does not perform erosion.
-
-This is the first shader study. The later height, slope, and water strategies in this lesson are still designs, not implemented modes.
-
-**Check:** If a water channel in the simulation grid changes but no attribute, texture, or uniform sent to the shader changes, should the rendered wetness update? No: the GPU has not received the new values.
+This is the fragment half of the first study — a fixed colour, no lighting. Fill in the vertex half below: the line that turns a raw position into the clip-space position the GPU needs.
