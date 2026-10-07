@@ -58,6 +58,21 @@ For a specific change, use this map:
 
 Each app has its own dependencies, tests, and build. Generated folders such as `node_modules/`, `dist/`, and `deployment/public/` are build output rather than source.
 
+## Preview the homepage locally
+
+From the repository root (`E:\Cornell\26fall\procedural world building\dd699`):
+
+```powershell
+npm.cmd ci --prefix worldbuilding-guidebook   # first time only
+npm.cmd ci --prefix terraforming-1380         # first time only
+npm.cmd --prefix deployment run build         # rebuild after every change
+npm.cmd --prefix deployment run preview       # starts the Firebase Hosting emulator
+```
+
+Then open <http://127.0.0.1:5002/>. The homepage is `/`, the guidebook is `/guidebook/`, and the game is `/game/`. Stop the server with `Ctrl+C`. The preview serves the built copy in `deployment/public/`, so edits to `deployment/home/` or to either app show up only after running the build again. Details are in the [deployment README](deployment/README.md#build-and-preview).
+
+To work on just the guidebook with live reload, see [Run the website](worldbuilding-guidebook/README.md#run-the-website) (it is served at <http://localhost:5173/guidebook/>).
+
 ## Shared website deployment
 
 The project home runs at `/`, the guidebook at `/guidebook/`, and Terraforming Contractor #1380 at `/game/`.
