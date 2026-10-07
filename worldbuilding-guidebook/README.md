@@ -35,7 +35,9 @@ Start the local development server:
 npm.cmd run dev
 ```
 
-Vite will print a local address, usually `http://localhost:5173/`. Open that address in a browser. While the server is running, saved changes update the page automatically.
+Vite will print a local address, usually `http://localhost:5173/`. The app is served under `/guidebook/`, so open `http://localhost:5173/guidebook/` (the bare address only shows a "did you mean" link). While the server is running, saved changes update the page automatically.
+
+To jump straight to a step, use `http://localhost:5173/guidebook/lesson/<lesson-slug>/<step-slug>`. For example, Lesson 05 Step 01 is `http://localhost:5173/guidebook/lesson/distributions/from-one-asset-to-many`, and Step 02 is `.../distributions/randomness-and-seeds`. The step slug is the file name in `content/lessons/<lesson>/steps/` without the number prefix and `.mdx`.
 
 Press `Ctrl+C` in the PowerShell window to stop the server.
 
@@ -63,4 +65,6 @@ npm.cmd run preview
 
 ## Lessons
 
-The site currently includes Lesson 01 — Scene Basics (Three.js with React) and Lesson 02 — Terrain (Noise & Erosion). Lesson 02 is divided into 2.1 Noise Generation and 2.2 Erosion Simulation. Use the lesson navigation at the top of the page to switch lessons without reloading.
+The site currently includes Lesson 01 — Scene Basics (Three.js with React), Lesson 02 — Terrain (Noise & Erosion), Lesson 03 — Voxels, and Lesson 04 — Shader. Lesson 02 is divided into 2.1 Noise Generation and 2.2 Erosion Simulation. Use the lesson navigation at the top of the page to switch lessons without reloading.
+
+Lessons 05 — Distributions (Scattering & Populations), 06 — Paths (Splines & Terrain), and 07 — Particles (Vector Fields & Motion) are at the content and planning stage. Their step text is in `content/lessons/05-distributions/`, `06-paths/`, and `07-particles/` and appears in the site, but no step has a scene, controls, or practice yet; each step says so in its last line. The step-by-step implementation plans are [`docs/exercise/07-scattering-system.md`](../docs/exercise/07-scattering-system.md), [`08-spline-layer.md`](../docs/exercise/08-spline-layer.md), and [`09-particle-system.md`](../docs/exercise/09-particle-system.md).
