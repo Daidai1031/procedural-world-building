@@ -2,6 +2,19 @@
 
 Interactive course website built with React, Vite, React Three Fiber, and Drei.
 
+## Workflow: how each lesson is made
+
+Every lesson follows the same loop, from class to review:
+
+1. **Class notes.** Start from the lecture notes and slides.
+2. **Clarify in a chat session.** Anything not understood goes to an LLM in one chat session until the idea is clear.
+3. **Exercise document.** From the assignment, the LLM drafts the write-up in [`docs/exercise/`](../docs/exercise/README.md), keeping plans separate from observed results.
+4. **A plan of about 10 steps.** The LLM proposes the lesson as roughly ten steps, each stating one conclusion.
+5. **Build one step at a time.** Each step is built and checked before the next begins.
+6. **One parameter per visual.** The canvas on the right shows a single parameter at a time, with a legend, instead of one lab exposing every control at once. Combined labs (such as the composite shader lab) come after the individual parameters are understood.
+7. **Read the code, don't write it.** Real source is shown in the step and explained line by line. The goal is to read and follow the code, not to author it.
+8. **A short practice question.** Each step ends with a small variation on what was just shown (a "same idea, new case" question) for review.
+
 ## Run the website
 
 Open PowerShell in this folder:

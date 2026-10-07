@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Voxel shovel">
+  <rect width="64" height="64" rx="10" fill="#282c29"/>
+  <g shape-rendering="crispEdges">
+    <path d="M39 10 46 5 56 10 56 18 50 22 44 19 49 16 50 12 46 10 42 13Z" fill="#d6a957"/>
+    <path d="M39 10 42 13 44 19 40 17 37 14Z" fill="#8c5c31"/>
+    <path d="M44 19 49 22 36 44 31 41Z" fill="#a86d38"/>
+    <path d="M44 19 47 20 34 42 31 41Z" fill="#edc275"/>
+    <path d="M49 22 52 20 39 43 36 44Z" fill="#694b30"/>
+    <path d="M12 37 19 33 30 35 38 43 34 52 25 59 16 56 9 48 9 42Z" fill="#1a1e1d"/>
+    <path d="M12 38 19 35 29 37 35 43 31 50 23 55 16 53 11 47 11 42Z" fill="#b8c4ba"/>
+    <path d="M12 38 19 35 29 37 35 43 26 44 18 42Z" fill="#e2e8d7"/>
+    <path d="M26 44 35 43 31 50 23 55 16 53 20 48Z" fill="#7c8d84"/>
+    <path d="M11 47 16 53 23 55 25 59 16 56 9 48Z" fill="#526159"/>
+    <path d="M18 42 26 44 20 48 16 53 11 47 11 42Z" fill="#a5b4a7"/>
+    <path d="M30 35 34 38 38 43 35 46 31 41 27 39Z" fill="#d6a957"/>
+  </g>
+</svg>

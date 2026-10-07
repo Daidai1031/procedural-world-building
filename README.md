@@ -1,49 +1,58 @@
-# Procedural World Building Project
+# Procedural World Building
 
-This repository documents my work for DESIGN 4197/6197: Procedural World Building.
+This repository has two connected parts:
 
-## Project Overview
+### Guidebook
+Learn procedural world-building techniques through interactive lessons.
 
-This project explores procedural world building through an interactive learning guidebook and Terraforming Contractor #1380, a game prototype about scanning and reshaping a small planet. The guidebook develops terrain and shader techniques that feed into the game.
+### Terraforming Contractor #1380
+Apply selected techniques to a destructible procedural planet.
+
+```text
+Guidebook ─────── ★ selected techniques ───────▶ Game
+     │                                              │
+     └──────────── one shared website ──────────────┘
+```
+
+Coursework for DESIGN 4197/6197: Procedural World Building. The guidebook develops terrain and shader techniques that feed into the game.
 
 ## Repository structure
 
 ```text
-.
-├── worldbuilding-guidebook/       Interactive learning site
-│   ├── content/lessons/           Lesson text and step definitions (01–04)
-│   ├── src/
-│   │   ├── app/                   Routes and page layout
-│   │   ├── components/            Lesson and control panels
-│   │   ├── scene/demos/           Terrain, voxel, and shader scenes
-│   │   ├── store/                 Scene, progress, and lab state
-│   │   └── firebase/              Account configuration sync
-│   ├── spec/                      Guidebook design and roadmap
-│   ├── tests/                     Guidebook checks
-│   └── README.md                  Local setup
-├── terraforming-1380/            Independent game prototype
-│   ├── src/
-│   │   ├── world/                 Seeded planet and resource data
-│   │   ├── tools/                 Dig, add, flatten, scan, collect
-│   │   ├── views/                 Planet, camera, and detector views
-│   │   └── state/                 Run state
-│   ├── docs/                      Design, spec, decisions, roadmap
-│   ├── tests/                     Planet and tool checks
-│   └── README.md                  Controls and local setup
-├── deployment/                   Shared Firebase Hosting site
-│   ├── home/                      Project homepage
-│   ├── home-scene/                Homepage planet illustration
-│   ├── build.mjs                  Assemble all three site routes
-│   ├── firebase.json              Hosting routes and redirects
-│   └── README.md                  Build, preview, deploy
-├── docs/
-│   ├── tutorials/                 Background and setup notes
-│   ├── exercise/                  Weekly experiments and findings
-│   └── media/                     Screenshots and demo recordings
-└── .github/workflows/             Shared site deployment jobs
+Repository
+├── worldbuilding-guidebook/   interactive lessons and 3D demos
+├── terraforming-1380/         game prototype
+├── docs/                      Course Documentation
+│   ├── tutorials/             reference & setup
+│   ├── exercise/              weekly assignment documentation
+│   └── media/                 GIFs & screenshots
+└── deployment/                homepage, combined build, Hosting routes
 ```
 
-Start with the [guidebook README](worldbuilding-guidebook/README.md) for the learning site, the [game README](terraforming-1380/README.md) for controls, or the [deployment README](deployment/README.md) to build the combined site. Each app has its own dependencies and build. Generated folders such as `node_modules/`, `dist/`, and `deployment/public/` are omitted from the tree.
+The two applications are independent. `deployment/` combines their builds with the project homepage for one Firebase Hosting site.
+
+| Area | What you will find | Start here |
+| --- | --- | --- |
+| [Guidebook](worldbuilding-guidebook/) | Interactive lessons and their 3D demos | [Setup and commands](worldbuilding-guidebook/README.md) |
+| [Terraforming Contractor #1380](terraforming-1380/) | Playable planet-editing prototype | [Controls and setup](terraforming-1380/README.md) |
+| [Deployment](deployment/) | Homepage, combined build, and Hosting routes | [Build and preview](deployment/README.md) |
+| [Course Documentation](docs/) | Tutorials, weekly exercise write-ups, and GIFs/screenshots | [Exercise index](docs/exercise/README.md) |
+
+For a specific change, use this map:
+
+| Looking for... | Location |
+| --- | --- |
+| Lesson text and step definitions | [`worldbuilding-guidebook/content/lessons/`](worldbuilding-guidebook/content/lessons/) |
+| Guidebook scenes and shader experiments | [`worldbuilding-guidebook/src/scene/demos/`](worldbuilding-guidebook/src/scene/demos/) |
+| Guidebook layout, controls, progress, and account sync | [`src/app/`](worldbuilding-guidebook/src/app/), [`src/components/`](worldbuilding-guidebook/src/components/), [`src/store/`](worldbuilding-guidebook/src/store/), [`src/firebase/`](worldbuilding-guidebook/src/firebase/) in the guidebook |
+| Game planet generation and editing | [`terraforming-1380/src/world/`](terraforming-1380/src/world/) and [`src/tools/`](terraforming-1380/src/tools/) |
+| Game camera, detector display, and run state | [`src/views/`](terraforming-1380/src/views/) and [`src/state/`](terraforming-1380/src/state/) in the game |
+| Game design decisions and milestones | [`terraforming-1380/docs/`](terraforming-1380/docs/) |
+| Homepage and Firebase routes | [`deployment/home/`](deployment/home/) and [`deployment/firebase.json`](deployment/firebase.json) |
+| Course experiments and screenshots | [`docs/exercise/`](docs/exercise/) and [`docs/media/`](docs/media/) |
+| Deployment automation | [`.github/workflows/`](.github/workflows/) |
+
+Each app has its own dependencies, tests, and build. Generated folders such as `node_modules/`, `dist/`, and `deployment/public/` are build output rather than source.
 
 ## Shared website deployment
 

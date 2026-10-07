@@ -59,14 +59,10 @@ a:hover {
   text-decoration:none
 }
 .brand-mark {
-  display:grid;
-  place-items:center;
+  display:block;
   width:43px;
   height:43px;
-  background:var(--accent);
-  font:bold 26px Georgia,serif;
-  letter-spacing:-3px;
-  padding-right:3px
+  flex-shrink:0
 }
 .brand-sub {
   display:block;
@@ -384,6 +380,33 @@ code {
   margin:0;
   max-width:90ch
 }
+.workflow {
+  padding:20px 0 56px
+}
+.workflow-steps {
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  border-top:1px solid var(--line)
+}
+.workflow-steps li {
+  display:flex;
+  gap:12px;
+  align-items:start;
+  padding:24px 20px 24px 0
+}
+.workflow-steps h3 {
+  font-size:14px;
+  font-weight:500;
+  margin:2px 0 8px
+}
+.workflow-steps p {
+  font-size:11px;
+  margin:0;
+  line-height:1.8
+}
 .site-footer {
   padding:25px 0 32px;
   border-top:1px solid var(--line);
@@ -581,3 +604,16 @@ code {
 .planet-fallback { padding:28px; text-align:center; }
 
 .planet-fallback { position:absolute; inset:0; width:100%; height:100%; padding:0; object-fit:contain; }
+@media(max-width:900px) {
+  .workflow-steps {
+    grid-template-columns:repeat(2,1fr)
+  }
+}
+@media(max-width:650px) {
+  .workflow {
+    padding:10px 0 35px
+  }
+  .workflow-steps {
+    grid-template-columns:1fr
+  }
+}

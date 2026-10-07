@@ -1,4 +1,4 @@
-﻿# Shared Firebase Hosting
+# Shared Firebase Hosting
 
 | Path | Application | Source |
 | --- | --- | --- |

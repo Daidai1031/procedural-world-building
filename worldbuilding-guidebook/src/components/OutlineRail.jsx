@@ -38,6 +38,11 @@ function ExpandHintIcon() {
   )
 }
 
+// The homepage is served by Firebase Hosting at "/". The guidebook dev server
+// only serves /guidebook/, so in dev the link targets the Hosting emulator
+// (deployment/ `npm run preview`) instead of a Vite 404.
+const PROJECT_HOME_URL = import.meta.env.DEV ? 'http://127.0.0.1:5002/' : '/'
+
 function HomeIcon() {
   return (
     <svg className="rail__icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
@@ -233,7 +238,7 @@ export default function OutlineRail() {
           <AccountIcon />
           <span className="rail__exit-label">{accountUser ? accountUser.email : 'Account'}</span>
         </button>
-        <a className="rail__exit" href="/" target="_top" aria-label="Back to project home">
+        <a className="rail__exit" href={PROJECT_HOME_URL} target="_top" aria-label="Back to project home">
           <HomeIcon />
           <span className="rail__exit-label">Home</span>
         </a>
