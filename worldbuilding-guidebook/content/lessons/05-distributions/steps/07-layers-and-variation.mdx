@@ -1,0 +1,20 @@
+---
+title: Layers and variation
+goal: Give each asset layer its own protocol and derive visible variation from terrain data.
+keywords:
+  - scattering layer
+  - protocol
+  - variation
+  - lerp
+  - moisture
+---
+
+A **scattering layer** groups one asset type with its placement rules. Trees, bushes, and rocks can share the same terrain data while using different masks, densities, slope limits, and seeds. Switching one layer off should leave the others exactly where they were.
+
+Terrain data can also change an instance once it is accepted. In this designed world, wetter ground gives a tree a larger base scale and a greener colour. A small random multiplier then adds variety between neighbours without hiding the environmental relationship.
+
+For example, normalised moisture can drive `baseScale = lerp(0.8, 1.2, moisture)`: moisture 0 picks the first value and moisture 1 the second. A seeded multiplier between 0.95 and 1.05 follows. Compared on the same positions, random-only variation looks noisy, while terrain-driven variation reads as a pattern across the land.
+
+The moisture relationship is an authored world rule, not a general claim about all trees.
+
+*The interactive scene and practice for this step are planned but not built yet.*

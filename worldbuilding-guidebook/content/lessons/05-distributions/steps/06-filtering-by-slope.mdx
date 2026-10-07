@@ -1,0 +1,20 @@
+---
+title: Filtering by slope
+goal: Reject steep placement sites without confusing filtering with orientation.
+keywords:
+  - slope filter
+  - dot product
+  - cosine
+  - accepted count
+  - candidate count
+---
+
+Orientation decides how an object faces after it is placed. A **slope filter** decides whether it may appear at all. A tree can stay upright and still be kept off a cliff.
+
+Normalise the surface normal and the local up direction. Their **dot product** is the cosine of the angle between them: close to 1 on flat ground, smaller on steeper ground. A ground patch is eligible when `dot(normal, up) >= cos(maxSlope)`. Here the maximum slope starts at 33 degrees, which gives a threshold of about 0.839. That limit is a tunable design rule, not a universal ecological one.
+
+Lower the limit and more candidates are rejected; raise it and steeper ground opens up. Once a filter is active, the **accepted count** can fall below the **candidate count**, so both numbers are worth showing.
+
+Convert degrees to radians before taking the cosine. On a spherical planet, local up points outward from the planet centre instead of always along world y.
+
+*The interactive scene and practice for this step are planned but not built yet.*

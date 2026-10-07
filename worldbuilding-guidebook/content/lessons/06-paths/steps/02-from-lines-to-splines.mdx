@@ -1,0 +1,18 @@
+---
+title: From lines to splines
+goal: See how control points and interpolation change a path's shape.
+keywords:
+  - polyline
+  - spline
+  - control point
+  - Catmull–Rom
+  - interpolation
+---
+
+A **polyline** joins positions with straight segments. A **spline** describes a curve from **control points** and an interpolation rule. This lesson uses a **Catmull–Rom** curve, which passes through every point it is given. Other curve types, such as Bézier curves, use handles that the curve bends towards but does not pass through.
+
+Moving one interior point shows the difference. The polyline changes only the two straight segments touching that point; the spline changes a curved region around it. More control points give more control over the shape, but they do not by themselves make a route fit the terrain.
+
+Smoothing can also add unwanted bends or overshoot, especially near sharp turns. A smooth curve still needs constraints when it stands for a practical road.
+
+*The interactive scene and practice for this step are planned but not built yet.*

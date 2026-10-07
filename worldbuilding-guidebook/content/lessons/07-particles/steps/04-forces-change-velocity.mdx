@@ -1,0 +1,18 @@
+---
+title: Forces change velocity
+goal: Apply acceleration to velocity before using velocity to update position.
+keywords:
+  - acceleration
+  - force
+  - gravity
+  - semi-implicit Euler
+  - update order
+---
+
+A force changes motion through **acceleration**. For a particle with mass, acceleration is force divided by mass. This lesson sets acceleration directly, so the effect is clear without a mass model.
+
+Each update first changes velocity by acceleration over the time step, then changes position by the new velocity. This order is called **semi-implicit Euler**. Gravity is a downward acceleration; a simple sideways acceleration pushes particles across. A fuller wind model would depend on the difference between the air's velocity and the particle's, which this first experiment leaves out.
+
+A particle with constant velocity travels in a straight line. Acceleration changes its velocity, so the path bends and the speed can grow over time. Switching every acceleration off does not stop a particle: its existing velocity still carries it.
+
+*The interactive scene and practice for this step are planned but not built yet.*

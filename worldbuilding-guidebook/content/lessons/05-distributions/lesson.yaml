@@ -1,0 +1,7 @@
+slug: distributions
+number: "05"
+title: Distributions
+subtitle: Scattering & Populations
+summary: Generate candidate positions, decide which ones are suitable, and vary the assets placed there.
+shape: flat
+estimatedMinutes: 40

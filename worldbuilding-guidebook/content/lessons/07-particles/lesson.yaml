@@ -1,0 +1,7 @@
+slug: particles
+number: "07"
+title: Particles
+subtitle: Vector Fields & Motion
+summary: Build a particle lifecycle, update motion over time, and make spatial flow visible.
+shape: flat
+estimatedMinutes: 40

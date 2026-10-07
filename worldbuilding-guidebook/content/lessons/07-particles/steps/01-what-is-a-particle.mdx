@@ -1,0 +1,18 @@
+---
+title: What is a particle?
+goal: Separate a particle's state from the way it is drawn.
+keywords:
+  - particle
+  - state
+  - representation
+  - points
+  - sprite
+---
+
+A **particle** is a small record of **state**: position, velocity, age, lifetime, and anything else the system needs. How it looks is a separate, rendering choice. The same particle can be drawn as a dot, as a textured **sprite**, or as the moving tip of a trail.
+
+A sprite is a small image used to show a particle, such as a soft dust mark. In Three.js, a sprite always turns to face the camera. A visible dot does not need that texture, and a smoke texture does not decide how the particle moves.
+
+Switching from dots to sprites while the system is paused should leave every position and every age exactly where it was. Size and texture change the appearance; they are not movement rules. Sprites and trails are ways of drawing particle state, not separate definitions of it.
+
+*The interactive scene and practice for this step are planned but not built yet.*

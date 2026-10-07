@@ -1,0 +1,20 @@
+---
+title: Reading a vector field
+goal: Query a spatial direction and distinguish a velocity field from an acceleration field.
+keywords:
+  - vector field
+  - velocity field
+  - acceleration field
+  - sampling
+  - arrows
+---
+
+A **vector field** gives every position in a region its own vector. Drawn as arrows, direction shows where each vector points and length shows its strength. The field can be stored on a grid or calculated by a function whenever it is asked.
+
+In a **velocity field**, the vector read at a particle's position moves it directly: position changes by `field(position) × dt`. Different particles move differently because they read different places in the same field.
+
+An **acceleration field** means something else: its vector changes velocity first, and velocity then moves the particle. The arrows alone do not say which meaning is in use, so the field's type has to be stated. On a grid, blending between neighbouring cells avoids sudden jumps at cell boundaries.
+
+A field is a motion rule. It does not, by itself, stop particles at the ground or conserve anything like a real fluid.
+
+*The interactive scene and practice for this step are planned but not built yet.*

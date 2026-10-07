@@ -1,0 +1,20 @@
+---
+title: Emit, age, disappear
+goal: Control population through emission and lifetime instead of unbounded creation.
+keywords:
+  - emitter
+  - emission rate
+  - lifetime
+  - live count
+  - capacity
+---
+
+An **emitter** creates particles over time. Each particle's age grows until it reaches its **lifetime**; then the system removes it or reuses its slot. This lifecycle keeps a system busy without keeping every particle forever.
+
+With constant emission and a fixed lifetime, the long-run **live count** is about **emission rate × lifetime**, as long as there is no capacity limit, early death, or other removal rule. Starting from an empty system, the count rises before it settles near that level.
+
+Doubling the lifetime keeps particles alive longer, so more are alive at once. Doubling the rate instead creates more per second. The two can give similar counts, but they are different lifecycle settings.
+
+Emission has to carry fractional births from one update to the next, so the number of particles born per second does not depend on the frame rate.
+
+*The interactive scene and practice for this step are planned but not built yet.*

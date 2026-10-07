@@ -1,0 +1,20 @@
+---
+title: Projecting onto terrain
+goal: Convert a path over a map into positions on a terrain surface.
+keywords:
+  - projection
+  - height query
+  - height field
+  - raycasting
+  - sample density
+---
+
+A path drawn in the x–z plane does not yet know the terrain's height. **Projecting** it means sampling the path, asking the terrain for the height at each sample's x and z, and using that as the sample's y. A small offset above the surface keeps the line visible instead of flickering into the ground.
+
+The projected points follow hills and valleys, but the straight segments between them can still cut through a bump if the samples are too far apart. More samples make that error smaller.
+
+A simple height lookup works here because this is a **height field**: every x–z position has exactly one surface height. A mesh with overhangs, or a spherical planet, needs a surface query that fits its geometry, such as casting a ray from a chosen origin in a chosen direction.
+
+A new spline drawn through projected points can leave the surface again between them, so its samples have to be checked or projected once more.
+
+*The interactive scene and practice for this step are planned but not built yet.*

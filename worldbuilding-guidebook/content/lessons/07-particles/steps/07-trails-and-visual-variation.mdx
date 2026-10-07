@@ -1,0 +1,18 @@
+---
+title: Trails and visual variation
+goal: Make motion history and particle state visible without changing the movement rule.
+keywords:
+  - trail
+  - history
+  - colour mapping
+  - opacity
+  - representation
+---
+
+A **trail** stores a particle's recent positions and draws lines between them. The particle shows where it is now; the trail shows where it has been. Capping the stored history keeps the trail's length and memory cost under control. When a particle is recycled, its history must be cleared, or a line jumps across to the spot where it respawns.
+
+Appearance can also show state. Mapping speed to colour reveals fast and slow regions. Mapping normalised age, age divided by lifetime, to opacity can fade a particle out over its life. These mappings change what the motion communicates, not the field that causes it.
+
+A small moving dot can be hard to read; a trail makes direction and curvature visible at a glance. Recording history at fixed simulation intervals keeps trails consistent across frame rates.
+
+*The interactive scene and practice for this step are planned but not built yet.*

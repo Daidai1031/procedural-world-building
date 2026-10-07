@@ -1,0 +1,20 @@
+---
+title: Sampling a curve
+goal: Place evenly spaced markers by sampling distance along the curve.
+keywords:
+  - curve parameter
+  - arc length
+  - sampling
+  - getSpacedPoints
+  - markers
+---
+
+A **curve parameter** picks a position along a curve, from 0 at the start to 1 at the end. Equal steps in that parameter do not always travel equal distances in space. On a strongly curved route, markers placed at equal parameter steps can bunch up in some places and spread apart in others.
+
+Sampling by **arc length**, the distance travelled along the curve, keeps the spacing more even. Three.js offers `getSpacedPoints()` for approximately equal-distance samples, next to `getPoints()` for equal parameter steps. Its accuracy depends on how finely the curve's length is approximated.
+
+Asking for 20 divisions returns 21 points, because both ends are included. The markers are samples of the curve; how many there are has nothing to do with how many control points define its shape.
+
+Even spacing on this flat curve can change once the route is laid onto uneven ground, so a projected route may need resampling.
+
+*The interactive scene and practice for this step are planned but not built yet.*

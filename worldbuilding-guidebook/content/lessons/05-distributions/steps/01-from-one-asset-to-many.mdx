@@ -1,0 +1,20 @@
+---
+title: From one asset to many
+goal: Separate the asset being copied from the positions where its instances appear.
+keywords:
+  - asset
+  - instance
+  - candidate position
+  - scattering
+  - height field
+---
+
+An **asset** is a reusable object, such as a rock or a tree. An **instance** is one appearance of that asset in the scene, with its own position, rotation, and scale.
+
+Scattering starts with **candidate positions**. On a height-field terrain, each candidate gets an x and a z coordinate, and a terrain query supplies its y coordinate. A dot can mark the candidate; placing a rock there turns a position into a visible object. The model's base has to sit on that point, or the rock floats or sinks.
+
+Asking for more candidates tests more places. It does not change the size of any rock: how many positions there are and how large each object is are two separate settings. With no filters, every candidate on the terrain is accepted.
+
+Candidates spread evenly over the x–z footprint are not spread evenly over the ground itself: a steep slope covers more surface than its footprint shows, so it receives fewer objects per square metre of ground.
+
+*The interactive scene and practice for this step are planned but not built yet.*

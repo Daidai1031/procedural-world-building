@@ -1,0 +1,20 @@
+---
+title: Noise creates patches
+goal: Use spatially related values to create dense and sparse regions.
+keywords:
+  - noise map
+  - density
+  - placement probability
+  - patches
+  - acceptance test
+---
+
+Uniform random scattering gives every candidate the same chance of being accepted. A **noise map** changes that chance from place to place. Nearby locations have related noise values, so dense areas join into patches instead of appearing as unrelated decisions.
+
+Here the noise value is normalised to the range 0–1. Multiplying it by **density** gives a **placement probability**. At a candidate with probability 0.8, a fresh random value below 0.8 accepts the object. The noise sets the spatial pattern; the random test decides each individual placement inside it.
+
+Lower noise frequency makes larger patches. Higher density accepts more candidates without moving the patches themselves. Drawn as a map next to the placed objects, the patches and the clusters line up.
+
+The two jobs stay separate: frequency controls how big the pattern is, and probability controls how much of it gets filled.
+
+*The interactive scene and practice for this step are planned but not built yet.*

@@ -1,0 +1,20 @@
+---
+title: Build a spline layer
+goal: Generate a family of paths from rules and combine projection with a terrain effect.
+keywords:
+  - spline layer
+  - path seed
+  - route generation
+  - constraints
+  - assignment
+---
+
+A generated route starts from explicit rules. Here, two endpoints stand for two sites, seeded sideways offsets propose points in between, and a terrain cost chooses among the candidate routes. With the seed and constraints visible, a new route is a variation of a system rather than a hand-edited exception.
+
+The pipeline has three stages: build a curve from the chosen points, sample it and project it onto the terrain, then use it as a road layer with a height profile and an influence width. Check the route again on the reshaped ground. Limit the number of attempts and report a failure when no candidate meets the constraints; smoothing alone cannot guarantee a valid route.
+
+The spline stores a shape. Its meaning comes from the system around it: a supply route might move an entity along the curve without carving a road, while a river needs a different profile and flow rules.
+
+This step gathers the lesson's assignment.
+
+*The interactive scene and practice for this step are planned but not built yet.*

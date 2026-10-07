@@ -1,0 +1,20 @@
+---
+title: Build an atmospheric effect
+goal: Calibrate a particle system for a chosen phenomenon and explain its movement and representation.
+keywords:
+  - atmospheric effect
+  - calibration
+  - protocol
+  - recycling
+  - assignment
+---
+
+Choose one phenomenon without a fixed solid shape: drifting dust, mist, rain, or another atmospheric effect. State where particles are emitted, how long they live, what moves them, and how they are drawn. Those four decisions are the system's protocol.
+
+For drifting dust, start with a bounded emitter above the terrain, a gentle velocity field, and particles that fade with age. Add a local vortex only if it serves the effect. The clearest representation for studying the flow, often trails, may differ from the one used in the final scene.
+
+Decide what happens at the terrain and at the edges of the region. A height-field check can remove particles that sink below the surface; bouncing or sliding needs collision rules of its own. A vector field alone will not keep particles out of the ground. Keep a capacity limit and recycle particles so the effect can run indefinitely.
+
+This step gathers the lesson's assignment. A creative, abstract phenomenon is just as valid when its rules and visual intent are clear.
+
+*The interactive scene and practice for this step are planned but not built yet.*

@@ -1,0 +1,20 @@
+---
+title: Uniform flow, vortex, turbulence
+goal: Compose simple field patterns and understand what each contribution changes.
+keywords:
+  - uniform flow
+  - vortex
+  - turbulence
+  - perturbation
+  - vector addition
+---
+
+A **uniform** field points the same way everywhere. A **vortex** turns around a chosen centre. A noise-driven **perturbation** varies direction or strength across space and makes the flow irregular. In this lesson, "turbulence" names that artistic perturbation, not a solved physical turbulence model.
+
+Fields combine by adding their vectors at each position. Added to a uniform flow, a vortex bends nearby arrows into a local swirl while the overall drift continues. Combined vectors can strengthen, weaken, or cancel each other; opposing contributions do not automatically blend into a smooth, realistic transition.
+
+For a flat vortex around `(cx, cz)`, an unnormalised direction turning around the centre is `(-(z - cz), 0, x - cx)`. Its strength needs a safe profile near the centre, so the field never divides by zero or grows out of control.
+
+A three-dimensional field extends the same query into a volume. A fluid solver adds further physical rules and is a later exploration.
+
+*The interactive scene and practice for this step are planned but not built yet.*
