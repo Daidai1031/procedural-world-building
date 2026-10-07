@@ -7,6 +7,9 @@
   left: 50%;
   z-index: var(--z-strip);
   display: flex;
+  /* left: 50% would otherwise cap the shrink-to-fit width at half the viewport,
+     and a strip with four controls would scroll inside itself. */
+  width: max-content;
   max-width: calc(100vw - var(--space-7));
   overflow: hidden;
   border: var(--hairline) solid var(--line);

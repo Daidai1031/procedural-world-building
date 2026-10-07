@@ -7,6 +7,27 @@ keywords:
   - candidate position
   - scattering
   - height field
+scene:
+  demo: scatter-terrain
+  resetCamera: true
+  unlock:
+    - scatterCandidateCount
+    - scatterAssetScale
+    - scatterShowAssets
+  legend:
+    title: Reading the scene
+    items:
+      - swatch: clay-deep
+        shape: dot
+        label: Candidate position
+        note: An x and z drawn at random; the terrain supplies y.
+      - swatch: scatter-rock
+        shape: block
+        label: Rock instance
+        note: One copy of the rock asset, its base on a candidate.
+code:
+  file: src/scene/demos/distributions/scatter.js
+  fn: generateCandidates
 ---
 
 An **asset** is a reusable object, such as a rock or a tree. An **instance** is one appearance of that asset in the scene, with its own position, rotation, and scale.
@@ -17,4 +38,4 @@ Asking for more candidates tests more places. It does not change the size of any
 
 Candidates spread evenly over the x–z footprint are not spread evenly over the ground itself: a steep slope covers more surface than its footprint shows, so it receives fewer objects per square metre of ground.
 
-*The interactive scene and practice for this step are planned but not built yet.*
+*The practice for this step is planned but not built yet.*

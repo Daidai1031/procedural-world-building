@@ -148,4 +148,7 @@
   --terrain-gray-low: #7d8187;
   --terrain-gray-mid: #b0b4b9;
   --terrain-gray-high: #eceef0;
+  /* Lesson 05's rocks: a neutral stone that stands apart from the green and
+     yellow ground ramp. */
+  --scatter-rock: #8f8a84;
 }

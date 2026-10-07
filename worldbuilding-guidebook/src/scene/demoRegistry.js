@@ -1,6 +1,7 @@
 import { demoParams } from './demoParams.js'
 import SceneAnatomyDemo from './demos/sceneAnatomy/SceneAnatomyDemo.jsx'
 import NoiseTerrainDemo from './demos/proceduralMaps/NoiseTerrainDemo.jsx'
+import ScatterDemo from './demos/distributions/ScatterDemo.jsx'
 import CompositeLabDemo from './demos/shaders/CompositeLabDemo.jsx'
 import CoordinateSpaceDemo from './demos/shaders/CoordinateSpaceDemo.jsx'
 import ShaderLabDemo from './demos/shaders/ShaderLabDemo.jsx'
@@ -30,6 +31,7 @@ export const demoRegistry = {
   'voxel-edit': { component: VoxelEditDemo, params: demoParams['voxel-edit'] },
   'voxel-lod': { component: VoxelLodDemo, params: demoParams['voxel-lod'] },
   'volume-diagram': { component: VolumeDiagramDemo, params: demoParams['volume-diagram'] },
+  'scatter-terrain': { component: ScatterDemo, params: demoParams['scatter-terrain'] },
   'scene-anatomy': {
     component: SceneAnatomyDemo,
     params: demoParams['scene-anatomy'],

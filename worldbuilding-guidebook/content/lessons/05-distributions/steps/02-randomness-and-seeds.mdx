@@ -7,6 +7,26 @@ keywords:
   - reproducibility
   - scatter seed
   - terrain seed
+scene:
+  demo: scatter-terrain
+  unlock:
+    - scatterSeed
+    - scatterCandidateCount
+    - scatterShowAssets
+  legend:
+    title: Reading the scene
+    items:
+      - swatch: clay-deep
+        shape: dot
+        label: Candidate position
+        note: Moves when the scatter seed changes.
+      - swatch: scatter-rock
+        shape: block
+        label: Rock instance
+        note: Follows its candidate; the terrain underneath stays put.
+code:
+  file: src/scene/demos/distributions/random.js
+  fn: createRandom
 ---
 
 A **seeded random generator** produces a repeatable sequence of values. The scattering system uses that sequence to choose positions. Change the seed and a new layout appears; restore it and the original layout returns, as long as the algorithm, the settings, and the order in which values are drawn also stay the same.
@@ -17,4 +37,4 @@ More candidates do not have to mean a completely different layout. If position s
 
 A seed alone is not a saved scene. It reproduces a layout only together with the rest of the generator's inputs.
 
-*The interactive scene and practice for this step are planned but not built yet.*
+*The practice for this step is planned but not built yet.*
