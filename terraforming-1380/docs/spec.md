@@ -150,7 +150,7 @@ interface RunState {
 | TERR-03 | The volume is split into chunks. Each chunk meshes with Marching Cubes. Chunks use a two-sample border so neighbouring chunks produce the same surface as a single volume (guidebook finding). | MVP | done |
 | TERR-04 | An edit only marks the chunks it touches as dirty; only dirty chunks are remeshed, spread over frames within the frame budget. | MVP | wip |
 | TERR-05 | Edits update the render mesh and the collision mesh together for the affected chunks. | MVP | todo |
-| TERR-06 | Chunks far from the camera use lower detail; seams between detail levels are snapped so no visible gaps appear. | Stretch | todo |
+| TERR-06 | Chunks far from the camera use lower detail; seams between detail levels are snapped so no visible gaps appear. Geometry checks pass; browser inspection is pending. | Stretch | wip |
 | TERR-07 | A small core sits near the center. Digging it sharply lowers Stability (`TUNE`) but it does not occupy a large interior volume. | MVP | todo |
 | TERR-08 | Digging through to the other side of the planet is possible and must not crash or soft-lock (see NAV-03). | MVP | todo |
 | TERR-09 | Each edit reports the mass removed or added so `planetRemaining` and the canister can be updated. | MVP | wip |
@@ -542,3 +542,4 @@ Details and history in [`decisions.md`](decisions.md#open-questions).
 | 2026-09-30 | v0.1 / Flatten | D-017 replaces the spherical Flatten region and preview with a horizontal plane and circular footprint. |
 | 2026-09-30 | v0.1 / Detector | D-018 adds local Detector wireframe and world-space distance-faded resource reveal, separate from Scanner. |
 | 2026-09-30 | v0.1 / Flatten planes | D-019 adds the radial default and retains global horizontal Flatten as a selectable orientation. |
+| 2026-09-30 | v0.1 / LOD | D-021 adds distance-based chunk detail and seam snapping; browser and target-device checks remain. |

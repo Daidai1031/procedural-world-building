@@ -1,6 +1,7 @@
 import { tuning } from '../config/tuning'
 import { buildChunks, buildChunk, chunkAxisRange, chunkIndices, chunkIsReached, CHUNK_BORDER } from './voxels/chunks.js'
 import { fractalNoise3D, sampleSpacing, VOXEL_WORLD_SIZE } from './voxels/voxelMath.js'
+import { buildLodChunk, buildLodChunks, columnLevels, LOD_MAX_LEVELS } from './lodChunks.js'
 import type { TerrainMode } from '../state/runState'
 import { flattenNormal, type FlattenOrientation } from './flattenPlane'
 
@@ -36,7 +37,7 @@ export function buildPlanet(seed: string) {
 
 export type PlanetChunks = ReturnType<typeof buildPlanet>
 
-type Chunk = PlanetChunks[number] & { version: number }
+type Chunk = PlanetChunks[number] & { version: number; level: number }
 type Point = { x: number; y: number; z: number }
 
 function planeFalloff(distance: number, radius: number) {
@@ -68,6 +69,9 @@ export class PlanetWorld {
   private readonly density: Float32Array
   private readonly dirty = new Set<string>()
   private readonly indices = chunkIndices(this.chunksPerSide)
+  private readonly lodCache = new Map()
+  private lodLevels: number[] | null = null
+  private pendingLodLevels: number[] | null = null
   lastRemeshMs = 0
 
   constructor(seed: string) {
@@ -86,7 +90,8 @@ export class PlanetWorld {
     }
     this.initialSolidCount = this.solidCount
     this.chunks = buildChunks(this.densityAt, resolution, this.chunksPerSide, CHUNK_BORDER)
-      .map((chunk) => ({ ...chunk, version: 0 }))
+      .map((chunk) => ({ ...chunk, version: 0, level: 0 }))
+    for (const chunk of this.chunks) this.lodCache.set(`${chunk.key}-0`, chunk.mesh)
   }
 
   get planetRemaining() {
@@ -95,6 +100,47 @@ export class PlanetWorld {
 
   get dirtyChunkCount() {
     return this.dirty.size
+  }
+
+  get lodCounts() {
+    return Array.from({ length: LOD_MAX_LEVELS }, (_, level) =>
+      this.chunks.filter((chunk) => chunk.level === level && chunk.mesh.positions.length > 0).length)
+  }
+
+  setLodCamera(camera: { x: number; y: number; z: number }, timeBudgetMs: number) {
+    if (this.dirty.size > 0) return false
+    const levels = columnLevels(camera, LOD_MAX_LEVELS)
+    if (this.lodLevels?.every((level, index) => level === levels[index])) {
+      this.pendingLodLevels = null
+      return false
+    }
+    if (!this.pendingLodLevels?.every((level, index) => level === levels[index])) {
+      this.pendingLodLevels = levels
+    }
+    const started = performance.now()
+    for (const [chunkX, chunkY, chunkZ] of this.indices) {
+      const level = levels[chunkZ * this.chunksPerSide + chunkX]
+      const key = `${chunkX}-${chunkY}-${chunkZ}-${level}`
+      if (this.lodCache.has(key)) continue
+      this.lodCache.set(key, buildLodChunk(this.densityAt, [chunkX, chunkY, chunkZ], level))
+      if (performance.now() - started >= timeBudgetMs) return false
+    }
+    this.lodLevels = levels
+    this.pendingLodLevels = null
+    this.applyLod()
+    return true
+  }
+
+  private applyLod() {
+    if (!this.lodLevels) return
+    const lodChunks = buildLodChunks({ field: this.densityAt, levels: this.lodLevels,
+      hasSnapping: true, cache: this.lodCache })
+    lodChunks.forEach(({ mesh, level }, index) => {
+      const chunk = this.chunks[index]
+      if (chunk.mesh !== mesh || chunk.level !== level) {
+        this.chunks[index] = { ...chunk, mesh, level, version: chunk.version + 1 }
+      }
+    })
   }
 
   private index(x: number, y: number, z: number) {
@@ -188,11 +234,19 @@ export class PlanetWorld {
       const chunkIndex = key.split('-').map(Number)
       const index = chunkIndex[0] + this.chunksPerSide * (chunkIndex[1] + this.chunksPerSide * chunkIndex[2])
       const rebuilt = buildChunk(this.densityAt, this.resolution, this.chunksPerSide, chunkIndex, CHUNK_BORDER)
-      this.chunks[index] = { ...this.chunks[index], ...rebuilt, version: this.chunks[index].version + 1 }
+      if (!this.lodLevels) {
+        this.chunks[index] = { ...this.chunks[index], ...rebuilt, level: 0, version: this.chunks[index].version + 1 }
+      }
+      this.lodCache.set(`${key}-0`, rebuilt.mesh)
+      for (let level = 0; level < LOD_MAX_LEVELS; level += 1) {
+        if (level > 0) this.lodCache.delete(`${key}-${level}`)
+        this.lodCache.delete(`edges-${key}-${level}`)
+      }
       changed = true
       if (performance.now() - started >= timeBudgetMs) break
     }
+    if (changed && this.dirty.size === 0) this.applyLod()
     this.lastRemeshMs = performance.now() - started
-    return changed
+    return changed && (this.lodLevels === null || this.dirty.size === 0)
   }
 }

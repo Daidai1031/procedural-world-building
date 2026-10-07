@@ -15,8 +15,8 @@ export function FrameMeter({ onSample }: { onSample: (fps: number) => void }) {
   return null
 }
 
-export function DebugOverlay({ fps, seed, chunkCount, dirtyChunks, remeshMs }: {
-  fps: number | null; seed: string; chunkCount: number; dirtyChunks: number; remeshMs: number
+export function DebugOverlay({ fps, seed, chunkCount, dirtyChunks, remeshMs, lodCounts }: {
+  fps: number | null; seed: string; chunkCount: number; dirtyChunks: number; remeshMs: number; lodCounts: number[]
 }) {
   return (
     <aside className="debug" aria-label="Debug overlay">
@@ -25,6 +25,7 @@ export function DebugOverlay({ fps, seed, chunkCount, dirtyChunks, remeshMs }: {
         <dt>FPS</dt><dd>{fps ?? '—'}</dd>
         <dt>Seed</dt><dd>{seed}</dd>
         <dt>Chunks</dt><dd>{chunkCount}</dd>
+        <dt>LOD 0/1/2</dt><dd>{lodCounts.join(' / ')}</dd>
         <dt>Dirty</dt><dd>{dirtyChunks}</dd>
         <dt>Remesh</dt><dd>{remeshMs.toFixed(1)} ms</dd>
       </dl>

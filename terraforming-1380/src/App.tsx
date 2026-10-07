@@ -172,7 +172,7 @@ export function App({ useRunStore, debug }: { useRunStore: ReturnType<typeof cre
       {flights.map((flight) => <CollectChip key={flight.key} flight={flight}
         target={slotRefs.current[flight.category] ?? null} onDone={() => arrive(flight)} />)}
       {debug && <DebugOverlay fps={fps} seed={seed} chunkCount={world.chunks.length}
-        dirtyChunks={world.dirtyChunkCount} remeshMs={world.lastRemeshMs} />}
+        dirtyChunks={world.dirtyChunkCount} remeshMs={world.lastRemeshMs} lodCounts={world.lodCounts} />}
       <footer><span>Right drag / orbit</span><span>Left click / {activeTool === 'detector' ? 'scan' : terrainMode === 'dig' ? 'dig' : terrainMode === 'add' ? 'add' : 'flatten'}</span><span>D / detector</span><span>T / terrain</span><span>F / cycle mode</span><span>Wheel / brush</span></footer>
     </main>
   )

@@ -15,6 +15,7 @@ import { detectedClusters, isResourceExposed, scanWithDetector } from '../src/to
 import { generateResourceClusters } from '../src/world/resourceClusters'
 import { VOXEL_WORLD_SIZE } from '../src/world/voxels/voxelMath.js'
 import { flattenNormal } from '../src/world/flattenPlane'
+import { findOpenEdges } from '../src/world/lodChunks.js'
 
 function meshHash(chunks: PlanetChunks) {
   const hash = createHash('sha256')
@@ -96,6 +97,70 @@ test('M1 dig/add edits only nearby chunks, tracks solid mass, and preserves seam
   const flattened = world.edit('flatten', point, radius)
   assert.ok(flattened.changed)
   assert.ok(flattened.removedSamples + flattened.addedSamples > 0)
+})
+
+test('TERR-06 LOD reduces distant geometry, closes mixed-detail seams, and follows edits', () => {
+  const world = new PlanetWorld('1380')
+  const fullTriangles = world.chunks.reduce((sum, chunk) => sum + chunk.mesh.positions.length / 9, 0)
+  const camera = { x: 0, y: 0, z: 8 }
+  const fullMesh = meshHash(world.chunks)
+  assert.equal(world.setLodCamera(camera, 0), false)
+  assert.equal(meshHash(world.chunks), fullMesh, 'the current mesh stays visible while LOD prepares')
+  let frames = 0
+  while (!world.setLodCamera(camera, 6) && frames++ < 100) {}
+  assert.ok(frames < 100)
+  assert.ok(world.lodCounts[0] > 0 && world.lodCounts[1] > 0 && world.lodCounts[2] > 0)
+  assert.ok(world.chunks.reduce((sum, chunk) => sum + chunk.mesh.positions.length / 9, 0) < fullTriangles / 2)
+
+  // The fine side's boundary vertices must land on the neighboring coarse edge.
+  const byKey = new Map(world.chunks.map((chunk) => [chunk.key, chunk]))
+  let checked = 0
+  for (let z = 0; z < world.chunksPerSide; z += 1) {
+    for (let x = 0; x < world.chunksPerSide; x += 1) {
+      for (const [dx, dz, axis] of [[1, 0, 0], [0, 1, 2]]) {
+        const nx = x + dx
+        const nz = z + dz
+        if (nx >= world.chunksPerSide || nz >= world.chunksPerSide) continue
+        const a = byKey.get(`${x}-1-${z}`)!
+        const b = byKey.get(`${nx}-1-${nz}`)!
+        if (a.level === b.level) continue
+        const fineX = a.level < b.level ? x : nx
+        const fineZ = a.level < b.level ? z : nz
+        const coarseX = a.level < b.level ? nx : x
+        const coarseZ = a.level < b.level ? nz : z
+        const boundary = (axis === 0 ? nx : nz) * tuning.chunk.size
+        const plane = samplePosition(world.resolution, axis === 0 ? boundary : 0, 0,
+          axis === 2 ? boundary : 0)[axis]
+        const coarseEdges: { start: number[]; end: number[] }[] = Array.from({ length: world.chunksPerSide }, (_, y) =>
+          findOpenEdges(byKey.get(`${coarseX}-${y}-${coarseZ}`)!.mesh))
+          .flat().filter(({ start, end }) => Math.abs(start[axis] - plane) < 1e-4 && Math.abs(end[axis] - plane) < 1e-4)
+        if (coarseEdges.length === 0) continue
+        const fine = byKey.get(`${fineX}-1-${fineZ}`)!
+        for (let i = 0; i < fine.mesh.positions.length; i += 3) {
+          const point = Array.from(fine.mesh.positions.slice(i, i + 3))
+          if (Math.abs(point[axis] - plane) >= 1e-4) continue
+          const nearest = Math.min(...coarseEdges.map(({ start, end }) => {
+            const along = end.map((value, coordinate) => value - start[coordinate])
+            const lengthSquared = along.reduce((sum, value) => sum + value * value, 0)
+            const fraction = lengthSquared === 0 ? 0 : Math.max(0, Math.min(1,
+              along.reduce((sum, value, coordinate) => sum + value * (point[coordinate] - start[coordinate]), 0) / lengthSquared))
+            return Math.hypot(...point.map((value, coordinate) => value - start[coordinate] - along[coordinate] * fraction))
+          }))
+          assert.ok(nearest < 1e-3, `LOD seam gap ${nearest} at ${fine.key}`)
+          checked += 1
+        }
+      }
+    }
+  }
+  assert.ok(checked > 0)
+
+  const before = meshHash(world.chunks)
+  assert.ok(world.edit('dig', { x: 0, y: 3, z: -2 }, tuning.brush.radius.default).changed)
+  world.remeshDirty(0)
+  if (world.dirtyChunkCount > 0) assert.equal(meshHash(world.chunks), before, 'an incomplete edit is not shown')
+  while (world.dirtyChunkCount) world.remeshDirty(6)
+  assert.notEqual(meshHash(world.chunks), before)
+  assert.ok(world.chunks.every(({ mesh }) => mesh.positions.every(Number.isFinite) && mesh.normals.every(Number.isFinite)))
 })
 
 test('TECH-07 same seed and terrain inputs produce the same edited meshes', () => {

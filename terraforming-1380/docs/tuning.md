@@ -38,6 +38,9 @@
 | --- | --- | --- | --- | --- |
 | `grid.resolution` | 64 | 48–96 | guess | Per axis; OQ-10 |
 | `chunk.size` | 16 | 8–32 | guess | Samples per axis, plus 2-sample border |
+| `lod.maxLevels` | 3 | 2–3 | guess | Full, half, and quarter sampling for rendered chunks (D-021) |
+| `lod.fullDetailDistance` | 7 | 6–9 | guess | Camera-to-column-center distance before detail drops (D-021) |
+| `lod.bandWidth` | 2.5 | 2.2–4 | guess | Distance per coarser level; wider than adjacent-column center spacing (D-021) |
 | `brush.radius.min` | 0.18 | 0.12–0.3 | guess | World units; M1 six-unit planet (D-016) |
 | `brush.radius.default` | 0.38 | 0.25–0.6 | guess | World units; a small visible bite at the current planet scale (D-016) |
 | `brush.radius.max` | 0.9 | 0.6–1.2 | guess | World units; wide enough to shape without swallowing the planet (D-016) |
@@ -47,7 +50,7 @@
 | `wideDrill.puncturePenalty` | 1.3 | | guess | Raises fracture / punch-through chance |
 | `core.radius` | 0.08 × planetRadius | 0.05–0.12 | guess | Small, per GDD |
 | `core.stabilityHit` | 25 | 15–40 | guess | Points of Stability |
-| `remesh.timeBudgetMs` | 6 | 3–10 | guess | Per frame |
+| `remesh.timeBudgetMs` | 6 | 3–10 | guess | Per frame for dirty-chunk remeshing and LOD mesh preparation; final seam assembly is a separate step |
 
 ## 3. Scanner and generation
 

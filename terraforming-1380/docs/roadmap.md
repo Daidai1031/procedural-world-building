@@ -66,6 +66,8 @@ Status: `[ ]` todo · `[~]` in progress · `[x]` done · `[-]` cut
 - [x] Automated seed, locality, exposure and production-build checks
 - [ ] **Playtest:** check scan visibility, click accuracy and FPS in a browser; log feedback in `tuning.md`.
 
+**Stretch work (TERR-06):** distance-based chunk LOD and seam snapping are implemented and geometry-tested. Browser inspection and target-device performance checks remain.
+
 **Boundary:** No resource extraction, economy, irregular deposit shape or Detector cost yet. Those join the M3 resource and budget loop.
 
 ## M2 — Walk on it
@@ -149,7 +151,7 @@ Status: `[ ]` todo · `[~]` in progress · `[x]` done · `[-]` cut
 
 ## Icebox (Stretch, not scheduled)
 
-Monuments that change the silhouette · more classifications (10 more main plus rare) · seeder and plant growth · shareable result cards · random company contracts · "original intent vs. classification" comparison · whole-planet walking with spherical gravity · mobile input · Observed ending as its own scene · LOD for chunks (TERR-06).
+Monuments that change the silhouette · more classifications (10 more main plus rare) · seeder and plant growth · shareable result cards · random company contracts · "original intent vs. classification" comparison · whole-planet walking with spherical gravity · mobile input · Observed ending as its own scene.
 
 ## Risks to watch each milestone
 
@@ -169,3 +171,4 @@ Frame rate while remeshing · confusion about the two views · getting trapped f
 | 2026-09-30 | D-017: Flatten now uses a horizontal plane and circular footprint; regression and seam tests passed. |
 | 2026-09-30 | D-018: M1.5 local Detector, seeded target proxies and distance-faded reveal implemented; browser feel test pending. |
 | 2026-09-30 | D-019: Flatten now offers Planet Surface (radial default) and Horizontal planes; geometry, seams and build checks passed. |
+| 2026-09-30 | D-021: three chunk detail levels added; mixed-level seam and edited-terrain tests pass, visual/performance checks pending. |

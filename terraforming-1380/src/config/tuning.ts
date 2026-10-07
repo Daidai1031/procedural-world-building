@@ -2,6 +2,7 @@
 export const tuning = {
   grid: { resolution: 64 },
   chunk: { size: 16 },
+  lod: { maxLevels: 3, fullDetailDistance: 7, bandWidth: 2.5 },
   brush: { radius: { min: 0.18, default: 0.38, max: 0.9, step: 0.08 } },
   flatten: { innerFraction: 0.75 },
   remesh: { timeBudgetMs: 6 },

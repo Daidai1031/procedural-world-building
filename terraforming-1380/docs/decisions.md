@@ -205,6 +205,16 @@ Statuses: `accepted` · `proposed` (needs your yes) · `superseded` · `rejected
 
 ---
 
+### D-021 Add camera-distance chunk LOD to the editable planet
+- **Date:** 2026-09-30
+- **Status:** accepted
+- **Context:** The game already remeshes nearby chunks after an edit, but renders every visible chunk at full sample density. TERR-06 was deferred as stretch work; the user requested it now.
+- **Decision:** Keep the 64³ density grid as the sole editable world state. Render each vertical chunk column at full, half, or quarter sample spacing according to camera distance. Prepare new meshes across frames and switch levels together. Snap fine boundary vertices and normals onto the neighboring coarse surface, using the guidebook LOD method adapted to this grid. Invalidate a chunk's cached levels after an edit and rebuild the current view from the changed density.
+- **Why:** Distant terrain uses fewer triangles without reducing edit resolution. Column-level selection avoids vertical level transitions; snapping closes the remaining mixed-level seams.
+- **Affects:** TERR-06, `tuning.lod`, planet meshing, debug overlay, tests. Browser appearance and target-device frame time still need checking.
+
+---
+
 ## Open questions
 
 Answer these as early as they block work. Suggested defaults are marked, so nothing waits on you.

@@ -29,6 +29,12 @@ older global-Y platform. The hover disc follows the chosen plane. Dig and Add
 Terrain use round brushes.
 Planet Remaining updates as solid samples are removed or added. Canister and
 energy costs are scheduled for M2/M3; M1's fill action is unrestricted.
+The rendered planet now uses three detail levels: nearby chunks keep the full
+mesh, while distant chunks use coarser meshes. Fine edges snap to coarse edges
+at their shared boundary. LOD preparation is spread over frames and a change
+appears only when all its meshes are ready. The debug overlay shows the number
+of visible chunks at each level (`LOD 0/1/2`). Terrain edits still change the
+same full-resolution density grid.
 
 Click **Detector** or press `D`, then left-click the planet to scan a small
 region. The scan shows a subdued local terrain wireframe and nearby buried
@@ -41,7 +47,7 @@ are scheduled for M3.
 
 `npm.cmd run build` type-checks and writes `dist/`.
 `npm.cmd test` checks seed determinism, terrain edits, detector locality and
-exposure, and chunk border geometry.
+exposure, chunk borders, and mixed-detail LOD seams.
 `npm.cmd run preview` serves the production build locally.
 Use `npm` instead of `npm.cmd` in shells where PowerShell's execution policy
 is not blocking the npm PowerShell shim. All package scripts are cross-platform.
