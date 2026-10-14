@@ -2,10 +2,18 @@
 
 | | |
 | --- | --- |
-| **Status** | Draft v0.1, derived from design v0.5-en |
-| **Last updated** | 2026-09-30 |
+| **Status** | Draft v0.2 — autonomy-first prototype (D-022) |
+| **Last updated** | 2026-10-14 |
 | **Answers the question** | *What exactly must the game do, and how do we know it does?* |
 | **Sibling files** | Why: [`design.md`](design.md) · Values: [`tuning.md`](tuning.md) · Text: [`content.md`](content.md) · Order of work: [`roadmap.md`](roadmap.md) · Why we chose: [`decisions.md`](decisions.md) |
+
+## Current scope — D-022 (2026-10-14)
+
+The next playable slice is **one autonomous mining robot**, not the full legacy game. AUT-01–12 below govern this slice. The existing manual terrain, Detector, seed, meshing and LOD remain implemented foundations; this is a documentation-only update and adds no robot code.
+
+Legacy first-person navigation, backpack/loadout, canister economy, complex metrics, fixed tool-energy budgets, audit and story requirements remain reference material, deferred beyond this slice. Existing `done` statuses are not revoked. Older acceptance checks apply only if their features are resumed.
+
+Later economy direction: mineral income buys robots and expands limited deployment; running robots incur electricity expenses; near-insolvency forces departure. No prices or thresholds have been settled. Do not implement those systems before autonomy is validated.
 
 ## 0. How to read and edit this file
 
@@ -95,7 +103,7 @@ interface RunState {
   seed: string;
   mode: 'orbital' | 'surface' | 'audit' | 'ending';
 
-  budget: { workCyclesRemaining: number; energy: number };          // OQ-01: one may be removed
+  budget: { workCyclesRemaining: number; energy: number };          // legacy placeholders; D-022 defers/removes fixed-budget gameplay
 
   metrics: {                                                          // public, 0..100 unless noted
     capital: number;                                                  // money, unbounded
@@ -139,7 +147,50 @@ interface RunState {
 
 ---
 
+### 3.1 Planned robot state (not yet implemented)
+
+Add a minimal robot state alongside existing world state; do not build the full economy schema yet.
+
+```ts
+type RobotPhase = 'idle' | 'scanning' | 'moving' | 'digging' | 'collecting' | 'paused' | 'stopped';
+interface MiningRobotState {
+  id: string;
+  position: [number, number, number];
+  area: { center: [number, number, number]; radius: number } | null;
+  phase: RobotPhase;
+  knownTargetIds: string[];
+  targetId: string | null;
+  collectedMinerals: number;
+  stopReason: 'no-targets' | 'blocked' | null;
+}
+// Simulation also tracks tick number and task progress.
+// Add shared target reservations only in the multi-robot slice.
+```
+
+All positions use one documented coordinate space. Existing rendered/volume offsets must be converted at the boundaries, including scans and terrain edits.
+
 ## 4. Requirements
+
+### 4.0 Autonomous mining (AUT) — next prototype
+
+| ID | Requirement | Priority | Status |
+| --- | --- | --- | --- |
+| AUT-01 | Select one Miner, set one circular work area, Start/Pause and reassign it. One goal: mine discovered minerals. | MVP | todo |
+| AUT-02 | Bounded robot scans discover only targets within scan range and the assigned work volume. Existing manual Detector remains available; scanning never reveals the whole planet. | MVP | todo |
+| AUT-03 | Choose the nearest discovered, uncollected Mineral in the area; break equal-distance ties by stable target ID. Life and Memory are not mined as ore. | MVP | todo |
+| AUT-04 | Hover through empty space to a valid surface entry; do not intersect intact terrain during travel. | MVP | todo |
+| AUT-05 | Progressively excavate from the entry toward the target using the existing density edit operations. Check clearance against current density before advancing; never teleport to buried ore. | MVP | todo |
+| AUT-06 | Collect an exposed Mineral once, update the shared collected IDs/counts, clear the target and begin another scan/select cycle without player clicks. Reuse collection foundations where suitable. | MVP | todo |
+| AUT-07 | Reassess current terrain and target validity while working. If another edit changes the world, revise the task or report a stop reason. | MVP | todo |
+| AUT-08 | Pause stops robot movement, scanning, collection and edits; camera/manual inspection stays usable. Reassignment safely discards the old task. | MVP | todo |
+| AUT-09 | No eligible target stops with no-targets; a bounded no-progress check stops with blocked. No endless digging, retries, or motion when stuck. | MVP | todo |
+| AUT-10 | Show phase, selected area, current target and stop reason. UI explains the visible robot process. | MVP | todo |
+| AUT-11 | Use fixed simulation steps and stable ordering for reproducibility. Same seed and tick-indexed commands yield the same target sequence and terrain edits. Rendering frame rate must not define mining speed. | MVP | todo |
+| AUT-12 | Bound terrain edits per step and reuse dirty-chunk remeshing. Measure responsiveness on the user's laptop; do not claim performance before measuring it. | MVP | todo |
+| AUT-13 | Multiple Miners reserve distinct targets, release reservations on pause/reassignment/completion, and redistribute work. | Stretch | todo |
+| AUT-14 | Introduce one second procedural behavior: Builder reshaping or Gardener growth. Selection remains open. | Stretch | ? |
+
+Implementation sequence: scan/select → empty-space travel → progressive dig → collect/repeat → controls/status → terrain-change and no-progress handling. No purchases, power billing, hauling, first person or questionnaire is required.
 
 ### 4.1 World and terrain (TERR)
 
@@ -210,6 +261,8 @@ The Detector is a separate, close-range inspection tool. The later Scanner retai
 
 ### 4.5 Modules and backpack (MOD / PACK)
 
+**Deferred by D-022:** retained legacy requirements; not part of R1. Existing IDs and implementation history are preserved.
+
 | ID | Requirement | Priority | Status |
 | --- | --- | --- | --- |
 | MOD-01 | Before the run the player chooses exactly two of four modules: Deep Scanner, Wide Drill, Bio Seeder, Structural Stabilizer. | MVP | todo |
@@ -221,6 +274,8 @@ The Detector is a separate, close-range inspection tool. The later Scanner retai
 | PACK-04 | No crafting, no item grid, no weight. | MVP | todo |
 
 ### 4.6 Navigation and being trapped (NAV)
+
+**Deferred by D-022:** retained legacy requirements; not part of R1. Existing IDs and implementation history are preserved.
 
 | ID | Requirement | Priority | Status |
 | --- | --- | --- | --- |
@@ -244,6 +299,8 @@ The Detector is a separate, close-range inspection tool. The later Scanner retai
 
 ### 4.8 Metrics (MET)
 
+**Deferred by D-022:** retained legacy requirements; not part of R1. Existing IDs and implementation history are preserved.
+
 | ID | Requirement | Priority | Status |
 | --- | --- | --- | --- |
 | MET-01 | Five public metrics: Capital, Biosphere, Development Readiness, Stability, Historical Significance, shown in the orbital UI and in a collapsed first-person panel. | MVP | todo |
@@ -261,11 +318,13 @@ The Detector is a separate, close-range inspection tool. The later Scanner retai
 
 | ID | Requirement | Priority | Status |
 | --- | --- | --- | --- |
-| BUD-01 | The run has a finite budget: either 30 work cycles **or** 1,000 energy (OQ-01). Every tool costs some of it. | MVP | ? |
-| BUD-02 | The run ends when the budget reaches 0 or when the player submits the planet for audit. | MVP | todo |
-| BUD-03 | The player is warned before the last portion of the budget is spent. | MVP | todo |
+| BUD-01 | Legacy fixed cycles/energy budget superseded by D-022. Later operating costs are paid from funds; detailed billing is deferred. | Stretch | cut |
+| BUD-02 | Later: voluntary departure or forced departure near insolvency leads to audit. Threshold and remedies remain open; no ending budget in the robot test. | Stretch | ? |
+| BUD-03 | Later: warn of operating expenses and approaching insolvency. Wording and threshold remain open. | Stretch | ? |
 
 ### 4.10 Signals and exposure (SIG)
+
+**Deferred by D-022:** retained legacy requirements; not part of R1. Existing IDs and implementation history are preserved.
 
 | ID | Requirement | Priority | Status |
 | --- | --- | --- | --- |
@@ -278,6 +337,8 @@ The Detector is a separate, close-range inspection tool. The later Scanner retai
 | SIG-07 | Thresholds that pick the ending (Heard / Observed / Erased) are `TUNE` and are never displayed to the player. | MVP | todo |
 
 ### 4.11 Shape analysis and classification (CLS)
+
+**Deferred by D-022:** retained legacy requirements; not part of R1. Existing IDs and implementation history are preserved.
 
 | ID | Requirement | Priority | Status |
 | --- | --- | --- | --- |
@@ -292,6 +353,8 @@ The Detector is a separate, close-range inspection tool. The later Scanner retai
 | CLS-09 | 10 more main classifications plus rare ones. | Stretch | todo |
 
 ### 4.12 Audit and endings (END)
+
+**Deferred by D-022:** retained legacy requirements; not part of R1. Existing IDs and implementation history are preserved.
 
 | ID | Requirement | Priority | Status |
 | --- | --- | --- | --- |
@@ -343,6 +406,12 @@ The Detector is a separate, close-range inspection tool. The later Scanner retai
 ---
 
 ## 5. Algorithms and rules
+
+### 5.0 Autonomous work cycle
+
+Idle → scan → select known target → find surface entry → move in empty space → excavate incrementally → collect → scan again. Pause can interrupt any active phase. Recheck target eligibility and terrain clearance using the authoritative density grid, not stale render meshes. A fixed simulation tick drives behavior; rendering only displays it. Limit retries and edits per tick. The exact entry search and progress thresholds are implementation choices to test, not a requirement for global navigation or a full physics engine.
+
+
 
 ### 5.1 Development Readiness and Stability
 
@@ -432,6 +501,10 @@ Thresholds `T_observed`, `T_erased` are in `tuning.md` and are never shown in th
 
 ## 6. Controls
 
+**Next prototype:** robot selection, work-area assignment, Start/Pause and reassignment. Preserve working manual terrain/Detector controls as inspection and intervention tools. The legacy first-person/backpack controls below are deferred.
+
+
+
 | Input | Function |
 | --- | --- |
 | `E` | Take out or put away the Terrain Tool |
@@ -481,6 +554,22 @@ These are what make it possible to keep redesigning while building.
 ---
 
 ## 9. Acceptance and tests
+
+### Robot prototype acceptance
+
+| ID | Check | Covers |
+| --- | --- | --- |
+| AUT-T1 | Start once with at least two eligible targets; robot completes two scan/move/dig/collect cycles without additional dig clicks. | AUT-01–06 |
+| AUT-T2 | Trace movement against density; no travel segment crosses unexcavated solid terrain. Actual density and chunk meshes show the tunnel. | AUT-04–05 |
+| AUT-T3 | Hidden targets outside scan/area remain unknown. Targets are collected once. | AUT-02–03/06 |
+| AUT-T4 | Pause freezes robot actions; reassignment abandons the old task. Empty or blocked areas stop with a readable reason. | AUT-08–10 |
+| AUT-T5 | Edit terrain during work; robot updates its decision rather than using stale geometry. | AUT-07 |
+| AUT-T6 | Same seed and tick-indexed commands reproduce decisions; changing seed/area changes work. Compare different render frame rates. | AUT-11 |
+| AUT-T7 | Browser playtest records frame time and control clarity during autonomous remeshing. | AUT-10/12 |
+
+### Deferred legacy acceptance
+
+
 
 Mapped to the success criteria in `design.md` §18.
 
@@ -543,3 +632,5 @@ Details and history in [`decisions.md`](decisions.md#open-questions).
 | 2026-09-30 | v0.1 / Detector | D-018 adds local Detector wireframe and world-space distance-faded resource reveal, separate from Scanner. |
 | 2026-09-30 | v0.1 / Flatten planes | D-019 adds the radial default and retains global horizontal Flatten as a selectable orientation. |
 | 2026-09-30 | v0.1 / LOD | D-021 adds distance-based chunk detail and seam snapping; browser and target-device checks remain. |
+
+| 2026-10-14 | v0.2 | D-022: AUT requirements, planned robot state, acceptance, scope override and superseded fixed budget; no code change. |

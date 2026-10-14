@@ -1,6 +1,16 @@
 # Terraforming Contractor #1380
 
+> “We’re here to put a dent in the universe.”
+
 M1/M1.5: a seeded Marching Cubes planet you can dig, add to, flatten, and inspect locally in orbit view.
+
+## Design direction and next step
+
+Lead robots that reshape a seeded planet through rules. The next prototype is **one autonomous Miner**: local scan → choose discovered mineral → hover to a surface entry → progressively dig → collect → choose again. Select an area, Start/Pause, and adjust; repeated manual dig clicks are not required.
+
+**Planned, not implemented:** robots and their controls. Current terrain editing, Detector, LOD and basic exposed-marker collection remain the playable foundations. Next come multiple Miners with target reservation and one second procedural behavior.
+
+Purchases, deployment slots, electricity expenses and near-bankruptcy departure are retained later ideas. First person, backpack, complex management and narrative endings are deferred while automation is validated. See [design](docs/design.md), [AUT requirements](docs/spec.md), and [R1–R3 roadmap](docs/roadmap.md).
 
 ## Run locally
 

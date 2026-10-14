@@ -3,7 +3,7 @@
 | | |
 | --- | --- |
 | **Purpose** | Every number that will change after playtesting, in one place, with its reason and where it lives in code. |
-| **Last updated** | 2026-09-30 |
+| **Last updated** | 2026-10-14 |
 | **Source of truth** | `src/config/tuning.ts`. This file mirrors it and records *why*. If the two differ, fix one of them the same day. |
 
 ## Rules
@@ -13,6 +13,23 @@
 - Prefer changing a value over changing a rule. If three value changes do not fix a problem, it is a design problem: open a decision in `decisions.md`.
 
 ---
+
+## Robot prototype tuning — planned (D-022)
+
+These parameters are not yet in code. Add them to one config when implementing R1 and record measured values after playtesting; do not treat legacy economy numbers as accepted robot values.
+
+| Parameter | Purpose | Current value |
+| --- | --- | --- |
+| Simulation step | Behavior rate independent of render frame rate | TBD |
+| Hover speed | Visible travel in empty space | TBD |
+| Scan interval/radius | Bounded discovery within the work area | TBD |
+| Work area radius/depth | Limits where targets are eligible | TBD |
+| Dig radius/rate | Progressive tunnel shape and speed | TBD |
+| Clearance | Prevents movement through intact rock | TBD |
+| No-progress limit | Stops blocked work without endless retries | TBD |
+| Edits per step | Caps remesh workload | TBD |
+
+Purchase prices, slot expansion, electricity costs and departure reserves remain deferred. Legacy fixed-cycle/energy numbers below are historical references superseded by D-022. Existing brush, Detector and LOD values remain valid for their implemented tools.
 
 ## 1. Budget and economy
 

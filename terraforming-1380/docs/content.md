@@ -3,13 +3,33 @@
 | | |
 | --- | --- |
 | **Status** | Draft v0.1 |
-| **Last updated** | 2026-09-29 |
+| **Last updated** | 2026-10-14 |
 | **Purpose** | Every line the player reads, and every classification, in one place. Easy to edit, easy to review for tone. |
 | **Rule** | Each entry has a **key**. The game loads text by key from `src/content/*.json`. Changing the wording here and in the JSON should never need a code change. |
 
 **Voice guide.** The company is calm, warm, and businesslike, and describes destruction as optimization. It never raises its voice and never apologizes. The predecessor (#1379) is terse and flat. The unknown is minimal: fewer words each time it speaks.
 
 ---
+
+## Robot prototype copy — planned (D-022)
+
+These keys are drafts for the next robot UI, not implemented JSON or UI. Economy and endings below remain later content.
+
+| Key | Text |
+| --- | --- |
+| intro.subtitle | We’re here to put a dent in the universe. |
+| robot.assign | Choose a work area. |
+| robot.start | Start |
+| robot.pause | Pause |
+| robot.state.scanning | Scanning for minerals… |
+| robot.state.moving | Moving to excavation site… |
+| robot.state.digging | Excavating toward mineral… |
+| robot.state.collecting | Collecting mineral… |
+| robot.state.paused | Work paused. |
+| robot.stop.noTargets | No known minerals remain in this work area. |
+| robot.stop.blocked | Cannot continue excavation. Reassign work area. |
+
+Show the actual phase and selected target. Avoid a long tutorial or managerial questionnaire in R1.
 
 ## 1. Opening
 

@@ -8,6 +8,10 @@ Learn procedural world-building techniques through interactive lessons.
 ### Terraforming Contractor #1380
 Apply selected techniques to a destructible procedural planet.
 
+> “We’re here to put a dent in the universe.”
+
+**Next game direction:** lead robots that automatically scan, choose targets and excavate the planet. The next slice is one autonomous Miner; then multiple Miners and one second procedural behavior. This is planned work, not an implemented feature. See the [updated game design](terraforming-1380/docs/design.md) and [active roadmap](terraforming-1380/docs/roadmap.md).
+
 ```text
 Guidebook ─────── ★ selected techniques ───────▶ Game
      │                                              │

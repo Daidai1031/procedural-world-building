@@ -3,8 +3,41 @@
 | | |
 | --- | --- |
 | **Purpose** | The order of work, and what "done" means for each step. |
-| **Last updated** | 2026-09-30 |
-| **Current focus** | M1.5 Detector; M1 human playtest still pending |
+| **Last updated** | 2026-10-14 |
+| **Current focus** | R1: one autonomous mining robot (planned; not implemented) |
+
+## Current roadmap — D-022
+
+This replaces the old M2-first navigation sequence. Existing M0/M1/M1.5 work stays intact. The historical M0–M7 checklists below record the earlier plan and completed work; unchecked legacy tasks are not the active backlog.
+
+### R1 — One robot that mines on its own
+**Playable when:** assign a local area and press Start once; a Miner scans, chooses, hovers to an entry, excavates a real tunnel, collects and repeats.
+- [ ] Work area and Start/Pause/reassignment — AUT-01/08
+- [ ] Local scanning and nearest discovered Mineral — AUT-02/03
+- [ ] Empty-space hovering and surface entry — AUT-04
+- [ ] Progressive excavation with current-density clearance — AUT-05/07
+- [ ] Collection and next-target cycle — AUT-06
+- [ ] No-target/blocked stopping and readable status — AUT-09/10
+- [ ] Fixed simulation steps and bounded edits — AUT-11/12
+- [ ] AUT-T1–7; record visual, responsiveness and behavior playtest observations
+
+**Exclude:** purchases, electricity, backpack, hauling, first person, complex metrics, questionnaire and endings. Use existing resource proxies before designing full ore deposits.
+
+### R2 — Multiple Miners
+- [ ] Shared target reservation, safe release and reassignment — AUT-13
+- [ ] Observe different tunnels under the same simple rule
+- [ ] Validate no duplicate collections or conflicting target ownership
+No economic gate is required to test multiple robots.
+
+### R3 — A second procedural behavior
+- [ ] Choose Builder reshaping or Gardener growth — AUT-14
+- [ ] Introduce only one new rule set and its visible terrain/life effect
+- [ ] Observe interaction with mining; avoid endless dig/repair loops
+
+### Later, only after the process works
+Lightweight mineral income, robot purchases, deployment expansion and electricity expenses; insolvency departure; life/memory choices; audit and signal ending. Prices and thresholds remain unsettled. First person is optional and deferred.
+
+## Historical roadmap — retained for implementation history
 
 ## How this works
 
@@ -12,7 +45,7 @@
 - The design will change while you build. That is expected. If a milestone teaches you something, write a decision in `decisions.md` **before** editing `design.md` or `spec.md`.
 - Tasks refer to spec IDs so nothing gets built that the spec does not know about.
 - Dates are left blank on purpose. Fill them in when you know your calendar.
-- If time runs short, cut from the bottom (M6 polish first, then M5 extras). M1–M4 are the game's identity.
+- Historical ordering only. D-022 makes R1–R3 above the active development sequence.
 
 Status: `[ ]` todo · `[~]` in progress · `[x]` done · `[-]` cut
 
@@ -172,3 +205,5 @@ Frame rate while remeshing · confusion about the two views · getting trapped f
 | 2026-09-30 | D-018: M1.5 local Detector, seeded target proxies and distance-faded reveal implemented; browser feel test pending. |
 | 2026-09-30 | D-019: Flatten now offers Planet Surface (radial default) and Horizontal planes; geometry, seams and build checks passed. |
 | 2026-09-30 | D-021: three chunk detail levels added; mixed-level seam and edited-terrain tests pass, visual/performance checks pending. |
+
+| 2026-10-14 | D-022: R1–R3 autonomy-first sequence supersedes unchecked legacy backlog; existing completion records retained. |

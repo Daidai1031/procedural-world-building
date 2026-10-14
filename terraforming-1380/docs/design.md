@@ -1,9 +1,11 @@
 # Terraforming Contractor #1380 — Design
 
+> “We’re here to put a dent in the universe.”
+
 | | |
 | --- | --- |
-| **Status** | Concept v0.5 (English edition, carried over from the Chinese GDD) |
-| **Last updated** | 2026-09-29 |
+| **Status** | Concept v0.6 — procedural robot terraforming (D-022) |
+| **Last updated** | 2026-10-14 |
 | **Answers the question** | *What is this game, why does it exist, and how should it feel?* |
 | **Not in this file** | Exact rules, numbers, data formats → [`spec.md`](spec.md). Tunable values → [`tuning.md`](tuning.md). Player-facing text → [`content.md`](content.md). |
 
@@ -13,29 +15,33 @@
 
 ## 1. Pitch
 
-*Terraforming Contractor #1380* is a short, browser-based voxel game about reshaping a planet the company insists is empty.
+*Terraforming Contractor #1380* is a browser-based procedural terraforming experience. You lead robots reshaping Ares-9, a planet the company insists is empty.
 
-You arrive on **Ares-9** as a replaceable contract worker and dig, fill, and flatten it for profit, life, future development, or historical glory. When the contract ends, an automated audit classifies the world you made as an absurd object: *A Treasure-Stuffed Hedgehog*, *A Very Expensive Soap Bubble*, *A Reinforced-Concrete Sheet of Paper*. If you ever sent a signal into space, something out there answers:
+Select a robot, define a work area and goal, and start it. The robot scans, chooses a target, travels to a work site, excavates real terrain, collects the resource, and chooses again. You observe the changing planet and adjust the task. The same rules produce different excavation patterns on different seeded planets.
 
-> **We heard you, 1380.**
+The immediate prototype is one autonomous mining robot. Automation and readable terrain change come before economy, inventory, first-person traversal, or a large strategy interface.
 
-The first half plays like a cheerful planet-sculpting toy. The second half turns into a story about extraction, technological optimism, the hunger for a place in history, and being noticed by something far larger than you.
+The company satire, buried life and memory, absurd planetary audit, and “We heard you, 1380.” ending remain the longer-term narrative direction. They are not prerequisites for testing the robot.
 
 | | |
 | --- | --- |
-| **Platform** | Desktop web browser |
-| **Form** | Short narrative voxel-terraforming experience |
-| **Session length** | 5–10 minutes |
-| **Setting** | Ares-9, 21 October 2079 |
-| **Player role** | Terraforming Contractor #1380 |
+| Platform | Desktop web browser |
+| Player role | Contractor #1380, directing a robot crew |
+| Main view | Orbital observation and task assignment |
+| Immediate goal | One robot that keeps mining after the player stops clicking |
+| Setting | Ares-9, 21 October 2079 |
+| Subtitle | We’re here to put a dent in the universe. |
 
-**One-sentence version:** *You reshape a living planet for profit, life, or glory, a corporate AI classifies your creation as something ridiculous, and every signal you sent is answered by someone unknown.*
+The subtitle is the Steve Jobs line selected by the user. It connects technological ambition with the literal dents left on the planet; it is not a corporate slogan invented by the game.
 
 ---
 
 ## 2. Design pillars
 
 Each pillar is a test. If a feature does not serve at least one, it does not belong in the game.
+
+### 2.0 Rules keep the world moving
+One instruction starts an ongoing process. Robots choose their next action from discovered targets and current terrain rather than replaying a scripted animation. The player directs and adjusts; the simulation performs the individual edits. Keep controls small and behavior understandable.
 
 ### 2.1 The planet remembers everything
 Deformation is never just a visual effect. Every decision stays on the planet as geometry: tunnels, hollowed-out mines, terraces, exposed underground ecosystems, antennas, monuments, voids, broken fragments. The final result is the physical sum of what the player did, not a score invented by the system.
@@ -61,17 +67,11 @@ The opening tech-billionaire may recall real space entrepreneurs, but stays a fi
 
 ## 3. Player experience
 
-**At the start** the player should feel like a planet designer with enormous power: cutting into mountains to expose layers, adding matter to raise new land, making caves, spikes, terraces, rings, and shards, switching between orbit and first person, walking into the caves they carved, finding buried life and forgotten infrastructure, and deciding for themselves what a "successful planet" is.
+At first, the player watches a small robot inspect and carve a gray planet. Its state and current target explain what it is doing. Changing the work area changes where it searches and digs. Pausing stops its work.
 
-**By the end** they should realize they are also:
+The immediate pleasure is watching a rule turn into a visible process: scans become targets, targets become tunnels, and tunnels reveal resources. The planet stores the cumulative changes.
 
-- a disposable contractor being graded by a company,
-- the caretaker or destroyer of a world,
-- an archaeologist digging up a predecessor's warning,
-- a signal-sender exposing the planet to something unknown,
-- an object being observed and classified by a much larger system.
-
-The satire comes mainly from the compromises the player makes again and again, not from long stretches of text.
+Later discoveries can reveal life and history beneath the company’s “empty” planet. The player will direct the crew’s response. This narrative layer follows the automation prototype; it must not turn the first test into a complex management game.
 
 ---
 
@@ -128,79 +128,62 @@ The player can trust the warning, ignore it, or exploit the repaired equipment.
 
 ## 5. Structure of a run
 
-| Act | What happens |
-| --- | --- |
-| **1. Arrival** | First look at the untouched planet and the Silent Shore base. Company comms explain the job and the basic controls. The UI describes Ares-9 as blank land awaiting improvement. |
-| **2. Productive Terraforming** | The player learns to dig, fill, scan, and sell. Early actions bring instant rewards and cheerful company feedback. The player starts shaping the planet toward their own goal. |
-| **3. Buried Life and Memory** | Deep digging exposes glowing life networks, fossils, ruins, or old comms systems. The company labels them "non-commercial biomass" and "construction obstacles". The hidden *Planetary Memory* value starts to build. |
-| **4. The Warning** | The player finds the #1379 archive and can repair the Deep Echo Array. The company offers large money and honors to broadcast. The warning says being noticed cannot be undone. |
-| **5. Final Contract Period** | The player spends remaining energy on their own goal. Repeated broadcasts pay more and more in the short term. The planet's shape becomes extreme, odd, and recognizable. |
-| **6. Planetary Audit** | The player loses control. The system scans geometry, value, ecology, history, and signal record, produces the final planet type, and, if the player ever broadcast, the cosmic contact ending begins. |
+For the next prototype: inspect a seeded planet → assign a local work area → start the robot → watch repeated scan/move/dig/collect cycles → pause or change the area → compare the resulting terrain.
+
+The later narrative run retains arrival, buried life and memory, the #1379 warning, voluntary broadcasting, departure, and planetary audit. Sequence and duration will be revisited after autonomous work is tested. The previous fixed-cycle/energy ending is no longer the chosen design direction.
 
 ---
 
 ## 6. Core loop
 
-1. Inspect the whole planet and current metrics in **Orbital Planning Mode**.
-2. Pick a region and drop into **Surface Exploration Mode** for close work.
-3. Scan for nearby randomly generated mineral, life, or memory signals.
-4. Follow a signal and dig down, deciding whether to keep a ramp back to the surface.
-5. Use rock and soil from the terrain canister to fill, ramp, and bridge, or return to orbit to re-plan.
-6. Get immediate economic, ecological, structural, or fame feedback.
-7. Choose between *"one more dig and I might find it"* and *"keep going and I may not get out"*.
-8. Repeat until the contract ends.
+1. Inspect the planet from orbit.
+2. Select a robot and define a bounded work area and goal.
+3. Start autonomous scanning and target selection.
+4. Watch the robot travel to an entry point and progressively excavate toward a discovered mineral.
+5. Collect an exposed resource, then reassess the current terrain and choose the next target.
+6. Adjust the area, pause, or restart the task.
 
-Digging and filling must feel good on their own, before the player understands the story. The satire lives in the trade-offs, not the exposition.
+No repeated dig clicks are needed. No targets or no valid progress produces a visible stop reason. Manual terrain tools remain useful for experimenting and intervention, but are not the primary loop.
 
 ---
 
 ## 7. Player toolkit (design intent)
 
-Exact rules and numbers are in [`spec.md`](spec.md). This section says what each tool is *for*.
+### 7.1 Immediate controls
+Select robot, set a circular work area, start/pause, and reassign. The first goal is simply “mine discovered minerals in this area.” Goal menus, questionnaires, and strategy presets remain undecided and deferred.
 
-### 7.1 One Terrain Tool, three modes
-A single tool rather than several confusing ones. The modes are **Dig**, **Add Terrain**, and **Flatten**. Dig removes matter and may find things. Add Terrain rebuilds ground and escape routes from material you dug. Flatten quickly makes roads and platforms, at the cost of natural landforms. The input scheme is inspired by Astroneer's terrain tool and will be adjusted after playtests.
-
-Flatten has two plane orientations (D-019). **Planet Surface**, the default, makes a local terrace tangent to the planet at the selected point, so it works on the sides and underside. **Horizontal** keeps the earlier world-level platform. Both remain planar, not spherical brushes.
-
-### 7.2 The terrain canister
-A small canister stores rock and soil from digging and pays for filling. This gives filling a clear source: the player is *redistributing* the planet they just dug, not creating matter from nothing. Capacity is limited. Rock and soil share one material unit in the MVP and differ only in look, feel, and dig speed. Minerals never go in the canister (they are sold). Life and memory are never stored as rock (they trigger discovery, protect-or-destroy events).
-
-### 7.3 The scanner
-Finds targets that are not exposed on the surface. It gives direction, distance band, and signal strength, never an exact position. Mineral signals turn into Capital. Life signals can raise Biosphere or block mining. Memory signals point to ruins, archives, fossils, or #1379's traces. The stronger the signal, the stronger the urge to dig "just a bit more".
-
-### 7.3a The Detector
-The Detector inspects one nearby patch the player chooses on the planet. Its local wireframe makes the terrain legible and shows the actual Mineral, Life, and Memory targets inside that small volume. A buried target otherwise stays unseen until digging exposes it. The reveal fades with distance from the fixed scan point, as in the guidebook's Distance and Fresnel lesson, rather than changing as the camera moves. The broad Scanner still helps choose *where* to inspect; Detector answers *what is in this patch*. Early target markers are stand-ins for the irregular deposits and discovery rules scheduled for M3 (D-018).
-
-### 7.4 Pick two of four modules
-Before the run the player picks two modules. The combination changes the run's strategy and the planet's final shape.
-
-| Module | Ability | Temptation and cost |
+### 7.2 Three robot roles, introduced gradually
+| Role | Procedural work | Schedule |
 | --- | --- | --- |
-| **Deep Scanner** | Longer scan range, better direction | Finds deep targets more easily, and invites endless downward digging |
-| **Wide Drill** | Bigger dig radius, faster mining | Fast income, but easier to punch through the surface, wreck ecology, or fracture the planet |
-| **Bio Seeder** | Protects or regrows discovered life | Biosphere rises faster, but costs energy and buildable space |
-| **Structural Stabilizer** | Reinforces weak areas and ramps | Lowers collapse and fracture risk, but costs lots of material and money |
+| Miner | Scan, choose a mineral, excavate, collect, repeat | Next prototype |
+| Builder | Reshape terrain with Add/Flatten; later reinforce it | Candidate second behavior |
+| Gardener | Find suitable exposed ground and seed or restore life | Later exploration |
 
-The player cannot own all four. *Deep Scanner + Wide Drill* is greedy extraction; *Bio Seeder + Structural Stabilizer* is preservation.
+Robot type is separate from robot count. First test one Miner; then test multiple Miners without duplicating targets; then add one second behavior. Do not build all three at once.
 
-### 7.5 The backpack
-A pull-up screen for tools, modules, canister level, collected mineral samples, energy, and a one-line description of the active tool. It is not an RPG inventory. Modules can be swapped between the two equipped ones but never gained mid-run.
+### 7.3 Movement and excavation
+Robots hover through empty space to a work site. A Miner enters solid ground by progressively excavating a tunnel, not by flying through intact rock. Movement and target choice must respond to changed terrain.
 
-### 7.6 Getting trapped
-Getting out is part of the game. Digging straight down may leave no way to jump back up. The player must leave gentle slopes as they dig or build ramps and steps from canister material. Chasing a resource can make an exit steeper, longer, or accidentally cut through, and the player can even punch through to the other side of the planet. To avoid a permanent soft lock there is one very expensive **Emergency Extraction**.
+### 7.4 Scanning and knowledge
+Robots learn targets through bounded scans; they do not start knowing the whole underground map. The player can also scan manually with the existing Detector. The first robot scan may reuse its local discovery queries without requiring a separate scanner robot.
 
-> Scan a signal → dig down → the signal gets stronger → dig more → realize you may not get back → keep chasing or fix the road?
+### 7.5 Existing tools and deferred equipment
+Keep Dig/Add/Flatten and Detector as working prototype tools. First-person walking, being trapped, Emergency Extraction, backpack, two-of-four loadout, upgrades, and detailed hauling are deferred. They do not gate autonomous mining.
 
-### 7.7 Deep Echo Console
-Located at the base, not a hand tool. It sends signals into space and feeds Capital, Historical Significance, and the hidden Cosmic Exposure.
+### 7.6 Later economy — agreed direction, not the next task
+Minerals may be sold for funds to buy robots and expand limited deployment slots. Rock/soil are construction material. Life and Memory are discoveries, not ordinary saleable ore. Running robots incur electricity expenses; approaching insolvency can force departure. Prices, billing, reserve thresholds, and remedies are unsettled.
 
-### 7.8 Limited resources
-Without a budget the player could max everything and the choices would mean nothing. The MVP uses either **30 work cycles** or **1,000 units of energy** that every tool spends. The run ends when the budget hits zero or the player submits the planet for audit. **(open)** — pick one; see `decisions.md` OQ-01.
+Keep this layer lightweight. Do not require purchases, power, transport, or bankruptcy rules to validate the first robot. Fixed work cycles or a non-replenishable energy pool are superseded as the planned run budget.
+
+### 7.7 Memory and signals
+Later, discovering life or archives can prompt a player decision. No separate archaeology robot is required. Keep broadcasting an explicit player choice rather than an automatic mining side effect.
 
 ---
 
 ## 8. Metrics
+
+**D-022 scope:** The metrics below describe the retained narrative design, not the next prototype’s required dashboard. For autonomous mining, show robot state, current target, collected mineral count, and Planet Remaining. Complex metric trade-offs and formulas are deferred.
+
 
 ### 8.1 Five public metrics
 
@@ -277,15 +260,14 @@ On a first playthrough the exact thresholds are never shown. The underground arc
 ## 10. The world
 
 ### 10.1 Two views, one planet
-The planet is compact but walkable: big enough to feel large from the surface, small enough to understand as one object from orbit.
 
-**Orbital Planning Mode.** The camera orbits the whole planet. The player checks silhouette, remaining mass, large voids, the base, and ecological zones; picks a landing point or marks a survey area; and sees the cumulative result of many edits. The final pineapple, doughnut, or sheet of paper is easiest to recognize here.
+**Orbital view is primary:** observe robots, assign work areas, inspect tunnels, and compare cumulative silhouettes. The planet remains stationary while the camera orbits.
 
-**Surface Exploration Mode.** First person from the chosen spot or the Silent Shore base. The player walks, aims a crosshair tool, digs close up, enters tunnels, scans life, and reads consoles and archives. Key story discoveries like the #1379 warning happen here. A hotkey, map, or base terminal returns to orbit.
+First-person exploration is retained as an optional later idea. Surface controls, escape ramps, spherical gravity, and player collision are not prerequisites for the robot prototype.
 
-**Why both:** orbit is for planning, comparison, and recognizing the final shape. First person gives bodily scale, exploration, and emotional weight. Coming out of a cave and seeing that one local dig changed the whole planet is a key beat. The contact ending can start in first person and pull all the way out as the planet is destroyed.
+Hovering makes roads unnecessary for robot travel. A future Builder should justify itself through reshaping or reinforcement rather than artificial road dependencies.
 
-The MVP limits first person to one connected patch of surface around the base, plus its caves. Walking seamlessly around the whole sphere needs stable spherical gravity and character orientation, and is a stretch goal.
+---
 
 ### 10.2 Random clusters, not layers
 The interior is *not* a tidy "minerals, then life, then memory" onion. Apart from the base materials (rock and soil), minerals, life, and memory are three content categories scattered as irregular 3D clusters.
@@ -392,7 +374,7 @@ The company describes destruction in neutral or cheerful business language.
 
 Example notices, sponsor lines, and all other copy live in [`content.md`](content.md).
 
-**Orbital UI:** warm off-white background (not a dark starfield); central gray rotatable voxel planet; top bar for cycles/energy; left for region select, global scan, view switch; right for the five metrics; bottom for notices, recovered archives, and selection info; Planet Remaining always visible.
+**Orbital UI:** warm off-white background, stationary gray planet and orbit camera; a compact robot panel with work area, Start/Pause, state, target and stop reason; mineral count and Planet Remaining. Later economy and narrative panels are deferred.
 
 **First-person UI:** minimal crosshair and contextual prompts; bottom shows terrain mode, brush size, canister level, the two modules, and energy; screen edges hint at base direction, detected resources, life signals, unstable terrain; metrics panel collapsed by default and opened at decision points.
 
@@ -478,13 +460,13 @@ Not a classic alien ship. Options: a star that starts to move by itself; a small
 
 ## 16. Scope
 
-The precise MVP requirement list is in [`spec.md`](spec.md#4-requirements) with IDs and status. In short: a walkable compact voxel planet with orbit and first-person views; one terrain tool with three modes and a canister; scanner; clusters of minerals, life, memory; two-of-four modules; backpack; five metrics plus Planet Remaining; limited energy; a small dangerous core; the #1379 warning; Deep Echo broadcasting; six reliable classifications; Silent, Heard, and high-exposure endings; the final audit screen.
+**Next prototype:** one autonomous Miner, local discovery, nearest known target selection, hovering in empty space, progressive tunnel excavation, collection, repeat, Start/Pause/reassignment, and readable state feedback. Reuse existing seeded terrain, editable density, local remeshing, Detector and LOD.
 
-**Stretch goals:** seeder and plant growth simulation; more complex cave and connected-component analysis; monuments that genuinely change the silhouette; dynamic atmosphere or pollution; multiple underground civilizations and archive fragments; 16+ classifications; shareable result cards; seed-based replay; random company contracts with priority metrics; "player's original intent vs. system classification" comparison; mobile interaction; seamless walking around the whole planet with spherical gravity.
+**After validation:** multiple Miners with target reservation; one second procedural behavior (Builder or Gardener, to be selected).
 
-**Explicitly out of scope** unless every core system is done: third-person animated character, unrestricted full-planet first-person traversal, fully seamless spherical gravity, vehicles, large inventory or crafting, full base building, infinite worlds, NPC dialogue, multiplayer, alien models and combat, large open world.
+**Retained later direction:** limited deployment, robot purchases and electricity costs, near-bankruptcy departure, life/memory responses, corporate audit and signal endings.
 
-The project's identity comes from terrain deformation, metric trade-offs, absurd classification, and the signal ending, not the number of features.
+**Deferred:** first person, backpack, loadouts, detailed transport, complex economy, collapse simulation, questionnaires, and full metric optimization. No robot code is delivered by this document revision.
 
 ---
 
@@ -492,42 +474,29 @@ The project's identity comes from terrain deformation, metric trade-offs, absurd
 
 | Risk | Response |
 | --- | --- |
-| Real-time voxel editing too slow in the browser | Smaller density grid, limited chunks, local rebuilds |
-| Two views greatly widen scope | Share terrain, tools, and state; MVP opens only one connected walkable region |
-| First-person collision breaks after terrain changes | Update render and collision meshes together for affected chunks |
-| Player trapped forever after digging too deep | Ramps from canister material, plus one costly Emergency Extraction |
-| Random resources leave the player empty-handed too long | Scan signals, minimum spawn distance, a few surface teaching targets |
-| Too many metrics confuse players | Only five public; geometry and exposure revealed at the audit |
-| Player maxes every metric | Limited energy and explicit metric conflicts |
-| Classification feels random | Show detected shape data and metric summary before naming |
-| Low-saturation art makes resources hard to read | Encode with value, roughness, shape, dot grids, scan animation, not color alone |
-| Wireframe looks like a debug view or clutter | Simplified structural lines, local triggers, low-contrast graphite, cap line density |
-| Rough texture hurts UI legibility | Texture on world and archive layers only; action text stays clean and high contrast |
-| Satire becomes a pile of unrelated jokes | Every joke maps to a real system consequence |
-| Cosmic ending disconnected from the rest | Introduce Deep Echo Array and the #1379 warning in the middle |
-| *Three-Body* elements overshadow originality | Keep only the number and philosophical nod; all else original |
-| The game becomes an Astroneer clone | Emphasize dual view, audit, short narrative, metric trade-offs, final classification |
+| Robot is just a random brush or scripted animation | Require discovered targets, incremental movement, genuine excavation and re-selection |
+| Robot passes through solid terrain | Query current density and excavate before advancing |
+| Robot stalls or endlessly retries | Report no-target/blocked reason and stop; use a bounded progress check |
+| Excavation hurts frame rate | Reuse dirty-chunk remeshing; cap edits per simulation step and measure |
+| Too many controls hide the process | Start with one goal, one area, Start/Pause |
+| Multiple robots duplicate work | Reserve targets in the multi-robot milestone |
+| Mechanics balloon before automation works | Validate each procedural behavior before adding economy or narrative layers |
 
 ---
 
 ## 18. Success criteria
 
-The prototype succeeds if a player can:
+1. Assigning an area and starting once produces at least two automatic target cycles when targets are available.
+2. The player can explain the current robot state and target.
+3. Excavation leaves persistent tunnels in the actual density field.
+4. The robot never flies through intact solid terrain.
+5. Changing the work area or seed changes the resulting work pattern.
+6. Pause halts robot movement and edits; reassignment abandons the previous task safely.
+7. No target or no progress ends with a readable reason.
+8. Replaying the same seed, simulation steps and commands reproduces the same decisions.
+9. The process remains responsive during remeshing.
 
-1. Understand switching between orbit and first person without a long tutorial.
-2. Dig, fill, and flatten with one tool on the surface.
-3. Open the backpack, read equipment, and switch between carried tools and modules.
-4. Understand that canister rock and soil come from terrain they dug.
-5. Track randomly placed minerals, life, or memory with the scanner.
-6. Build a route back while digging deep, or knowingly accept the risk of being trapped.
-7. Enter or examine caves, life, archives, or facilities exposed by their work.
-8. Understand why an action raises some metrics and hurts others.
-9. Understand that Development Readiness depends on connectivity and stability, not just flat area.
-10. Create final planets with clearly different silhouettes.
-11. Understand why the final classification fits their planet.
-12. Notice that sending a signal gave an immediate reward.
-13. Feel the shift from light experiment to unease at the end.
-14. Want to replay with different modules, planet shapes, or signal endings.
+Later audit/story acceptance checks are scheduled after this prototype.
 
 ---
 
@@ -547,8 +516,8 @@ These are references for interaction, mood, and philosophical structure only. Ch
 
 Tracked in detail in [`decisions.md`](decisions.md#open-questions). Design-level ones:
 
-- **OQ-01** Work cycles or energy as the run budget?
-- **OQ-02** What does Emergency Extraction cost, and can it be used more than once?
+- **OQ-01** Superseded by D-022: later funds pay operating costs; fixed cycles/energy are not the run budget.
+- **OQ-02** Deferred: Emergency Extraction only matters if first person returns.
 - **OQ-03** Should Silent ending's "Thank you for keeping quiet" require high Planetary Memory, or always appear?
 - **OQ-04** How much of the Erased ending is shown in first person versus orbit?
 - **OQ-05** Is the game English-only, or bilingual in the UI (the Chinese GDD drafted bilingual text)?
@@ -562,3 +531,5 @@ Tracked in detail in [`decisions.md`](decisions.md#open-questions). Design-level
 | 2026-09-29 | v0.5-en | English edition created from the Chinese GDD v0.5. `habitability` renamed to `developmentReadiness` throughout. |
 | 2026-09-30 | v0.5-en / Detector | D-018 adds a local Detector beside the coarse Scanner. |
 | 2026-09-30 | v0.5-en / Flatten planes | D-019 makes planet-relative Flatten the default and keeps world-level Horizontal as an option. |
+
+| 2026-10-14 | v0.6 | D-022: robot-led procedural terraforming, simplified prototype, subtitle, and deferred management/navigation. |

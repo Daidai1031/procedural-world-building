@@ -3,7 +3,7 @@
 | | |
 | --- | --- |
 | **Purpose** | The memory of the project. Every time the design or spec changes, the *reason* goes here, so we can tell later whether a change was a good idea. |
-| **Last updated** | 2026-09-30 |
+| **Last updated** | 2026-10-14 |
 
 ## How to use this file
 
@@ -93,7 +93,7 @@ Statuses: `accepted` · `proposed` (needs your yes) · `superseded` · `rejected
 
 ### D-009 MVP first person is limited to one connected surface patch
 - **Date:** 2026-09-29 (carried)
-- **Status:** accepted
+- **Status:** superseded by D-022
 - **Decision:** Walkable region = around Silent Shore plus its caves. Full-sphere walking with spherical gravity is a stretch goal.
 - **Why:** Spherical gravity and character orientation are a large cost that does not serve the core pillars.
 - **Affects:** NAV-05, NAV-06.
@@ -215,27 +215,50 @@ Statuses: `accepted` · `proposed` (needs your yes) · `superseded` · `rejected
 
 ---
 
+### D-022 Prioritize procedural robot terraforming and keep mechanics simple
+- **Date:** 2026-10-14
+- **Status:** accepted
+- **Context:** Teacher feedback asked what happens if the game plays itself. The user chose to lead robots and then explicitly prioritized procedural/automated processes over complex management.
+- **Decision:** Player selects robots, defines work areas/goals, starts work and adjusts it. The next prototype is one autonomous Miner: bounded scan, nearest discovered mineral, hovering to an entry, progressive excavation, collect and reselect using current terrain. Show state and stop reasons. Then test multiple Miners and one second procedural behavior.
+- **Decision:** Retain Miner/Builder/Gardener as the three-role direction, but implement incrementally. Robots hover in empty space; mining opens paths into solid terrain. Player and robots can both scan locally.
+- **Decision:** Preserve manual terrain tools, seeded voxel engine, local Detector, LOD, low-saturation art, corporate satire, life/memory, audit and signal narrative. Broadcasting remains a deliberate player choice.
+- **Decision:** Later funds buy robots and expand limited deployment slots; electricity incurs ongoing costs and near-insolvency forces departure. These agreed directions are deferred, without invented prices or thresholds. Fixed cycles/non-replenishable energy are superseded.
+- **Decision:** Defer first person, trapped/escape mechanics, backpack, loadouts, hauling, complex metrics and questionnaire. Strategy UI and the second behavior remain open.
+- **Decision:** Use the user-selected subtitle: “We’re here to put a dent in the universe.”
+- **Why:** Rule-driven actors should visibly change a world without repeated manual digging. Additional game systems must not gate that proof.
+- **Affects:** design, spec AUT-01–14, roadmap R1–R3, tuning, content and READMEs.
+- **Implementation status:** documentation only; no robot, economy or subtitle UI code is implemented by this change.
+
+---
+
 ## Open questions
 
 Answer these as early as they block work. Suggested defaults are marked, so nothing waits on you.
 
 | ID | Question | Blocks | Suggested default | Owner / date |
 | --- | --- | --- | --- | --- |
-| OQ-01 | Run budget: 30 work cycles or 1,000 energy? | BUD-01, TOOL-06, SCAN-05 | **Energy.** It lets each tool have a different cost, which supports module trade-offs. Drop "work cycles" unless a day/night beat needs it. | |
-| OQ-02 | Emergency Extraction: cost and number of uses? | NAV-03 | One use per run; costs a large fraction of Capital and some Historical Significance. | |
+| OQ-01 | Superseded by D-022: later operating costs use funds, not finite cycles/energy. | Deferred economy | Billing and departure thresholds still open; no economy in R1. | 2026-10-14 |
+| OQ-02 | Deferred by D-022: Emergency Extraction: cost and number of uses? | NAV-03 | One use per run; costs a large fraction of Capital and some Historical Significance. | |
 | OQ-03 | Does "Thank you for keeping quiet" need high Planetary Memory, or always appear in the Silent ending? | END | Only with high Planetary Memory, so it feels earned. | |
 | OQ-04 | How much of the Erased ending is first person versus orbit? | END-06, VIEW-06 | Start at wherever the player is, then pull out to orbit. | |
 | OQ-05 | English only or bilingual UI? | content | English only for MVP; Chinese as a later pass. | |
-| OQ-07 | How to detect "no walkable path to surface" cheaply after any edit? | NAV-04 | Coarse grid flood fill on a debounce; fall back to a "stuck for N seconds" timer. | |
+| OQ-07 | Deferred by D-022: How to detect "no walkable path to surface" cheaply after any edit? | NAV-04 | Coarse grid flood fill on a debounce; fall back to a "stuck for N seconds" timer. | |
 | OQ-08 | Do we need Web Workers for meshing? | TECH-06 | Start with time-sliced remeshing on the main thread; add a worker only if profiling demands it. | |
-| OQ-09 | Collision: mesh collider or sample the density field for the player capsule? | NAV-01, TERR-05 | Sample the density field with a capsule of points; avoids a second mesh. Revisit after a prototype. | |
+| OQ-09 | Deferred by D-022: Collision: mesh collider or sample the density field for the player capsule? | NAV-01, TERR-05 | Sample the density field with a capsule of points; avoids a second mesh. Revisit after a prototype. | |
 | OQ-10 | Density grid resolution and chunk size that meet the frame budget? | TECH-06, TERR-02 | Try 64³ with 16³ chunks first; measure. | |
 | OQ-11 | Is the Observed ending a separate scene or a variation of Heard? | END-03 | Variation of Heard with stronger interference for MVP. | |
 | OQ-12 | Should the run allow saving (Firebase) or be session-only? | scope | Session-only for MVP. Revisit after M6. | |
 | OQ-14 | Which geometric and discovery fields should ResourceCluster carry beyond its M1.5 id/category/position/radius proxy? | M3, GEN-01 | Define irregular geometry, depletion, discovery and collection state with the full generator. | |
-| OQ-15 | What energy cost or cooldown should each Detector scan have? | M3, DET-05, BUD-01 | Use an energy cost when OQ-01 is resolved; keep scans free in the visual prototype. | |
+| OQ-15 | Detector billing is deferred by D-022. | Later economy | Keep scans free in R1; revisit with operating costs. | 2026-10-14 |
 
 ---
+
+### Current questions after D-022
+- How should the work area's depth extent and robot scan range be shown clearly?
+- What simple surface-entry search works reliably on the current planet?
+- Is Builder or Gardener the first second behavior? Decide after R2.
+- Are later strategy controls a questionnaire, presets or a panel? Deferred; R1 has one goal.
+- What electricity billing and departure threshold work without bloating the game? Deferred.
 
 ## Rejected ideas (so we do not re-argue them)
 
