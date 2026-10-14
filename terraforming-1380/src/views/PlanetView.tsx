@@ -18,7 +18,7 @@ export function PlanetView({ world, clusters, collectedIds, radius, detectorRadi
   radius: number
   detectorRadius: number
   areaRadius: number
-  activeTool: 'terrain' | 'detector' | 'miner'
+  activeTool: 'terrain' | 'detector' | 'miner' | 'explore'
   selectedMode: TerrainMode
   flattenOrientation: FlattenOrientation
   onTarget: (point: { x: number; y: number; z: number }, alt: boolean, ctrl: boolean) => void
@@ -67,7 +67,7 @@ export function PlanetView({ world, clusters, collectedIds, radius, detectorRadi
   // A preview left over from the previous tool would otherwise stay on screen until the pointer moves.
   useEffect(() => hidePreview(), [activeTool])
   const handleClick = (event: ThreeEvent<MouseEvent>) => {
-    if (event.button !== 0 || event.delta > 5) return
+    if (activeTool === 'explore' || event.button !== 0 || event.delta > 5) return
     event.stopPropagation()
     onTarget({
       x: event.point.x,

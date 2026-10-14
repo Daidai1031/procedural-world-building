@@ -8,11 +8,12 @@ export function OrbitCamera({ onWheel }: { onWheel: (direction: number) => void 
   useEffect(() => {
     const canvas = gl.domElement
     let dragging = false
-    let azimuth = 0
-    let polar = Math.PI / 2
+    let azimuth = Math.atan2(camera.position.x, camera.position.z)
+    let polar = Math.acos(Math.max(-1, Math.min(1, camera.position.y / camera.position.length())))
     let lastX = 0
     let lastY = 0
 
+    camera.up.set(0, 1, 0)
     const updateCamera = () => {
       camera.position.set(
         8 * Math.sin(polar) * Math.sin(azimuth),
