@@ -10,7 +10,7 @@ export interface ResourceCluster {
   radius: number
 }
 
-function randomStream(seed: number) {
+export function randomStream(seed: number) {
   let state = seed
   return () => {
     state += 0x6D2B79F5

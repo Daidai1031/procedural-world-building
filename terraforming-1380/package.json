@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "tsx --test tests/planet.test.ts"
+    "test": "tsx --test tests/planet.test.ts tests/miner.test.ts tests/gardener.test.ts tests/builder.test.ts"
   },
   "dependencies": {
     "@react-three/fiber": "^9.7.0",

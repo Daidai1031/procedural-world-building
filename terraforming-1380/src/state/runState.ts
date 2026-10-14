@@ -2,8 +2,13 @@ import { create } from 'zustand'
 import { tuning } from '../config/tuning'
 import { generateResourceClusters, type ResourceCluster } from '../world/resourceClusters'
 import type { FlattenOrientation } from '../world/flattenPlane'
+import { spawnRobot, type MiningRobotState } from '../systems/miner'
+import { spawnGardener, type GardenerState } from '../systems/gardener'
+import type { Structure } from '../systems/structures'
+import { spawnBuilder, type BuilderState } from '../systems/builder'
 
-export type ToolId = 'terrain' | 'detector' | 'scanner' | 'deepScanner' | 'wideDrill' | 'bioSeeder' | 'stabilizer'
+export type ToolId = 'terrain' | 'detector' | 'scanner' | 'deepScanner' | 'wideDrill' | 'bioSeeder' | 'stabilizer' | 'auto'
+export type AutoRobot = 'miner' | 'gardener' | 'builder'
 export type ModuleId = 'deepScanner' | 'wideDrill' | 'bioSeeder' | 'stabilizer'
 export type TerrainMode = 'dig' | 'add' | 'flatten'
 
@@ -48,6 +53,8 @@ export interface RunState {
     terrainMode: TerrainMode
     flattenOrientation: FlattenOrientation
     toolSlots: ToolId[]
+    // D-025: which robot Auto mode is placing and showing controls for.
+    autoRobot: AutoRobot
   }
   canister: { amount: number; capacity: number }
   minerals: Record<string, number>
@@ -55,6 +62,16 @@ export interface RunState {
   resourceClusters: ResourceCluster[]
   collectedIds: string[]
   detector: { center: [number, number, number] | null; radius: number }
+  // AUT-01–12: robots live in the run state; simTick counts fixed simulation steps.
+  robots: MiningRobotState[]
+  gardeners: GardenerState[]
+  builders: BuilderState[]
+  // D-026: soil removed by Miners, spent by the Builder when filling. Counted in density samples.
+  soil: number
+  // AUT-15/16: plants and antennas standing on the surface.
+  structures: Structure[]
+  structureCounter: number
+  simTick: number
   flags: {
     archive1379Found: boolean
     echoArrayRepaired: boolean
@@ -87,6 +104,7 @@ export function createInitialRunState(seed: string): RunState {
       terrainMode: 'dig',
       flattenOrientation: 'radial',
       toolSlots: ['terrain', 'detector', 'scanner', 'deepScanner', 'wideDrill'],
+      autoRobot: 'miner',
     },
     canister: { amount: 0, capacity: tuning.canister.capacity },
     minerals: {},
@@ -94,6 +112,13 @@ export function createInitialRunState(seed: string): RunState {
     resourceClusters: generateResourceClusters(seed),
     collectedIds: [],
     detector: { center: null, radius: tuning.detector.radius },
+    robots: [spawnRobot(seed)],
+    gardeners: [spawnGardener(seed)],
+    builders: [spawnBuilder(seed)],
+    soil: 0,
+    structures: [],
+    structureCounter: 0,
+    simTick: 0,
     flags: { archive1379Found: false, echoArrayRepaired: false, emergencyExtractionUsed: false },
   }
 }

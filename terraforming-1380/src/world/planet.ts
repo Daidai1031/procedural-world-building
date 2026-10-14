@@ -156,7 +156,8 @@ export class PlanetWorld {
   }
 
   // TERR-09, TOOL-02–04: one brush operation; point is in guidebook grid coordinates.
-  edit(mode: TerrainMode, point: Point, radius: number, orientation: FlattenOrientation = 'radial') {
+  // cutOnly (D-026) makes Flatten remove rock above the plane without filling below it.
+  edit(mode: TerrainMode, point: Point, radius: number, orientation: FlattenOrientation = 'radial', cutOnly = false) {
     const normal = mode === 'flatten' ? flattenNormal(point, orientation) : null
     const searchRadius = mode === 'flatten' && orientation === 'radial' ? Math.SQRT2 * radius : radius
     const scale = (this.resolution - 1) / VOXEL_WORLD_SIZE
@@ -190,6 +191,7 @@ export class PlanetWorld {
             if (tangent >= radius || Math.abs(signed) >= radius) continue
             const weight = planeFalloff(tangent, radius) * planeFalloff(Math.abs(signed), radius)
             after = before + (signed - before) * weight
+            if (cutOnly) after = Math.max(before, after)
           } else {
             const distance = Math.hypot(wx - point.x, wy - point.y, wz - point.z)
             if (distance >= radius) continue
