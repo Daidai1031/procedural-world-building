@@ -340,3 +340,41 @@ Answer these as early as they block work. Suggested defaults are marked, so noth
 | Showing Cosmic Exposure as a meter | Turns the ending into number optimization (D-008). |
 | A separate "Depositor" tool | Hard to explain; replaced by Add Terrain (D-004). |
 | Full-sphere first-person in the MVP | Too costly for the core loop (D-009). |
+
+## D-028 — Site logistics and operating feedback
+
+User approved the warehouse / operating account / planet condition split. Warehouse holds sellable minerals and construction soil. Life and Memory are discoveries, not commodities. Mineral sales explicitly transfer inventory into capital; simulation ticks bill only running robots. Manual mode freezes operation and billing. Insufficient capital pauses the crew, allowing sales and manual resume; purchases, deployment expansion and forced departure remain deferred.
+
+Prototype tuning: 250 starting credits, 40 per mineral, power draw Miner 6 / Gardener 3 / Builder 8 kW, electricity 0.25 credits per kW-minute. Values are provisional and centralized in tuning.ts. Initial ecology is 60; living plants add 0.6 each, disturbed life discoveries subtract 2 each, lost terrain fraction subtracts up to 60. Stability currently estimates retained mass, not local structural connectivity. Prepared ground estimates cumulative Builder-edited samples (10,000 samples = 100), weighted by remaining mass. All three are labelled estimates in the UI. Discovery collection does not constitute a protection-choice system; that remains future work.
+
+## D-029 — Surface exploration and orbital atlas
+
+The user requested underside lighting, landing sites, returnable first-person exploration, and a 2D world map. Added ambient and lower-hemisphere fill while retaining the directional key. Eight regional landing candidates are sampled from the edited density field, refreshed every two seconds and checked again before landing. Missing or steep ground is unavailable.
+
+Surface mode uses radial up, tangent-plane WASD/arrow movement and drag-to-look; on-screen held buttons support touch. Steps across steep height changes are blocked. Returning restores the previous camera pose and lens. Ground loss beneath the walker returns to orbit. This is outer-surface exploration, not cave traversal, jumping or full character physics. Terrain editing and robot placement are disabled during exploration; the existing Auto/Manual simulation policy stays in effect.
+
+The atlas uses an equirectangular projection of sampled surface height and refreshes once per second while open. Optional layers show remaining subsurface resource projections, excavated/filled terrain against the seed baseline, plants, antennas, robots and landing sites. The walker is marked on the atlas. Full resource distribution is intentionally visible in this requested survey view; it is not restricted to Detector discoveries.
+
+## D-030 — Builder/Gardener handoff and interface boundaries
+
+Builder terrain edits retain up to 64 recent prepared sites. Gardener surveys test suitable prepared sites inside their own area before covering the rest of the area with a seeded disc pattern. A Gardener waiting with no-sites automatically surveys again when Builder, Miner or manual terrain edits intersect its work area. Explicitly paused robots remain paused, and distant edits do not wake them. Waiting does not incur robot electricity charges. The UI distinguishes waiting for ground from reaching global plant/antenna capacity.
+
+The operating interface uses one grid with a shared top and bottom boundary for the left control rail and right report rail. Each rail scrolls inside its own bounds on desktop. The application title stays on one line. A centered opening presents Contract #1380, Terraforming Contractor and its tagline, then fades into the workspace; it can be skipped and respects reduced-motion preferences.
+
+## D-031 — Debt warning and bankruptcy
+
+The user asked for funds to stay near zero so spending needs thought. Starting capital is now 0. Electricity is billed even when it drives funds negative; the crew is no longer paused for insufficient funds. At or below ₡0 the operating account shows a near-bankruptcy warning. At −₡50 (`tuning.economy.bankruptcyLimit`) the run ends: billing, sales and simulation stop and a game-over screen offers a new contract (page reload). This supersedes the "insufficient capital pauses the crew" rule and the 250-credit start in D-028.
+
+## D-032 — Broadcast animation, distant planets and travel
+
+The user asked for a broadcast animation, and for new planets to appear in the background after enough signals, which can be clicked to travel to. Planet condition now has a Broadcast signal button; it needs at least one antenna and is free. Each broadcast increments `signal.broadcastCount`, sets `hasBroadcast`, and adds one exposure point per antenna to `exposureScore` (mirrored into hidden `cosmicExposure`). The animation sends three staggered amber rings outward along each antenna's normal plus one faint shell around the planet over 3.2 s; the button is locked while it plays.
+
+From the third broadcast on, one more distant planet fades in per broadcast (up to five), at fixed canvas corners clear of the home planet, so they stay on screen while orbiting. They are hidden during surface exploration. Clicking one asks for confirmation; travelling replaces the run state with a fresh planet seeded from the current seed (`<seed>/signal-N`), keeping only available funds, and remounts the app without the opening title. The URL seed is not updated. Values live in `tuning.signal`. Exposure consequences and endings (design §9) are still not implemented.
+
+## D-033 — Communicator replaces in-panel warnings
+
+Robot stop messages, the Builder's soil shortage and the low-funds warning no longer appear as rounded notice boxes inside cards. They arrive on a square-cornered communicator at the bottom-right, in the same row as the key hints. It opens by itself when a new message appears, lists the messages, and each message can be dismissed. Each one carries one button to the most relevant place: Auto mode with the robot to place or check, or selling the stored minerals when funds are low and minerals are waiting. Messages are derived from run state in `systems/comms.ts`, so they disappear when the cause is resolved. Generic `.notice` boxes are now square-cornered.
+
+
+Electricity was later raised from 0.25 to 0.4 credits per kW-minute (a Miner now costs 2.40 per minute); the per-mineral price of 40 is unchanged.
+

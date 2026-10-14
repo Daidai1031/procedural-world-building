@@ -90,3 +90,7 @@ RunState metrics are placeholders, not computed scores. Both budgets remain
 until OQ-01 is resolved; resource point proxies are generated now, while full
 clusters remain M3 work. See
 [decisions](docs/decisions.md) and [roadmap](docs/roadmap.md).
+
+### Surface exploration and world map
+
+Open **World map & landing** to inspect terrain, resource distribution, development and landing sites. Select an available LZ and choose **Land here**, or click a landing beacon directly on the planet. Walk with WASD / arrow keys (or hold the on-screen movement buttons), and drag to look. Use **Return to orbit** or Escape to restore the orbital view. Steep edges block walking. The atlas displays your current location and refreshes while open.
