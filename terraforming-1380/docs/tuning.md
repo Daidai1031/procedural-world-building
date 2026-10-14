@@ -179,6 +179,23 @@ Values live in `src/config/tuning.ts` (`builder`). All are `guess`.
 | Work time | Ticks per job | 18 |
 | Area | Work area radius | 0.6–2.4, default 1.2 |
 
+## Visual style (D-027)
+
+Values live in `src/config/tuning.ts` (`visual`); colors live in `src/config/palette.ts`. Chosen on the component board, not yet playtested in the game.
+
+| Parameter | Purpose | Current value | Source |
+| --- | --- | --- | --- |
+| `visual.contour.spacing` | World units between contour lines | 0.045 | board |
+| `visual.contour.majorEvery` | Every nth contour is stronger | 5 | board |
+| `visual.contour.heightRange` | Height that spans low gray to limestone | 0.3 | board |
+| `visual.workArea.innerSpacingFactor` | Contour spacing inside a work area, as a fraction | 0.5 | board |
+| `visual.atmosphere.strength` | Overall atmosphere opacity | 0.23 | user |
+| `visual.atmosphere.points` | Dust points | 4200 | board |
+| `visual.atmosphere.floorChance` | Minimum chance of dust where the noise is thin | 0.15 | board |
+| `visual.atmosphere.falloff` | Height falloff, thin / dense dust | 0.05 / 0.24 | board |
+| `visual.atmosphere.rim` | Limb tint toward the atmosphere color | 0.35 | board |
+| `visual.atmosphere.drift` | Inner / outer shell drift (rad/s) | 0.03 / 0.012 | board |
+
 ## Playtest log
 
 Record every session, even a five-minute one. The point is to change the design based on what actually happened.

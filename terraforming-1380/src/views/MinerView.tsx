@@ -6,13 +6,19 @@ import {
 } from 'three'
 import type { createRunStore } from '../state/runState'
 import type { PlanetWorld } from '../world/planet'
-import { surfaceRadius, type Vec3 } from '../systems/miner'
+import { surfaceRadius, type RobotPhase, type Vec3 } from '../systems/miner'
 import { tuning } from '../config/tuning'
+import { palette } from '../config/palette'
+import { createMiner, type RobotLight } from '../render/models/robots'
+import { showWorkArea } from '../render/terrainMaterial'
 
 const DEBRIS = 40
 const DEBRIS_SECONDS = 0.9
 const up = new Vector3(0, 1, 0)
 const scratch = new Object3D()
+const light: Record<RobotPhase, RobotLight> = {
+  idle: 'idle', paused: 'idle', scanning: 'scan', moving: 'move', digging: 'work', collecting: 'collect', stopped: 'blocked',
+}
 
 // AUT-10: the robot, its intended path, and the area it works in. Reads the store every frame instead of
 // subscribing, so 30 Hz simulation never re-renders React.
@@ -20,14 +26,15 @@ export function MinerView({ world, store, active, selected }: {
   world: PlanetWorld; store: ReturnType<typeof createRunStore>; active: boolean; selected: boolean
 }) {
   const body = useRef<Group>(null)
-  const area = useRef<Group>(null)
+  const model = useMemo(() => createMiner(), [])
+  useEffect(() => () => model.dispose(), [model])
   const debris = useRef<InstancedMesh>(null)
   const pool = useMemo(() => Array.from({ length: DEBRIS }, () => ({ age: DEBRIS_SECONDS, p: new Vector3(), v: new Vector3() })), [])
   const emitted = useRef({ tick: -1, next: 0 })
   const path = useMemo(() => {
     const geometry = new BufferGeometry()
     geometry.setAttribute('position', new BufferAttribute(new Float32Array(9), 3))
-    const material = new LineBasicMaterial({ color: '#66645f', transparent: true, opacity: 0.7, depthTest: false })
+    const material = new LineBasicMaterial({ color: palette.robot.band.miner, transparent: true, opacity: 0.7, depthTest: false })
     const line = new Line(geometry, material)
     line.frustumCulled = false
     line.renderOrder = 2
@@ -35,31 +42,28 @@ export function MinerView({ world, store, active, selected }: {
   }, [])
   useEffect(() => () => { path.geometry.dispose(); (path.material as LineBasicMaterial).dispose() }, [path])
 
-  useFrame((_, delta) => {
+  useFrame(({ clock }, delta) => {
     // The robot, its path, debris and area exist only in Auto mode.
     if (body.current) body.current.visible = active
     path.visible = path.visible && active
     if (debris.current) debris.current.visible = active
     if (!active) {
-      if (area.current) area.current.visible = false
+      if (selected) showWorkArea(null)
       return
     }
     const { robots, resourceClusters, simTick } = store.getState()
     const robot = robots[0]
     if (!robot) return
+    model.setState(light[robot.phase])
+    model.update(clock.elapsedTime)
     const [x, y, z] = robot.position
     if (body.current) {
       body.current.position.set(x, y, z)
       body.current.quaternion.copy(new Quaternion().setFromUnitVectors(up, new Vector3(x, y, z).normalize()))
     }
-    if (area.current) {
-      // The area is only drawn while it is being set up; once the Miner works it would just clutter the view.
-      area.current.visible = selected && robot.area !== null && ['idle', 'paused', 'stopped'].includes(robot.phase)
-      if (robot.area) {
-        area.current.position.set(...robot.area.center)
-        area.current.scale.setScalar(robot.area.radius)
-      }
-    }
+    // The area is only drawn while it is being set up; once the Miner works it would just clutter the view.
+    // D-027 work area D: it shows as denser contours on the terrain itself.
+    if (selected) showWorkArea(robot.area && ['idle', 'paused', 'stopped'].includes(robot.phase) ? robot.area : null)
 
     // Path: robot -> hover point above the target -> target (only while there is a target).
     const target = robot.targetId ? resourceClusters.find(({ id }) => id === robot.targetId) : undefined
@@ -103,21 +107,13 @@ export function MinerView({ world, store, active, selected }: {
 
   return (
     <>
-      <group ref={body}>
-        <mesh><sphereGeometry args={[0.09, 20, 14]} /><meshStandardMaterial color="#4b4a45" roughness={0.8} /></mesh>
-        <mesh position={[0, -0.12, 0]} rotation={[Math.PI, 0, 0]}><coneGeometry args={[0.04, 0.1, 10]} /><meshStandardMaterial color="#8a877d" /></mesh>
-      </group>
+      <group ref={body}><primitive object={model.object} /></group>
       <primitive object={path} />
       <instancedMesh ref={debris} args={[undefined, undefined, DEBRIS]} frustumCulled={false}>
-        <icosahedronGeometry args={[1, 0]} />
-        <meshStandardMaterial color="#8c887b" roughness={1} />
+        {/* D-027: debris is small voxel cubes, like the robots that throw it up. */}
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial color={palette.robot.debris} roughness={0.95} />
       </instancedMesh>
-      <group ref={area} visible={false}>
-        <mesh raycast={() => null}>
-          <sphereGeometry args={[1, 24, 16]} />
-          <meshBasicMaterial color="#66645f" transparent opacity={0.16} wireframe depthWrite={false} />
-        </mesh>
-      </group>
     </>
   )
 }

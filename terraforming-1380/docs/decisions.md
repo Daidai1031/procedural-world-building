@@ -286,6 +286,23 @@ Statuses: `accepted` · `proposed` (needs your yes) · `superseded` · `rejected
 
 ---
 
+### D-027 Adopt the component board: voxel robots, contour terrain, point atmosphere
+- **Date:** 2026-10-14
+- **Status:** accepted
+- **Context:** Before (and alongside) the robot logic, the user compared visual options for every on-planet component over five rounds on a component board (`docs/component-board.html`, each option a 3D model at true game scale) and chose one per component.
+- **Decision:** **Robots** share one hollow voxel orb (0.02 cells, radius 3.7 cells, ~Ø0.15) with a 2 × 2 status light; each role has its own silhouette and band color. Miner **E** (voxel orb, tilted ring of 26 cubes, stepped drill, graphite band). Gardener **G3** (seed pannier behind, two voxel arms that move while working, moss band). Builder **B1** (two ochre brackets carrying a voxel roller that turns while moving or working). Silhouette, not color, tells them apart at ~28 px in orbit.
+- **Decision:** **Status light** (AUT-10): scan = pulsing scan-white, move = steady amber, work = fast amber blink, collect = mineral gold, plant = soft green, stopped = slow rust blink; idle and paused = dim steady scan-white.
+- **Decision:** **Plants** are vegetation A + D together: a lichen patch of flat low-saturation discs with an L-system branch growing out of it; each growth stage shows more branch levels and a wider patch; three branch shapes are picked per plant id. **Antennas** are A: a 0.45 three-leg lattice mast with a dish and a blinking amber lamp.
+- **Decision:** **Minerals** are drawn as small crystal clusters (resource B), sized to the existing target radius. This is visual only; D-023 keeps targets as seeded points, and real multi-crystal deposits remain a later generation change.
+- **Decision:** **Terrain** is surface C: value from low gray to limestone by height, darker on steep slopes, and graphite contour lines every 0.045 world units (every fifth stronger), all in world space so edits bend the lines. The existing resource glow (VIS-03) is kept. The **work area** is style D: inside the selected robot's sphere the contours double in density and darken, its intersection with the ground is a single contour-weight line, and no wireframe sphere is drawn.
+- **Decision:** **Atmosphere** is C4 in cool gray at 23%: ~4200 points whose height starts at the initial terrain below them, density masked by low-frequency noise with a 15% floor, two shells drifting at different speeds, an irregular faint halo, and the planet's limb tinted toward the atmosphere color. It is seeded from the initial surface and does not follow edits.
+- **Decision:** Rendering language is **solid** (no outlines). Lighting becomes one soft key light plus a warm hemisphere fill. Debris is small voxel cubes. Path lines take the robot's band color. All colors live in `src/config/palette.ts`; a test fails if a model uses a color outside it.
+- **Why:** The user wanted the components settled before automation and chose a restrained archive look in which robots read by shape, the planet reads by contour and value, and dust reads as points (design §14 point / line / surface).
+- **Affects:** design §14 (component styles), spec VIS-01/11–14, tuning (visual), `src/config/palette.ts`, `src/render/` (terrainMaterial, atmosphere, models), Miner/Gardener/Builder/Structures/Detector/Atmosphere views, App lighting, `tests/visual.test.ts`. No simulation rule changed.
+- **Implementation status:** implemented and covered by `tests/visual.test.ts`; frame rate with 60 plants and the atmosphere, and contour readability on the user's laptop, are unplaytested.
+
+---
+
 ## Open questions
 
 Answer these as early as they block work. Suggested defaults are marked, so nothing waits on you.

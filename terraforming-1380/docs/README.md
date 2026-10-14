@@ -12,6 +12,7 @@ Design and development documents for the game. They are meant to be **edited whi
 | [`tuning.md`](tuning.md)       | **Which numbers, and why.** Balance values, plus the playtest log.                            | after every playtest                                 | very often                           |
 | [`roadmap.md`](roadmap.md)     | **What to build next.** Milestones as playable slices with checklists.                        | a task finishes or the plan shifts                   | weekly                               |
 | [`decisions.md`](decisions.md) | **Why we chose that.** Decision log, open questions, rejected ideas.                          | any time design or spec changes                      | every change                         |
+| [`component-board.html`](component-board.html) | **What every component looks like.** The D-027 visual comparison board (open in a browser).    | a component style is chosen again                    | rarely                               |
 | [`archive/`](archive/)         | GDD v0.5, kept for reference.                                                                 | never                                                | –                                    |
 
 A rule of thumb: **design.md is the reason, spec.md is the rule, tuning.md is the number, content.md is the words.** If you are unsure where something goes, ask which of those it is.

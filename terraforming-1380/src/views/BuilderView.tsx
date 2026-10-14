@@ -2,21 +2,28 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { BufferAttribute, BufferGeometry, Line, LineBasicMaterial, Quaternion, Vector3, type Group } from 'three'
 import type { createRunStore } from '../state/runState'
+import type { BuilderPhase } from '../systems/builder'
+import { palette } from '../config/palette'
+import { createBuilder, type RobotLight } from '../render/models/robots'
+import { showWorkArea } from '../render/terrainMaterial'
 
 const up = new Vector3(0, 1, 0)
 const normal = new Vector3()
+const light: Record<BuilderPhase, RobotLight> = {
+  idle: 'idle', paused: 'idle', scanning: 'scan', moving: 'move', working: 'work', stopped: 'blocked',
+}
 
 // D-026: the Builder, a line down to the ground it is shaping, and its work area while it is being set up.
 export function BuilderView({ store, active, selected }: {
   store: ReturnType<typeof createRunStore>; active: boolean; selected: boolean
 }) {
   const body = useRef<Group>(null)
-  const blade = useRef<Group>(null)
-  const area = useRef<Group>(null)
+  const model = useMemo(() => createBuilder(), [])
+  useEffect(() => () => model.dispose(), [model])
   const path = useMemo(() => {
     const geometry = new BufferGeometry()
     geometry.setAttribute('position', new BufferAttribute(new Float32Array(6), 3))
-    const line = new Line(geometry, new LineBasicMaterial({ color: '#7a6a55', transparent: true, opacity: 0.75, depthTest: false }))
+    const line = new Line(geometry, new LineBasicMaterial({ color: palette.robot.band.builder, transparent: true, opacity: 0.75, depthTest: false }))
     line.frustumCulled = false
     line.renderOrder = 2
     return line
@@ -28,23 +35,19 @@ export function BuilderView({ store, active, selected }: {
     if (body.current) body.current.visible = active && !!robot
     if (!active || !robot) {
       path.visible = false
-      if (area.current) area.current.visible = false
+      if (selected) showWorkArea(null)
       return
     }
+    // D-027 Builder B1: the roller turns while it moves or shapes the ground.
+    model.setState(light[robot.phase])
+    model.update(frame.clock.elapsedTime)
     const [x, y, z] = robot.position
     if (body.current) {
       body.current.position.set(x, y, z)
       body.current.quaternion.copy(new Quaternion().setFromUnitVectors(up, normal.set(x, y, z).normalize()))
     }
-    // The blade taps the ground while the Builder works.
-    if (blade.current) blade.current.position.y = robot.phase === 'working' ? -0.1 - Math.abs(Math.sin(frame.clock.elapsedTime * 9)) * 0.06 : -0.1
-    if (area.current) {
-      area.current.visible = selected && robot.area !== null && ['idle', 'paused', 'stopped'].includes(robot.phase)
-      if (robot.area) {
-        area.current.position.set(...robot.area.center)
-        area.current.scale.setScalar(robot.area.radius)
-      }
-    }
+    // D-027 work area D, shown only while the area is being set up.
+    if (selected) showWorkArea(robot.area && ['idle', 'paused', 'stopped'].includes(robot.phase) ? robot.area : null)
     const positions = path.geometry.getAttribute('position') as BufferAttribute
     if (robot.job) {
       positions.setXYZ(0, x, y, z)
@@ -56,19 +59,8 @@ export function BuilderView({ store, active, selected }: {
 
   return (
     <>
-      <group ref={body}>
-        <mesh><boxGeometry args={[0.15, 0.1, 0.15]} /><meshStandardMaterial color="#8a7f6e" roughness={0.85} /></mesh>
-        <group ref={blade} position={[0, -0.1, 0]}>
-          <mesh><boxGeometry args={[0.2, 0.03, 0.06]} /><meshStandardMaterial color="#4b4a45" roughness={0.6} /></mesh>
-        </group>
-      </group>
+      <group ref={body}><primitive object={model.object} /></group>
       <primitive object={path} />
-      <group ref={area} visible={false}>
-        <mesh raycast={() => null}>
-          <sphereGeometry args={[1, 24, 16]} />
-          <meshBasicMaterial color="#7a6a55" transparent opacity={0.2} wireframe depthWrite={false} />
-        </mesh>
-      </group>
     </>
   )
 }

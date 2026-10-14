@@ -2,6 +2,8 @@ import { useEffect, useMemo } from 'react'
 import { BufferAttribute, BufferGeometry } from 'three'
 import { resourceColors } from '../config/resourceColors'
 import { tuning } from '../config/tuning'
+import { palette } from '../config/palette'
+import { crystalClusterGeometry } from '../render/models/surfaceModels'
 import { createDistanceSignalMaterial } from '../render/distanceSignalMaterial'
 import { detectedClusters, isResourceExposed } from '../tools/detector'
 import type { PlanetWorld } from '../world/planet'
@@ -36,14 +38,20 @@ function ResourceMarker({ cluster, material, buried }: {
   material?: ReturnType<typeof createDistanceSignalMaterial>
   buried: boolean
 }) {
-  const shape = cluster.category === 'mineral' ? <octahedronGeometry args={[cluster.radius, 0]} />
+  // D-027 resource B: a Mineral reads as a small crystal cluster, sized to the target's radius. Visual only.
+  const crystals = useMemo(() => cluster.category === 'mineral' ? crystalClusterGeometry(cluster.id) : null, [cluster])
+  useEffect(() => () => crystals?.dispose(), [crystals])
+  const crystalScale = (cluster.radius * 1.6) / (crystals?.boundingSphere?.radius ?? 1)
+  const shape = crystals ? <primitive object={crystals} attach="geometry" />
     : cluster.category === 'life' ? <torusGeometry args={[cluster.radius, cluster.radius * 0.25, 6, 12]} />
       : <boxGeometry args={[cluster.radius * 1.5, cluster.radius * 1.5, cluster.radius * 1.5]} />
   return (
-    <mesh position={cluster.position} renderOrder={buried ? 11 : 0} raycast={() => null}
+    <mesh position={cluster.position} scale={crystals ? crystalScale : 1} renderOrder={buried ? 11 : 0} raycast={() => null}
       material={material}>
       {shape}
-      {!buried && <meshBasicMaterial color={colors[cluster.category]} />}
+      {!buried && (crystals
+        ? <meshStandardMaterial color={colors.mineral} roughness={0.4} metalness={0.35} emissive={palette.crystalGlow} emissiveIntensity={0.4} />
+        : <meshBasicMaterial color={colors[cluster.category]} />)}
     </mesh>
   )
 }

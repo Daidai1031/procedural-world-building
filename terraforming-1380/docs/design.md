@@ -429,6 +429,25 @@ Fine grain, graphite scratches, dust, hairline cracks, subtle bump, uneven rough
 
 Scanning does not paint a bright translucent color over targets. Dot grids, short lines, local contours, and small value changes appear along the signal direction so it looks like an instrument drawing.
 
+### Component styles (D-027)
+Chosen on the component board (`docs/component-board.html`). Exact colors live in `src/config/palette.ts`, numbers in [`tuning.md`](tuning.md#visual-style-d-027).
+
+| Component | Chosen style | Look |
+| --- | --- | --- |
+| Miner | E · voxel orb | Hollow 0.02-cell orb, tilted ring of cubes, stepped drill; graphite band |
+| Gardener | G3 · pannier worker | Same orb, seed pannier behind, two voxel arms; moss band |
+| Builder | B1 · roller | Same orb on two brackets carrying a voxel roller; ochre band |
+| Status light | One 2 × 2 light per robot | Scan white pulse, amber move / fast-blink work, gold collect, green plant, rust stop |
+| Plant | Vegetation A + D | Lichen discs with an L-system branch; grows by level |
+| Antenna | A · lattice mast | 0.45 three-leg truss, small dish, blinking amber lamp |
+| Mineral | B · crystal cluster | Gold octahedra; visual only while targets stay points |
+| Terrain | C · contours | Height and slope value, graphite contour every 0.045 |
+| Work area | D · denser contours | Contours double inside the area; edge is one contour line |
+| Atmosphere | C4 · terrain-hugging dust | Cool gray points, clumped, never absent; faint irregular halo |
+| Rendering | Solid | No outlines; one soft key light and a warm fill |
+
+Robots are told apart by silhouette (ring, pannier, roller), not by color: in orbit a robot is about 28 px tall.
+
 ### The wireframe transition
 Wireframe is not a debug overlay or a sudden effect. It shows the planet degrading from *matter* into *computable structure*. Triggered by three inputs: global **Planet Remaining**, **local shell thickness**, and **structural stability** (including the number of isolated fragments).
 
@@ -532,4 +551,5 @@ Tracked in detail in [`decisions.md`](decisions.md#open-questions). Design-level
 | 2026-09-30 | v0.5-en / Detector | D-018 adds a local Detector beside the coarse Scanner. |
 | 2026-09-30 | v0.5-en / Flatten planes | D-019 makes planet-relative Flatten the default and keeps world-level Horizontal as an option. |
 
+| 2026-10-14 | v0.6 / components | D-027: component styles chosen on the component board (robots, plants, antennas, minerals, terrain, work area, atmosphere). |
 | 2026-10-14 | v0.6 | D-022: robot-led procedural terraforming, simplified prototype, subtitle, and deferred management/navigation. |

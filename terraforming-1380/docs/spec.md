@@ -373,7 +373,7 @@ The Detector is a separate, close-range inspection tool. The later Scanner retai
 
 | ID | Requirement | Priority | Status |
 | --- | --- | --- | --- |
-| VIS-01 | Palette follows `design.md` §14 (about 80/15/5 gray / material / accent). Named color tokens live in `config/` and CSS variables. | MVP | wip |
+| VIS-01 | Palette follows `design.md` §14 (about 80/15/5 gray / material / accent). Named color tokens live in `config/` and CSS variables; 3D colors are in `config/palette.ts` (D-027). | MVP | wip |
 | VIS-02 | Terrain uses triplanar or world-space texturing. No UV stretch after remeshing. | MVP | wip |
 | VIS-03 | Mineral, Life, and Memory use three distinct colors (yellow, green, pink). Each buried target tints only the terrain surface around it, faded by world-space distance to the target: `(1 - smoothstep(0, glowRadius, distance(worldPosition, targetPosition)))^2`. Deep targets do not reach the surface. Other material blending uses world-space noise, vertex color, or density masks. `TUNE` glow radius. | MVP | wip |
 | VIS-04 | Point / line / surface layers exist and are drawn by separate passes. | MVP | todo |
@@ -383,7 +383,10 @@ The Detector is a separate, close-range inspection tool. The later Scanner retai
 | VIS-08 | Rough texture is applied to the world and archive layers only; core UI text stays clean and high contrast. | MVP | todo |
 | VIS-09 | The contact ending may switch briefly to a dark cosmic background; the rest of the game does not. | MVP | todo |
 | VIS-10 | Unknown observer is one of the abstract forms in `design.md` §14 (not a classic ship). | MVP | todo |
-
+| VIS-11 | Terrain uses surface C (D-027): world-space value by height and slope plus graphite contour lines at a fixed radius spacing, so edits bend the lines. Keeps VIS-03 glow. `TUNE` spacing. | MVP | done |
+| VIS-12 | A selected robot's work area shows as denser, darker contours inside its sphere with a single edge line, not as a wireframe sphere (D-027). | MVP | done |
+| VIS-13 | The atmosphere is seeded points that hug the initial terrain, clump by noise with a minimum floor, and drift in two shells, plus a faint irregular halo and limb tint (D-027). `TUNE` strength, count. | MVP | done |
+| VIS-14 | Robots, plants, antennas and mineral markers use the D-027 models; every model color comes from `config/palette.ts` (checked by test). | MVP | done |
 ### 4.14 Audio (AUD)
 
 | ID | Requirement | Priority | Status |

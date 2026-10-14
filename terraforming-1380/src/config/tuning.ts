@@ -9,6 +9,21 @@ export const tuning = {
   detector: { radius: 0.95, fadeWidth: 0.24 },
   // Resource glow leaking through the terrain surface, faded by world-space distance to each target.
   glow: { radius: 0.62, albedoMix: 0.75, emissive: 0.35 },
+  // D-027: agreed visual style. Values mirror the component board and docs/tuning.md.
+  visual: {
+    contour: { spacing: 0.045, majorEvery: 5, heightRange: 0.3 },
+    workArea: { innerSpacingFactor: 0.5 },
+    atmosphere: {
+      strength: 0.23,
+      rim: 0.35,
+      points: 4200,
+      floorChance: 0.15,
+      lift: 0.02,
+      falloff: { base: 0.05, dense: 0.24 },
+      haloOpacity: 0.6,
+      drift: { inner: 0.03, outer: 0.012 },
+    },
+  },
   gen: {
     cluster: { mineral: { count: 14 }, life: { count: 8 }, memory: { count: 6 } },
     surfaceTeachingTargets: 3,

@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import type { createRunStore } from './state/runState'
 import { PlanetWorld } from './world/planet'
 import { tuning } from './config/tuning'
+import { palette } from './config/palette'
 import { modeForClick } from './config/controls'
 import { cycleTerrainMode, useTerrainTool } from './tools/terrainTool'
 import { detectedClusters, scanWithDetector } from './tools/detector'
@@ -25,6 +26,7 @@ import { MinerView } from './views/MinerView'
 import { GardenerView } from './views/GardenerView'
 import { BuilderView } from './views/BuilderView'
 import { StructuresView } from './views/StructuresView'
+import { AtmosphereView } from './views/AtmosphereView'
 import { OrbitCamera } from './views/OrbitCamera'
 import { RemeshScheduler } from './views/RemeshScheduler'
 import { DebugOverlay, FrameMeter } from './debug/DebugOverlay'
@@ -172,15 +174,15 @@ export function App({ useRunStore, debug }: { useRunStore: ReturnType<typeof cre
       <ModeSwitch mode={mode} onChange={selectMode} />
       <Canvas camera={{ position: [0, 0, 8], fov: 42 }} dpr={[1, 1.5]}
         fallback={<p className="fallback">This game needs a browser with WebGL2 enabled.</p>}>
-        {/* VIS-01: warm gray palette. */}
-        <color attach="background" args={['#F3F1EB']} />
-        <ambientLight intensity={0.65} />
-        <directionalLight position={[4, 6, 5]} intensity={2.5} />
-        <directionalLight position={[-4, 1, -2]} intensity={0.6} />
+        {/* VIS-01, D-027: warm white studio with one soft key light. */}
+        <color attach="background" args={[palette.background]} />
+        <hemisphereLight args={[palette.light.sky, palette.light.ground, 1.4]} />
+        <directionalLight position={[4, 6, 5]} intensity={2} />
         <OrbitCamera onWheel={adjustRadius} />
         <PlanetView world={world} clusters={clusters} collectedIds={collectedIds} radius={radius} detectorRadius={detector.radius} areaRadius={areaRadius}
           activeTool={activeTool === 'detector' ? 'detector' : activeTool === 'auto' ? 'miner' : 'terrain'} selectedMode={terrainMode}
           flattenOrientation={flattenOrientation} onTarget={target} />
+        <AtmosphereView seed={seed} />
         <DetectorView world={world} clusters={clusters} collectedIds={collectedIds} center={detector.center} radius={detector.radius}
           active={activeTool === 'detector'} meshRevision={meshRevision} />
         <MinerView world={world} store={useRunStore} active={mode === 'auto'} selected={autoRobot === 'miner'} />

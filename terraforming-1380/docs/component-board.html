@@ -1,0 +1,1020 @@
+<title>Ares-9 组件样板</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+/* Layout: specimen-plate archive. Planet plate with live look controls, then option plates, then the locked set and the open-questions register; sticky selection slip. */
+:root {
+  --paper: #F3F1EB;
+  --sheet: #FBFAF6;
+  --ink: #252420;
+  --muted: #6c6962;
+  --rule: #d4d0c6;
+  --graphite: #3b3a37;
+  --signal: #a8732a;
+  --life: #3f8a52;
+  --memory: #a83a72;
+  --f-display: "Archivo", "Noto Sans SC", system-ui, sans-serif;
+  --f-body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { background: var(--paper); }
+body {
+  background: var(--paper); color: var(--ink); font-family: var(--f-body);
+  font-size: 15px; line-height: 1.65;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 110px;
+}
+.wrap { max-width: 1240px; margin: 0 auto; display: flex; flex-direction: column; gap: 56px; }
+header { padding-top: 40px; display: grid; gap: 14px; }
+.eyebrow { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 { font-family: var(--f-display); font-weight: 800; font-size: clamp(32px, 5vw, 56px); line-height: 1.05; margin: 0; letter-spacing: -.01em; text-wrap: balance; }
+h2 { font-family: var(--f-display); font-weight: 700; font-size: clamp(22px, 2.6vw, 30px); margin: 0; text-wrap: balance; }
+h3 { font-family: var(--f-display); font-weight: 700; font-size: 17px; margin: 0; }
+p { margin: 0; max-width: 68ch; }
+.lede { color: var(--muted); font-size: 16px; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 22px; font-family: var(--f-mono); font-size: 12.5px; color: var(--graphite); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding-block: 10px; }
+.facts b { font-weight: 500; color: var(--ink); }
+.locked { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font-size: 12.5px; border: 1px solid var(--ink); padding: 2px 10px; background: var(--sheet); }
+.chip b { font-family: var(--f-mono); font-weight: 500; margin-right: 4px; }
+.num { font-variant-numeric: tabular-nums; font-family: var(--f-mono); }
+
+.plate { display: grid; gap: 14px; }
+.hero { position: relative; background: var(--paper); border: 1px solid var(--rule); }
+#heroCanvas { display: block; width: 100%; aspect-ratio: 16 / 8; max-width: 100%; cursor: grab; touch-action: pan-y; }
+#heroCanvas:active { cursor: grabbing; }
+.hero-tag { position: absolute; left: 14px; top: 12px; font-family: var(--f-mono); font-size: 11.5px; color: var(--muted); pointer-events: none; }
+.hero-state { position: absolute; right: 14px; top: 12px; font-family: var(--f-mono); font-size: 11.5px; color: var(--ink); pointer-events: none; }
+.controls { display: flex; flex-wrap: wrap; gap: 12px 22px; align-items: center; }
+.seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--graphite); }
+.seg button { font: 500 13px var(--f-body); background: transparent; color: var(--ink); border: 0; padding: 6px 12px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--graphite); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.seg-label { font-family: var(--f-mono); font-size: 11.5px; color: var(--muted); margin-right: 8px; letter-spacing: .05em; }
+.swatch { display: inline-flex; gap: 6px; vertical-align: middle; }
+.swatch button { width: 26px; height: 26px; border: 1px solid var(--graphite); cursor: pointer; padding: 0; }
+.swatch button[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 2px; }
+label.chk { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; cursor: pointer; }
+input[type="range"] { width: 140px; vertical-align: middle; accent-color: var(--ink); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+.readout { font-family: var(--f-mono); font-size: 12.5px; color: var(--graphite); }
+
+section.cat { display: grid; gap: 18px; }
+.cat-head { display: grid; gap: 6px; border-top: 1px solid var(--ink); padding-top: 14px; }
+.cat-head .q { color: var(--muted); }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px; }
+.cards[data-cat="locked"] { grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); }
+.cards[data-cat="builder"] { grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); }
+.card { background: var(--sheet); border: 1px solid var(--rule); display: grid; grid-template-rows: auto auto 1fr auto; min-width: 0; }
+.card[data-chosen="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.vis { position: relative; border-bottom: 1px solid var(--rule); }
+.card canvas { display: block; width: 100%; aspect-ratio: 4 / 3; max-width: 100%; cursor: grab; touch-action: pan-y; }
+.state { position: absolute; left: 10px; top: 8px; font-family: var(--f-mono); font-size: 11px; padding: 1px 7px; background: var(--sheet); border: 1px solid var(--rule); }
+.state i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 0; border: 1px solid var(--graphite); }
+.state b { font-weight: 500; }
+.card-title { display: flex; gap: 10px; align-items: baseline; padding: 12px 14px 0; flex-wrap: wrap; }
+.letter { font-family: var(--f-mono); font-weight: 500; font-size: 13px; border: 1px solid var(--ink); min-width: 24px; height: 24px; padding: 0 4px; display: inline-grid; place-items: center; flex: none; }
+.tag { font-family: var(--f-mono); font-size: 11px; color: var(--signal); }
+.card-body { padding: 8px 14px 12px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.card-body > p { font-size: 13.5px; color: var(--graphite); }
+dl.spec { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font-size: 12.5px; }
+dl.spec dt { font-family: var(--f-mono); color: var(--muted); font-size: 11.5px; padding-top: 1px; }
+dl.spec dd { margin: 0; min-width: 0; }
+.pc { display: grid; gap: 3px; font-size: 12.5px; }
+.pc span::before { font-family: var(--f-mono); margin-right: 6px; }
+.pc .pro::before { content: "+"; color: var(--life); }
+.pc .con::before { content: "−"; color: var(--memory); }
+.pick { margin: 0 14px 14px; font: 500 13px var(--f-body); padding: 8px; border: 1px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; }
+.card[data-chosen="true"] .pick { background: var(--ink); color: var(--paper); }
+
+.tbl { overflow-x: auto; border-top: 1px solid var(--rule); }
+table { border-collapse: collapse; width: 100%; min-width: 820px; font-size: 13px; }
+th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--f-mono); font-weight: 500; font-size: 11.5px; color: var(--muted); letter-spacing: .04em; }
+.pri { font-family: var(--f-mono); font-size: 11px; padding: 1px 6px; border: 1px solid var(--ink); white-space: nowrap; }
+.pri.must { background: var(--ink); color: var(--paper); }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: 0; border: 1px solid var(--graphite); }
+
+.slip { position: fixed; left: 0; right: 0; bottom: 0; background: var(--ink); color: var(--paper);
+  padding: 10px max(16px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; z-index: 5; font-size: 13px; }
+.slip .sel { font-family: var(--f-mono); font-size: 12.5px; flex: 1 1 400px; min-width: 0; }
+.slip button { font: 500 13px var(--f-body); padding: 6px 14px; background: var(--paper); color: var(--ink); border: 0; cursor: pointer; }
+.slip textarea { position: absolute; left: -9999px; }
+.note { font-size: 12.5px; color: var(--muted); }
+.fallback { padding: 24px; color: var(--memory); }
+@media (max-width: 560px) { #heroCanvas { aspect-ratio: 4 / 3; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Terraforming Contractor #1380 · 组件选型 第 5 轮 · 2026-10-14</div>
+    <h1>Ares-9 组件样板</h1>
+    <p class="lede">Gardener 定为 G3 背篓工匠。这一轮设计第三种机器人 Builder：它负责填土、铲平地形，为天线铲出平台。四个方案都和前两台一样用体素球壳，但要有第三种轮廓：Miner 是一圈环，Gardener 是背篓加手臂，Builder 需要另一个一眼能认出的形状。卡片里的 Builder 会实际堆出土丘、再把土丘压平。</p>
+    <div class="locked" aria-label="已定组件">
+      <span class="chip"><b>已定</b>机器人 E 体素浮游球</span>
+      <span class="chip"><b>已定</b>地表 C 等高线</span>
+      <span class="chip"><b>已定</b>渲染 实体</span>
+      <span class="chip"><b>已定</b>植被 A + D</span>
+      <span class="chip"><b>已定</b>天线 A 桁架塔</span>
+      <span class="chip"><b>已定</b>资源 B 晶簇</span>
+      <span class="chip"><b>已定</b>大气 C4 贴地 + 团块 · 冷灰 · 23%</span>
+      <span class="chip"><b>已定</b>工作区 D 等高线加深</span>
+      <span class="chip"><b>已定</b>Gardener G3 背篓工匠</span>
+    </div>
+    <div class="facts">
+      <span>星球半径 <b class="num">2.04</b></span>
+      <span>地形起伏 <b class="num">±0.34</b>（此预览）</span>
+      <span>体素间距 <b class="num">0.095</b></span>
+      <span>工作区半径 <b class="num">≈ 0.37</b>（示意）</span>
+      <span>机器人 <b class="num">Miner · Builder · Gardener</b></span>
+    </div>
+  </header>
+
+  <section class="plate" aria-labelledby="h-hero">
+    <h2 id="h-hero">星球预览</h2>
+    <div class="hero">
+      <canvas id="heroCanvas" aria-label="星球预览：体素浮游球、等高线地表、当前选择的大气和工作区标记"></canvas>
+      <div class="hero-tag" id="heroTag">轨道视角 · 拖动旋转</div>
+      <div class="hero-state" id="heroState"></div>
+    </div>
+    <div class="controls">
+      <div><span class="seg-label">视距</span><span class="seg" id="segView"><button type="button" id="v-orbit" data-v="orbit" aria-pressed="true">轨道 8.0</button><button type="button" id="v-near" data-v="near" aria-pressed="false">近景 4.0</button></span></div>
+      <div><span class="seg-label">渲染语言</span><span class="seg" id="segMode"><button type="button" id="m-solid" data-m="solid" aria-pressed="true">实体</button><button type="button" id="m-outline" data-m="outline" aria-pressed="false">实体 + 描边</button><button type="button" id="m-line" data-m="line" aria-pressed="false">线稿</button></span></div>
+    </div>
+    <div class="controls">
+      <div><span class="seg-label">大气浓度</span><input type="range" id="atmoStrength" min="0" max="100" value="23" aria-label="大气浓度"> <span class="num" id="atmoVal">23%</span></div>
+      <div><span class="seg-label">大气色</span><span class="swatch" id="atmoColors"></span></div>
+      <label class="chk"><input type="checkbox" id="xray" checked> 透视地下晶簇</label>
+      <label class="chk"><input type="checkbox" id="area" checked> 显示工作区</label>
+    </div>
+    <div class="readout" id="readout">—</div>
+  </section>
+
+  <section class="cat" id="cat-builder" aria-labelledby="h-builder">
+    <div class="cat-head"><span class="eyebrow">01 · Builder</span><h2 id="h-builder">第三种机器人</h2><p class="q">Builder 的五个状态：勘测（找要填的坑或要平的地）、移动、填充（Add，堆出土丘）、铲平（Flatten，把凸起压平）、受阻。它的腰带和工具用赭灰色，和 Miner 的石墨、Gardener 的苔绿分开。</p></div>
+    <div class="cards" data-cat="builder"></div>
+  </section>
+
+  <section class="plate" aria-labelledby="h-roles">
+    <div class="cat-head"><span class="eyebrow">02 · 分工</span><h2 id="h-roles">三种机器人怎么分工</h2><p class="q">三台机器人都只通过同一个密度场和地表物体来影响彼此，没有直接通信。下表是初版规则，重点是避免 Miner 挖、Builder 填，两边无限互相抵消。</p></div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>机器人</th><th>做什么</th><th>改变什么</th><th>和其他机器人的关系</th><th>防止冲突的规则</th></tr></thead>
+        <tbody>
+          <tr><td>Miner · E 体素浮游球</td><td>扫描、挖到晶簇、采集</td><td>删除密度：隧道和矿坑</td><td>挖出的岩石以后可以给 Builder 当填料</td><td>只在自己的工作区里挖</td></tr>
+          <tr><td>Builder · 本轮选择</td><td>填坑、铲平、为天线铲出平台</td><td>增加 / 重塑密度：土丘、平台、填平的坑</td><td>为 Gardener 准备平地；可以封住废弃的隧道口</td><td>不进入正在工作的 Miner 工作区；只填玩家标记的或已废弃的坑</td></tr>
+          <tr><td>Gardener · G3 背篓工匠</td><td>种植被、建天线</td><td>只加地表物体，不改密度</td><td>优先在 Builder 铲平的平台上建天线</td><td>不在隧道口、陡坡和 Miner 工作区里种</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">一条可以自然形成的流程：Miner 挖出矿坑 → Builder 把废弃的坑填平并铲出平台 → Gardener 在平台上种地衣、立天线。这正好对应 design §2.1「星球记住一切」。</p>
+  </section>
+
+  <section class="cat" id="cat-locked" aria-labelledby="h-locked">
+    <div class="cat-head"><span class="eyebrow">03 · 已定组件</span><h2 id="h-locked">前几轮已选</h2><p class="q">备查。Miner 和 Gardener 都按各自的五个状态循环播放。</p></div>
+    <div class="cards" data-cat="locked"></div>
+  </section>
+
+  <section class="plate" aria-labelledby="h-more">
+    <div class="cat-head"><span class="eyebrow">04 · 还没回答的问题</span><h2 id="h-more">写 R1 之前还要你定的</h2><p class="q">这些问题都有默认做法。不回答的话，我就按「初版提案」那一列去做。</p></div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>要素</th><th>优先级</th><th>初版提案</th><th>需要你定的</th></tr></thead>
+        <tbody>
+          <tr><td>状态灯 · AUT-10</td><td><span class="pri must">R1 必需</span></td><td><span class="dot" style="background:#ece7da"></span>扫描 白色脉冲　<span class="dot" style="background:#c98a2b"></span>移动 琥珀常亮　<span class="dot" style="background:#c98a2b"></span>挖掘 琥珀快闪　<span class="dot" style="background:#cfa726"></span>采集 金色　<span class="dot" style="background:#9c3d22"></span>受阻 锈红慢闪</td><td>只靠眼睛这一盏灯够不够？要不要在头顶加文字标签？</td></tr>
+          <tr><td>扫描表现 · AUT-02</td><td><span class="pri must">R1 必需</span></td><td>脚下展开一圈细线并淡出，半径等于扫描范围；被发现的晶簇亮起点标记。</td><td>扫描圈也要改成点阵，和大气、工作区统一吗？</td></tr>
+          <tr><td>挖掘碎屑 · AUT-05</td><td><span class="pri">R1 推荐</span></td><td>8–12 个小方块从钻头喷出，落地即消失。</td><td>是否留在地上一段时间作为痕迹？</td></tr>
+          <tr><td>暴露晶体与采集 · AUT-06</td><td><span class="pri must">R1 必需</span></td><td>晶体逐颗飞向机器人，再用现有的收集动画飞到 HUD 计数。</td><td>逐颗结算，还是一个矿床采完一起结算？</td></tr>
+          <tr><td>机器人面板 · AUT-10</td><td><span class="pri must">R1 必需</span></td><td>屏幕角落固定一张卡片：状态、目标、已采数、停止原因、开始 / 暂停。</td><td>固定在角落，还是跟随机器人？</td></tr>
+          <tr><td>Gardener 在哪里种</td><td><span class="pri">R3</span></td><td>工作区内、坡度小、已暴露的地表，离 Miner 的隧道口有一段距离。</td><td>Gardener 也用工作区吗？能不能种在 Miner 挖过的坑里？</td></tr>
+          <tr><td>天线建在哪里</td><td><span class="pri">R3</span></td><td>玩家点一个位置，Gardener 过去建。</td><td>天线由玩家指定位置，还是 Gardener 自己选（例如工作区内的最高点）？</td></tr>
+          <tr><td>建天线要不要材料</td><td><span class="pri">之后</span></td><td>R3 先不需要材料；以后可以消耗 Miner 挖出的岩石。</td><td>Gardener 和 Miner 之间要不要有材料依赖？</td></tr>
+          <tr><td>Builder 的填料</td><td><span class="pri">之后</span></td><td>先不需要材料，填多少都可以；以后从 Miner 挖出的岩石里扣。</td><td>要不要做成 Miner → Builder 的材料依赖？</td></tr>
+          <tr><td>Builder 填哪里</td><td><span class="pri">R3</span></td><td>玩家在地表上标记一个区域（填坑或铲平），Builder 去做。</td><td>Builder 是只执行玩家标记，还是自己找「不平整」的地方？</td></tr>
+          <tr><td>隧道内壁</td><td><span class="pri">R1 推荐</span></td><td>挖开的面按低于原地表的深度变暗。等高线地表下，隧道壁还会出现密集的等高线。</td><td>接受吗？需要多存一份原始表面半径。</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<div class="slip" role="region" aria-label="当前选择">
+  <span class="sel" id="selText">—</span>
+  <button type="button" id="copyBtn">复制选择</button>
+  <textarea id="copyArea" aria-hidden="true" tabindex="-1"></textarea>
+</div>
+
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }</script>
+<script type="module">
+import * as THREE from 'three'
+import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js'
+
+const R_PLANET = 2.04, VOXEL = 0.095, AREA_ANG = 0.18
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
+
+// ---------- noise & rng ----------
+function hash3(x, y, z) {
+  let h = Math.imul(x, 374761393) ^ Math.imul(y, 668265263) ^ Math.imul(z, 1274126177)
+  h = Math.imul(h ^ (h >>> 13), 1274126177); h ^= h >>> 16
+  return (h >>> 0) / 4294967295
+}
+function noise3(x, y, z) {
+  const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z)
+  const f = (t) => t * t * (3 - 2 * t)
+  const u = f(x - xi), v = f(y - yi), w = f(z - zi)
+  const L = (a, b, t) => a + (b - a) * t
+  const c = (dx, dy, dz) => hash3(xi + dx, yi + dy, zi + dz)
+  return L(L(L(c(0,0,0), c(1,0,0), u), L(c(0,1,0), c(1,1,0), u), v),
+           L(L(c(0,0,1), c(1,0,1), u), L(c(0,1,1), c(1,1,1), u), v), w)
+}
+function rng(seed) { let s = seed >>> 0; return () => { s += 0x6D2B79F5; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296 } }
+const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t) }
+function randomDir(r) { for (;;) { const v = new THREE.Vector3(r() * 2 - 1, r() * 2 - 1, r() * 2 - 1); const l = v.lengthSq(); if (l <= 1 && l > 0.01) return v.normalize() } }
+const expo = (r, s) => -Math.log(1 - r() * 0.97) * s
+
+// ---------- materials ----------
+const std = (color, o = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.6, metalness: 0, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1, ...o })
+const M = {
+  body: std('#e4e1d8', { roughness: 0.5 }),
+  graphite: std('#3b3a37', { roughness: 0.65, metalness: 0.15 }),
+  charcoal: std('#2c2c2b', { roughness: 0.55, metalness: 0.2 }),
+  ground: std('#9a978f', { roughness: 0.98 }),
+  debris: std('#77746f', { roughness: 0.95 }),
+  amber: std('#c98a2b', { emissive: '#c98a2b', emissiveIntensity: 0.9 }),
+  mineral: std('#cfa726', { roughness: 0.4, metalness: 0.35, emissive: '#5a4508', emissiveIntensity: 0.4 }),
+  life: std('#3f9a58', { roughness: 0.7, emissive: '#123a1e', emissiveIntensity: 0.4 }),
+  stem: std('#56624b', { roughness: 0.8 }),
+  moss: std('#6b8160', { roughness: 0.75 }),
+  ochre: std('#8c7a5c', { roughness: 0.7 }),
+  soil: std('#8f8a80', { roughness: 0.97 }),
+}
+M.dish = M.body.clone(); M.dish.side = THREE.DoubleSide
+const lichenMats = ['#7f8d6c', '#97a083', '#66805a', '#3f9a58', '#a7ab95'].map((c) => std(c, { roughness: 0.95 }))
+const paperMat = new THREE.MeshBasicMaterial({ color: '#F3F1EB', polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1, side: THREE.DoubleSide })
+const edgeMat = new THREE.LineBasicMaterial({ color: '#2b2a27' })
+const faintLine = new THREE.LineBasicMaterial({ color: '#3b3a37', transparent: true, opacity: 0.45 })
+
+function mesh(geo, mat, opts = {}) { const m = new THREE.Mesh(geo, mat); m.castShadow = true; m.receiveShadow = true; Object.assign(m.userData, opts); return m }
+function rod(a, b, r, mat) {
+  const d = new THREE.Vector3().subVectors(b, a), len = d.length()
+  const m = mesh(new THREE.CylinderGeometry(r, r, len, 6), mat)
+  m.position.copy(a).addScaledVector(d, 0.5)
+  m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize())
+  m.userData.edgeAngle = 80
+  return m
+}
+const groundY = (x, z) => Math.sqrt(Math.max(0, R_PLANET * R_PLANET - x * x - z * z)) - R_PLANET
+
+// ---------- robot E with R1 states ----------
+const STATES = [
+  { k: 'scan', name: '扫描', color: '#ece7da' },
+  { k: 'move', name: '移动', color: '#c98a2b' },
+  { k: 'dig', name: '挖掘', color: '#c98a2b' },
+  { k: 'collect', name: '采集', color: '#cfa726' },
+  { k: 'blocked', name: '受阻', color: '#9c3d22' },
+]
+const STATE_LEN = 2.4
+const cubeGeo = new THREE.BoxGeometry(1, 1, 1)
+function voxelPut(hold, s) {
+  return (x, y, z, mat, scale = 0.97) => { const m = mesh(cubeGeo, mat); m.scale.setScalar(s * scale); m.position.set(x * s, y * s, z * s); m.userData.edgeAngle = 1; hold.add(m); return m }
+}
+function robotBody(hold, lamp) {
+  const s = 0.02, put = voxelPut(hold, s)
+  for (let x = -4; x <= 4; x++) for (let y = -4; y <= 4; y++) for (let z = -4; z <= 4; z++) {
+    const d = Math.hypot(x, y, z); if (d > 3.7 || d < 2.6) continue
+    const eye = x >= 3 && (y === 0 || y === 1) && (z === 0 || z === -1)
+    put(x, y, z, eye ? lamp : y === 0 ? M.graphite : M.body)
+  }
+  put(0, -4.3, 0, M.graphite); put(1, -4.3, 0, M.graphite); put(-1, -4.3, 0, M.graphite); put(0, -4.3, 1, M.graphite); put(0, -4.3, -1, M.graphite)
+  put(0, -5.3, 0, M.graphite, 0.8); put(0, -6.1, 0, M.graphite, 0.5)
+  const tilt = new THREE.Group(); tilt.rotation.z = 0.28; hold.add(tilt)
+  const spin = new THREE.Group(); tilt.add(spin)
+  for (let i = 0; i < 26; i++) { const a = i / 26 * Math.PI * 2; const m = mesh(cubeGeo, i % 6 === 0 ? M.charcoal : M.graphite); m.scale.setScalar(0.013); m.position.set(Math.cos(a) * 0.106, 0, Math.sin(a) * 0.106); m.rotation.y = -a; m.userData.edgeAngle = 1; spin.add(m) }
+  return { hover: 0.15, spin: (t) => { spin.rotation.y = t * 1.2 } }
+}
+function makeRobot() {
+  const root = new THREE.Group(), hold = new THREE.Group(); root.add(hold)
+  const lamp = std('#c98a2b', { emissive: '#c98a2b', emissiveIntensity: 1 })
+  const body = robotBody(hold, lamp)
+  const ringMat = new THREE.MeshBasicMaterial({ color: '#3b3a37', transparent: true, opacity: 0.6, depthWrite: false, side: THREE.DoubleSide })
+  const ring = new THREE.Mesh(new THREE.RingGeometry(0.96, 1, 72), ringMat); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.004; ring.userData.keep = true; root.add(ring)
+  const debris = []
+  for (let i = 0; i < 10; i++) { const d = mesh(cubeGeo, i % 3 ? M.debris : M.graphite); d.scale.setScalar(0.012 + (i % 3) * 0.003); d.userData.keep = true; root.add(d); debris.push({ d, a: i / 10 * Math.PI * 2 + (i % 2) * 0.3, sp: 0.05 + (i % 4) * 0.015, ph: i / 10 }) }
+  const gem = mesh(new THREE.OctahedronGeometry(1, 0), M.mineral); gem.scale.set(0.022, 0.04, 0.022); gem.userData.keep = true; root.add(gem)
+  const tick = (t) => {
+    const st = STATES[Math.floor(t / STATE_LEN) % STATES.length], ph = (t % STATE_LEN) / STATE_LEN
+    let on = 1
+    if (st.k === 'scan') on = 0.4 + 0.6 * Math.abs(Math.sin(t * 4))
+    if (st.k === 'dig') on = (Math.floor(t * 8) % 2) ? 1 : 0.15
+    if (st.k === 'blocked') on = (Math.floor(t * 1.5) % 2) ? 1 : 0.1
+    lamp.color.set(st.color); lamp.emissive.set(st.color); lamp.emissiveIntensity = 1.4 * on
+    hold.position.y = (st.k === 'dig' ? body.hover * 0.72 : body.hover) + (st.k === 'blocked' ? 0 : Math.sin(t * 2) * 0.007)
+    hold.position.x = st.k === 'move' ? Math.sin(ph * Math.PI) * 0.06 : 0
+    ring.visible = st.k === 'scan'; ring.scale.setScalar(0.06 + ph * 0.45); ringMat.opacity = 0.6 * (1 - ph)
+    for (const p of debris) {
+      p.d.visible = st.k === 'dig'
+      const q = (ph * 2.2 + p.ph) % 1
+      p.d.position.set(Math.cos(p.a) * p.sp * q, 0.006 + Math.sin(q * Math.PI) * 0.07, Math.sin(p.a) * p.sp * q)
+      p.d.rotation.set(q * 6, q * 4, 0)
+    }
+    gem.visible = st.k === 'collect' && ph < 0.85
+    const g = Math.min(1, ph / 0.8); gem.position.set(0, 0.01 + g * (hold.position.y - 0.01), 0.03 * (1 - g)); gem.rotation.y = t * 3
+    if (st.k !== 'blocked') body.spin(t)
+    return st
+  }
+  return { obj: root, tick }
+}
+
+
+// ---------- Gardener: same voxel shell, different silhouette ----------
+const G_STATES = [
+  { k: 'scan', name: '扫描', color: '#ece7da' },
+  { k: 'move', name: '移动', color: '#c98a2b' },
+  { k: 'plant', name: '种植', color: '#7fa36b' },
+  { k: 'build', name: '建造', color: '#c98a2b' },
+  { k: 'blocked', name: '受阻', color: '#9c3d22' },
+]
+function orbShell(put, lamp, band) {
+  for (let x = -4; x <= 4; x++) for (let y = -4; y <= 4; y++) for (let z = -4; z <= 4; z++) {
+    const d = Math.hypot(x, y, z); if (d > 3.7 || d < 2.6) continue
+    const eye = x >= 3 && (y === 0 || y === 1) && (z === 0 || z === -1)
+    put(x, y, z, eye ? lamp : y === 0 ? band : M.body)
+  }
+}
+function nozzle(put) { put(0, -4.3, 0, M.graphite); put(0, -5.2, 0, M.moss, 0.75); put(0, -5.9, 0, M.moss, 0.45) }
+const G_BODY = {
+  G1: (hold, lamp) => {
+    const put = voxelPut(hold, 0.02); orbShell(put, lamp, M.moss); nozzle(put)
+    put(0, 4.2, 0, M.life); put(0.9, 5, 0, M.life, 0.7); put(-0.9, 5.1, 0.4, M.life, 0.6)
+    const tilt = new THREE.Group(); tilt.rotation.z = 0.28; hold.add(tilt); const spin = new THREE.Group(); tilt.add(spin)
+    for (let i = 0; i < 26; i++) { const a = i / 26 * Math.PI * 2; const m = mesh(cubeGeo, i % 6 === 0 ? M.charcoal : M.moss); m.scale.setScalar(0.013); m.position.set(Math.cos(a) * 0.106, 0, Math.sin(a) * 0.106); m.rotation.y = -a; m.userData.edgeAngle = 1; spin.add(m) }
+    return { hover: 0.15, spin: (t) => { spin.rotation.y = t * 1.2 } }
+  },
+  G2: (hold, lamp) => {
+    const put = voxelPut(hold, 0.02); orbShell(put, lamp, M.moss); nozzle(put)
+    const gimbal = new THREE.Group(); gimbal.rotation.x = Math.PI / 2; hold.add(gimbal); const spin = new THREE.Group(); gimbal.add(spin)
+    for (let i = 0; i < 28; i++) {
+      const a = i / 28 * Math.PI * 2, pod = i % 7 === 0
+      const m = mesh(cubeGeo, pod ? M.life : M.graphite); m.scale.setScalar(pod ? 0.024 : 0.012); m.position.set(Math.cos(a) * 0.11, 0, Math.sin(a) * 0.11); m.rotation.y = -a; m.userData.edgeAngle = 1; spin.add(m)
+    }
+    return { hover: 0.16, spin: (t) => { spin.rotation.y = t * 0.9 } }
+  },
+  G3: (hold, lamp) => {
+    const put = voxelPut(hold, 0.02); orbShell(put, lamp, M.moss); nozzle(put)
+    for (let x = -6; x <= -4; x++) for (let y = -2; y <= 2; y++) for (let z = -2; z <= 2; z++) {
+      if (x === -4 && Math.abs(y) < 2 && Math.abs(z) < 2) continue
+      if (y === 2 && x !== -6 && Math.abs(z) < 2) { put(x, y, z, M.life, 0.8); continue }
+      put(x, y, z, Math.abs(z) === 2 || x === -6 ? M.graphite : M.body)
+    }
+    const arms = []
+    for (const side of [-1, 1]) {
+      const arm = new THREE.Group(); arm.position.set(0, -0.02, side * 0.08); hold.add(arm); const ap = voxelPut(arm, 0.02)
+      ap(0, 0, 0, M.graphite); ap(1, -0.6, 0, M.graphite); ap(2, -1.4, 0, M.graphite); ap(2.6, -2.3, 0, M.moss, 0.7); arms.push(arm)
+    }
+    return { hover: 0.15, spin: (t, st) => { for (const [i, a] of arms.entries()) a.rotation.z = (st === 'build' || st === 'plant') ? Math.sin(t * 6 + i * 2) * 0.35 - 0.2 : -0.1 } }
+  },
+  G4: (hold, lamp) => {
+    const put = voxelPut(hold, 0.02); orbShell(put, lamp, M.moss); nozzle(put)
+    const crown = new THREE.Group(); crown.position.y = 0.07; hold.add(crown); const petals = []
+    for (let i = 0; i < 8; i++) {
+      const pivot = new THREE.Group(); pivot.rotation.y = i / 8 * Math.PI * 2; crown.add(pivot)
+      const hinge = new THREE.Group(); pivot.add(hinge)
+      const leaf = mesh(cubeGeo, i % 2 ? M.moss : lichenMats[0]); leaf.scale.set(0.06, 0.008, 0.024); leaf.position.x = 0.032; leaf.userData.edgeAngle = 1; hinge.add(leaf)
+      petals.push(hinge)
+    }
+    return { hover: 0.15, spin: (t, st) => { const open = st === 'plant' ? 0.15 : st === 'blocked' ? 1.2 : 0.65 + Math.sin(t * 2) * 0.08; for (const h of petals) h.rotation.z = THREE.MathUtils.lerp(h.rotation.z, open, 0.15); crown.rotation.y = t * 0.4 } }
+  },
+}
+function makeGardener(kind) {
+  const root = new THREE.Group(), hold = new THREE.Group(); root.add(hold)
+  const lamp = std('#7fa36b', { emissive: '#7fa36b', emissiveIntensity: 1 })
+  const body = G_BODY[kind](hold, lamp)
+  const ringMat = new THREE.MeshBasicMaterial({ color: '#3b3a37', transparent: true, opacity: 0.6, depthWrite: false, side: THREE.DoubleSide })
+  const ring = new THREE.Mesh(new THREE.RingGeometry(0.96, 1, 72), ringMat); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.004; ring.userData.keep = true; root.add(ring)
+  const seed = mesh(cubeGeo, M.life); seed.scale.setScalar(0.014); seed.userData.keep = true; root.add(seed)
+  const lichen = LOCK.vegA(), sprout = LOCK.vegD(), plantG = new THREE.Group(); plantG.add(lichen.obj, sprout.obj); sprout.obj.scale.setScalar(0.55); root.add(plantG)
+  const mast = LOCK.antA(); mast.obj.position.x = -0.02; root.add(mast.obj)
+  const tick = (t) => {
+    const st = G_STATES[Math.floor(t / STATE_LEN) % G_STATES.length], ph = (t % STATE_LEN) / STATE_LEN
+    let on = 1
+    if (st.k === 'scan') on = 0.4 + 0.6 * Math.abs(Math.sin(t * 4))
+    if (st.k === 'plant') on = 0.6 + 0.4 * Math.sin(t * 3)
+    if (st.k === 'build') on = (Math.floor(t * 4) % 2) ? 1 : 0.3
+    if (st.k === 'blocked') on = (Math.floor(t * 1.5) % 2) ? 1 : 0.1
+    lamp.color.set(st.color); lamp.emissive.set(st.color); lamp.emissiveIntensity = 1.4 * on
+    const bob = st.k === 'blocked' ? 0 : Math.sin(t * 2) * 0.007
+    const k = smooth(0.15, 0.95, ph)
+    hold.position.set(st.k === 'move' ? Math.sin(ph * Math.PI) * 0.06 : st.k === 'build' ? 0.13 : 0, body.hover + bob + (st.k === 'build' ? k * 0.42 : 0), 0)
+    ring.visible = st.k === 'scan'; ring.scale.setScalar(0.06 + ph * 0.45); ringMat.opacity = 0.6 * (1 - ph)
+    seed.visible = st.k === 'plant' && ph < 0.3; seed.position.set(0, body.hover - 0.12 - (ph / 0.3) * (body.hover - 0.14), 0)
+    plantG.visible = st.k === 'plant'; lichen.obj.scale.set(Math.max(0.001, k * 0.55), 1, Math.max(0.001, k * 0.55)); sprout.tick(t, smooth(0.3, 1, ph))
+    mast.obj.visible = st.k === 'build'; mast.tick(t, k)
+    body.spin(st.k === 'blocked' ? 0 : t, st.k)
+    return st
+  }
+  return { obj: root, tick }
+}
+const GARDENERS = [
+  { k: 'G1', name: '同壳换色', d: '和 Miner 完全同形，只把腰带和扫描环换成苔绿色，顶上长两颗芽，下方钻头换成播种嘴。', spec: [['与 Miner 的差别', '颜色 + 顶芽 + 播种嘴'], ['碰撞', '球 r ≈ 0.10']], pro: ['最省事，一套代码换材质', '近看很清楚是同一个公司的产品'], con: ['轨道视角下几乎只能靠颜色分辨，环的轮廓和 Miner 一样'] },
+  { k: 'G2', name: '竖环播种球', d: '扫描环立起来，绕水平轴转动，环上挂四颗种子舱。Miner 像「土星」，Gardener 像「陀螺仪」。', spec: [['与 Miner 的差别', '环竖起 + 种子舱 + 播种嘴'], ['碰撞', '球 r ≈ 0.11']], pro: ['轮廓差别大，轨道视角下也能分开', '零件和 Miner 共用，只是环的方向不同'], con: ['竖环在建造时会挡住一部分桁架'], tag: '推荐' },
+  { k: 'G3', name: '背篓工匠', d: '球体后面背一个装着种子的方块篓，两侧伸出两只体素小臂，种植和建造时会动。', spec: [['与 Miner 的差别', '背篓 + 双臂，没有环'], ['碰撞', '包围球 r ≈ 0.13']], pro: ['「会干活的手」最能读出「建造」', '不对称的轮廓，一看就不是 Miner'], con: ['外形更复杂，包围球变大', '有前后之分，移动时最好转向'] },
+  { k: 'G4', name: '叶冠球', d: '头顶一圈八片可开合的叶片：平时半开，种植时贴下，受阻时竖起合拢，像一朵花。', spec: [['与 Miner 的差别', '叶冠代替环 + 播种嘴'], ['碰撞', '球 r ≈ 0.10']], pro: ['最有「生命」的感觉', '叶片开合本身就是状态显示'], con: ['偏可爱，和 Miner 的工业感差距较大', '叶片很薄，远看容易消失'] },
+]
+
+
+// ---------- Builder: voxel shell with an earthworks tool ----------
+const B_STATES = [
+  { k: 'scan', name: '勘测', color: '#ece7da' },
+  { k: 'move', name: '移动', color: '#c98a2b' },
+  { k: 'fill', name: '填充', color: '#c98a2b' },
+  { k: 'flatten', name: '铲平', color: '#c98a2b' },
+  { k: 'blocked', name: '受阻', color: '#9c3d22' },
+]
+const B_BODY = {
+  B1: (hold, lamp) => {
+    const put = voxelPut(hold, 0.02); orbShell(put, lamp, M.ochre)
+    for (const z of [-5, 5]) for (let y = -3; y >= -6; y--) put(0, y, z, M.ochre)
+    const drum = new THREE.Group(); drum.position.y = -6 * 0.02; hold.add(drum); const dp = voxelPut(drum, 0.02)
+    for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2; for (let z = -4; z <= 4; z++) dp(Math.cos(a) * 1.7, Math.sin(a) * 1.7, z, i % 2 ? M.graphite : M.charcoal, 0.95) }
+    return { hover: 0.17, outY: -0.09, toolX: 0, spin: (t, st) => { if (st === 'move' || st === 'flatten') drum.rotation.z = -t * 3 } }
+  },
+  B2: (hold, lamp) => {
+    const put = voxelPut(hold, 0.02); orbShell(put, lamp, M.ochre)
+    for (let L = 0; L <= 5; L++) {
+      const y = -3 - L, h = Math.round(4.2 - L * 0.7)
+      for (let x = -h; x <= h; x++) for (let z = -h; z <= h; z++) {
+        if (Math.max(Math.abs(x), Math.abs(z)) < h && L > 0) continue
+        if (L === 0 && Math.max(Math.abs(x), Math.abs(z)) < h) { if (Math.hypot(x, z) > 2.4) put(x, y, z, M.debris, 0.9); continue }
+        put(x, y, z, L === 0 ? M.graphite : M.ochre)
+      }
+    }
+    put(0, -9, 0, M.graphite, 0.9)
+    return { hover: 0.24, outY: -0.19, toolX: 0, spin: () => {} }
+  },
+  B3: (hold, lamp) => {
+    const put = voxelPut(hold, 0.02); orbShell(put, lamp, M.ochre)
+    put(0, -4.3, 0, M.graphite)
+    const blade = new THREE.Group(); blade.position.set(0.1, -0.06, 0); hold.add(blade); const bp = voxelPut(blade, 0.02)
+    for (let y = -2; y <= 1; y++) for (let z = -6; z <= 6; z++) bp(0, y, z, y === 1 ? M.graphite : M.ochre)
+    for (const z of [-4, 4]) { put(3, -2, z, M.graphite); put(4, -3, z, M.graphite) }
+    return { hover: 0.16, outY: -0.08, toolX: 0.12, spin: (t, st) => { blade.rotation.z = st === 'flatten' ? -0.35 : st === 'fill' ? 0.25 : 0 } }
+  },
+  B4: (hold, lamp) => {
+    const put = voxelPut(hold, 0.02); orbShell(put, lamp, M.ochre)
+    for (let i = 0; i < 3; i++) {
+      const a = i / 3 * Math.PI * 2 + Math.PI / 6
+      for (let k = 0; k <= 7; k++) { const r = 3.2 + k * 0.4, y = -2 - k; put(Math.cos(a) * r, y, Math.sin(a) * r, k === 7 ? M.ochre : M.graphite, k === 7 ? 1.3 : 0.9) }
+    }
+    const ram = new THREE.Group(); hold.add(ram); const rp = voxelPut(ram, 0.02)
+    for (let y = -4; y >= -7; y--) rp(0, y, 0, y === -7 ? M.ochre : M.graphite, y === -7 ? 1.6 : 1)
+    return { hover: 0.19, outY: -0.15, toolX: 0, spin: (t, st) => { ram.position.y = (st === 'fill' || st === 'flatten') ? -Math.abs(Math.sin(t * 5)) * 0.03 : 0 } }
+  },
+}
+function moundGeometry(seed) {
+  const geo = new THREE.SphereGeometry(0.16, 40, 16, 0, Math.PI * 2, 0, Math.PI / 2), p = geo.attributes.position
+  for (let i = 0; i < p.count; i++) { const v = new THREE.Vector3().fromBufferAttribute(p, i); const k = 1 + (noise3(v.x * 22 + seed, v.y * 22, v.z * 22) - 0.5) * 0.5; p.setXYZ(i, v.x * k, v.y * k, v.z * k) }
+  geo.computeVertexNormals(); return geo
+}
+function makeBuilder(kind) {
+  const root = new THREE.Group(), hold = new THREE.Group(); root.add(hold)
+  const lamp = std('#c98a2b', { emissive: '#c98a2b', emissiveIntensity: 1 })
+  const body = B_BODY[kind](hold, lamp)
+  const ringMat = new THREE.MeshBasicMaterial({ color: '#3b3a37', transparent: true, opacity: 0.6, depthWrite: false, side: THREE.DoubleSide })
+  const ring = new THREE.Mesh(new THREE.RingGeometry(0.96, 1, 72), ringMat); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.004; ring.userData.keep = true; root.add(ring)
+  const mound = mesh(moundGeometry(3), M.soil); mound.userData.keep = true; mound.position.x = body.toolX; root.add(mound)
+  const padMat = new THREE.MeshBasicMaterial({ color: '#3b3a37', transparent: true, opacity: 0.5, depthWrite: false, side: THREE.DoubleSide })
+  const pad = new THREE.Mesh(new THREE.RingGeometry(0.17, 0.176, 64), padMat); pad.rotation.x = -Math.PI / 2; pad.position.set(body.toolX, 0.006, 0); pad.userData.keep = true; root.add(pad)
+  const stream = []
+  for (let i = 0; i < 8; i++) { const c = mesh(cubeGeo, i % 3 ? M.debris : M.soil); c.scale.setScalar(0.014); c.userData.keep = true; root.add(c); stream.push(c) }
+  const tick = (t) => {
+    const st = B_STATES[Math.floor(t / STATE_LEN) % B_STATES.length], ph = (t % STATE_LEN) / STATE_LEN, k = smooth(0.1, 0.9, ph)
+    let on = 1
+    if (st.k === 'scan') on = 0.4 + 0.6 * Math.abs(Math.sin(t * 4))
+    if (st.k === 'flatten') on = (Math.floor(t * 8) % 2) ? 1 : 0.2
+    if (st.k === 'blocked') on = (Math.floor(t * 1.5) % 2) ? 1 : 0.1
+    lamp.color.set(st.color); lamp.emissive.set(st.color); lamp.emissiveIntensity = 1.4 * on
+    const bob = st.k === 'blocked' ? 0 : Math.sin(t * 2) * 0.006
+    let y = body.hover + bob
+    if (st.k === 'flatten') y = body.hover + (1 - k) * 0.05 * 0.7 + 0.01
+    if (st.k === 'fill') y = body.hover + k * 0.06
+    hold.position.set(st.k === 'move' ? Math.sin(ph * Math.PI) * 0.06 : 0, y, 0)
+    ring.visible = st.k === 'scan'; ring.scale.setScalar(0.06 + ph * 0.45); ringMat.opacity = 0.6 * (1 - ph)
+    mound.visible = st.k === 'fill' || st.k === 'flatten'
+    if (st.k === 'fill') mound.scale.set(0.55 + 0.45 * k, Math.max(0.02, k * 0.55), 0.55 + 0.45 * k)
+    if (st.k === 'flatten') mound.scale.set(1 + 0.15 * k, Math.max(0.05, 0.55 * (1 - k) + 0.06), 1 + 0.15 * k)
+    pad.visible = st.k === 'flatten'; padMat.opacity = 0.6 * k
+    const top = mound.scale.y * 0.16
+    for (const [i, c] of stream.entries()) {
+      c.visible = st.k === 'fill' && ph < 0.92
+      const q = (ph * 3 + i / stream.length) % 1
+      c.position.set(body.toolX + Math.sin(i * 2.3) * 0.012, y + body.outY - q * (y + body.outY - top), Math.cos(i * 1.7) * 0.012)
+    }
+    body.spin(st.k === 'blocked' ? 0 : t, st.k)
+    return st
+  }
+  return { obj: root, tick }
+}
+const BUILDERS = [
+  { k: 'B1', name: '压路滚筒球', d: '球体下方挂一根方块滚筒，铲平时滚筒转动压过地面。', spec: [['轮廓', '球 + 横向滚筒'], ['碰撞', '包围球 r ≈ 0.12']], pro: ['「铲平」最好读，一看就是压路机', '滚筒转动本身就是工作中的信号'], con: ['填充时没有明显的工具，要靠落下的方块表现', '滚筒和 Miner 的钻头都在下方，远看有点像'] },
+  { k: 'B2', name: '吊斗漏斗', d: '球体坐在一个装满碎石的方块漏斗上。填充时碎石从漏斗口落下，铲平时用漏斗的平底压。', spec: [['轮廓', '上球下锥，沙漏形'], ['碰撞', '胶囊 r ≈ 0.10，高 0.36']], pro: ['沙漏轮廓和环、背篓都完全不同', '漏斗里看得见料，「搬运材料」一目了然'], con: ['最高的一台，包围形状从球变成胶囊'], tag: '推荐' },
+  { k: 'B3', name: '推土铲', d: '球体前方装一块宽方块铲板，填充时铲板上扬，铲平时铲板压低前推。', spec: [['轮廓', '球 + 前方宽板'], ['碰撞', '包围球 r ≈ 0.14']], pro: ['最像工程车辆', '铲板角度直接显示是在填还是在铲'], con: ['有前后之分，需要转向', '宽板在远处可能和 Miner 的水平环混淆'] },
+  { k: 'B4', name: '三脚夯机', d: '三条方块腿撑在地上，中间一根夯锤上下敲击。工作时站着，不再悬浮。', spec: [['轮廓', '球 + 三脚架'], ['碰撞', '包围球 r ≈ 0.15']], pro: ['轮廓最特别，三台机器人里最不会认错', '站住干活和悬浮移动形成节奏'], con: ['和「机器人悬浮」的设计不一致', '腿要贴合起伏地形，实现最复杂'] },
+]
+
+// ---------- locked components ----------
+function cluster(r, n, spread) {
+  const pts = [], centers = []
+  for (let i = 0; i < 3; i++) centers.push([(r() - 0.5) * spread, (r() - 0.5) * spread])
+  for (let i = 0; i < n; i++) { const c = centers[i % 3]; const g = () => (r() + r() + r() - 1.5) * spread * 0.32; pts.push([c[0] + g(), c[1] + g()]) }
+  return pts
+}
+const LOCK = {}
+LOCK.vegA = () => {
+  const root = new THREE.Group(), r = rng(11), geo = new THREE.SphereGeometry(1, 16, 8)
+  for (const [x, z] of cluster(r, 70, 0.5)) {
+    const s = 0.02 + r() * r() * 0.045
+    const m = mesh(geo, lichenMats[Math.floor(r() * r() * lichenMats.length)])
+    m.scale.set(s, s * 0.14, s * (0.6 + r() * 0.4)); m.rotation.y = r() * 3; m.position.set(x, groundY(x, z) + 0.001, z); m.userData.edgeAngle = 89
+    root.add(m)
+  }
+  return { obj: root, tick: () => {} }
+}
+LOCK.vegD = () => {
+  const root = new THREE.Group(), r = rng(3), plants = []
+  for (const [px, pz, height] of [[0, 0, 0.28], [0.18, 0.1, 0.18], [-0.14, 0.12, 0.21]]) {
+    const g = new THREE.Group(); g.position.set(px, groundY(px, pz), pz); root.add(g)
+    const parts = []
+    const grow = (p, dir, len, depth, level) => {
+      const q = p.clone().addScaledVector(dir, len)
+      const seg = rod(p, q, 0.0012 + 0.0011 * depth, M.stem); seg.userData.edgeAngle = 89; g.add(seg); parts.push({ o: seg, level })
+      if (depth === 0) { const tip = mesh(new THREE.SphereGeometry(0.0065, 8, 6), r() > 0.3 ? M.life : lichenMats[1]); tip.position.copy(q); tip.userData.edgeAngle = 89; g.add(tip); parts.push({ o: tip, level: level + 1 }); return }
+      const n = depth > 2 ? 2 : 3
+      for (let i = 0; i < n; i++) {
+        const d = dir.clone().applyAxisAngle(new THREE.Vector3(1, 0, 0), (r() - 0.5) * 1.1).applyAxisAngle(new THREE.Vector3(0, 1, 0), r() * 6.28)
+        d.lerp(new THREE.Vector3(0, 1, 0), 0.25).normalize()
+        grow(q, d, len * (0.62 + r() * 0.12), depth - 1, level + 1)
+      }
+    }
+    grow(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1, 0), height * 0.36, 4, 0)
+    plants.push({ parts, off: r() * 0.3 })
+  }
+  return { obj: root, tick: (t, kk) => {
+    for (const p of plants) {
+      const k = kk !== undefined ? kk : reduceMotion ? 1 : Math.min(1, (t * 0.16 + p.off + 0.85) % 1.35)
+      for (const part of p.parts) part.o.visible = part.level <= k * 6
+    }
+  } }
+}
+LOCK.antA = () => {
+  const root = new THREE.Group(), H = 0.45, r0 = 0.06, r1 = 0.012
+  const leg = (i, y) => { const a = i * Math.PI * 2 / 3, rr = r0 + (r1 - r0) * (y / H); return new THREE.Vector3(Math.cos(a) * rr, y, Math.sin(a) * rr) }
+  root.add(mesh(new THREE.CylinderGeometry(0.085, 0.095, 0.02, 3), M.body))
+  for (let i = 0; i < 3; i++) root.add(rod(leg(i, 0), leg(i, H), 0.0035, M.graphite))
+  for (let s = 0; s < 9; s++) for (let i = 0; i < 3; i++) {
+    const y0 = H * s / 9, y1 = H * (s + 1) / 9
+    root.add(rod(leg(i, y0), leg((i + 1) % 3, y1), 0.0016, M.graphite))
+    root.add(rod(leg(i, y1), leg((i + 1) % 3, y1), 0.0016, M.graphite))
+  }
+  const dish = mesh(new THREE.SphereGeometry(0.055, 24, 10, 0, Math.PI * 2, Math.PI * 0.62, Math.PI * 0.38), M.dish)
+  dish.position.set(0, H + 0.045, 0); dish.rotation.x = -0.5; root.add(dish)
+  root.add(rod(new THREE.Vector3(0, H, 0), new THREE.Vector3(0, H + 0.06, 0.02), 0.002, M.graphite))
+  const tipMat = M.amber.clone(); const tip = mesh(new THREE.SphereGeometry(0.009, 10, 8), tipMat); tip.position.set(0, H + 0.065, 0.022); root.add(tip)
+  const parts = root.children.map((c) => ({ c, y: c.position.y }))
+  return { obj: root, tick: (t, k) => {
+    tipMat.emissiveIntensity = (Math.floor(t * 1.5) % 2) ? 1.4 : 0.1
+    for (const p of parts) p.c.visible = k === undefined || p.y <= k * 0.56
+  } }
+}
+function crystalCluster(n, env, seed) {
+  const g = new THREE.Group(), rand = rng(seed)
+  for (let i = 0; i < n; i++) {
+    const d = randomDir(rand).multiplyScalar(env * Math.cbrt(rand()))
+    const r = 0.035 + rand() * 0.035
+    const m = mesh(new THREE.OctahedronGeometry(1, 0), M.mineral); m.scale.set(r, r * (1.8 + rand() * 0.8), r); m.rotation.set(rand() * 3, rand() * 3, rand() * 3); m.userData.edgeAngle = 1
+    m.position.copy(d); g.add(m)
+  }
+  return g
+}
+LOCK.resB = () => {
+  const root = new THREE.Group(), rand = rng(21)
+  root.add(crystalCluster(9, 0.28, 21))
+  const pts = []; for (let i = 0; i < 260; i++) pts.push(randomDir(rand).multiplyScalar(0.32))
+  root.add(new THREE.Points(new THREE.BufferGeometry().setFromPoints(pts), new THREE.PointsMaterial({ color: '#8a6d12', size: 2, sizeAttenuation: false, transparent: true, opacity: 0.55 })))
+  const box = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9), new THREE.MeshStandardMaterial({ color: '#8a8781', transparent: true, opacity: 0.1, depthWrite: false }))
+  box.userData.keep = true; root.add(box); root.add(new THREE.LineSegments(new THREE.EdgesGeometry(box.geometry), faintLine))
+  return { obj: root, tick: () => {} }
+}
+
+// ---------- planet surface: contour shader (surface C) with work-area uniforms ----------
+const ATMO_COLORS = [
+  { k: 'cool', name: '冷灰', hex: '#9fadb5' },
+  { k: 'dust', name: '尘土', hex: '#c2ad8f' },
+  { k: 'rose', name: '灰玫', hex: '#b9a1a2' },
+  { k: 'graphite', name: '石墨', hex: '#7d7b77' },
+]
+const atmoU = { color: { value: new THREE.Color(ATMO_COLORS[0].hex) }, strength: { value: 0.23 } }
+const makeArea = (dir, ang, mode) => ({ dir: { value: dir.clone().normalize() }, ang: { value: ang }, mode: { value: mode } })
+const GLSL_NOISE = `vec3 s2l(vec3 c) { return pow(c, vec3(2.2)); }`
+function surfaceMaterial(rim, area) {
+  const mat = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.96, metalness: 0 })
+  mat.onBeforeCompile = (shader) => {
+    Object.assign(shader.uniforms, { uAtmoColor: atmoU.color, uRim: rim, uAreaDir: area.dir, uAreaAng: area.ang, uAreaMode: area.mode })
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', '#include <common>\nvarying vec3 vP;\nvarying vec3 vNo;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvP = position; vNo = normal;')
+    shader.fragmentShader = shader.fragmentShader
+      .replace('#include <common>', `#include <common>\nvarying vec3 vP;\nvarying vec3 vNo;\nuniform vec3 uAtmoColor;\nuniform float uRim;\nuniform vec3 uAreaDir;\nuniform float uAreaAng;\nuniform float uAreaMode;\n${GLSL_NOISE}`)
+      .replace('#include <color_fragment>', `#include <color_fragment>
+        vec3 up = normalize(vP);
+        vec3 nn = normalize(vNo);
+        vec3 w = pow(abs(nn), vec3(4.0)); w /= (w.x + w.y + w.z);
+        vec3 gp = vP * 17.0;
+        float grain = dot(w, vec3(sin(gp.y) * sin(gp.z * 1.17), sin(gp.x * 1.11) * sin(gp.z), sin(gp.x) * sin(gp.y * 1.09)));
+        float r = length(vP);
+        float h = clamp((r - 2.04) / 0.3, -1.0, 1.0);
+        float slope = 1.0 - clamp(dot(nn, up), 0.0, 1.0);
+        vec3 col = mix(s2l(vec3(0.42, 0.41, 0.392)), s2l(vec3(0.74, 0.728, 0.70)), smoothstep(-0.85, 0.85, h));
+        col = mix(col, s2l(vec3(0.29, 0.286, 0.275)), smoothstep(0.18, 0.55, slope));
+        float ang = acos(clamp(dot(up, uAreaDir), -1.0, 1.0));
+        float inside = uAreaMode > 0.5 ? 1.0 - smoothstep(uAreaAng - 0.015, uAreaAng + 0.015, ang) : 0.0;
+        float c = r / 0.045;
+        float line = 1.0 - min(abs(fract(c) - 0.5) / max(fwidth(c), 0.0001), 1.0);
+        float major = 1.0 - min(abs(fract(c / 5.0) - 0.5) / max(fwidth(c / 5.0), 0.0001) * 0.7, 1.0);
+        float k = clamp(line * 0.42 + major * 0.3, 0.0, 0.7);
+        if (uAreaMode > 0.5) {
+          float c2 = r / 0.0225;
+          float line2 = 1.0 - min(abs(fract(c2) - 0.5) / max(fwidth(c2), 0.0001), 1.0);
+          float kIn = clamp(line2 * 0.5 + major * 0.4, 0.0, 0.85);
+          float edge = 1.0 - min(abs(ang - uAreaAng) / max(fwidth(ang) * 1.3, 0.00001), 1.0);
+          k = max(mix(k * 0.5, kIn, inside), edge * 0.55);
+        }
+        col = mix(col, s2l(vec3(0.231, 0.227, 0.216)), k);
+        if (uAreaMode > 0.5) col *= mix(1.0, 0.93, inside);
+        diffuseColor.rgb = col * (1.0 + 0.05 * grain);`)
+      .replace('#include <opaque_fragment>', `float fres = 1.0 - abs(dot(normal, normalize(vViewPosition)));
+        outgoingLight = mix(outgoingLight, uAtmoColor, uRim * pow(fres, 2.6));
+        #include <opaque_fragment>`)
+  }
+  mat.customProgramCacheKey = () => 'surface-contour-area'
+  return mat
+}
+
+// ---------- planet geometry ----------
+function planetRadius(d) { return R_PLANET + (noise3(d.x * 1.6 + 5, d.y * 1.6 + 2, d.z * 1.6 + 9) - 0.5) * 0.55 + (noise3(d.x * 4.5, d.y * 4.5, d.z * 4.5) - 0.5) * 0.14 }
+const surfPoint = (d, lift = 0) => d.clone().normalize().multiplyScalar(planetRadius(d.clone().normalize()) + lift)
+function displace(geo) {
+  const p = geo.attributes.position
+  for (let i = 0; i < p.count; i++) { const v = new THREE.Vector3().fromBufferAttribute(p, i).normalize(); v.multiplyScalar(planetRadius(v)); p.setXYZ(i, v.x, v.y, v.z) }
+  geo.computeVertexNormals(); return geo
+}
+function planetGeometry(detail) { let geo = new THREE.IcosahedronGeometry(1, detail); geo.deleteAttribute('normal'); geo.deleteAttribute('uv'); return displace(mergeVertices(geo)) }
+const miniPlanetGeo = planetGeometry(40)
+
+// ---------- irregular atmosphere ----------
+const pointMats = []
+function pointsFrom(positions, size = 2) {
+  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
+  const m = new THREE.PointsMaterial({ color: atmoU.color.value.clone(), size, sizeAttenuation: false, transparent: true, depthWrite: false })
+  pointMats.push({ m, base: 1.7 }); return new THREE.Points(geo, m)
+}
+function scatter(n, seed, place) {
+  const r = rng(seed), inner = [], outer = []
+  let guard = 0
+  while (inner.length + outer.length < n * 3 && guard++ < n * 40) {
+    const d = randomDir(r), rad = place(d, r); if (rad === null) continue
+    const p = d.multiplyScalar(rad); (rad - planetRadius(d.clone().normalize()) < 0.16 ? inner : outer).push(p.x, p.y, p.z)
+  }
+  return { inner, outer }
+}
+function irregularHalo(k) {
+  const geo = new THREE.SphereGeometry(1, 96, 64), p = geo.attributes.position
+  for (let i = 0; i < p.count; i++) { const v = new THREE.Vector3().fromBufferAttribute(p, i).normalize(); const s = 2.36 + (planetRadius(v) - R_PLANET) * 0.9 + noise3(v.x * 1.8 + 3, v.y * 1.8, v.z * 1.8 + 1) * 0.32; p.setXYZ(i, v.x * s, v.y * s, v.z * s) }
+  geo.computeVertexNormals()
+  return new THREE.Mesh(geo, new THREE.ShaderMaterial({
+    uniforms: { uColor: atmoU.color, uStrength: atmoU.strength, uK: { value: k } },
+    vertexShader: `varying vec3 vN; varying vec3 vV; void main() { vN = normalize(normalMatrix * normal); vec4 mv = modelViewMatrix * vec4(position, 1.0); vV = -mv.xyz; gl_Position = projectionMatrix * mv; }`,
+    fragmentShader: `uniform vec3 uColor; uniform float uStrength; uniform float uK; varying vec3 vN; varying vec3 vV;
+      void main() { float d = -dot(normalize(vN), normalize(vV)); gl_FragColor = vec4(uColor, uStrength * uK * pow(smoothstep(0.0, 0.45, d), 1.5)); }`,
+    side: THREE.BackSide, transparent: true, depthWrite: false,
+  }))
+}
+function layered(n, seed, place, speeds = [0.03, 0.012]) {
+  const g = new THREE.Group(), { inner, outer } = scatter(n, seed, place)
+  const a = pointsFrom(inner), b = pointsFrom(outer); g.add(a, b); g.add(irregularHalo(0.6))
+  return { group: g, movers: [{ o: a, s: speeds[0] }, { o: b, s: speeds[1] }] }
+}
+const ATMOS = [
+  { k: 'C', name: '点阵（上一版）', d: '点按完美球壳撒开，外轮廓是一个正圆。留作对照。', spec: [['点数', '≈ 4200'], ['外形', '球壳']], pro: ['最均匀'], con: ['太规则，像一层罩子'],
+    build: () => { const g = new THREE.Group(), { inner, outer } = scatter(4200, 77, (d, r) => 2.38 + expo(r, 0.17)); const p = pointsFrom([...inner, ...outer]); g.add(p); return { group: g, movers: [{ o: p, s: 0.02 }] } } },
+  { k: 'C1', name: '贴地起伏', d: '每个点的高度从它下方的地表算起，所以大气外轮廓跟着山和谷一起起伏。', spec: [['点数', '≈ 4200'], ['高度', '地表 + e^(−h/0.13)']], pro: ['轮廓不再是正圆，和星球形状一致', '低洼处显得更「满」'], con: ['整体仍然均匀，没有聚散'],
+    build: () => layered(4200, 78, (d, r) => planetRadius(d) + 0.02 + expo(r, 0.13)) },
+  { k: 'C2', name: '团块尘云', d: '用低频噪声决定哪里有尘、哪里没有，尘多的地方也飘得更高。一侧是厚厚的尘团，另一侧几乎是空的。', spec: [['点数', '≈ 3600'], ['分布', '噪声遮罩 + 浓处更高']], pro: ['最不规则，有「尘暴」的感觉', '疏密节奏对应 design §14「这里密、那里疏」'], con: ['空的那一侧看起来像没有大气'],
+    build: () => layered(3600, 79, (d, r) => { const m = noise3(d.x * 2 + 7, d.y * 2, d.z * 2 + 3); if (r() > smooth(0.42, 0.68, m)) return null; return 2.36 + expo(r, 0.06 + 0.3 * m * m) }) },
+  { k: 'C3', name: '风带拖尾', d: '点变成沿经度方向的短线，聚在几条纬度带里，每条带以不同速度转动，像风带。', spec: [['短线', '≈ 1800 条，长 0.03–0.1'], ['分带', '6 条，转速各不相同']], pro: ['看得出风向和流动', '转动时的星球最有「活」的感觉'], con: ['线比点更显眼，10% 浓度下也可能抢戏', '方向感很强，有点像气象图'],
+    build: () => {
+      const g = new THREE.Group(), r = rng(80), bands = Array.from({ length: 6 }, () => [])
+      for (let i = 0; i < 1800;) {
+        const lat = Math.asin(r() * 2 - 1), lon = r() * Math.PI * 2
+        const w = 0.5 + 0.5 * Math.sin(lat * 7 + noise3(Math.cos(lon) * 2, lat * 2, Math.sin(lon) * 2) * 3)
+        if (r() > w * w) continue
+        const d = new THREE.Vector3(Math.cos(lat) * Math.cos(lon), Math.sin(lat), Math.cos(lat) * Math.sin(lon))
+        const rad = planetRadius(d) + 0.04 + expo(r, 0.12), len = (0.03 + r() * 0.07) / (rad * Math.max(0.2, Math.cos(lat)))
+        const d2 = new THREE.Vector3(Math.cos(lat) * Math.cos(lon + len), Math.sin(lat), Math.cos(lat) * Math.sin(lon + len))
+        bands[Math.min(5, Math.floor((lat + Math.PI / 2) / Math.PI * 6))].push(...d.multiplyScalar(rad).toArray(), ...d2.multiplyScalar(rad).toArray()); i++
+      }
+      const movers = bands.map((arr, i) => {
+        const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(arr, 3))
+        const m = new THREE.LineBasicMaterial({ color: atmoU.color.value.clone(), transparent: true, depthWrite: false }); pointMats.push({ m, base: 1.5 })
+        const o = new THREE.LineSegments(geo, m); g.add(o); return { o, s: (i % 2 ? -1 : 1) * (0.02 + (i % 3) * 0.015) }
+      })
+      g.add(irregularHalo(0.5)); return { group: g, movers }
+    } },
+  { k: 'C4', name: '贴地 + 团块', d: 'C1 和 C2 合在一起：高度跟着地形，密度跟着噪声，薄的地方也保留一层稀疏的点。内外两层以不同速度漂移。', spec: [['点数', '≈ 4200'], ['分布', '地表高度 + 噪声遮罩（最低 15%）']], pro: ['不规则但不会出现「完全没有大气」的一侧', '两层速度不同，轮廓会慢慢变化'], con: ['参数最多，进游戏时要调'], tag: '推荐',
+    build: () => layered(4200, 81, (d, r) => { const m = noise3(d.x * 2 + 7, d.y * 2, d.z * 2 + 3); if (r() > 0.15 + 0.85 * smooth(0.4, 0.66, m)) return null; return planetRadius(d) + 0.02 + expo(r, 0.05 + 0.24 * m) }) },
+]
+function syncAtmoMaterials() { for (const { m, base } of pointMats) { m.color.copy(atmoU.color.value); m.opacity = Math.min(1, base * atmoU.strength.value) } }
+
+// ---------- work-area markers ----------
+function areaFrame(centre) { const c = centre.clone().normalize(); const t1 = (Math.abs(c.y) > 0.95 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0)).cross(c).normalize(); return { c, t1, t2: c.clone().cross(t1) } }
+function circleDir(f, a, ang) { return f.c.clone().multiplyScalar(Math.cos(ang)).addScaledVector(f.t1, Math.cos(a) * Math.sin(ang)).addScaledVector(f.t2, Math.sin(a) * Math.sin(ang)).normalize() }
+const AREAS = [
+  { k: 'A', name: '虚线圈（现状）', d: '贴地的石墨虚线圈。上一版的做法，留作对照。', spec: [['元素', '1 条虚线']], pro: ['边界最明确'], con: ['在起伏地形上虚线断得不均匀，显得廉价'], mode: 0,
+    build: (f) => { const pts = []; for (let i = 0; i <= 128; i++) pts.push(surfPoint(circleDir(f, i / 128 * Math.PI * 2, AREA_ANG), 0.012)); const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineDashedMaterial({ color: '#2b2a27', dashSize: 0.05, gapSize: 0.035 })); l.computeLineDistances(); return l } },
+  { k: 'B', name: '点阵圈', d: '边界是一圈等距小点，四个方位各有一个大点。和点阵大气用同一种语言。', spec: [['元素', '72 小点 + 4 大点']], pro: ['和大气、扫描点统一', '在起伏地形上也很均匀'], con: ['点太小时，轨道视角下会消失'], mode: 0,
+    build: (f) => { const g = new THREE.Group(), small = [], big = []
+      for (let i = 0; i < 72; i++) (i % 18 === 0 ? big : small).push(surfPoint(circleDir(f, i / 72 * Math.PI * 2, AREA_ANG), 0.012))
+      g.add(new THREE.Points(new THREE.BufferGeometry().setFromPoints(small), new THREE.PointsMaterial({ color: '#2b2a27', size: 3, sizeAttenuation: false })))
+      g.add(new THREE.Points(new THREE.BufferGeometry().setFromPoints(big), new THREE.PointsMaterial({ color: '#2b2a27', size: 7, sizeAttenuation: false }))); return g } },
+  { k: 'C', name: '测量角标', d: '不画完整的圈，只在四角画短弧，在四个方位画刻度，像测绘图上的取景框。', spec: [['元素', '4 段弧 + 4 条刻度']], pro: ['最像仪器，最「工程」', '线少，不会切碎地形'], con: ['边界要靠脑补，没有完整的圈'], mode: 0,
+    build: (f) => { const segs = [], mat = new THREE.LineBasicMaterial({ color: '#2b2a27' })
+      for (let q = 0; q < 4; q++) { const a0 = Math.PI / 4 + q * Math.PI / 2; for (let i = 0; i < 12; i++) { const a = a0 - 0.22 + i / 12 * 0.44, b = a0 - 0.22 + (i + 1) / 12 * 0.44; segs.push(surfPoint(circleDir(f, a, AREA_ANG), 0.012), surfPoint(circleDir(f, b, AREA_ANG), 0.012)) } }
+      for (let q = 0; q < 4; q++) { const a = q * Math.PI / 2; segs.push(surfPoint(circleDir(f, a, AREA_ANG * 0.88), 0.012), surfPoint(circleDir(f, a, AREA_ANG * 1.12), 0.012)) }
+      return new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(segs), mat) } },
+  { k: 'D', name: '等高线加深', d: '不另画标记。圈内的等高线加密一倍并加深，地面略暗；圈外的等高线变淡；边界本身就是一条和等高线一样细的线。工作区就是「被测绘过的那一块」。', spec: [['元素', '只改地表着色器，圈内线距 0.0225'], ['依赖', '地表 C 等高线']], pro: ['最融入地形，不会显得像贴上去的 UI', '机器人挖出的坑在圈内会出现密集的深色等高线'], con: ['边界比其他方案柔和，地形平坦时不太明显'], mode: 1, tag: '推荐',
+    build: () => new THREE.Group() },
+  { k: 'E', name: '体素网格', d: '圈内铺一层按体素间距 0.095 的细网格，贴着地形。玩家能直接看到机器人工作的「单位」。', spec: [['元素', '网格线，间距 0.095']], pro: ['直接显示体素尺度，和体素机器人呼应'], con: ['线多，容易和等高线打架'], mode: 0,
+    build: (f) => { const segs = [], half = Math.sin(AREA_ANG) * 2.1, n = Math.ceil(half / VOXEL)
+      for (const [ta, tb] of [[f.t1, f.t2], [f.t2, f.t1]]) for (let j = -n; j <= n; j++) {
+        let prev = null
+        for (let s = -half; s <= half; s += 0.012) {
+          const d = f.c.clone().multiplyScalar(R_PLANET).addScaledVector(ta, j * VOXEL).addScaledVector(tb, s).normalize()
+          const inside = Math.acos(Math.min(1, d.dot(f.c))) < AREA_ANG
+          const p = inside ? surfPoint(d, 0.008) : null
+          if (p && prev) segs.push(prev, p); prev = p
+        }
+      }
+      return new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(segs), new THREE.LineBasicMaterial({ color: '#2b2a27', transparent: true, opacity: 0.45 })) } },
+]
+
+// ---------- state ----------
+const state = { builder: 'B1', atmo: 'C4', areaStyle: 'D', mode: 'solid', view: 'orbit', xray: true, area: true, strength: 23, color: 'cool' }
+try { const s = JSON.parse(localStorage.getItem('ares9-components-v6') || 'null'); if (s && s.builder) Object.assign(state, s) } catch {}
+const save = () => { try { localStorage.setItem('ares9-components-v6', JSON.stringify(state)) } catch {} }
+
+// ---------- rendering helpers ----------
+function addEdges(root) {
+  root.traverse((o) => {
+    if (!o.isMesh || o.userData.keep || o.userData.ground || o.userData.edges || o.material?.isShaderMaterial) return
+    const e = new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry, o.userData.edgeAngle ?? 30), edgeMat)
+    e.raycast = () => {}; o.add(e); o.userData.edges = e
+  })
+}
+function applyMode(root, mode) {
+  root.traverse((o) => {
+    if (!o.isMesh || o.userData.keep || o.userData.ground || !o.userData.edges) return
+    if (!o.userData.orig) o.userData.orig = o.material
+    o.material = mode === 'line' ? paperMat : o.userData.orig
+    o.userData.edges.visible = mode !== 'solid'
+  })
+}
+function lights(scene, span) {
+  scene.add(new THREE.HemisphereLight('#ffffff', '#b8b5ae', 1.5))
+  const d = new THREE.DirectionalLight('#ffffff', 2.0); d.position.set(1.5, 3, 1.2); d.castShadow = true
+  d.shadow.mapSize.set(1024, 1024); Object.assign(d.shadow.camera, { left: -span, right: span, top: span, bottom: -span, near: 0.1, far: 30 }); d.shadow.bias = -0.0008
+  scene.add(d)
+}
+function groundPatch() {
+  const m = new THREE.Mesh(new THREE.SphereGeometry(R_PLANET, 160, 80, 0, Math.PI * 2, 0, 0.42), M.ground)
+  m.position.y = -R_PLANET; m.receiveShadow = true; m.userData.ground = true; return m
+}
+
+let renderer
+try { renderer = new THREE.WebGLRenderer({ antialias: true }); renderer.setPixelRatio(1); renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap } catch { renderer = null }
+const CW = 600, CH = 450
+if (renderer) renderer.setSize(CW, CH, false)
+
+const cards = []
+function makeCard(host, { id, letter, title, tag, d, spec, pro, con, pickable, onPick, withState }) {
+  const el = document.createElement('article'); el.className = 'card'; el.id = id
+  el.innerHTML = `<div class="vis"><canvas width="${CW}" height="${CH}" aria-label="${title}，可拖动旋转"></canvas>${withState ? '<span class="state"><i></i><b>—</b></span>' : ''}</div>
+    <div class="card-title"><span class="letter">${letter}</span><h3>${title}</h3>${tag ? `<span class="tag">${tag}</span>` : ''}</div>
+    <div class="card-body"><p>${d}</p>
+      ${spec ? `<dl class="spec">${spec.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('')}</dl>` : ''}
+      ${pro ? `<div class="pc">${pro.map((t) => `<span class="pro">${t}</span>`).join('')}${con.map((t) => `<span class="con">${t}</span>`).join('')}</div>` : ''}
+    </div>
+    ${pickable ? `<button type="button" class="pick" id="${id}-pick">选择 ${letter}</button>` : '<span></span>'}`
+  host.appendChild(el)
+  if (pickable) el.querySelector('.pick').addEventListener('click', onPick)
+  return el
+}
+function registerCard(el, scene, cam, turn, tick, extra = {}) {
+  const canvas = el.querySelector('canvas')
+  const card = { el, canvas, ctx: canvas.getContext('2d'), scene, cam, turn, tick, yaw: 0, visible: true, dirty: true, stateEl: el.querySelector('.state'), lastState: null, spin: 0.3, ...extra }
+  let dragX = null
+  canvas.addEventListener('pointerdown', (e) => { dragX = e.clientX; canvas.setPointerCapture(e.pointerId) })
+  canvas.addEventListener('pointermove', (e) => { if (dragX === null) return; card.yaw += (e.clientX - dragX) * 0.012; dragX = e.clientX; card.dirty = true })
+  canvas.addEventListener('pointerup', () => { dragX = null }); canvas.addEventListener('pointercancel', () => { dragX = null })
+  cards.push(card); return card
+}
+
+// builder cards
+const UP = new THREE.Vector3(0, 1, 0)
+for (const g of BUILDERS) {
+  const el = makeCard(document.querySelector('.cards[data-cat="builder"]'), { id: `card-builder-${g.k}`, letter: g.k, title: g.name, tag: g.tag, d: g.d, spec: g.spec, pro: g.pro, con: g.con, pickable: true, withState: true, onPick: () => { state.builder = g.k; refresh() } })
+  const scene = new THREE.Scene(); scene.background = new THREE.Color('#FBFAF6'); lights(scene, 0.8); scene.add(groundPatch())
+  const bot = makeBuilder(g.k); addEdges(bot.obj); bot.obj.traverse((o) => { if (o.isMesh) o.castShadow = true })
+  const turn = new THREE.Group(); turn.add(bot.obj); scene.add(turn)
+  const cam = new THREE.PerspectiveCamera(40, CW / CH, 0.01, 20); cam.position.set(0.48, 0.34, 0.52); cam.lookAt(0, 0.12, 0)
+  registerCard(el, scene, cam, turn, bot.tick, { modeRoot: bot.obj, cat: 'builder', key: g.k, spin: 0.25 })
+}
+// locked cards
+const LOCKED = [
+  { k: 'E', id: 'robot', title: 'Miner E · 体素浮游球', d: '0.02 体素的中空球体，方块扫描环，阶梯钻头。碰撞是 r ≈ 0.10 的球，不需要计算朝向。', cam: { pos: [0.42, 0.3, 0.44], look: [0, 0.11, 0] }, state: true },
+  { k: 'G3', id: 'gardener', title: 'Gardener G3 · 背篓工匠', d: '背着种子篓、两侧有体素小臂。种植地衣和线枝，建造桁架塔。', cam: { pos: [0.5, 0.36, 0.54], look: [0, 0.21, 0] }, state: true },
+  { k: 'A', id: 'vegA', title: '植被 A · 地衣斑', d: '贴地低饱和斑块，单斑 0.02–0.06，存成表面点列表。', cam: { pos: [0.5, 0.42, 0.55], look: [0, 0.02, 0] } },
+  { k: 'D', id: 'vegD', title: '植被 D · 程序化线枝', d: 'L-system 分叉枝，高 0.18–0.28，逐级生长。', cam: { pos: [0.5, 0.42, 0.55], look: [0, 0.08, 0] } },
+  { k: 'A', id: 'antA', title: '天线 A · 桁架塔', d: '高 0.45 的三角桁架，顶部小碟和闪烁灯。', cam: { pos: [0.85, 0.5, 0.9], look: [0, 0.23, 0] } },
+  { k: 'B', id: 'resB', title: '资源 B · 晶簇', d: '每个矿床 6–10 颗晶体，r 0.035–0.07，按晶体逐个采集。', cam: { pos: [1.3, 0.95, 1.45], look: [0, 0, 0] } },
+  { k: 'C', id: 'surface', title: '地表 C · 等高线 + 工作区 D', d: '高度 + 坡度明暗，每 0.045 一条等高线。工作区内线距加密一倍并加深，边界是一条细线。', cam: { pos: [0, 0.9, 6.2], look: [0, 0, 0] } },
+]
+for (const l of LOCKED) {
+  const el = makeCard(document.querySelector('.cards[data-cat="locked"]'), { id: `card-locked-${l.id}`, letter: l.k, title: l.title, tag: '已定', d: l.d, withState: l.state })
+  const scene = new THREE.Scene(); scene.background = new THREE.Color(l.id === 'surface' ? '#F3F1EB' : '#FBFAF6'); lights(scene, l.id === 'surface' ? 3.2 : 0.7)
+  let b
+  if (l.id === 'robot') b = makeRobot()
+  else if (l.id === 'gardener') b = makeGardener('G3')
+  else if (l.id === 'surface') { const p = new THREE.Mesh(miniPlanetGeo, surfaceMaterial({ value: 0 }, makeArea(new THREE.Vector3(0.2, 0.5, 1), 0.35, 1))); p.userData.ground = true; b = { obj: p, tick: () => {} } }
+  else b = LOCK[l.id]()
+  if (l.id !== 'resB' && l.id !== 'surface') scene.add(groundPatch())
+  addEdges(b.obj); b.obj.traverse((o) => { if (o.isMesh && !o.userData.ground) o.castShadow = true })
+  const turn = new THREE.Group(); turn.add(b.obj); scene.add(turn)
+  const cam = new THREE.PerspectiveCamera(l.id === 'surface' ? 42 : l.id === 'gardener' ? 44 : 34, CW / CH, 0.01, 30); cam.position.set(...l.cam.pos); cam.lookAt(...l.cam.look)
+  registerCard(el, scene, cam, turn, b.tick, { modeRoot: b.obj, spin: l.id === 'surface' ? 0.08 : 0.3 })
+}
+const io = new IntersectionObserver((entries) => { for (const en of entries) { const c = cards.find((k) => k.canvas === en.target); if (c) { c.visible = en.isIntersecting; c.dirty = true } } }, { rootMargin: '120px' })
+cards.forEach((c) => io.observe(c.canvas))
+
+// ---------- hero ----------
+const heroCanvas = document.getElementById('heroCanvas')
+let hero = null
+const SLOT = { garden: [-0.12, 0.66, 0.74], build: [0.55, 0.42, 0.72], robot: [0.25, 0.62, 0.74], vegA: [-0.42, 0.55, 0.72], vegD: [-0.3, 0.75, 0.45], antenna: [0.62, 0.78, 0.1], res: [0.05, 0.25, 0.97] }
+function place(obj, dir, lift = 0) { const d = new THREE.Vector3(...dir).normalize(); obj.position.copy(surfPoint(d, lift)); obj.quaternion.setFromUnitVectors(UP, d) }
+const heroArea = makeArea(new THREE.Vector3(...SLOT.robot), AREA_ANG, 1)
+const heroRim = { value: 0.35 }
+function buildHero() {
+  const r = new THREE.WebGLRenderer({ canvas: heroCanvas, antialias: true })
+  r.setPixelRatio(Math.min(devicePixelRatio, 2)); r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap
+  const scene = new THREE.Scene(); scene.background = new THREE.Color('#F3F1EB')
+  scene.add(new THREE.HemisphereLight('#ffffff', '#b8b5ae', 1.4))
+  const sun = new THREE.DirectionalLight('#ffffff', 2.0); sun.position.set(4, 6, 5); sun.castShadow = true
+  sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -3, right: 3, top: 3, bottom: -3, near: 1, far: 20 }); sun.shadow.bias = -0.0006; scene.add(sun)
+  const planet = new THREE.Mesh(planetGeometry(72), surfaceMaterial(heroRim, heroArea)); planet.receiveShadow = true; planet.castShadow = true; planet.userData.ground = true
+  scene.add(planet)
+  const fixed = new THREE.Group(); scene.add(fixed)
+  const items = []
+  for (const [id, slot, lift] of [['vegA', 'vegA', -0.01], ['vegD', 'vegD', -0.01], ['antA', 'antenna', -0.005]]) {
+    const b = LOCK[id](); addEdges(b.obj); b.obj.traverse((o) => { if (o.isMesh) o.castShadow = true })
+    const g = new THREE.Group(); g.add(b.obj); place(g, SLOT[slot], lift); fixed.add(g); items.push(b)
+  }
+  const bot = makeRobot(); addEdges(bot.obj); bot.obj.traverse((o) => { if (o.isMesh) o.castShadow = true })
+  const rg = new THREE.Group(); rg.add(bot.obj); place(rg, SLOT.robot, -0.005); fixed.add(rg)
+  const res = crystalCluster(9, 0.25, 31)
+  res.traverse((o) => { if (o.isMesh) { o.material = o.material.clone(); o.material.depthTest = false; o.material.transparent = true; o.material.opacity = 0.85; o.renderOrder = 2 } })
+  const resG = new THREE.Group(); resG.add(res); place(resG, SLOT.res, -0.5); scene.add(resG)
+  const areaHolder = new THREE.Group(); scene.add(areaHolder)
+  const atmoHolder = new THREE.Group(); scene.add(atmoHolder)
+  const cam = new THREE.PerspectiveCamera(42, 2, 0.05, 60)
+  const gardenHolder = new THREE.Group(); scene.add(gardenHolder)
+  return { r, scene, fixed, items, robot: bot, gardener: null, gardenHolder, resG, areaHolder, atmoHolder, movers: [], cam, yaw: 0.6, pitch: 0.28 }
+}
+function rebuildHero() {
+  if (!hero) return
+  applyMode(hero.fixed, state.mode)
+  hero.gardenHolder.clear()
+  const gd = makeGardener('G3'); addEdges(gd.obj); applyMode(gd.obj, state.mode); gd.obj.traverse((o) => { if (o.isMesh) o.castShadow = true })
+  const gg = new THREE.Group(); gg.add(gd.obj); place(gg, SLOT.garden, -0.005); hero.gardenHolder.add(gg); hero.gardener = gd
+  const bd = makeBuilder(state.builder); addEdges(bd.obj); applyMode(bd.obj, state.mode); bd.obj.traverse((o) => { if (o.isMesh) o.castShadow = true })
+  const bg = new THREE.Group(); bg.add(bd.obj); place(bg, SLOT.build, -0.005); hero.gardenHolder.add(bg); hero.builder = bd
+  hero.atmoHolder.clear(); const a = ATMOS.find((x) => x.k === state.atmo).build(); hero.atmoHolder.add(a.group); hero.movers = a.movers
+  hero.areaHolder.clear()
+  const ar = AREAS.find((x) => x.k === state.areaStyle)
+  hero.areaHolder.add(ar.build(areaFrame(new THREE.Vector3(...SLOT.robot))))
+  heroArea.mode.value = state.area ? ar.mode : 0; hero.areaHolder.visible = state.area
+  hero.resG.visible = state.xray
+}
+function heroSize() {
+  const w = heroCanvas.clientWidth, h = heroCanvas.clientHeight, pr = hero.r.getPixelRatio()
+  if (heroCanvas.width !== Math.round(w * pr) || heroCanvas.height !== Math.round(h * pr)) { hero.r.setSize(w, h, false); hero.cam.aspect = w / h; hero.cam.updateProjectionMatrix() }
+  return h
+}
+function updateReadout(h) {
+  const dist = state.view === 'orbit' ? 8 : 4.0, k = h / (2 * (dist - R_PLANET) * Math.tan(THREE.MathUtils.degToRad(21)))
+  document.getElementById('readout').textContent = `此画布高 ${Math.round(h)} px，正面地表 1 单位 ≈ ${Math.round(k)} px · 体素 ≈ ${(VOXEL * k).toFixed(1)} px · 机器人 ≈ ${Math.round(0.21 * k)} px · 工作区直径 ≈ ${Math.round(2 * Math.sin(AREA_ANG) * R_PLANET * k)} px`
+  document.getElementById('heroTag').textContent = state.view === 'orbit' ? '轨道视角（游戏默认相机）· 拖动旋转' : '近景 · 拖动旋转'
+}
+function aimNear() { if (!hero) return; const d = new THREE.Vector3(...SLOT.robot).normalize(); hero.yaw = Math.atan2(d.x, d.z); hero.pitch = Math.asin(d.y) * 0.8 }
+if (renderer) {
+  try { hero = buildHero(); if (state.view === 'near') aimNear() } catch (e) { hero = null }
+  if (hero) {
+    let drag = null
+    heroCanvas.addEventListener('pointerdown', (e) => { drag = [e.clientX, e.clientY]; heroCanvas.setPointerCapture(e.pointerId) })
+    heroCanvas.addEventListener('pointermove', (e) => { if (!drag) return; hero.yaw -= (e.clientX - drag[0]) * 0.006; hero.pitch = Math.max(-1.2, Math.min(1.2, hero.pitch + (e.clientY - drag[1]) * 0.006)); drag = [e.clientX, e.clientY] })
+    heroCanvas.addEventListener('pointerup', () => { drag = null }); heroCanvas.addEventListener('pointercancel', () => { drag = null })
+  }
+} else {
+  document.querySelector('.hero').innerHTML = '<p class="fallback">这个浏览器没有启用 WebGL，3D 预览无法显示。文字说明和选择功能仍然可以用。</p>'
+}
+
+// ---------- UI sync ----------
+const swHost = document.getElementById('atmoColors')
+for (const c of ATMO_COLORS) {
+  const b = document.createElement('button'); b.type = 'button'; b.id = `atmo-${c.k}`; b.style.background = c.hex; b.title = c.name; b.setAttribute('aria-label', `大气色：${c.name}`)
+  b.addEventListener('click', () => { state.color = c.k; refresh() }); swHost.appendChild(b)
+}
+function setPressed(segId, attr, val) { document.querySelectorAll(`#${segId} button`).forEach((b) => b.setAttribute('aria-pressed', String(b.dataset[attr] === val))) }
+const MODE_NAME = { solid: '实体', outline: '实体+描边', line: '线稿' }
+function selectionText() {
+  const g = BUILDERS.find((x) => x.k === state.builder), a = ATMOS.find((x) => x.k === state.atmo), c = ATMO_COLORS.find((x) => x.k === state.color)
+  return `Builder ${g.k} ${g.name}；已定：Miner E 体素浮游球、Gardener G3 背篓工匠、大气 ${a.k}（${c.name} ${state.strength}%）、工作区 D、地表 C、渲染 ${MODE_NAME[state.mode]}、植被 A+D、天线 A、资源 B`
+}
+function refresh() {
+  atmoU.color.value.set(ATMO_COLORS.find((x) => x.k === state.color).hex); atmoU.strength.value = state.strength / 100
+  for (const card of cards) {
+    if (card.cat) card.el.dataset.chosen = String(state[card.cat] === card.key)
+    if (card.modeRoot) applyMode(card.modeRoot, state.mode)
+    card.dirty = true
+  }
+  setPressed('segMode', 'm', state.mode); setPressed('segView', 'v', state.view)
+  swHost.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.id === `atmo-${state.color}`)))
+  document.getElementById('atmoStrength').value = state.strength; document.getElementById('atmoVal').textContent = `${state.strength}%`
+  document.getElementById('xray').checked = state.xray; document.getElementById('area').checked = state.area
+  document.getElementById('selText').textContent = selectionText()
+  rebuildHero(); syncAtmoMaterials(); save()
+}
+document.querySelectorAll('#segMode button').forEach((b) => b.addEventListener('click', () => { state.mode = b.dataset.m; refresh() }))
+document.querySelectorAll('#segView button').forEach((b) => b.addEventListener('click', () => { state.view = b.dataset.v; if (state.view === 'near') aimNear(); refresh() }))
+document.getElementById('atmoStrength').addEventListener('input', (e) => {
+  state.strength = Number(e.target.value); atmoU.strength.value = state.strength / 100; syncAtmoMaterials()
+  document.getElementById('atmoVal').textContent = `${state.strength}%`; document.getElementById('selText').textContent = selectionText()
+  cards.forEach((c) => { c.dirty = true }); save()
+})
+document.getElementById('xray').addEventListener('change', (e) => { state.xray = e.target.checked; refresh() })
+document.getElementById('area').addEventListener('change', (e) => { state.area = e.target.checked; refresh() })
+document.getElementById('copyBtn').addEventListener('click', async (e) => {
+  const text = selectionText(), btn = e.currentTarget
+  try { await navigator.clipboard.writeText(text); btn.textContent = '已复制' }
+  catch { const ta = document.getElementById('copyArea'); ta.value = text; ta.select(); try { document.execCommand('copy'); btn.textContent = '已复制' } catch { btn.textContent = '请手动复制' } }
+  setTimeout(() => { btn.textContent = '复制选择' }, 1600)
+})
+
+// ---------- loop ----------
+let last = 0
+const t0 = performance.now()
+function showState(el, st) { if (!el || !st) return; el.querySelector('i').style.background = st.color; el.querySelector('b').textContent = st.name }
+function frame(now) {
+  requestAnimationFrame(frame)
+  if (now - last < 33) return
+  last = now
+  const t = reduceMotion ? 1.2 : (now - t0) / 1000
+  if (renderer) for (const c of cards) {
+    if (!c.visible) continue
+    if (reduceMotion && !c.dirty) continue
+    c.turn.rotation.y = c.yaw + (reduceMotion ? 0.5 : t * c.spin)
+    const st = c.tick(t)
+    if (st && st !== c.lastState) { showState(c.stateEl, st); c.lastState = st }
+    renderer.render(c.scene, c.cam)
+    c.ctx.drawImage(renderer.domElement, 0, 0)
+    c.dirty = false
+  }
+  if (hero) {
+    const h = heroSize(), dist = state.view === 'orbit' ? 8 : 4.0
+    const yaw = hero.yaw + (reduceMotion || state.view === 'near' ? 0 : t * 0.04)
+    hero.cam.position.set(Math.sin(yaw) * Math.cos(hero.pitch), Math.sin(hero.pitch), Math.cos(yaw) * Math.cos(hero.pitch)).multiplyScalar(dist)
+    hero.cam.lookAt(0, 0, 0)
+    for (const m of hero.movers) m.o.rotation.y = t * m.s
+    const st = hero.robot.tick(t); const gs = hero.gardener?.tick(t + 1.2); const bs = hero.builder?.tick(t + 3.6); for (const b of hero.items) b.tick(t)
+    const el = document.getElementById('heroState'); if (el.dataset.k !== st.k) { el.dataset.k = st.k }
+    if (gs && bs) el.textContent = `Miner：${st.name} · Builder：${bs.name} · Gardener：${gs.name}`
+    hero.r.render(hero.scene, hero.cam)
+    if (!frame.readoutAt || now - frame.readoutAt > 500) { updateReadout(h); frame.readoutAt = now }
+  }
+}
+refresh()
+requestAnimationFrame(frame)
+</script>
