@@ -374,7 +374,7 @@ The company describes destruction in neutral or cheerful business language.
 
 Example notices, sponsor lines, and all other copy live in [`content.md`](content.md).
 
-**Orbital UI:** warm off-white background, stationary gray planet and orbit camera; a compact robot panel with work area, Start/Pause, state, target and stop reason; mineral count and Planet Remaining. Later economy and narrative panels are deferred.
+**Orbital UI (D-024):** warm off-white background, stationary gray planet and orbit camera. A top switch separates **Auto** (a Miner panel with work area, Start/Pause, phase track, target and stop reason) from **Manual** (Terrain and Detector). A right-hand Site report shows Planet Remaining and the warehouse in both modes. Type is Fraunces for display and Bricolage Grotesque for interface text. Later economy and narrative panels are deferred.
 
 **First-person UI:** minimal crosshair and contextual prompts; bottom shows terrain mode, brush size, canister level, the two modules, and energy; screen edges hint at base direction, detected resources, life signals, unstable terrain; metrics panel collapsed by default and opened at decision points.
 

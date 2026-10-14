@@ -14,20 +14,22 @@
 
 ---
 
-## Robot prototype tuning — planned (D-022)
+## Robot prototype tuning (D-023)
 
-These parameters are not yet in code. Add them to one config when implementing R1 and record measured values after playtesting; do not treat legacy economy numbers as accepted robot values.
+Values live in `src/config/tuning.ts` (`miner`). All are `guess`: no playtest has judged speed or feel yet. Distances are world units; the planet radius is about 2.04.
 
 | Parameter | Purpose | Current value |
 | --- | --- | --- |
-| Simulation step | Behavior rate independent of render frame rate | TBD |
-| Hover speed | Visible travel in empty space | TBD |
-| Scan interval/radius | Bounded discovery within the work area | TBD |
-| Work area radius/depth | Limits where targets are eligible | TBD |
-| Dig radius/rate | Progressive tunnel shape and speed | TBD |
-| Clearance | Prevents movement through intact rock | TBD |
-| No-progress limit | Stops blocked work without endless retries | TBD |
-| Edits per step | Caps remesh workload | TBD |
+| Simulation step | Behavior rate independent of render frame rate | 30 Hz, at most 3 steps per frame |
+| Travel speed | Visible travel in empty space | 0.03 / tick (slowed from 0.045 after first look) |
+| Scan range, scan time | Bounded discovery around the robot | 2.6, 12 ticks |
+| Work area radius | Limits where targets are eligible | 0.6–2.4, default 1.6 |
+| Dig radius, dig step | Tunnel width and speed | 0.2, 0.018 / tick (slowed from 0.025) |
+| Hover height | Clearance above the outermost solid sample | 0.4 |
+| Arrive distance | Hover goal tolerance | 0.06 |
+| Collect time | Pause after a collection | 10 ticks |
+| No-progress limits | Stops blocked work without endless retries | 45 stalled dig ticks; 900 move ticks; 600 dig ticks |
+| Edits per step | Caps remesh workload | 1 dig edit per robot per tick |
 
 Purchase prices, slot expansion, electricity costs and departure reserves remain deferred. Legacy fixed-cycle/energy numbers below are historical references superseded by D-022. Existing brush, Detector and LOD values remain valid for their implemented tools.
 
@@ -144,6 +146,38 @@ Per-archetype ranges live in `src/content/classifications.json`, not here. This 
 | Initial load | under 5 s on broadband | guess |
 
 ---
+
+## Gardener and structure tuning (D-025)
+
+Values live in `src/config/tuning.ts` (`gardener`, `structures`). All are `guess`.
+
+| Parameter | Purpose | Current value |
+| --- | --- | --- |
+| Job pattern | Alternation between jobs | plant, plant, antenna |
+| Survey | Ground points per survey; empty surveys before stopping | 30; 3 |
+| Slope limits | Flat enough for a plant / an antenna | 0.35 rad / 0.6 rad |
+| Spacing | plant–plant / antenna–antenna / mixed | 0.25 / 0.9 / 0.3 |
+| Caps | Most plants / antennas on the planet | 60 / 8 |
+| Work time | Ticks spent planting or raising | 24 |
+| Growth | Stages, ticks per stage | 3, 300 |
+| Spread | Interval, reach, attempts | every 450 ticks, 0.3–0.7, 6 |
+| Travel | Speed and hover height (same as Miner) | 0.03 / tick, 0.4 |
+
+## Builder tuning (D-026)
+
+Values live in `src/config/tuning.ts` (`builder`). All are `guess`.
+
+| Parameter | Purpose | Current value |
+| --- | --- | --- |
+| Job pattern | Alternation | flatten, fill |
+| Level samples | Ground points averaged into the target level | 60 |
+| Survey | Ground points per survey; empty surveys before stopping | 40; 3 |
+| Tolerance | How far from the level ground may be before it is worked | 0.06 |
+| Brush | Flatten radius / fill radius | 0.35 / 0.18 |
+| Fill cost | Soil needed in stock before a fill | 28 samples |
+| Clearances | Extra margin around structures / around a live Miner tunnel | 0.15 / 0.45 |
+| Work time | Ticks per job | 18 |
+| Area | Work area radius | 0.6–2.4, default 1.2 |
 
 ## Playtest log
 

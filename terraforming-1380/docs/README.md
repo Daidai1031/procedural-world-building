@@ -38,7 +38,7 @@ A rule of thumb: **design.md is the reason, spec.md is the rule, tuning.md is th
 2. Read D-022 in [`decisions.md`](decisions.md); legacy first-person and fixed-budget questions are deferred.
 3. Build R1 in [`roadmap.md`](roadmap.md), using AUT-01–12 in [`spec.md`](spec.md): one autonomous Miner. R2 adds multiple Miners; R3 adds one second behavior.
 
-This revision is documentation only. Existing terrain/Detector/LOD implementation is retained; robot behavior is planned, not done.
+R1 (one autonomous Miner) is implemented, see D-023. Multiple Miners (R2) and a second behavior (R3) are planned, not done.
 
 ## Where this sits in the repo
 

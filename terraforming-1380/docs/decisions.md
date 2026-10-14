@@ -231,6 +231,61 @@ Statuses: `accepted` · `proposed` (needs your yes) · `superseded` · `rejected
 
 ---
 
+### D-023 Define the R1 Miner: sphere work area, hover shell, radial tunnels
+- **Date:** 2026-10-14
+- **Status:** accepted
+- **Context:** D-022 chose one autonomous Miner as the next prototype. Before building it the user settled the remaining details.
+- **Decision:** One Miner spawns above a seeded random surface point (`seed:miner:0`); its work area starts under it. The count is fixed at 1 in R1 but robots are stored as a list, so later purchases and R2 need no rewrite.
+- **Decision:** The work area is a **sphere** centered on a clicked surface point, with a radius slider. Clicking the planet in the Miner tab places the Miner (hovering there, not flying) and its area at that point, and discards the current task (the robot waits for Start); the spawn point is only the first default; the slider only resizes it. Targets must lie inside the sphere, so its radius also limits depth.
+- **Decision:** The Miner discovers Minerals within the scan range of its own position, or inside a Detector scan. A robot far from its area first flies to hover above the area center, then scans. Only Minerals are mined; Life and Memory are never collected by the robot.
+- **Decision:** Travel follows a hover shell, a fixed height above the outermost solid sample along each direction. It climbs radially out of any tunnel, then glides along the shell. The entry for a target is the surface point on the radial line through it; the tunnel is carved along that line, one bounded dig step per tick, advancing only into empty density. A tick budget per phase stops `blocked` work.
+- **Decision:** The resource markers stay seeded points for now; veins or clusters (seed for configuration, noise for density) come later and need only a new target shape, not new robot logic. A short low-saturation debris effect and a path line from the robot to the target are visual feedback only; the cave comes from voxel edits.
+- **Why:** The user wanted the automatic process to be readable, with feedback that never replaces real terrain change.
+- **Affects:** AUT-01–12, `src/systems/miner.ts`, `src/config/tuning.ts` (`miner`), run state (`robots`, `simTick`), Miner tab UI, MinerView/MinerRunner, `collectExposedResources` category filter.
+- **Implementation status:** simulation, controls and visuals are implemented and covered by `tests/miner.test.ts`. Speed values, FPS and feel are unplaytested.
+
+---
+
+### D-024 Split the UI into Auto and Manual modes; give it a playful type pairing
+- **Date:** 2026-10-14
+- **Status:** accepted
+- **Context:** After the first Miner playthrough the user asked for a redesigned interface, with automatic and manual play separated and a more playful font.
+- **Decision:** A two-way switch at the top centre chooses **Auto** (the Miner panel: place, size, Start/Pause, phase track, target, stop notice) or **Manual** (Terrain and Detector tools). Keys `A` and `M` switch modes; `D`, `T`, `F` work only in Manual. The robot, its path, debris and work area are drawn only in Auto, and the simulation freezes while Manual is active (no hidden digging); it resumes when the player returns to Auto. Switching back to Manual restores the last manual tool.
+- **Decision:** Planet remaining and the warehouse move to a **Site report** card on the right, visible in both modes. The debug overlay moves to the bottom right. Key hints at the bottom are per mode.
+- **Decision:** Type: **Fraunces** (soft, wonky display serif) for the title, subtitle and big numbers; **Bricolage Grotesque** for all interface text; both self-hosted through `@fontsource-variable` packages. The colour palette is unchanged (warm paper, graphite, three resource accents); playfulness comes from the type, rounded cards, pills and short press/slide motion, not from new colours.
+- **Why:** The two modes answer different questions ("what do I tell the crew" and "what do I do myself"), so they should not share a panel. Type is the cheapest way to add character without breaking the restrained art direction (design §14).
+- **Affects:** `src/App.tsx`, `src/ui/` (ModeSwitch, AutoPanel, ManualPanel, SitePanel), `src/style.css`, `src/main.tsx`, `package.json`; design §13 UI description. Not playtested for readability on small screens.
+
+---
+
+### D-025 Add a Gardener that plants and raises antennas by terrain shape
+- **Date:** 2026-10-14
+- **Status:** accepted
+- **Context:** R3 (AUT-14) left the second behavior open. The user asked for a robot that places antennas and plants, and chose: one robot doing both in turn; placement that follows the terrain; plants that grow and spread; the Miner destroys what it digs through.
+- **Decision:** One **Gardener** with its own spherical work area, placed by clicking the planet (Auto mode has a Miner / Gardener switch; the click places the selected robot). Jobs follow the pattern plant, plant, antenna. If the pattern's job has no room (antennas need 0.9 spacing) it tries the other job; three empty surveys in a row, or both caps reached, stop it with `no-sites`.
+- **Decision:** Each survey samples 30 seeded ground points in the area. A point qualifies when it is solid ground with air above, gentle enough (plants ≤ 0.35 rad from the planet-centred sphere, antennas ≤ 0.6 rad) and far enough from other structures. Plants take the flattest qualifying point; antennas take the highest. The robot hovers to the point on the same hover shell as the Miner, works for 24 ticks, then the structure appears.
+- **Decision:** Plants grow through three stages (300 ticks each). A mature plant seeds a neighbour within 0.3–0.7 every 450 ticks, on ground that passes the same plant rule, up to 60 plants. Antennas do nothing yet beyond standing there; their later role (signal) stays with the narrative work.
+- **Decision:** Any terrain edit (the Miner's dig steps and the player's tools) removes every structure whose ground is no longer solid or whose top is buried. There is no repair loop: the Gardener only builds where the rules allow and plants only spread onto suitable ground, so a tunnel mouth stays bare until its rim qualifies.
+- **Decision:** Structures are part of the planet and stay visible in Manual mode; the robots and their areas show only in Auto. The simulation still freezes in Manual. All systems run in one fixed step: Miners, Gardener, plant growth (`stepSimulation`).
+- **Why:** Placement read from slope and height makes the rule visible on the planet; growth and destruction make mining and gardening interact without new economy rules.
+- **Affects:** AUT-14–16, `src/systems/` (gardener, structures, geometry, simulation), run state (`gardeners`, `structures`, `structureCounter`, `loadout.autoRobot`, tool id `auto`), Auto panel, GardenerView, StructuresView, Site report counts, `tests/gardener.test.ts`.
+- **Implementation status:** implemented and tested; sizes, rates and readability unplaytested.
+
+---
+
+### D-026 Add a Builder that cuts and fills toward one level, using the Miner's soil
+- **Date:** 2026-10-14
+- **Status:** accepted
+- **Context:** D-022 kept Miner, Builder and Gardener as the three roles; D-025 built the Gardener. The user asked for the Builder (terrain shaping: fill and flatten) and chose: alternate flattening and filling; fill with soil the Miner digs out; leave plants and antennas alone; keep away from a tunnel a Miner is digging.
+- **Decision:** One **Builder** with its own spherical work area, placed from Auto mode like the others (Miner / Gardener / Builder switch). When work starts it measures the area's **level**: the mean ground height of 60 seeded samples. It then alternates **flatten** (the highest surveyed ground more than 0.06 above the level: a radial Flatten at the level that only cuts, radius 0.35) and **fill** (the lowest ground more than 0.06 below: an Add at the ground, radius 0.18). If one job has nothing to do it does the other. Three empty surveys stop it with `level`, or `no-soil` when only fills remain and the stock is short.
+- **Decision:** **Soil stock:** rock removed by Miners is added to a shared stock (density samples). A fill needs at least 28 samples in stock and spends what it actually adds. Rock the Builder cuts also returns to the stock, since it is the same material; the player's own digging does not. Planet Remaining therefore still falls when the Builder cuts more than it fills.
+- **Decision:** The Builder skips ground within its brush radius plus 0.15 of any plant or antenna, and ground within 0.45 plus its radius of a working Miner or of the radial line to that Miner's target. Finished tunnels can be filled. This needed one engine change: `PlanetWorld.edit` takes an optional `cutOnly` flag so Flatten removes rock above the plane without filling below it.
+- **Why:** Levelling toward one height is a single visible rule that produces a platform, which in turn is flat ground the Gardener prefers. Paying for fills with mined soil ties the Builder to the Miner without a new economy.
+- **Affects:** `src/systems/builder.ts`, `planet.ts` (`cutOnly`), Miner soil, run state (`builders`, `soil`), tuning `builder`, Auto panel, BuilderView, Site report, `tests/builder.test.ts`.
+- **Implementation status:** implemented and tested; rates and readability unplaytested.
+
+---
+
 ## Open questions
 
 Answer these as early as they block work. Suggested defaults are marked, so nothing waits on you.
@@ -254,9 +309,9 @@ Answer these as early as they block work. Suggested defaults are marked, so noth
 ---
 
 ### Current questions after D-022
-- How should the work area's depth extent and robot scan range be shown clearly?
+- ~~How should the work area's depth extent and robot scan range be shown clearly?~~ R1 shows a wireframe sphere (D-023); whether that reads clearly still needs a playtest.
 - What simple surface-entry search works reliably on the current planet?
-- Is Builder or Gardener the first second behavior? Decide after R2.
+- ~~Is Builder or Gardener the first second behavior?~~ Gardener, with antennas (D-025).
 - Are later strategy controls a questionnaire, presets or a panel? Deferred; R1 has one goal.
 - What electricity billing and departure threshold work without bloating the game? Deferred.
 

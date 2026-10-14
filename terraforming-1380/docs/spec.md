@@ -9,7 +9,7 @@
 
 ## Current scope — D-022 (2026-10-14)
 
-The next playable slice is **one autonomous mining robot**, not the full legacy game. AUT-01–12 below govern this slice. The existing manual terrain, Detector, seed, meshing and LOD remain implemented foundations; this is a documentation-only update and adds no robot code.
+The next playable slice is **one autonomous mining robot**, not the full legacy game. AUT-01–12 below govern this slice. The existing manual terrain, Detector, seed, meshing and LOD remain implemented foundations; R1 is implemented (D-023); its feel and performance are unplaytested.
 
 Legacy first-person navigation, backpack/loadout, canister economy, complex metrics, fixed tool-energy budgets, audit and story requirements remain reference material, deferred beyond this slice. Existing `done` statuses are not revoked. Older acceptance checks apply only if their features are resumed.
 
@@ -147,7 +147,7 @@ interface RunState {
 
 ---
 
-### 3.1 Planned robot state (not yet implemented)
+### 3.1 Robot state (implemented in `src/systems/miner.ts`, D-023)
 
 Add a minimal robot state alongside existing world state; do not build the full economy schema yet.
 
@@ -163,7 +163,7 @@ interface MiningRobotState {
   collectedMinerals: number;
   stopReason: 'no-targets' | 'blocked' | null;
 }
-// Simulation also tracks tick number and task progress.
+// Also in code: phaseTicks, stall, resumePhase; RunState.simTick counts fixed steps.
 // Add shared target reservations only in the multi-robot slice.
 ```
 
@@ -175,20 +175,23 @@ All positions use one documented coordinate space. Existing rendered/volume offs
 
 | ID | Requirement | Priority | Status |
 | --- | --- | --- | --- |
-| AUT-01 | Select one Miner, set one circular work area, Start/Pause and reassign it. One goal: mine discovered minerals. | MVP | todo |
-| AUT-02 | Bounded robot scans discover only targets within scan range and the assigned work volume. Existing manual Detector remains available; scanning never reveals the whole planet. | MVP | todo |
-| AUT-03 | Choose the nearest discovered, uncollected Mineral in the area; break equal-distance ties by stable target ID. Life and Memory are not mined as ore. | MVP | todo |
-| AUT-04 | Hover through empty space to a valid surface entry; do not intersect intact terrain during travel. | MVP | todo |
-| AUT-05 | Progressively excavate from the entry toward the target using the existing density edit operations. Check clearance against current density before advancing; never teleport to buried ore. | MVP | todo |
-| AUT-06 | Collect an exposed Mineral once, update the shared collected IDs/counts, clear the target and begin another scan/select cycle without player clicks. Reuse collection foundations where suitable. | MVP | todo |
-| AUT-07 | Reassess current terrain and target validity while working. If another edit changes the world, revise the task or report a stop reason. | MVP | todo |
-| AUT-08 | Pause stops robot movement, scanning, collection and edits; camera/manual inspection stays usable. Reassignment safely discards the old task. | MVP | todo |
-| AUT-09 | No eligible target stops with no-targets; a bounded no-progress check stops with blocked. No endless digging, retries, or motion when stuck. | MVP | todo |
-| AUT-10 | Show phase, selected area, current target and stop reason. UI explains the visible robot process. | MVP | todo |
-| AUT-11 | Use fixed simulation steps and stable ordering for reproducibility. Same seed and tick-indexed commands yield the same target sequence and terrain edits. Rendering frame rate must not define mining speed. | MVP | todo |
-| AUT-12 | Bound terrain edits per step and reuse dirty-chunk remeshing. Measure responsiveness on the user's laptop; do not claim performance before measuring it. | MVP | todo |
+| AUT-01 | Select one Miner, set one circular work area, Start/Pause and reassign it. One goal: mine discovered minerals. | MVP | done |
+| AUT-02 | Bounded robot scans discover only targets within scan range and the assigned work volume. Existing manual Detector remains available; scanning never reveals the whole planet. | MVP | done |
+| AUT-03 | Choose the nearest discovered, uncollected Mineral in the area; break equal-distance ties by stable target ID. Life and Memory are not mined as ore. | MVP | done |
+| AUT-04 | Hover through empty space to a valid surface entry; do not intersect intact terrain during travel. | MVP | done |
+| AUT-05 | Progressively excavate from the entry toward the target using the existing density edit operations. Check clearance against current density before advancing; never teleport to buried ore. | MVP | done |
+| AUT-06 | Collect an exposed Mineral once, update the shared collected IDs/counts, clear the target and begin another scan/select cycle without player clicks. Reuse collection foundations where suitable. | MVP | done |
+| AUT-07 | Reassess current terrain and target validity while working. If another edit changes the world, revise the task or report a stop reason. | MVP | done |
+| AUT-08 | Pause stops robot movement, scanning, collection and edits; camera/manual inspection stays usable. Reassignment safely discards the old task. | MVP | done |
+| AUT-09 | No eligible target stops with no-targets; a bounded no-progress check stops with blocked. No endless digging, retries, or motion when stuck. | MVP | done |
+| AUT-10 | Show phase, selected area, current target and stop reason. UI explains the visible robot process. | MVP | done |
+| AUT-11 | Use fixed simulation steps and stable ordering for reproducibility. Same seed and tick-indexed commands yield the same target sequence and terrain edits. Rendering frame rate must not define mining speed. | MVP | done |
+| AUT-12 | Bound terrain edits per step and reuse dirty-chunk remeshing. Measure responsiveness on the user's laptop; do not claim performance before measuring it. | MVP | wip |
 | AUT-13 | Multiple Miners reserve distinct targets, release reservations on pause/reassignment/completion, and redistribute work. | Stretch | todo |
-| AUT-14 | Introduce one second procedural behavior: Builder reshaping or Gardener growth. Selection remains open. | Stretch | ? |
+| AUT-14 | Introduce one second procedural behavior: Builder reshaping or Gardener growth. Gardener chosen (D-025). | Stretch | done |
+| AUT-15 | The Gardener alternates plant, plant, antenna inside its area. Plants take the flattest suitable surveyed ground, antennas the highest; suitability is solid ground, air above, slope limit and spacing. Stops with `no-sites` when nothing fits. | Stretch | done |
+| AUT-17 | The Builder levels its area toward the mean ground height measured at Start, alternating cut-only Flatten on high ground and Add on low ground. Fills spend a shared soil stock filled by Miner digging (and the Builder's own cuts). It skips ground near plants, antennas and live Miner tunnels, and stops with `level` or `no-soil`. | Stretch | done |
+| AUT-16 | Plants grow through stages and spread onto suitable neighbouring ground up to a cap. Any terrain edit removes structures whose ground is dug away or buried. | Stretch | done |
 
 Implementation sequence: scan/select → empty-space travel → progressive dig → collect/repeat → controls/status → terrain-change and no-progress handling. No purchases, power billing, hauling, first person or questionnaire is required.
 
@@ -634,3 +637,6 @@ Details and history in [`decisions.md`](decisions.md#open-questions).
 | 2026-09-30 | v0.1 / LOD | D-021 adds distance-based chunk detail and seam snapping; browser and target-device checks remain. |
 
 | 2026-10-14 | v0.2 | D-022: AUT requirements, planned robot state, acceptance, scope override and superseded fixed budget; no code change. |
+| 2026-10-14 | v0.3 | D-023: R1 Miner implemented. AUT-01–11 done; AUT-12 wip until measured on the target laptop. AUT-T1–6 are automated in `tests/miner.test.ts`; AUT-T7 needs a browser playtest. |
+| 2026-10-14 | v0.4 | D-025: Gardener (AUT-14–16) implemented; tests in `tests/gardener.test.ts`. |
+| 2026-10-14 | v0.5 | D-026: Builder (AUT-17) and shared soil stock implemented; tests in `tests/builder.test.ts`. |
