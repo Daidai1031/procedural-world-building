@@ -7,6 +7,73 @@ keywords:
   - placement probability
   - patches
   - acceptance test
+scene:
+  demo: scatter-terrain
+  resetCamera: true
+  inset: distribution-map
+  unlock:
+    - scatterNoiseFrequency
+    - scatterDensity
+  compare:
+    label: Uniform versus noise-driven placement
+    a:
+      params:
+        scatterPlacementMode: uniform
+        scatterCandidateCount: 300
+        scatterDensity: 0.8
+      caption: Uniform
+    b:
+      params:
+        scatterPlacementMode: noise
+      caption: Noise-driven
+  legend:
+    title: Reading the scene
+    items:
+      - swatch: scatter-rock
+        shape: block
+        label: Accepted candidate
+        note: A rock stands here. Its random value fell below the probability.
+      - swatch: clay-deep
+        shape: dot
+        label: Rejected candidate
+        note: The random value was at or above the probability, so nothing is placed.
+      - label: Map brightness
+        formula: probability = noise × density
+        note: The corner map is bright where acceptance is likely and dark where it is not.
+code:
+  file: src/scene/demos/distributions/scatter.js
+  fn: placementProbability
+practice:
+  kind: fill
+  prompt: >-
+    Every candidate carries a random value from 0 up to 1, drawn once and kept.
+    Its chance of acceptance has already been worked out from the map, and a
+    larger chance should accept more of those values. Finish the test that
+    decides whether the candidate is accepted.
+  from:
+    file: src/scene/demos/distributions/scatter.js
+    region: acceptanceTest
+  blanks:
+    - line: 2
+      answer: "probability"
+      options:
+        - "probability"
+        - "1 - probability"
+        - "noiseFrequency"
+      explanation: |-
+        Random values are spread evenly
+        from 0 to 1, so the share of them
+        below a number is that number.
+
+        randomValue < probability
+        accepts about 80 of 100 candidates
+        when the probability is 0.8.
+
+        1 - probability would accept most
+        candidates where the map is dark.
+        noiseFrequency sets the patch size,
+        not the chance of acceptance.
+      hint: A chance of 0 should accept nothing and a chance of 1 should accept everything. Which random values must the test let through?
 ---
 
 Uniform random scattering gives every candidate the same chance of being accepted. A **noise map** changes that chance from place to place. Nearby locations have related noise values, so dense areas join into patches instead of appearing as unrelated decisions.
@@ -16,5 +83,3 @@ Here the noise value is normalised to the range 0–1. Multiplying it by **densi
 Lower noise frequency makes larger patches. Higher density accepts more candidates without moving the patches themselves. Drawn as a map next to the placed objects, the patches and the clusters line up.
 
 The two jobs stay separate: frequency controls how big the pattern is, and probability controls how much of it gets filled.
-
-*The interactive scene and practice for this step are planned but not built yet.*

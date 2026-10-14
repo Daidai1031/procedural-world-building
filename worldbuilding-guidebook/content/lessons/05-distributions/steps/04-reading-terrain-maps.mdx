@@ -1,20 +1,89 @@
 ---
 title: Reading terrain maps
-goal: Turn terrain data into a rule for where an asset may appear.
+goal: Turn terrain data into a placement rule, and lay out a field on a regular lattice instead of at random.
 keywords:
   - terrain data
-  - mask
   - moisture map
   - distance to water
+  - lattice
+  - farmland
   - placement rule
+scene:
+  demo: scatter-farmland
+  resetCamera: true
+  unlock:
+    - scatterIrrigationBand
+    - scatterWaterLevel
+    - scatterOverlay
+  compare:
+    label: Random points versus a lattice
+    a:
+      params:
+        scatterCandidateSource: random
+      caption: Random points
+    b:
+      params:
+        scatterCandidateSource: lattice
+      caption: Lattice
+  legend:
+    title: Reading the scene
+    items:
+      - swatch: summit-deep
+        shape: block
+        label: Field tile
+        note: Accepted. It is close enough to water and above it.
+      - swatch: clay-deep
+        shape: dot
+        label: Rejected candidate
+        note: Too far from water, or under it.
+      - swatch: water-deep
+        shape: block
+        label: Moisture
+        note: Darker where the noise map says the ground is wetter.
+        when:
+          scatterOverlay: moisture
+      - swatch: water-deep
+        shape: block
+        label: Near water
+        formula: distanceToWater
+        note: Darker the closer the ground is to the nearest water.
+        when:
+          scatterOverlay: distance
+code:
+  file: src/scene/demos/distributions/scatter.js
+  fn: generateLatticeCandidates
+practice:
+  kind: fill
+  prompt: >-
+    A field tile must be near water and also above it. Finish the rule that
+    accepts a tile, so that both conditions have to hold.
+  from:
+    file: src/scene/demos/distributions/scatter.js
+    region: irrigationRule
+  blanks:
+    - line: 1
+      answer: "&&"
+      options:
+        - "&&"
+        - "||"
+      explanation: |-
+        && is true only when both sides
+        are true: near water AND above it.
+
+        || is true when either side is.
+        A tile far from water would pass
+        for being above the water level,
+        and a candidate under the lake
+        would pass for being close to it.
+      hint: Both conditions must be true for a tile to appear. Which word joins two conditions that all have to hold?
 ---
 
 Terrain data can describe more than height. A moisture map, a material map, or a distance-to-water function can describe the conditions at each candidate position. The scattering system reads those conditions before deciding whether to place an object.
 
-In this designed world, reeds belong near water but not below its surface. The rule reads two values at each candidate, its **distance to water** and its **height**, and accepts it only when it is close enough to the shore *and* above the water level. Both conditions must hold. A distance band on its own would let "near water" quietly mean "inside the water".
+**Farmland** shows two ideas at once. First, a field covers an area, so random points would leave gaps and overlaps. Its candidates come from a **lattice**: one candidate at the centre of every cell of a regular grid, so accepted cells sit side by side as tiles. Random candidates suit rocks; a lattice suits objects that must fit together.
 
-A map can be a stored grid or a function asked for a value at a position. A noise-based moisture map is a useful artistic control, but it is not a physical simulation of moisture, and it should not be presented as one.
+Second, a field needs water. In this designed world, a tile is accepted when its **distance to water** is inside an irrigation band *and* its height is above the water level. Both conditions must hold. A distance band on its own would let "near water" quietly mean "inside the water".
 
-The vegetation rules in this lesson are rules of a designed world, not claims about real plant ecology.
+A map can be a stored grid or a function asked for a value at a position. A noise-based moisture map is a useful artistic control, but it is not a physical simulation of moisture, and it should not be presented as one. Slope comes later: for now a tile on a hillside is still accepted.
 
-*The interactive scene and practice for this step are planned but not built yet.*
+The farming rules in this lesson are rules of a designed world, not claims about real agriculture.

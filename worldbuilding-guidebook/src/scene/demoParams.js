@@ -1,4 +1,4 @@
-import { scatterParams } from './demos/distributions/params.js'
+import { farmParams, scatterParams } from './demos/distributions/params.js'
 import { sceneAnatomyParams } from './demos/sceneAnatomy/params.js'
 import { coordinateSpaceParams, shaderLabParams } from './demos/shaders/params.js'
 import { noiseParams, erosionParams } from './demos/proceduralMaps/params.js'
@@ -22,6 +22,7 @@ export const demoParams = {
   'voxel-lod': lodParams,
   'volume-diagram': volumeDiagramParams,
   'scatter-terrain': scatterParams,
+  'scatter-farmland': farmParams,
 }
 
 export function getDemoParams(demoKey) {

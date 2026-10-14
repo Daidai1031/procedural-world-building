@@ -1,4 +1,5 @@
 import SceneAnatomyPlan from './insets/SceneAnatomyPlan.jsx'
+import DistributionMap from './insets/DistributionMap.jsx'
 import NoiseMap from './insets/NoiseMap.jsx'
 import SimulationMap from './insets/SimulationMap.jsx'
 
@@ -7,6 +8,7 @@ import SimulationMap from './insets/SimulationMap.jsx'
 // reason clicking one swaps it with the background.
 export const insetRegistry = {
   'noise-map': { component: NoiseMap, caption: 'Noise values in 2D' },
+  'distribution-map': { component: DistributionMap, caption: 'Placement probability from above' },
   'simulation-map': { component: SimulationMap, caption: 'Terrain and water in 2D' },
   'scene-plan': {
     component: SceneAnatomyPlan,
