@@ -11,19 +11,21 @@ import { flattenNormal, type FlattenOrientation } from '../world/flattenPlane'
 
 const discNormal = new Vector3(0, 0, 1)
 
-export function PlanetView({ world, clusters, collectedIds, radius, detectorRadius, activeTool, selectedMode, flattenOrientation, onTarget }: {
+export function PlanetView({ world, clusters, collectedIds, radius, detectorRadius, areaRadius, activeTool, selectedMode, flattenOrientation, onTarget }: {
   world: PlanetWorld
   clusters: ResourceCluster[]
   collectedIds: string[]
   radius: number
   detectorRadius: number
-  activeTool: 'terrain' | 'detector'
+  areaRadius: number
+  activeTool: 'terrain' | 'detector' | 'miner'
   selectedMode: TerrainMode
   flattenOrientation: FlattenOrientation
   onTarget: (point: { x: number; y: number; z: number }, alt: boolean, ctrl: boolean) => void
 }) {
   const spherePreview = useRef<Mesh>(null)
   const detectorPreview = useRef<Mesh>(null)
+  const areaPreview = useRef<Mesh>(null)
   const planePreview = useRef<Group>(null)
   const previewNormal = useRef(new Vector3())
   const material = useMemo(() => createTerrainMaterial(clusters), [clusters])
@@ -51,12 +53,19 @@ export function PlanetView({ world, clusters, collectedIds, radius, detectorRadi
       detectorPreview.current.visible = activeTool === 'detector'
       detectorPreview.current.position.copy(event.point)
     }
+    if (areaPreview.current) {
+      areaPreview.current.visible = activeTool === 'miner'
+      areaPreview.current.position.copy(event.point)
+    }
   }
   const hidePreview = () => {
     if (spherePreview.current) spherePreview.current.visible = false
     if (planePreview.current) planePreview.current.visible = false
     if (detectorPreview.current) detectorPreview.current.visible = false
+    if (areaPreview.current) areaPreview.current.visible = false
   }
+  // A preview left over from the previous tool would otherwise stay on screen until the pointer moves.
+  useEffect(() => hidePreview(), [activeTool])
   const handleClick = (event: ThreeEvent<MouseEvent>) => {
     if (event.button !== 0 || event.delta > 5) return
     event.stopPropagation()
@@ -88,6 +97,10 @@ export function PlanetView({ world, clusters, collectedIds, radius, detectorRadi
       <mesh ref={detectorPreview} visible={false} scale={detectorRadius} raycast={() => null}>
         <sphereGeometry args={[1, 16, 12]} />
         <meshBasicMaterial color="#66645f" transparent opacity={0.3} wireframe depthTest={false} depthWrite={false} />
+      </mesh>
+      <mesh ref={areaPreview} visible={false} scale={areaRadius} raycast={() => null}>
+        <sphereGeometry args={[1, 20, 14]} />
+        <meshBasicMaterial color="#454641" transparent opacity={0.3} wireframe depthTest={false} depthWrite={false} />
       </mesh>
       <group ref={planePreview} visible={false} scale={radius}>
         <mesh raycast={() => null}>

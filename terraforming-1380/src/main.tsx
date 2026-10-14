@@ -2,6 +2,9 @@ import { createRoot } from 'react-dom/client'
 import { App } from './App'
 import { readStartup } from './config/startup'
 import { createRunStore } from './state/runState'
+import '@fontsource-variable/bricolage-grotesque'
+import '@fontsource-variable/fraunces/full.css'
+import '@fontsource-variable/fraunces/full-italic.css'
 import './style.css'
 
 // DBG-01, TECH-04: initialize the one run store before mounting the view.
