@@ -1,3 +1,4 @@
+import { RobotHelp } from './RobotHelp'
 import { useCallback } from 'react'
 import type { createRunStore } from '../state/runState'
 import {
@@ -8,11 +9,6 @@ import { tuning } from '../config/tuning'
 const phaseText: Record<BuilderPhase, string> = {
   idle: 'Ready', scanning: 'Surveying', moving: 'Flying to site', working: 'Working',
   paused: 'Paused', stopped: 'Stopped',
-}
-const stopText: Record<BuilderStopReason, string> = {
-  level: 'The area is level. Place the Builder somewhere new.',
-  'no-soil': 'Out of soil. Let the Miner dig to bring more.',
-  blocked: 'The Builder could not reach its site and stopped.',
 }
 const track: { phase: BuilderPhase; label: string }[] = [
   { phase: 'scanning', label: 'Survey' }, { phase: 'moving', label: 'Fly' }, { phase: 'working', label: 'Work' },
@@ -30,7 +26,6 @@ export function BuilderPanel({ useRunStore, onMessage }: {
   const radius = useRunStore((state) => state.builders[0].area?.radius ?? tuning.builder.area.default)
   const job = useRunStore((state) => state.builders[0].job?.kind ?? null)
   const done = useRunStore((state) => state.builders[0].done)
-  const stopReason = useRunStore((state) => state.builders[0].stopReason)
   const soil = useRunStore((state) => state.soil)
   const isRunning = running.includes(phase)
   const current = phase === 'paused' ? resumePhase : phase
@@ -40,21 +35,21 @@ export function BuilderPanel({ useRunStore, onMessage }: {
   }, [useRunStore, id])
   const toggle = () => {
     if (isRunning) pauseBuilder(useRunStore, id)
-    else if (!startBuilder(useRunStore, id)) onMessage('Click the planet to place the Builder first')
+    else if (!startBuilder(useRunStore, id)) {
+      useRunStore.setState((state) => ({ loadout: { ...state.loadout, autoRobot: 'builder' } }))
+      onMessage('Click the planet to place the Builder first')
+    }
   }
 
   return <>
     <div className="panel-title">
       <h2>Builder 01</h2>
+      <RobotHelp name="Builder" action="Press Start: cut high ground and fill low ground" />
       <span className="status" data-stopped={phase === 'stopped'}>
         {phase === 'working' && job ? (job === 'flatten' ? 'Flattening' : 'Filling') : phaseText[phase]}
       </span>
     </div>
-    <ol className="steps">
-      <li><b>1</b>Click the planet to place the Builder</li>
-      <li><b>2</b>Size its work area</li>
-      <li><b>3</b>Start: cuts the high ground, fills the low</li>
-    </ol>
+
     <label className="slider">Work area <output>{radius.toFixed(1)}</output>
       <input type="range" min={tuning.builder.area.min} max={tuning.builder.area.max} step={tuning.builder.area.step}
         value={radius} onChange={(event) => resize(Number(event.currentTarget.value))} />
@@ -72,6 +67,5 @@ export function BuilderPanel({ useRunStore, onMessage }: {
       <dt>Soil in stock</dt><dd>{soil}</dd>
       <dt>Jobs done</dt><dd>{done}</dd>
     </dl>
-    {stopReason && <p className="notice" role="status">{stopText[stopReason]}</p>}
   </>
 }

@@ -1,3 +1,4 @@
+import { RobotHelp } from './RobotHelp'
 import { useCallback } from 'react'
 import type { createRunStore } from '../state/runState'
 import {
@@ -8,10 +9,6 @@ import { tuning } from '../config/tuning'
 const phaseText: Record<GardenerPhase, string> = {
   idle: 'Ready', scanning: 'Surveying', moving: 'Flying to site', working: 'Working',
   paused: 'Paused', stopped: 'Stopped',
-}
-const stopText: Record<GardenerStopReason, string> = {
-  'no-sites': 'No suitable ground left in this area. Place the Gardener somewhere new.',
-  blocked: 'The Gardener could not reach its site and stopped.',
 }
 const track: { phase: GardenerPhase; label: string }[] = [
   { phase: 'scanning', label: 'Survey' }, { phase: 'moving', label: 'Fly' }, { phase: 'working', label: 'Work' },
@@ -39,30 +36,31 @@ export function GardenerPanel({ useRunStore, onMessage }: {
     const area = useRunStore.getState().gardeners[0].area
     if (area) setGardenerArea(useRunStore, id, { ...area, radius: value })
   }, [useRunStore, id])
+  const isWaiting = phase === 'stopped' && stopReason === 'no-sites' && job !== null
   const toggle = () => {
-    if (isRunning) pauseGardener(useRunStore, id)
-    else if (!startGardener(useRunStore, id)) onMessage('Click the planet to place the Gardener first')
+    if (isRunning || isWaiting) pauseGardener(useRunStore, id)
+    else if (!startGardener(useRunStore, id)) {
+      useRunStore.setState((state) => ({ loadout: { ...state.loadout, autoRobot: 'gardener' } }))
+      onMessage('Click the planet to place the Gardener first')
+    }
   }
 
   return <>
     <div className="panel-title">
       <h2>Gardener 01</h2>
+      <RobotHelp name="Gardener" action="Press Start: plants on flat ground, antennas up high" />
       <span className="status" data-stopped={phase === 'stopped'}>
-        {phase === 'working' && siteKind ? (siteKind === 'plant' ? 'Planting' : 'Raising antenna') : phaseText[phase]}
+        {phase === 'working' && siteKind ? (siteKind === 'plant' ? 'Planting' : 'Raising antenna') : isWaiting ? 'Waiting for ground' : phaseText[phase]}
       </span>
     </div>
-    <ol className="steps">
-      <li><b>1</b>Click the planet to place the Gardener</li>
-      <li><b>2</b>Size its work area</li>
-      <li><b>3</b>Start: plants on flat ground, antennas up high</li>
-    </ol>
+
     <label className="slider">Work area <output>{radius.toFixed(1)}</output>
       <input type="range" min={tuning.gardener.area.min} max={tuning.gardener.area.max} step={tuning.gardener.area.step}
         value={radius} onChange={(event) => resize(Number(event.currentTarget.value))} />
     </label>
-    <button type="button" className="btn btn-primary" data-running={isRunning}
+    <button type="button" className="btn btn-primary" data-running={isRunning || isWaiting}
       onClick={(event) => { toggle(); event.currentTarget.blur() }}>
-      {isRunning ? 'Pause' : phase === 'paused' ? 'Resume' : 'Start'}
+      {isRunning || isWaiting ? 'Pause' : phase === 'paused' ? 'Resume' : 'Start'}
     </button>
     <ol className="phase-track phase-track-3" aria-label="Work cycle">
       {track.map((item) => <li key={item.phase} aria-current={current === item.phase ? 'step' : undefined}
@@ -72,6 +70,5 @@ export function GardenerPanel({ useRunStore, onMessage }: {
       <dt>Next job</dt><dd>{job === 'plant' ? 'Plant' : job === 'antenna' ? 'Antenna' : '—'}</dd>
       <dt>Placed by Gardener</dt><dd>{placed}</dd>
     </dl>
-    {stopReason && <p className="notice" role="status">{stopText[stopReason]}</p>}
   </>
 }
