@@ -1,8 +1,9 @@
+import { Vector3 } from 'three'
 import type { createRunStore } from '../state/runState'
 import { tuning } from '../config/tuning'
 import { createPlanetField, hashSeed, type PlanetWorld } from '../world/planet'
 import { randomStream } from '../world/resourceClusters'
-import { add, distance, hoverGoal, hoverStep, scale, surfaceRadius, unit, type Vec3 } from './geometry'
+import { distance, hoverGoal, hoverStep, scale, surfaceRadius, unit, type Vec3 } from './geometry'
 import type { WorkArea } from './miner'
 import { addStructure, groundPoint, isSuitable, slopeAt, surfaceNormal, type StructureKind } from './structures'
 
@@ -50,7 +51,8 @@ function update(store: RunStore, id: string, change: (robot: GardenerState) => G
 export function setGardenerArea(store: RunStore, id: string, area: WorkArea) {
   update(store, id, (robot) => {
     const moved = !robot.area || distance(robot.area.center, area.center) > 1e-6
-    if (!moved) return { ...robot, area }
+    if (!moved) return robot.phase === 'stopped' && robot.stopReason === 'no-sites' && area.radius !== robot.area?.radius
+      ? { ...robot, area, phase: 'scanning', stopReason: null, misses: 0, phaseTicks: 0 } : { ...robot, area }
     return { ...robot, area, phase: 'idle', site: null, misses: 0, stopReason: null, phaseTicks: 0, resumePhase: null }
   })
 }
@@ -76,8 +78,10 @@ export function startGardener(store: RunStore, id: string) {
 }
 
 export function pauseGardener(store: RunStore, id: string) {
-  update(store, id, (robot) => ['scanning', 'moving', 'working'].includes(robot.phase)
-    ? { ...robot, phase: 'paused', resumePhase: robot.phase } : robot)
+  update(store, id, (robot) => robot.phase === 'stopped' && robot.stopReason === 'no-sites'
+    ? { ...robot, phase: 'paused', resumePhase: 'scanning', stopReason: null, misses: 0 }
+    : ['scanning', 'moving', 'working'].includes(robot.phase)
+      ? { ...robot, phase: 'paused', resumePhase: robot.phase } : robot)
 }
 
 // Jobs in pattern order from the current position, without kinds whose cap is reached.
@@ -96,19 +100,39 @@ export function nextJob(placed: number, plants: number, antennas: number): Struc
   return jobOrder(placed, plants, antennas)[0] ?? null
 }
 
-// AUT-15: survey random ground in the area. Plants want the flattest suitable spot, antennas the highest.
-function survey(world: PlanetWorld, store: RunStore, robot: GardenerState, kind: StructureKind, area: WorkArea) {
-  const { seed, structures } = store.getState()
-  const random = randomStream(hashSeed(`${seed}:${robot.id}:survey:${robot.surveys}`))
+// Recheck Builder work first, then cover the work disc rather than scattering points through a volume.
+function survey(world: PlanetWorld, store: RunStore, robot: GardenerState, kind: StructureKind, area: WorkArea): { anchor: Vec3; normal: Vec3; score: number } | null {
+  const { seed, structures, preparedSites } = store.getState()
+  const random = randomStream(hashSeed(seed + ':' + robot.id + ':survey:' + robot.surveys))
   let best: { anchor: Vec3; normal: Vec3; score: number } | null = null
-  for (let i = 0; i < rules.candidates; i += 1) {
-    const offset: Vec3 = [random() * 2 - 1, random() * 2 - 1, random() * 2 - 1]
-    const anchor = groundPoint(world, unit(add(area.center, scale(offset, area.radius))))
-    if (distance(anchor, area.center) > area.radius) continue
+  const inspect = (point: Vec3) => {
+    const anchor = groundPoint(world, unit(point))
+    if (distance(anchor, area.center) > area.radius) return
     const normal = surfaceNormal(world, anchor)
-    if (!isSuitable(world, structures, kind, anchor, normal)) continue
+    if (!isSuitable(world, structures, kind, anchor, normal)) return
     const score = kind === 'plant' ? -slopeAt(normal, anchor) : Math.hypot(...anchor)
     if (!best || score > best.score) best = { anchor, normal, score }
+  }
+  const up = new Vector3(...unit(area.center))
+  const east = new Vector3().crossVectors(up, Math.abs(up.y) > 0.9 ? new Vector3(1, 0, 0) : new Vector3(0, 1, 0)).normalize()
+  const north = new Vector3().crossVectors(east, up).normalize()
+  for (const point of preparedSites) {
+    if (distance(point, area.center) > area.radius + rules.area.min) continue
+    inspect(point)
+    for (let i = 0; i < 4; i++) {
+      const angle = i * Math.PI / 2
+      inspect(new Vector3(...point).addScaledVector(east, Math.cos(angle) * 0.12)
+        .addScaledVector(north, Math.sin(angle) * 0.12).toArray() as Vec3)
+    }
+  }
+  if (best) return best
+  inspect(area.center)
+  const rotation = random() * Math.PI * 2
+  for (let i = 0; i < rules.candidates; i++) {
+    const reach = Math.sqrt((i + 0.5) / rules.candidates) * area.radius
+    const angle = rotation + i * 2.399963229728653
+    inspect(new Vector3(...area.center).addScaledVector(east, Math.cos(angle) * reach)
+      .addScaledVector(north, Math.sin(angle) * reach).toArray() as Vec3)
   }
   return best
 }

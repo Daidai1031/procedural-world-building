@@ -1,5 +1,9 @@
 // TERR-02, TERR-03, DET-01/04: mirrored in docs/tuning.md; OQ-10 remains provisional.
 export const tuning = {
+  // Prototype balance; credits, kW, and credits per kW-minute.
+  economy: { startingCapital: 0, bankruptcyLimit: -50, mineralPrice: 40, electricityRate: 0.4,
+    power: { miner: 6, gardener: 3, builder: 8 } },
+  ecology: { baseline: 60, plantValue: 0.6, lifeDisturbance: 2, terrainLoss: 60, preparedSamples: 10000 },
   grid: { resolution: 64 },
   chunk: { size: 16 },
   lod: { maxLevels: 3, fullDetailDistance: 7, bandWidth: 2.5 },
@@ -54,6 +58,8 @@ export const tuning = {
     structureMargin: 0.15, minerClearance: 0.45,
     area: { min: 0.6, default: 1.2, max: 2.4, step: 0.1 },
   },
+  // Broadcasting: each pulse lasts `pulseSeconds`; distant planets start to appear after `planetsAfter` broadcasts.
+  signal: { pulseSeconds: 3.2, planetsAfter: 3, maxPlanets: 5, planetFadeSeconds: 4 },
   structures: {
     plantSpacing: 0.25, antennaSpacing: 0.9, mixedClearance: 0.3, anchorLift: 0.14,
     maxPlants: 60, maxAntennas: 8,

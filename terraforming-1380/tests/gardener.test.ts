@@ -1,9 +1,11 @@
+import { placeBuilder, startBuilder } from '../src/systems/builder'
+import { notifyGroundChanged } from '../src/systems/workSites'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { tuning } from '../src/config/tuning'
 import { createRunStore } from '../src/state/runState'
 import { distance, unit, type Vec3 } from '../src/systems/geometry'
-import { nextJob, placeGardener, startGardener } from '../src/systems/gardener'
+import { nextJob, pauseGardener, placeGardener, startGardener } from '../src/systems/gardener'
 import { setWorkArea, startRobot, stepMiners } from '../src/systems/miner'
 import { stepSimulation } from '../src/systems/simulation'
 import {
@@ -154,4 +156,34 @@ test('a full area stops the Gardener with no-sites', () => {
   run(world, store, 30000, () => gardenerOf(store).phase === 'stopped')
   assert.equal(gardenerOf(store).phase, 'stopped')
   assert.equal(gardenerOf(store).stopReason, 'no-sites')
+})
+
+
+test('Builder preparation wakes a waiting Gardener and enables plants and antennas without moving it', () => {
+  const { world, store, center } = setup('1380', 1.2)
+  store.setState(state => ({ soil: 5000, gardeners: state.gardeners.map(robot => ({ ...robot, phase: 'stopped', stopReason: 'no-sites' })) }))
+  placeBuilder(store, world, 'builder-0', center, 1.2)
+  startBuilder(store, 'builder-0')
+  run(world, store, 2400, () => gardenerOf(store).placed >= 3)
+  assert.ok(store.getState().preparedSites.length > 0, 'Builder must have changed real ground')
+  assert.deepEqual(store.getState().structures.slice(0, 3).map(s => s.kind), ['plant', 'plant', 'antenna'])
+  assert.deepEqual(gardenerOf(store).area?.center, center)
+  assert.equal(gardenerOf(store).stopReason, null)
+  for (const structure of store.getState().structures) {
+    assert.ok(isAnchored(world, structure.position, structure.normal))
+    assert.ok(distance(structure.position, center) <= 1.2)
+  }
+})
+
+test('terrain changes outside the work area do not wake a waiting Gardener; explicit pause is respected', () => {
+  const { store, center } = setup('1380', 0.6)
+  store.setState(state => ({ gardeners: state.gardeners.map(robot => ({ ...robot, phase: 'stopped', stopReason: 'no-sites' })) }))
+  notifyGroundChanged(store, [0, 0, -2], 0.2)
+  assert.equal(gardenerOf(store).phase, 'stopped')
+  pauseGardener(store, 'gardener-0')
+  notifyGroundChanged(store, center, 0.3)
+  assert.equal(gardenerOf(store).phase, 'paused')
+  assert.equal(gardenerOf(store).resumePhase, 'scanning')
+  startGardener(store, 'gardener-0')
+  assert.equal(gardenerOf(store).phase, 'scanning')
 })

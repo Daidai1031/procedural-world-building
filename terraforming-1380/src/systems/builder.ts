@@ -1,3 +1,4 @@
+import { notifyGroundChanged } from './workSites'
 import type { createRunStore } from '../state/runState'
 import { tuning } from '../config/tuning'
 import { createPlanetField, hashSeed, type PlanetWorld } from '../world/planet'
@@ -147,9 +148,12 @@ function build(world: PlanetWorld, store: RunStore, kind: BuilderJob, ground: Ve
   if (!result.changed) return
   store.setState((state) => ({
     planetRemaining: world.planetRemaining,
+    economy: { ...state.economy, preparedSamples: state.economy.preparedSamples + result.removedSamples + result.addedSamples },
+    preparedSites: [...state.preparedSites.filter(p => distance(p, ground) > 0.12), groundPoint(world, direction)].slice(-64),
     soil: Math.max(0, state.soil + result.removedSamples - result.addedSamples),
   }))
   pruneStructures(world, store)
+  notifyGroundChanged(store, ground, reachOf(kind))
 }
 
 function stepBuilder(world: PlanetWorld, store: RunStore, source: BuilderState) {

@@ -1,3 +1,4 @@
+import { notifyGroundChanged } from './workSites'
 import type { createRunStore } from '../state/runState'
 import { tuning } from '../config/tuning'
 import { collectExposedResources } from '../tools/collector'
@@ -195,6 +196,7 @@ function stepRobot(world: PlanetWorld, store: RunStore, source: MiningRobotState
     // D-026: the rock the Miner removes becomes soil the Builder can fill with.
     store.setState((state) => ({ planetRemaining: world.planetRemaining, soil: state.soil + edit.removedSamples }))
     pruneStructures(world, store)
+    notifyGroundChanged(store, next, miner.digRadius)
   }
   if (isEmptyAt(world, next)) {
     robot.position = next

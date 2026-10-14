@@ -1,3 +1,5 @@
+import { notifyGroundChanged } from '../systems/workSites'
+import { HALF } from '../systems/geometry'
 import type { createRunStore, TerrainMode } from '../state/runState'
 import type { PlanetWorld } from '../world/planet'
 import { nextTerrainMode } from '../config/controls'
@@ -21,6 +23,9 @@ export function cycleTerrainMode(store: RunStore) {
 export function useTerrainTool(world: PlanetWorld, store: RunStore, mode: TerrainMode,
   point: { x: number; y: number; z: number }, radius: number, orientation: FlattenOrientation) {
   const result = world.edit(mode, point, radius, orientation)
-  if (result.changed) store.setState({ planetRemaining: world.planetRemaining })
+  if (result.changed) {
+    store.setState({ planetRemaining: world.planetRemaining })
+    notifyGroundChanged(store, [point.x, point.y - HALF, point.z], mode === 'flatten' ? radius * Math.SQRT2 : radius)
+  }
   return result
 }
