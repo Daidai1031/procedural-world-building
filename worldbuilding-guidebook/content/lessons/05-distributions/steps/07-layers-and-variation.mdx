@@ -1,17 +1,20 @@
 ---
 title: Layers and variation
-goal: Give each asset layer its own protocol and derive visible variation from terrain data.
+goal: Give each asset layer its own protocol, let one layer reserve ground for others, and derive visible variation from terrain data.
 keywords:
   - scattering layer
   - protocol
+  - exclusion zone
+  - anchor
   - variation
   - lerp
-  - moisture
 ---
 
-A **scattering layer** groups one asset type with its placement rules. Trees, bushes, and rocks can share the same terrain data while using different masks, densities, slope limits, and seeds. Switching one layer off should leave the others exactly where they were.
+A **scattering layer** groups one asset type with its placement rules. Trees, rocks, farmland, and antennas can share the same terrain data while using different masks, densities, slope limits, and seeds. Switching one layer off should leave the others exactly where they were.
 
-Terrain data can also change an instance once it is accepted. In this designed world, wetter ground gives a tree a larger base scale and a greener colour. A small random multiplier then adds variety between neighbours without hiding the environmental relationship.
+Layers can also affect each other. A **base** is placed differently from the rest: its position is not a random draw but an **anchor**, the flattest suitable site found by comparing a set of candidates. The buildings then take fixed offsets around that anchor. The base also owns an **exclusion zone**, a radius in which the other layers may not place anything, so no tree grows through a building. A layer that runs first can protect its ground from the layers that run after it.
+
+Terrain data can also change an instance once it is accepted. In this designed world, wetter ground gives a tree a larger base scale and a greener colour, and a wetter field tile a darker one. A small random multiplier then adds variety between neighbours without hiding the environmental relationship.
 
 For example, normalised moisture can drive `baseScale = lerp(0.8, 1.2, moisture)`: moisture 0 picks the first value and moisture 1 the second. A seeded multiplier between 0.95 and 1.05 follows. Compared on the same positions, random-only variation looks noisy, while terrain-driven variation reads as a pattern across the land.
 

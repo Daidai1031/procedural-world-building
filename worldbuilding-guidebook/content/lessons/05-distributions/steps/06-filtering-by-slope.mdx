@@ -1,6 +1,6 @@
 ---
 title: Filtering by slope
-goal: Reject steep placement sites without confusing filtering with orientation.
+goal: Reject unsuitable slopes with a separate limit for each asset, without confusing filtering with orientation.
 keywords:
   - slope filter
   - dot product
@@ -11,10 +11,12 @@ keywords:
 
 Orientation decides how an object faces after it is placed. A **slope filter** decides whether it may appear at all. A tree can stay upright and still be kept off a cliff.
 
-Normalise the surface normal and the local up direction. Their **dot product** is the cosine of the angle between them: close to 1 on flat ground, smaller on steeper ground. A ground patch is eligible when `dot(normal, up) >= cos(maxSlope)`. Here the maximum slope starts at 33 degrees, which gives a threshold of about 0.839. That limit is a tunable design rule, not a universal ecological one.
+Normalise the surface normal and the local up direction. Their **dot product** is the cosine of the angle between them: close to 1 on flat ground, smaller on steeper ground. A ground patch is eligible when `dot(normal, up) >= cos(maxSlope)`. Convert degrees to radians before taking the cosine.
 
-Lower the limit and more candidates are rejected; raise it and steeper ground opens up. Once a filter is active, the **accepted count** can fall below the **candidate count**, so both numbers are worth showing.
+Each asset keeps its own limit. A rock can rest on a steep hillside, a tree needs it gentler, a field needs it nearly flat, and an **antenna**, a tall mast that needs a level footing, needs it flatter still. In this designed world the limits are 60, 33, 8, and 5 degrees, giving thresholds of about 0.5, 0.839, 0.990, and 0.996. They are tunable design rules, not ecological or engineering ones.
 
-Convert degrees to radians before taking the cosine. On a spherical planet, local up points outward from the planet centre instead of always along world y.
+Lower a limit and more candidates are rejected; raise it and steeper ground opens up. Once a filter is active, the **accepted count** can fall below the **candidate count**, so both numbers are worth showing.
+
+On a spherical planet, local up points outward from the planet centre instead of always along world y.
 
 *The interactive scene and practice for this step are planned but not built yet.*

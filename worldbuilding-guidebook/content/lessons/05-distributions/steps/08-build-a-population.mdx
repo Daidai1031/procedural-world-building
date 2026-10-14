@@ -1,6 +1,6 @@
 ---
 title: Build a population
-goal: Combine multiple asset layers into a reproducible terrain population.
+goal: Combine multiple asset layers into a reproducible terrain population, using spacing to keep sparse assets apart.
 keywords:
   - population
   - asset protocol
@@ -9,12 +9,12 @@ keywords:
   - assignment
 ---
 
-A population brings at least three asset types together. For each layer, state four things: where its candidates come from, which conditions accept them, how its instances are oriented, and what changes their appearance. A useful protocol explains *why* an object appears at a location, not just how many copies exist.
+A population brings several asset types together. For each layer, state four things: where its candidates come from, which conditions accept them, how its instances are oriented, and what changes their appearance. A useful protocol explains *why* an object appears at a location, not just how many copies exist.
 
-Every layer reads the same terrain query but keeps its own settings. If crowded objects overlap, add a **minimum spacing** check to that layer. Spacing is one more acceptance rule: it can lower the accepted count even where the terrain is suitable.
+Every layer reads the same terrain query but keeps its own settings. Antennas are sparse by design: a mast placed beside another one adds nothing. Give that layer a **minimum spacing** check. Spacing is one more acceptance rule: it can lower the accepted count even where the terrain is perfectly flat. Because a candidate must now be compared with those already accepted, the order in which candidates are tested matters, and a fixed order keeps the layout repeatable.
 
 Record the seed and parameters of any layout worth coming back to. Compare two populations on the same terrain, then change the terrain and watch how the rules respond. The terrain changes; the protocol stays explicit.
 
-This step gathers the lesson's assignment: trees, bushes, and rocks with independent controls, a repeatable layout, at least one terrain-based acceptance rule, and at least one property driven by terrain data.
+This step gathers the lesson's assignment: a population of trees, rocks, farmland, antennas, and a base, each with its own independent controls and a written protocol, a repeatable layout, at least one terrain-based acceptance rule, and at least one property driven by terrain data. Any three distinct asset types satisfy the minimum; the full set is what Ares-9 needs.
 
 *The interactive scene and practice for this step are planned but not built yet.*
