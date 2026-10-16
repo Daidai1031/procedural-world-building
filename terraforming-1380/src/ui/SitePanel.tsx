@@ -60,6 +60,7 @@ export function SitePanel({ useRunStore, slotRefs }: {
         <strong>{capital < 0 ? '−' : ''}₡{Math.abs(capital).toFixed(2)}</strong></div>
       <dl><dt>Mineral sales</dt><dd>+₡{economy.revenue.toFixed(2)}</dd>
         <dt>Electricity paid</dt><dd>−₡{economy.electricitySpent.toFixed(2)}</dd>
+        <dt>Terrain work paid</dt><dd>−₡{economy.terrainSpent.toFixed(2)}</dd>
         <dt>Power draw</dt><dd>{power} kW</dd>
         <dt>Running cost</dt><dd>₡{(power * tuning.economy.electricityRate).toFixed(2)}/min</dd></dl>
     </section>

@@ -67,7 +67,7 @@ export interface RunState {
   gardeners: GardenerState[]
   builders: BuilderState[]
   // D-026: soil removed by Miners, spent by the Builder when filling. Counted in density samples.
-  economy: { mineralStock: number; revenue: number; electricitySpent: number; bankrupt: boolean; preparedSamples: number }
+  economy: { mineralStock: number; revenue: number; electricitySpent: number; terrainSpent: number; bankrupt: boolean; preparedSamples: number }
   preparedSites: [number, number, number][]
   soil: number
   // AUT-15/16: plants and antennas standing on the surface.
@@ -117,7 +117,7 @@ export function createInitialRunState(seed: string): RunState {
     robots: [spawnRobot(seed)],
     gardeners: [spawnGardener(seed)],
     builders: [spawnBuilder(seed)],
-    economy: { mineralStock: 0, revenue: 0, electricitySpent: 0, bankrupt: false, preparedSamples: 0 },
+    economy: { mineralStock: 0, revenue: 0, electricitySpent: 0, terrainSpent: 0, bankrupt: false, preparedSamples: 0 },
     preparedSites: [],
     soil: 0,
     structures: [],

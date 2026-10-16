@@ -31,6 +31,20 @@ export function billElectricity(store: Store) {
       bankrupt: capital <= tuning.economy.bankruptcyLimit } })
 }
 
+// Manual terrain edits cost credits per voxel sample changed (removed plus added), so cost follows volume.
+export function manualTerrainCost(samples: number) {
+  return samples * tuning.economy.manualTerrainRate
+}
+export function billManualTerrain(store: Store, samples: number) {
+  const state = store.getState()
+  const cost = manualTerrainCost(samples)
+  if (!cost) return
+  const capital = state.metrics.capital - cost
+  store.setState({ metrics: { ...state.metrics, capital },
+    economy: { ...state.economy, terrainSpent: state.economy.terrainSpent + cost,
+      bankrupt: capital <= tuning.economy.bankruptcyLimit } })
+}
+
 const clamp = (n: number) => Math.max(0, Math.min(100, n))
 // Lightweight estimates until habitat and structural connectivity are simulated.
 export function siteIndicators(state: RunState) {

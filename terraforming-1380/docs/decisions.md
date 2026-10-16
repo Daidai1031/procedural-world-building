@@ -376,5 +376,5 @@ From the third broadcast on, one more distant planet fades in per broadcast (up 
 Robot stop messages, the Builder's soil shortage and the low-funds warning no longer appear as rounded notice boxes inside cards. They arrive on a square-cornered communicator at the bottom-right, in the same row as the key hints. It opens by itself when a new message appears, lists the messages, and each message can be dismissed. Each one carries one button to the most relevant place: Auto mode with the robot to place or check, or selling the stored minerals when funds are low and minerals are waiting. Messages are derived from run state in `systems/comms.ts`, so they disappear when the cause is resolved. Generic `.notice` boxes are now square-cornered.
 
 
-Electricity was later raised from 0.25 to 0.4 credits per kW-minute (a Miner now costs 2.40 per minute); the per-mineral price of 40 is unchanged.
+Electricity was later raised from 0.25 to 0.4, then to 0.55 credits per kW-minute (a Miner now costs 3.30 per minute); the per-mineral price of 40 is unchanged.
 

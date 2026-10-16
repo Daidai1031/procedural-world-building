@@ -1,7 +1,7 @@
 // TERR-02, TERR-03, DET-01/04: mirrored in docs/tuning.md; OQ-10 remains provisional.
 export const tuning = {
   // Prototype balance; credits, kW, and credits per kW-minute.
-  economy: { startingCapital: 0, bankruptcyLimit: -50, mineralPrice: 40, electricityRate: 0.4,
+  economy: { startingCapital: 0, bankruptcyLimit: -50, mineralPrice: 40, electricityRate: 0.55, manualTerrainRate: 0.02,
     power: { miner: 6, gardener: 3, builder: 8 } },
   ecology: { baseline: 60, plantValue: 0.6, lifeDisturbance: 2, terrainLoss: 60, preparedSamples: 10000 },
   grid: { resolution: 64 },

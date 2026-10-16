@@ -54,3 +54,20 @@ test('plant loss, life disturbance and terrain loss reduce ecological estimates'
   assert.equal(result.stability, 80)
   assert.ok(result.developmentReadiness > 0 && result.developmentReadiness <= 100)
 })
+
+test('manual terrain edits are billed by the volume changed and stop at bankruptcy', async () => {
+  const { PlanetWorld } = await import('../src/world/planet')
+  const { useTerrainTool } = await import('../src/tools/terrainTool')
+  const { HALF } = await import('../src/systems/geometry')
+  const store = createRunStore('manual-cost')
+  const world = new PlanetWorld('manual-cost')
+  const point = { x: 0, y: HALF * 2, z: 0 }
+  const result = useTerrainTool(world, store, 'add', point, 0.38, 'radial')
+  const samples = result.removedSamples + result.addedSamples
+  assert.ok(samples > 0)
+  const cost = samples * tuning.economy.manualTerrainRate
+  assert.ok(Math.abs(store.getState().economy.terrainSpent - cost) < 1e-8)
+  assert.ok(Math.abs(store.getState().metrics.capital - (tuning.economy.startingCapital - cost)) < 1e-8)
+  store.setState(s => ({ economy: { ...s.economy, bankrupt: true } }))
+  assert.equal(useTerrainTool(world, store, 'add', point, 0.38, 'radial').changed, false)
+})

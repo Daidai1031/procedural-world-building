@@ -1,4 +1,5 @@
 import { notifyGroundChanged } from '../systems/workSites'
+import { billManualTerrain } from '../systems/economy'
 import { HALF } from '../systems/geometry'
 import type { createRunStore, TerrainMode } from '../state/runState'
 import type { PlanetWorld } from '../world/planet'
@@ -22,8 +23,10 @@ export function cycleTerrainMode(store: RunStore) {
 // TERR-09: M1 changes terrain and remaining mass. Canister costs start in M2.
 export function useTerrainTool(world: PlanetWorld, store: RunStore, mode: TerrainMode,
   point: { x: number; y: number; z: number }, radius: number, orientation: FlattenOrientation) {
+  if (store.getState().economy.bankrupt) return { removedSamples: 0, addedSamples: 0, changed: false }
   const result = world.edit(mode, point, radius, orientation)
   if (result.changed) {
+    billManualTerrain(store, result.removedSamples + result.addedSamples)
     store.setState({ planetRemaining: world.planetRemaining })
     notifyGroundChanged(store, [point.x, point.y - HALF, point.z], mode === 'flatten' ? radius * Math.SQRT2 : radius)
   }
