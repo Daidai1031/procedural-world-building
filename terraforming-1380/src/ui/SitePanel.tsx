@@ -12,7 +12,6 @@ export function SitePanel({ useRunStore, slotRefs }: {
   const economy = useRunStore(s => s.economy)
   const capital = useRunStore(s => s.metrics.capital)
   const soil = useRunStore(s => s.soil)
-  const discoveries = useRunStore(s => s.discoveries)
   const demand = useRunStore(powerDemand)
   const isAuto = useRunStore(s => s.loadout.activeTool === 'auto')
   const power = isAuto ? demand : 0
@@ -64,9 +63,5 @@ export function SitePanel({ useRunStore, slotRefs }: {
         <dt>Power draw</dt><dd>{power} kW</dd>
         <dt>Running cost</dt><dd>₡{(power * tuning.economy.electricityRate).toFixed(2)}/min</dd></dl>
     </section>
-    <div className="discovery-log" aria-label="Discoveries">
-      <span ref={element => { slotRefs.current.life = element }}>Life found <strong>{discoveries.lifeClusterIds.length}</strong></span>
-      <span ref={element => { slotRefs.current.memory = element }}>Archives found <strong>{discoveries.artifactIds.length}</strong></span>
-    </div>
   </aside>
 }

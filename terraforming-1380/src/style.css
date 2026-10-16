@@ -201,8 +201,6 @@ dl { display: grid; grid-template-columns: 60px 1fr; gap: 8px; margin-bottom: 0;
 .account-balance strong { font-size: 24px; font-variant-numeric: tabular-nums; }
 .operations dl { grid-template-columns: 1fr auto; font-size: 11px; gap: 6px; margin: 10px 0; }
 .operations dd { margin: 0; font-variant-numeric: tabular-nums; text-align: right; }
-.discovery-log { display: flex; justify-content: space-between; gap: 12px; border-top: 1px dashed var(--line); padding-top: 10px; font-size: 11px; }
-.discovery-log strong { margin-left: 6px; }
 .planet-status { position: absolute; top: 205px; left: 32px; width: 178px; pointer-events: none; }
 .planet-remaining { display: flex; flex-direction: column; gap: 4px; }
 .planet-remaining strong { font-family: var(--font-display); font-size: 38px; font-weight: 500; }
@@ -384,8 +382,7 @@ main[data-view='surface'] .sidebar-controls { padding: 0; }
   .crew-controls .facts dd { text-align: left; margin-bottom: 4px; }
   .site-panel h2 { font-size: 21px; }
   .account-balance, .planet-remaining { flex-direction: column; align-items: flex-start; gap: 4px; }
-  .discovery-log { flex-direction: column; gap: 6px; }
-  .robot-help-content { right: 0; width: min(246px, calc(100vw - 48px)); }
+    .robot-help-content { right: 0; width: min(246px, calc(100vw - 48px)); }
   .world-map-dialog { padding: 14px; }
   .landing-picker { flex-wrap: wrap; gap: 8px; }
   .landing-picker p { flex-basis: 100%; }
