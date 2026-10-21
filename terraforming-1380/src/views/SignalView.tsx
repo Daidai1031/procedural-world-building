@@ -1,11 +1,9 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { AdditiveBlending, CanvasTexture, DoubleSide, Group, Mesh, MeshBasicMaterial, PlaneGeometry, Quaternion, SphereGeometry, Texture, Vector3 } from 'three'
+import { AdditiveBlending, CanvasTexture, DoubleSide, Group, Mesh, MeshBasicMaterial, PlaneGeometry, Quaternion, Texture, Vector3 } from 'three'
 import type { createRunStore } from '../state/runState'
-import { planetConfig } from '../world/planet'
 import { tuning } from '../config/tuning'
 import { palette } from '../config/palette'
-import { VOXEL_WORLD_SIZE } from '../world/voxels/voxelMath.js'
 
 const RINGS_PER_ANTENNA = 3
 const RING_STAGGER = 0.22
@@ -85,8 +83,7 @@ const drawFlash = (c: CanvasRenderingContext2D, r: number) => {
 
 interface Pulse { start: number; antennas: { position: Vector3; turn: Quaternion }[] }
 
-// Each broadcast flashes every antenna, then sends a wavefront, a spinning tick ring and a trailing echo along its normal,
-// plus one faint shell around the planet.
+// Each broadcast flashes every antenna, then sends a wavefront, a spinning tick ring and a trailing echo along its normal.
 export function SignalView({ store }: { store: ReturnType<typeof createRunStore> }) {
   const group = useRef<Group>(null)
   const pulses = useRef<Pulse[]>([])
@@ -94,13 +91,12 @@ export function SignalView({ store }: { store: ReturnType<typeof createRunStore>
   const still = useMemo(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches, [])
   const parts = useMemo(() => ({
     ring: new PlaneGeometry(2, 2),
-    shell: new SphereGeometry(1, 48, 24),
     wave: paint(drawWave),
     ticks: paint(drawTicks),
     flash: paint(drawFlash),
   }), [])
   useEffect(() => () => {
-    parts.ring.dispose(); parts.shell.dispose(); parts.wave.dispose(); parts.ticks.dispose(); parts.flash.dispose()
+    parts.ring.dispose(); parts.wave.dispose(); parts.ticks.dispose(); parts.flash.dispose()
   }, [parts])
 
   useFrame(({ clock }) => {
@@ -117,7 +113,7 @@ export function SignalView({ store }: { store: ReturnType<typeof createRunStore>
     }
     const duration = still ? 1 : tuning.signal.pulseSeconds
     pulses.current = pulses.current.filter(p => now - p.start < duration * (1 + RING_STAGGER * RINGS_PER_ANTENNA))
-    const needed = pulses.current.reduce((n, p) => n + p.antennas.length * (RINGS_PER_ANTENNA + 1) + 1, 0)
+    const needed = pulses.current.reduce((n, p) => n + p.antennas.length * (RINGS_PER_ANTENNA + 1), 0)
     while (root.children.length < needed) {
       root.add(new Mesh(parts.ring, new MeshBasicMaterial({ color: palette.antenna.lamp, transparent: true,
         depthWrite: false, side: DoubleSide, blending: AdditiveBlending })))
@@ -125,14 +121,6 @@ export function SignalView({ store }: { store: ReturnType<typeof createRunStore>
     let used = 0
     for (const pulse of pulses.current) {
       const age = (now - pulse.start) / duration
-      const shell = root.children[used++] as Mesh
-      shell.geometry = parts.shell
-      shell.quaternion.identity()
-      shell.position.set(0, 0, 0)
-      shell.scale.setScalar(VOXEL_WORLD_SIZE * planetConfig(state.seed).radius * (1.05 + Math.min(age, 1) * 1.6))
-      const shellMaterial = shell.material as MeshBasicMaterial
-      setMap(shellMaterial, null)
-      shellMaterial.opacity = 0.07 * Math.max(0, 1 - age)
       for (const antenna of pulse.antennas) {
         normal.set(0, 0, 1).applyQuaternion(antenna.turn)
         const flash = root.children[used++] as Mesh
