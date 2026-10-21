@@ -1,249 +1,176 @@
-# Exercise 08 — Spline Layer
+# Exercise 08: Paths for Contract #1380
 
-**Date:** 2026-10-07  
-**Course section:** Lesson 06 — Paths (Splines & Terrain)  
-**Project:** [`worldbuilding-guidebook`](../../worldbuilding-guidebook/)  
-**Lesson content:** [`content/lessons/06-paths/`](../../worldbuilding-guidebook/content/lessons/06-paths/)  
-**Status:** Planned — lesson text written for all 6 steps; no scene, control, practice, or algorithm implemented yet
+Updated: 2026-10-21
 
-## Exercise goal
+Status: All six guidebook scenes, controls, source excerpts and fill practices implemented. This does not implement resident migration in the game.
 
-Build a spline layer whose meaning is stated, project it onto terrain, and show how the path and the terrain influence each other. The course assignment asks for:
+## Why this lesson exists
 
-| Requirement | Planned evidence | Status |
+Help one resident travel from a cave entrance to a reachable shelter. The lesson connects curve geometry to a visible decision in Terraforming Contractor #1380.
+
+The game currently has robot travel and progressive mining. Residents and migration are planned. This lesson is a teaching demo, not a change to the game's approved movement algorithm.
+
+Sources:
+- [Game design](../../terraforming-1380/docs/design.md), sections 7.3 and 10.3: robots move through empty space; mining opens solid ground progressively.
+- [Procedural system](../../terraforming-1380/docs/procedural-system.md), sections 4–5: clearance, quiet shelters, and visible waiting when no route exists.
+- [Game requirements](../../terraforming-1380/docs/spec.md): AUT-04/05/07, HAB-03, RES-02/04/06/07. Residents cannot dig themselves a route or teleport through rock.
+
+## Useful knowledge and skills
+
+| Game situation | Knowledge | Skill to practise |
 | --- | --- | --- |
-| Explain what a spline layer or line represents | named nodes and direction (Step 01); stated meaning of the generated road (Step 06) | Not started |
-| Project 2D lines onto 3D terrain | sampled, height-queried route (Step 04) | Not started |
-| Explore influence between spline and mesh | road reshapes terrain; terrain cost chooses the route (Steps 05–06) | Not started |
+| Travel between a cave and a shelter | Ordered waypoints | Read and change a route's point list |
+| Turn around an obstacle | Spline shape and tangent | Adjust a bend; inspect whether smoothing cuts a corner |
+| Move steadily | Arc length and simulation time | Advance by distance, orient toward the tangent |
+| Follow uneven ground | Surface queries and local up | Project route samples onto the correct surface |
+| A body must fit through a passage | Clearance over the whole movement segment | Reject an unsafe route before moving |
+| Dig/Add changes a route | Terrain revision and revalidation | Stop, recheck, then choose another valid route |
+| Choose a quieter destination | Hard constraints versus preferences | Reject blocked routes before comparing costs |
 
-**Completion rule:** the lesson text and this plan do not satisfy the assignment. Change a step's status only after the step is built, checked in the running app, and its observed result is written into that step's **Result** line.
+Later extensions: full 3D cave search, habitat detection, occupancy reservations, cooldowns, spherical movement and local steering. This lesson does not settle those game systems. Vector fields belong in Lesson 07; they do not replace clearance checks.
 
-## How this plan is used
+## Teaching rules
 
-- Start after Lesson 05 ([Exercise 07](./07-scattering-system.md)). Build one step at a time, only when the author asks; check, look, explain, stop.
-- A large step may be split into sub-tasks; record the split under the step.
-- Status values: **Not started** → **In progress** → **Done** (with a measured result).
+Each step has one conclusion, one short action and one visible result. Keep English body text around 60–100 words, excluding the implementation-status note. Explain source line by line in the code view, not in long prose.
 
-## Step status
+Keep the same resident, cave entrance, rock and destination markers across steps. Use a simple proxy resident; its shape is not the final game character design. Begin on flat ground, introduce a height field in Step 04, then use a small passage fixture in Step 05.
 
-| Step | Lesson file | Status |
-| --- | --- | --- |
-| 01 · Points become paths | [`01-points-become-paths.mdx`](../../worldbuilding-guidebook/content/lessons/06-paths/steps/01-points-become-paths.mdx) | Not started |
-| 02 · From lines to splines | [`02-from-lines-to-splines.mdx`](../../worldbuilding-guidebook/content/lessons/06-paths/steps/02-from-lines-to-splines.mdx) | Not started |
-| 03 · Sampling a curve | [`03-sampling-a-curve.mdx`](../../worldbuilding-guidebook/content/lessons/06-paths/steps/03-sampling-a-curve.mdx) | Not started |
-| 04 · Projecting onto terrain | [`04-projecting-onto-terrain.mdx`](../../worldbuilding-guidebook/content/lessons/06-paths/steps/04-projecting-onto-terrain.mdx) | Not started |
-| 05 · Paths and terrain influence each other | [`05-paths-and-terrain-influence-each-other.mdx`](../../worldbuilding-guidebook/content/lessons/06-paths/steps/05-paths-and-terrain-influence-each-other.mdx) | Not started |
-| 06 · Build a spline layer | [`06-build-a-spline-layer.mdx`](../../worldbuilding-guidebook/content/lessons/06-paths/steps/06-build-a-spline-layer.mdx) | Not started |
+The Canvas is the evidence. Controls affect the exact object named in the text. Keep at most two main teaching controls visible. Put diagnostics in a collapsed "Inspect" section. Step 06 may combine earlier ideas, but should not expose every previous slider.
 
-Each MDX file has only `title`, `goal`, `keywords`, and prose ending in a "planned but not built yet" line. Add `scene`, `code`, and `practice` frontmatter when the step is built, and remove that line.
+Reuse the existing viewport toolbar separately from lesson controls. Give markers names and shapes, not colour alone. Blocked sections have red crosses plus a short reason; selected routes have solid lines and alternatives have dashed lines.
 
-## Starting point in the repository
+Keep status text in its own row beside the lesson controls and away from Previous/Next. Keyboard and pointer navigation must remain usable. Playback has Play/Pause and Restart; all playback starts paused and offers Step forward.
 
-Reusable:
+## Six steps
 
-- The scene seams, `scene.compare`, `scene.legend`, insets, code extraction, and `fill` practice described in [Exercise 07](./07-scattering-system.md#starting-point-in-the-repository).
-- **The Lesson 05 terrain module** (suggested `src/scene/demos/distributions/terrain.js`, built in Exercise 07 Step 01) for `heightAt(x, z)`. Reuse it rather than writing a second height field. If Lesson 05 is not built when this starts, build that terrain module first.
-- Three.js `CatmullRomCurve3`, `Curve.getPoints()`, `Curve.getSpacedPoints()`, `Curve.getLengths()` — no new dependency.
+Existing file names and route slugs stay stable. Titles change where the new learning goal is clearer.
 
-Not reusable without new work:
+| Step | Short title | Main panel | Canvas response | One readout |
+| --- | --- | --- | --- | --- |
+| 01 | Points become paths | Waypoint order | Numbered nodes and arrows reconnect | Start → waypoint → end |
+| 02 | Make a smooth turn | Straight / Curve; Bend offset | Same points, different bend around a rock | Clear / Touches rock |
+| 03 | Move by distance | Parameter / Distance; Play/Pause | A resident moves; dots mark equal time intervals | Distance travelled this tick |
+| 04 | Follow the ground | Sample spacing; Map / Ground | Source route and projected segments; bad sections marked | Worst measured penetration |
+| 05 | Can the resident pass? | Body radius; Passage state | Body envelope and blocked segment respond to terrain edits | Passable / Passage too narrow |
+| 06 | Choose a reachable shelter | Disturbance; Passage state | Two routes are checked, compared, selected or rejected | Route A / Route B / Waiting |
 
-- **`match` practice** is wired to noise-map params only (see Exercise 07). Step 02 needs the general match path if Exercise 07 built one, or a different practice kind.
-- **`implement` practice** has no scorer for routes. Step 06 is manual acceptance unless a scorer is added.
+### 01: Points become paths
 
-Constraints: one `<Canvas>`; prose in MDX only; prefix params with `path` (for example `pathSampleCount`) because `getDefaultParams()` rejects duplicate keys; the **path seed** stays separate from terrain and scatter seeds.
+Use entrance A, rock-side waypoint B, shelter C. Toggle A → B → C and A → C → B. Point positions stay fixed; order and final destination change. Do not animate travel before explaining that these are proposed connections.
 
-## Suggested file layout
+Source focus: the ordered point list and segment construction.
 
-All paths are **suggestions**:
+Practice: complete the waypoint list for "pass B before reaching C".
 
-| File | Purpose |
-| --- | --- |
-| `src/scene/demos/paths/pathMath.js` | ordering, curve build, sampling, spacing measurements, projection, route cost, terrain blend; pure functions |
-| `src/scene/demos/paths/params.js` | control definitions |
-| `src/scene/demos/paths/PathDemo.jsx` | nodes, polyline, spline, markers, projected route, reshaped terrain |
-| `scripts/paths.test.mjs` | node tests |
+Check: node positions are unchanged; segment order matches the chosen list.
 
-Suggested demo key: `path-terrain`.
+### 02: Make a smooth turn
 
----
+Keep endpoints fixed and move only the middle bend point with one offset slider. Compare a polyline and a fixed Catmull–Rom interpolation mode. Keep the control polygon visible. If the curve touches the obstacle, highlight the unsafe section.
 
-## Step 01 · Points become paths
+Source focus: control points and curve construction.
 
-**Status:** Not started
+Practice: predict which section changes when the middle point moves; implement as a short fill using a separate real-source fragment.
 
-**Understand.** A path is an ordered connection. The same points in a different order make a different route. A line has no width, material, or junction rules until a system gives it meaning; an arrow is not a simulation.
+Check: both routes retain their endpoints; the reference safe/unsafe offsets give different collision outcomes. Evaluate the curved route, not only the control polygon.
 
-**Planned scene and controls.** Three named nodes A, B, C on flat ground; **Order** (A→B→C / alternate); direction arrows.
+### 03: Move by distance
 
-**Learner does / observes.** Switch order: the same points, a different line and end point. Arrows show direction only.
+Use a safe flat route with unevenly spaced control points. Fix speed; change only the sampling method. Advance on simulation time, not render frame count. Equal-time dots show the difference immediately. The tangent controls heading.
 
-**Practice (planned).** Kind: `fill`. Prompt: to travel from A through B to C, complete `[A, ____, C]`. Options: `B`; `A`; `C`. Hint: connectivity includes the order of the positions. Answer: `B`. Explanation: a list becomes a path when the system uses that order to connect or traverse it.
+Source focus: distance travelled = speed × timestep, followed by distance-to-curve lookup.
 
-**Minimum implementation.** Node positions as data; a `Line` built from the ordered list; cone arrows at segment midpoints; node labels drawn as small 3D markers with names in the legend (keeping text off the canvas, as other lessons do). A `#region` around the ordered list for the fill.
+Practice: choose distance-based sampling for steady motion.
 
-**Depends on.** Scene seams only. Flat ground, no terrain yet.
+Check: equal elapsed time gives comparable travelled distance at different render rates. Endpoint handling stops cleanly. Measure arc distance, since straight chords can differ around bends.
 
-**Files.** New (suggested): `pathMath.js`, `params.js`, `PathDemo.jsx`, `paths.test.mjs`. Modified: `demoRegistry.js`, `demoParams.js`, Step 01 MDX.
+### 04: Follow the ground
 
-**Acceptance.**
-- Test: the ordered list produces segments in that order; switching order changes the segment list but not the point set.
-- Screenshot of both orders; `npm run lint`, `npm test`, `npm run build` pass.
+Reuse Lesson 05's height field. In map mode draw the route on a visible reference plane above the highest hill; show vertical guides down to ground samples. Ground mode shows the projected polyline. Keep the display offset fixed so the learner cannot hide bad sampling by raising the route.
 
-**Result.** —
+Source focus: y = heightAt(x, z) + displayOffset.
 
-**Next step adds.** A Catmull–Rom spline over the same points, next to the polyline.
+Practice: fill the terrain-height expression.
 
----
+Check: each sample matches the query; densely inspect between samples and report the worst measured penetration. A midpoint-only check can miss a narrow bump. Sampling is an approximation, not a collision guarantee.
 
-## Step 02 · From lines to splines
+Game transfer note: the planet has caves and multiple surfaces. Surface queries need a chosen origin, direction and intended surface. Outermost radial hits suit exterior hover movement but cannot find an interior cave floor.
 
-**Status:** Not started
+### 05: Can the resident pass?
 
-**Understand.** A polyline joins points with straight segments; a Catmull–Rom spline passes through its control points; Bézier handles are not passed through. Moving one point changes two polyline segments but a curved region of the spline. Smoothing can overshoot.
+Use one fixed corridor between rocks. Body radius shows why an empty centreline may still be unsafe. "Passage state" has Original, Block passage, Open passage. Each selection rebuilds from the same baseline rather than accumulating edits.
 
-**Planned scene and controls.** Polyline / spline comparison; offsets for a selected control point; control-polygon overlay; marked obstacle. Interpolation type fixed.
+The open/block actions represent player or Builder intervention. The resident never excavates. After an edit, pause movement, validate the body along each segment, and resume only if safe. Check support separately from empty space for a ground-moving resident.
 
-**Learner does / observes.** Move the middle point: the polyline changes two segments; the spline bends over a wider region; sharp turns show overshoot.
+Add a collapsed "Terrain effect" experiment to retain the course's spline-to-mesh requirement. Display a centreline band; "Corridor width" changes a local cut/fill profile and shoulder falloff. Show Before / After on a copied height field. Revalidate the route after rebuilding it. This is a lesson-only terrain operation, not a new game tool.
 
-**Practice (planned).** Kind: `match`. Prompt: move the middle control point so the curve bends around the marked obstacle in the flat test scene. Hint: change the curve's defining data, not the camera. Answer: the displayed target point position, within tolerance. Explanation: a manual experiment in curve behaviour; procedural control points come in Step 06.
+Source focus: body clearance and distance-to-centreline influence.
 
-**Minimum implementation.** `CatmullRomCurve3` from the points; middle-point offset params `pathControlOffsetX`, `pathControlOffsetZ`; obstacle marker and target marker; overlay toggle.
+Practice: complete the distance falloff for the optional terrain-influence experiment. The main source excerpt shows body clearance and support checks.
 
-**Depends on.** Step 01. A general `match` path (from Exercise 07) or a decision to defer the practice.
+Check: safe/blocked/narrow fixtures, body envelope along segments, edits outside the influence band unchanged, and invalidation before any next move. Document the collision approximation used.
 
-**Files.** Modify `pathMath.js`, `params.js`, `PathDemo.jsx`, Step 02 MDX, tests; practice files if match is generalised here.
+### 06: Choose a reachable shelter
 
-**Acceptance.**
-- Test: the spline passes through every control point (sample at the control-point parameters, error below 1e-6).
-- Test: the curve's minimum distance to the obstacle centre exceeds the obstacle radius at the target offset.
+Use two authored valid shelter candidates. Generate a bounded set of seeded bends to each. First reject blocked, unsupported or too-steep routes. Then compare valid routes using displayed distance and accumulated disturbance. Normalize units before combining costs; keep the teaching weights fixed and label them as demo values.
 
-**Result.** —
+"Disturbance" affects one marked work site. "Passage state" has Open, A blocked, Both blocked. Route cards list validity and the two measurements. If none pass, show "Waiting: no clear route" and leave the resident visible at a safe position.
 
-**Next step adds.** Placing markers along the curve by parameter and by arc length.
+Freeze the scenario while comparing. Settings changes pause and reset the resident at the entrance, rebuild candidates, and validate before playback can continue. No dynamic per-frame replanning is used. A future continuously changing world would need a decision interval and improvement threshold; exact game cooldowns remain undecided.
 
----
+Put Seed, New candidates and Restore example in "Inspect". Same seed/settings reproduce candidates and stable tie-breaking. Changing seed may produce no route. Say "No route found in these attempts"; bounded search does not prove that no possible route exists.
 
-## Step 03 · Sampling a curve
+Source focus: generate → project → validate → rank → move; terrain edits return to validate.
 
-**Status:** Not started
+Practice: fill the validity filter that runs before ranking.
 
-**Understand.** Equal parameter steps are not equal distances. Arc-length sampling (`getSpacedPoints`) is approximately even. N divisions give N + 1 points. Marker count is separate from control-point count. Projection can change ground spacing later.
+Assignment: show a generated route, 2D-to-3D projection, a local terrain edit, and a clear reason for selection or waiting. Record the seed and settings. Evaluate this assignment manually; do not claim a fill question grades the full system.
 
-**Planned scene and controls.** **Sampling** (Parameter / Arc length); **Marker count**; spacing measurements. No terrain projection.
+Check: repeatability, invalid routes excluded even when cheap, both-blocked waiting, bounded attempts, stable ties, edit-triggered revalidation and no motion through solid ground.
 
-**Learner does / observes.** On a tight curve, parameter markers bunch and spread; arc-length markers stay nearly even. The measured spacing spread shrinks in arc-length mode.
+## Implementation boundaries
 
-**Practice (planned).** Kind: `fill`. Prompt: select the call for more uniform marker spacing, `curve.____(20)`. Options: `getPoints`; `getSpacedPoints`. Hint: choose the method that accounts for distance along the curve. Answer: `getSpacedPoints`. Explanation: 20 divisions → 21 points including endpoints; uniform spacing on the source curve can change after projection onto uneven terrain.
+Reuse the single Canvas, lesson loader, comparison controls, legends and source extractor. Reuse the Lesson 05 seeded generator and terrain query. Prefix new parameters with path.
 
-**Minimum implementation.** Both sampling calls in a `#region`; markers as instanced spheres; spacing statistics (minimum, maximum, ratio) shown as a readout (suggested: legend item or `aria-live` label).
+Implementation files:
+- src/scene/demos/paths/pathMath.js: curves, sampling, projection and route comparison.
+- src/scene/demos/paths/pathClearance.js: passage checks and terrain-edit invalidation.
+- src/scene/demos/paths/params.js: only the controls used by these steps.
+- src/scene/demos/paths/PathDemo.jsx: route, body, terrain and diagnostic drawing.
+- scripts/paths.test.mjs: meaningful geometric and decision checks.
 
-**Depends on.** Step 02 curve.
+Use existing fill practice for short checks. Do not generalize the noise-only match scorer for this lesson. Source excerpts must come from the implementation once built. No scene or practice frontmatter is added until the corresponding code exists.
 
-**Files.** Modify `pathMath.js`, `params.js`, `PathDemo.jsx`, Step 03 MDX, tests.
+## Acceptance and status
 
-**Acceptance.**
-- Test: both calls return count + 1 points; on the reference curve, the max/min spacing ratio is measurably lower for `getSpacedPoints` (record both numbers here).
+All six steps are implemented. Browser coverage walks the six scenes with real pointer navigation, answers their practices, preserves the single Canvas, and checks playback, clearance, terrain projection, route choice and narrow-screen keyboard use.
 
-**Result.** —
+The final review must show:
+- A learner can name the effect of every visible teaching control.
+- Text, control labels and Canvas markers use the same names.
+- Each step changes only its introduced concept; scene state resets deliberately where needed.
+- A blocked route stays blocked after smoothing and after terrain edits.
+- The resident remains visible when it cannot move.
+- Previous/Next and live status remain unobscured by panels.
+- Source, short practice and scene demonstrate the same rule.
+- Game features still planned are never labelled implemented.
 
-**Next step adds.** Terrain under the path, and projecting samples onto it.
+### Implementation details and limits
 
----
+- `PathPanel.jsx` keeps the teaching controls, live result and candidate cards together. View controls and the terrain experiment live under Inspect. The desktop Canvas uses the space beside the lesson card; narrow screens use a scrollable layout.
+- `pathMath.js` uses centripetal Catmull-Rom curves and a 1,200-division arc-length table. Playback advances in 0.1-second ticks and stops at the endpoint. Hidden tabs pause playback.
+- Clearance is an exact swept-disc versus vertical-cylinder test for each polyline segment. Terrain support is sampled at intervals no greater than 0.02 m; penetration checks use 0.015 m. These sampled ground checks are not a general collision guarantee or a cave solver.
+- The optional edit copies the Lesson 05 mesh, blends the centreline toward an endpoint grade and fades the edit to zero outside Corridor width. It reprojects and revalidates after each change; the source terrain stays unchanged.
+- Step 06 projects six seeded curves onto a gentle teaching surface. Invalid routes are excluded before comparing `length / 8 + integrated disturbance / 2`. Ties use candidate IDs. Both blocked leaves the resident waiting at the entrance.
+- Arches are authored entrance/shelter markers. Crosses are visible through obstacles as diagnostic overlays. No cave detection, digging actor or game migration system was added.
 
-## Step 04 · Projecting onto terrain
+Verification commands (run inside `worldbuilding-guidebook`):
 
-**Status:** Not started
+```powershell
+npm.cmd run lint
+npm.cmd test
+npm.cmd run build
+npm.cmd run test:browser -- tests/lesson06.spec.js
+```
 
-**Understand.** Projection: sample the x–z path, query `heightAt(x, z)`, set y, add a small offset. Sparse samples cut through bumps. Height lookup works only for height fields; overhangs and spheres need raycasting. A spline through projected points must be rechecked.
-
-**Planned scene and controls.** Unprojected / projected route; **Projection samples**; **Line offset**. Fixed terrain.
-
-**Learner does / observes.** Few samples: segments dip into hills. More samples: the line hugs the ground. Unprojected line floats at y = 0 through terrain.
-
-**Practice (planned).** Kind: `fill`. Prompt: complete the projected point, `new Vector3(x, ____, z)`. Options: `heightAt(x, z) + offset`; `offset`; `heightAt(x, y)`. Hint: the source path supplies x and z; the terrain supplies height. Answer: `heightAt(x, z) + offset`. Explanation: a constant offset cannot follow hills; sampling with y uses the wrong map coordinates.
-
-**Minimum implementation.** Reuse the Lesson 05 terrain mesh and `heightAt`; `projectSamples(points, heightAt, offset)` in a `#region`; a measurement of the worst depth below the surface between samples (check midpoints of each segment against `heightAt`).
-
-**Depends on.** Step 03; Exercise 07 Step 01 terrain module.
-
-**Files.** Modify `pathMath.js`, `params.js`, `PathDemo.jsx`, Step 04 MDX, tests. Import (not copy) the terrain module.
-
-**Acceptance.**
-- Test: every projected sample has y = `heightAt(x, z) + offset`.
-- Test: the worst below-surface depth at segment midpoints decreases as sample count rises (record values for at least three counts).
-
-**Result.** —
-
-**Next step adds.** The road changes the terrain, and terrain cost chooses between routes.
-
----
-
-## Step 05 · Paths and terrain influence each other
-
-**Status:** Not started
-
-**Understand.** Following is not altering. Path → terrain: blend height toward a road profile with `lerp(originalHeight, roadHeight, influence)`, influence 1 inside the road, falling to 0 across the shoulder. Terrain → path: compare candidate routes by a cost and pick the cheaper one. A lowered channel does not make a river flow.
-
-**Planned scene and controls.** Follow terrain / Reshape terrain (A/B); **Road width**; **Shoulder width**; route-cost overlay; two candidate routes with their scores.
-
-**Learner does / observes.** In reshape mode the ground under the road flattens across its width but still climbs along it; wider shoulders soften the edge. The cost overlay shows why one route scores lower.
-
-**Practice (planned).** Kind: `fill`. Prompt: blend the original height toward the road profile, `lerp(originalHeight, roadHeight, ____)`. Options: `influence`; `distanceToRoad`; `roadWidth`. Hint: the blend weight should be near 1 at the road and fade to 0 outside its influence band. Answer: `influence`, normalised to 0–1. Explanation: raw distance has the opposite tendency and the wrong range; this is one path-to-terrain effect, the route comparison shows terrain-to-path.
-
-**Minimum implementation.** Distance from each terrain vertex to the sampled centerline (nearest segment); road profile = smoothed projected heights along the route; influence via `smoothstep` across the shoulder; a deformed copy of the terrain geometry (original kept for A/B); route cost = sum of absolute grade or total climb over samples.
-
-**Depends on.** Step 04.
-
-**Files.** Modify `pathMath.js`, `params.js`, `PathDemo.jsx`, Step 05 MDX, tests.
-
-**Acceptance.**
-- Test: influence = 1 within road width / 2, 0 beyond road width / 2 + shoulder width, monotonic between.
-- Test: vertices outside the band are unchanged; the original height field is untouched.
-- Test: the route with the lower cost is the one selected; record both scores.
-
-**Result.** —
-
-**Next step adds.** Routes generated from a seed and rules, with failure reporting.
-
----
-
-## Step 06 · Build a spline layer
-
-**Status:** Not started
-
-**Understand.** Endpoints are sites; seeded lateral offsets propose intermediate points; a terrain cost chooses among candidates; attempts are limited and failure is reported. Generation, projection, and deformation stay separate stages. The spline stores shape; meaning comes from the system.
-
-**Planned scene and controls.** **Path seed**; **Candidate routes**; **Maximum grade** or cost preference; **Projection samples**; **Road width** / **Shoulder width**; control-point and influence overlays.
-
-**Learner does / observes.** Change the path seed: a new route from the same rules. Tighten maximum grade: some seeds fail with a visible "no valid route" state instead of a bad road.
-
-**Practice (planned).** Kind: `implement` / Assignment 2. Task: build one rule-generated road spline; project its samples onto terrain; demonstrate a terrain-informed route decision; show local terrain modification around the road. Hint: keep generation, projection, and deformation as separate stages so each can be inspected. Acceptance criteria: explain the line's meaning; show control points and samples; demonstrate 2D-to-3D projection; demonstrate at least one direction of influence between spline and terrain; reproduce a route from its seed and settings. Graphs, junctions, and road networks are later extensions.
-
-**Minimum implementation.** `generateRoutes({ seed, count, endpoints, offsetRange })`; `selectRoute(routes, cost, maxGrade)` returning a route or a failure reason; recheck on deformed ground. No new scorer: record this assignment as manual acceptance unless the author asks for one.
-
-**Depends on.** Steps 01–05; seeded random from Exercise 07 (`random.js`, suggested).
-
-**Files.** Modify `pathMath.js`, `params.js`, `PathDemo.jsx`, Step 06 MDX, tests, and this file (meaning statement and observations).
-
-**Acceptance.**
-- Test: same seed and settings → identical control points and selected route.
-- Test: with an impossible maximum grade, selection returns failure within the attempt limit.
-- Screenshots of the stages; meaning of the line written below.
-
-**Result.** —
-
-**Next step adds.** Lesson 06 complete; continue with [Exercise 09 — Particle system](./09-particle-system.md).
-
-### Meaning of the line — fill when Step 06 is built
-
-| Question | Answer |
-| --- | --- |
-| What does the line represent? | — |
-| What does it change in the terrain? | — |
-| What in the terrain changes it? | — |
-
-## Learning resources
-
-- [Three.js Curve](https://threejs.org/docs/pages/Curve.html) — parameter and arc-length sampling.
-- [Three.js Raycaster](https://threejs.org/docs/pages/Raycaster.html) — surface queries for non-height-field meshes.
-- [Three.js Vector3](https://threejs.org/docs/pages/Vector3.html) — vector operations.
+Geometry and decision coverage: `scripts/paths.test.mjs`. Browser screenshots: `artifacts/lesson06/`.

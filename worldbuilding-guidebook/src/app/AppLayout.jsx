@@ -5,6 +5,8 @@ import { Outlet } from 'react-router-dom'
 import AccountDrawer from '../components/AccountDrawer.jsx'
 import CompositeLabPanel from '../components/CompositeLabPanel.jsx'
 import ControlStrip from '../components/ControlStrip.jsx'
+import PathPanel from '../components/PathPanel.jsx'
+import { PATH_DEMOS } from '../scene/demos/paths/params.js'
 import EntityPanel from '../components/EntityPanel.jsx'
 import InsetCard from '../components/InsetCard.jsx'
 import OutlineRail from '../components/OutlineRail.jsx'
@@ -18,6 +20,7 @@ import { useUiStore } from '../store/uiStore.js'
 import './layout.css'
 
 export default function AppLayout() {
+  const isPaths = useSceneStore((state) => PATH_DEMOS.includes(state.demoKey))
   const railPinned = useUiStore((state) => state.railPinned)
   const cardWidth = useUiStore((state) => state.cardWidth)
   const cardCollapsed = useUiStore((state) => state.cardCollapsed)
@@ -46,6 +49,7 @@ export default function AppLayout() {
     <div
       className="app"
       data-rail-pinned={railPinned}
+      data-paths={isPaths}
       style={{ '--layout-card-width': cardCollapsed ? 'var(--card-collapsed-width)' : `${cardWidth}px` }}
     >
       <SceneHost />
@@ -58,7 +62,7 @@ export default function AppLayout() {
       <SceneLegend />
       <TerrainLegend />
       <CompositeLabPanel />
-      <ControlStrip />
+      {isPaths ? <PathPanel /> : <ControlStrip />}
       <AccountDrawer />
       {TUTOR_ENABLED && <TutorDrawer />}
     </div>

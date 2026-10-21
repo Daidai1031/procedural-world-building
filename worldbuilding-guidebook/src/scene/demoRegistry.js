@@ -1,4 +1,6 @@
 import { demoParams } from './demoParams.js'
+import PathDemo from './demos/paths/PathDemo.jsx'
+import { PATH_DEMOS } from './demos/paths/params.js'
 import SceneAnatomyDemo from './demos/sceneAnatomy/SceneAnatomyDemo.jsx'
 import NoiseTerrainDemo from './demos/proceduralMaps/NoiseTerrainDemo.jsx'
 import FarmlandDemo from './demos/distributions/FarmlandDemo.jsx'
@@ -19,6 +21,7 @@ import VoxelMeshDemo from './demos/voxels/VoxelMeshDemo.jsx'
 import VoxelTerrainDemo from './demos/voxels/VoxelTerrainDemo.jsx'
 
 export const demoRegistry = {
+  ...Object.fromEntries(PATH_DEMOS.map((key) => [key, { component: PathDemo, params: demoParams[key] }])),
   'shader-lab': { component: ShaderLabDemo, params: demoParams['shader-lab'] },
   'composite-lab': { component: CompositeLabDemo, params: {} },
   'coordinate-space': { component: CoordinateSpaceDemo, params: demoParams['coordinate-space'] },

@@ -2,6 +2,6 @@ slug: paths
 number: "06"
 title: Paths
 subtitle: Splines & Terrain
-summary: Connect positions, sample curves, and explore how paths and terrain influence each other.
+summary: Help a resident reach shelter through curves, terrain projection, and passage checks.
 shape: flat
 estimatedMinutes: 30

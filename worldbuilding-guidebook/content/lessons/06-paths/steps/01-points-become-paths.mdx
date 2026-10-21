@@ -1,20 +1,34 @@
 ---
 title: Points become paths
-goal: Understand a path as an ordered connection rather than an unconnected set of positions.
+goal: Connect a cave entrance to a shelter using ordered waypoints.
 keywords:
-  - path
+  - waypoint
   - order
-  - connectivity
   - direction
-  - centerline
+  - route
+scene:
+  demo: path-order
+  resetCamera: true
+  unlock: [pathOrder]
+code:
+  file: src/scene/demos/paths/pathMath.js
+  fn: makeRoute
+practice:
+  kind: fill
+  prompt: Keep each waypoint in the chosen order.
+  from:
+    file: src/scene/demos/paths/pathMath.js
+    region: waypoint-order
+  blanks:
+    - line: 1
+      answer: "points[id]"
+      options: ["points[id]", "points.A", "points.C"]
+      explanation: Each ID reads its own position. Reusing A or C collapses the route.
+      hint: Use the current waypoint ID.
 ---
 
-A **path** connects positions in a particular **order**. The same three points can form different routes when their order changes: A → B → C and A → C → B use exactly the same points, yet trace different lines and end in different places.
+A resident needs to reach another shelter. A **path** lists the places it passes through, in order.
 
-A line gains meaning through what it is used for. It might be a road centerline, a river course, a rail alignment, or a route for something that moves. On its own it has no width, no surface material, and no rules for junctions. Each of those has to be added by the system around it.
+Start at the cave entrance, pass the rock, then reach the shelter. Changing the order changes the journey, even when the points stay put.
 
-Giving the points a direction, from A to B to C, can describe a journey or a flow. Drawing an arrow, though, does not simulate vehicles or water; those behaviours need rules of their own.
-
-A list of points becomes a path once the system uses that order to connect or travel along them.
-
-*The interactive scene and practice for this step are planned but not built yet.*
+Try **Waypoint order**. Follow the numbered points and arrows. The line describes a proposed route; we will check whether it is passable later.

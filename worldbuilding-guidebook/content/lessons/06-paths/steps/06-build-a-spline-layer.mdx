@@ -1,20 +1,39 @@
 ---
-title: Build a spline layer
-goal: Generate a family of paths from rules and combine projection with a terrain effect.
+title: Choose a reachable shelter
+goal: Choose a valid route and wait when no candidate can be reached.
 keywords:
-  - spline layer
-  - path seed
-  - route generation
-  - constraints
-  - assignment
+  - candidate routes
+  - hard constraint
+  - route cost
+  - replanning
+  - waiting
+scene:
+  demo: path-choice
+  resetCamera: true
+  unlock: [pathDisturbance, pathGates]
+code:
+  file: src/scene/demos/paths/pathMath.js
+  fn: shelterCandidates
+practice:
+  kind: fill
+  prompt: Reject invalid routes before comparing costs. This checks the rule, not the assignment below.
+  from:
+    file: src/scene/demos/paths/pathClearance.js
+    region: valid-before-ranking
+  blanks:
+    - line: 1
+      answer: "candidate.validation.valid"
+      options: ["candidate.validation.valid", "candidate.cost < 1", "true"]
+      explanation: A cheap route through rock is still invalid. Filter hard constraints before ranking.
+      hint: Read the validation result, not the cost.
 ---
 
-A generated route starts from explicit rules. Here, two endpoints stand for two sites, seeded sideways offsets propose points in between, and a terrain cost chooses among the candidate routes. With the seed and constraints visible, a new route is a variation of a system rather than a hand-edited exception.
+There are two possible shelters. First reject routes that the resident cannot pass. Then compare the remaining routes by travel distance and local disturbance.
 
-The pipeline has three stages: build a curve from the chosen points, sample it and project it onto the terrain, then use it as a road layer with a height profile and an influence width. Check the route again on the reshaped ground. Limit the number of attempts and report a failure when no candidate meets the constraints; smoothing alone cannot guarantee a valid route.
+Change **Disturbance** near the shorter route. A longer, quieter route may become preferable. Blocking both routes makes the resident wait.
 
-The spline stores a shape. Its meaning comes from the system around it: a supply route might move an entity along the curve without carving a road, while a river needs a different profile and flow rules.
+The lesson uses two fixed shelter candidates so the route decision stays visible. Full cave detection and resident migration remain planned game features.
 
-This step gathers the lesson's assignment.
+For the assignment, show a generated route, its terrain projection, and a local terrain edit. Explain why the route passes or fails. Keep the seed and settings so the result can be repeated.
 
-*The interactive scene and practice for this step are planned but not built yet.*
+Under **Inspect**, change the seed or restore the example. Settings pause and restart travel so comparisons stay still.

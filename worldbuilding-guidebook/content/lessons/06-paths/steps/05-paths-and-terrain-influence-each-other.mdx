@@ -1,20 +1,36 @@
 ---
-title: Paths and terrain influence each other
-goal: Distinguish following a surface from altering the surface, and use terrain to inform a route.
+title: Can the resident pass?
+goal: Check body clearance and revisit a route after terrain changes.
 keywords:
-  - terrain deformation
+  - body clearance
+  - terrain edit
+  - route validation
   - influence band
-  - road profile
-  - route cost
-  - blend weight
+scene:
+  demo: path-clearance
+  resetCamera: true
+  unlock: [pathRadius, pathPassage]
+code:
+  file: src/scene/demos/paths/pathClearance.js
+  fn: validateRoute
+practice:
+  kind: fill
+  prompt: Fade the terrain edit to zero outside the corridor.
+  from:
+    file: src/scene/demos/paths/pathMath.js
+    region: terrain-influence
+  blanks:
+    - line: 1
+      answer: "Math.max(0, 1 - distance / width)"
+      options: ["Math.max(0, 1 - distance / width)", "1", "distance / width"]
+      explanation: The influence is strongest on the centreline and zero beyond the corridor width.
+      hint: Clamp negative influence to zero.
 ---
 
-A projected path follows the terrain without changing it. A **road layer** can also reshape the ground around it: measure how far each terrain sample is from the road centerline, then blend its height towards a **road profile** inside an **influence band**.
+A line can fit through a gap that is too narrow for a resident. Check the body's width along the whole route.
 
-The profile supplies the road's height along its length. A road can be flatter across its width while still climbing gently along the route. The **road width** sets the central region; the **shoulder width** sets how gradually the ground returns to its original shape. Widening either one changes more terrain.
+Increase **Body radius**, then press **Play**. The blocked section has red crosses; the resident stops before it.
 
-The influence also runs the other way. Candidate routes can be compared by a **route cost**, such as steepness or total climb, and the cheaper one preferred. That is a route-selection rule, different from pressing an existing route into the surface.
+Now try **Block passage** or **Open passage**. Recheck the same route after each edit. A wider passage may allow travel, but it does not prove that the destination is a suitable home.
 
-For rivers, a lowered channel alone does not make water flow downhill. Elevation and flow rules matter too.
-
-*The interactive scene and practice for this step are planned but not built yet.*
+Under **Inspect**, enable **Show terrain experiment**. Compare Before / After and change Corridor width to see the path reshape a copy of the ground.
