@@ -1,0 +1,9 @@
+Name: Dingran Dai
+
+GitHub repo: https://github.com/Daidai1031/procedural-world-building
+Website demo: https://worldbuilding-guidebook.web.app/
+
+Direct links:
+- Homepage: https://worldbuilding-guidebook.web.app/
+- Guidebook: https://worldbuilding-guidebook.web.app/guidebook/
+- Game (Terraforming Contractor #1380): https://worldbuilding-guidebook.web.app/game/
