@@ -2,18 +2,22 @@
 
 | | |
 | --- | --- |
-| **Status** | Draft v0.2 — autonomy-first prototype (D-022) |
-| **Last updated** | 2026-10-14 |
+| **Status** | Draft v0.6 — resident feedback and persistent planets (D-034–037) |
+| **Last updated** | 2026-10-20 |
 | **Answers the question** | *What exactly must the game do, and how do we know it does?* |
 | **Sibling files** | Why: [`design.md`](design.md) · Values: [`tuning.md`](tuning.md) · Text: [`content.md`](content.md) · Order of work: [`roadmap.md`](roadmap.md) · Why we chose: [`decisions.md`](decisions.md) |
 
-## Current scope — D-022 (2026-10-14)
+## Current scope — D-034–037 (2026-10-20)
 
-The next playable slice is **one autonomous mining robot**, not the full legacy game. AUT-01–12 below govern this slice. The existing manual terrain, Detector, seed, meshing and LOD remain implemented foundations; R1 is implemented (D-023); its feel and performance are unplaytested.
+**Implemented foundations:** manual terrain/Detector; one Miner, Gardener and Builder; plant growth and antenna placement; shared soil and prepared sites; sales, electricity and manual-edit charges; debt/bankruptcy; outer-surface exploration and atlas; explicit broadcasts and reset-style travel (D-023–033).
 
-Legacy first-person navigation, backpack/loadout, canister economy, complex metrics, fixed tool-energy budgets, audit and story requirements remain reference material, deferred beyond this slice. Existing `done` statuses are not revoked. Older acceptance checks apply only if their features are resumed.
+**Next:** one cave-dwelling resident species reacting to real shelter geometry and local disturbance. Then preserve two planets across travel, followed by the live 3D overview and wider generation variety. All new HAB/RES/PLN/SYS/OPS rows below are todo. This documentation update changes no runtime code.
 
-Later economy direction: mineral income buys robots and expands limited deployment; running robots incur electricity expenses; near-insolvency forces departure. No prices or thresholds have been settled. Do not implement those systems before autonomy is validated.
+**Scope authority:** the active requirements below extend implemented AUT/TERR rules. Older MOD/PACK, full cave traversal, detailed metrics, audit/classifications, contact endings and fixed-energy budgets remain deferred. Their historic MVP labels do not make them the current backlog. A legacy row saying a feature is unimplemented does not override the verified implementation summary; reconcile specific acceptance before marking broad old rows done.
+
+Current operations start with 0 credits, warn at/below 0 and end the run at/below −50; minerals sell for 40; power rate is 0.55 credits/kW-minute; manual edits cost 0.02 per changed sample. These are current provisional values, not immutable design requirements. D-037 simplifies presentation; it does not change these rules.
+
+Current travel recreates RunState and keeps funds only. Neither old-world terrain preservation, responsive residents nor a live system overview is implemented.
 
 ## 0. How to read and edit this file
 
@@ -84,94 +88,81 @@ src/
 
 ## 3. Game state
 
-The single source of truth for one run. (Note: the earlier design listed `habitability`; it is now `developmentReadiness`.)
+### 3.1 Current implementation snapshot
+
+The actual source of truth is [src/state/runState.ts](../src/state/runState.ts); the following interface is copied from the current implementation, not a proposed replacement. Refer to that source for imported types and constructors. The density field lives in PlanetWorld and is not included in RunState; preserving only this store cannot preserve edited terrain.
 
 ```ts
-type ToolId = 'terrain' | 'detector' | 'scanner' | 'deepScanner' | 'wideDrill' | 'bioSeeder' | 'stabilizer';
-type ModuleId = 'deepScanner' | 'wideDrill' | 'bioSeeder' | 'stabilizer';
-type TerrainMode = 'dig' | 'add' | 'flatten';
-type FlattenOrientation = 'radial' | 'horizontal';
-type ResourceCategory = 'mineral' | 'life' | 'memory';
-interface ResourceCluster {
-  id: string;
-  category: ResourceCategory;
-  position: [number, number, number]; // centered world coordinates
-  radius: number;                      // M1.5 marker proxy, not final deposit geometry
-}
-
-interface RunState {
-  seed: string;
-  mode: 'orbital' | 'surface' | 'audit' | 'ending';
-
-  budget: { workCyclesRemaining: number; energy: number };          // legacy placeholders; D-022 defers/removes fixed-budget gameplay
-
-  metrics: {                                                          // public, 0..100 unless noted
-    capital: number;                                                  // money, unbounded
-    biosphere: number;
-    developmentReadiness: number;
-    stability: number;
-    historicalSignificance: number;
-  };
-  planetRemaining: number;                                            // 0..1 of original solid mass
-
+export interface RunState {
+  seed: string
+  mode: 'orbital' | 'surface' | 'audit' | 'ending'
+  budget: { workCyclesRemaining: number; energy: number }
+  metrics: {
+    capital: number
+    biosphere: number
+    developmentReadiness: number
+    stability: number
+    historicalSignificance: number
+  }
+  planetRemaining: number
   hidden: {
-    planetaryMemory: number;
-    fragmentation: number;                                            // connected components / size spread
-    morphology: MorphologyFeatures;                                   // see section 5.2
-    cosmicExposure: number;                                           // mirrors signal.exposureScore
-  };
-
-  signal: { hasBroadcast: boolean; broadcastCount: number; exposureScore: number };  // hasBroadcast never resets
-
+    planetaryMemory: number
+    fragmentation: number
+    morphology: MorphologyFeatures
+    cosmicExposure: number
+  }
+  signal: { hasBroadcast: boolean; broadcastCount: number; exposureScore: number }
   loadout: {
-    modules: [ModuleId, ModuleId];                                    // chosen at run start, fixed
-    activeTool: ToolId;
-    terrainMode: TerrainMode;
-    flattenOrientation: FlattenOrientation;                            // radial by default (D-019)
-    toolSlots: ToolId[];                                              // what the backpack can equip
-  };
-
-  canister: { amount: number; capacity: number };                     // rock and soil share one unit
-  minerals: Record<string, number>;                                   // samples, sold via Extraction Terminal
-  discoveries: { artifactIds: string[]; lifeClusterIds: string[] };
-  resourceClusters: ResourceCluster[];                                // generated from seed
-  detector: { center: [number, number, number] | null; radius: number }; // local scan, TUNE
-
+    modules: [ModuleId, ModuleId]
+    activeTool: ToolId
+    terrainMode: TerrainMode
+    flattenOrientation: FlattenOrientation
+    toolSlots: ToolId[]
+    // D-025: which robot Auto mode is placing and showing controls for.
+    autoRobot: AutoRobot
+  }
+  canister: { amount: number; capacity: number }
+  minerals: Record<string, number>
+  discoveries: { artifactIds: string[]; lifeClusterIds: string[] }
+  resourceClusters: ResourceCluster[]
+  collectedIds: string[]
+  detector: { center: [number, number, number] | null; radius: number }
+  // AUT-01–12: robots live in the run state; simTick counts fixed simulation steps.
+  robots: MiningRobotState[]
+  gardeners: GardenerState[]
+  builders: BuilderState[]
+  // D-026: soil removed by Miners, spent by the Builder when filling. Counted in density samples.
+  economy: { mineralStock: number; revenue: number; electricitySpent: number; terrainSpent: number; bankrupt: boolean; preparedSamples: number }
+  preparedSites: [number, number, number][]
+  soil: number
+  // AUT-15/16: plants and antennas standing on the surface.
+  structures: Structure[]
+  structureCounter: number
+  simTick: number
   flags: {
-    archive1379Found: boolean;
-    echoArrayRepaired: boolean;
-    emergencyExtractionUsed: boolean;
-  };
+    archive1379Found: boolean
+    echoArrayRepaired: boolean
+    emergencyExtractionUsed: boolean
+  }
 }
 ```
 
----
+Current simulation uses separate Miner/Gardener/Builder arrays and a fixed-step simTick. Mineral/life/memory markers are resource proxies; a life discovery is not an autonomous resident. Legacy budget/loadout fields are not proof those mechanics are active.
 
-### 3.1 Robot state (implemented in `src/systems/miner.ts`, D-023)
+### 3.2 Planned multi-planet and resident state (not implemented)
 
-Add a minimal robot state alongside existing world state; do not build the full economy schema yet.
+Conceptual responsibilities, not final TypeScript names:
 
-```ts
-type RobotPhase = 'idle' | 'scanning' | 'moving' | 'digging' | 'collecting' | 'paused' | 'stopped';
-interface MiningRobotState {
-  id: string;
-  position: [number, number, number];
-  area: { center: [number, number, number]; radius: number } | null;
-  phase: RobotPhase;
-  knownTargetIds: string[];
-  targetId: string | null;
-  collectedMinerals: number;
-  stopReason: 'no-targets' | 'blocked' | null;
-}
-// Also in code: phaseTicks, stall, resumePhase; RunState.simTick counts fixed steps.
-// Add shared target reservations only in the multi-robot slice.
-```
-
-All positions use one documented coordinate space. Existing rendered/volume offsets must be converted at the boundaries, including scans and terrain edits.
+- A system record stores stable discovered planet IDs, selected planet and each planet's starting config.
+- A planet record retains its RunState plus the edited density field or a validated replayable edit history, residents, habitat occupancy, disturbance and terrain revision.
+- Residents have stable identity, species, position, home/target, behavior state and response timers.
+- Habitat candidates include current enclosure/clearance/access validity and occupancy; invalidation follows density edits.
+- Both local view and overview read the same planet record; derived display meshes may be cached by terrain revision.
+- Account scope, background ticking and reload serialization remain open. No automatic merging of funds or continuing off-screen billing is implied.
 
 ## 4. Requirements
 
-### 4.0 Autonomous mining (AUT) — next prototype
+### 4.0 Autonomous mining (AUT) — existing foundations
 
 | ID | Requirement | Priority | Status |
 | --- | --- | --- | --- |
@@ -291,6 +282,9 @@ The Detector is a separate, close-range inspection tool. The later Scanner retai
 
 ### 4.7 Views (VIEW)
 
+**Current scope note:** outer-surface walking, return to orbit, landing validation and atlas exist (D-029). Full cave physics, shared editing in surface mode and cinematic ending transitions below are not implied. Rows retain historical breadth; SYS defines the planned system overview.
+
+
 | ID | Requirement | Priority | Status |
 | --- | --- | --- | --- |
 | VIEW-01 | **Orbital Planning Mode:** camera orbits the planet center (orbit controls). Shows silhouette, remaining mass, voids, base, and ecology zones. | MVP | wip |
@@ -319,6 +313,9 @@ The Detector is a separate, close-range inspection tool. The later Scanner retai
 
 ### 4.9 Budget (BUD)
 
+**Current scope note:** D-028/031 plus current economy.ts implement sales, running power costs, manual terrain charges, warning and bankruptcy. The older deferred requirements below must be read against the current scope; fixed energy/cycle budgets remain inactive legacy ideas. OPS covers the desired simplified UI.
+
+
 | ID | Requirement | Priority | Status |
 | --- | --- | --- | --- |
 | BUD-01 | Legacy fixed cycles/energy budget superseded by D-022. Later operating costs are paid from funds; detailed billing is deferred. | Stretch | cut |
@@ -326,6 +323,9 @@ The Detector is a separate, close-range inspection tool. The later Scanner retai
 | BUD-03 | Later: warn of operating expenses and approaching insolvency. Wording and threshold remain open. | Stretch | ? |
 
 ### 4.10 Signals and exposure (SIG)
+
+**Current scope note:** D-032 implements explicit, free broadcasting with an antenna, exposure added per antenna, and discovery entries after the third broadcast. Legacy power/duration, repair gates, money rewards and narrative endings below are deferred proposals, not the current broadcast algorithm. D-038 role separation is only proposed.
+
 
 **Deferred by D-022:** retained legacy requirements; not part of R1. Existing IDs and implementation history are preserved.
 
@@ -411,7 +411,64 @@ The Detector is a separate, close-range inspection tool. The later Scanner retai
 
 ---
 
+### 4.16 Habitat and disturbance (HAB) — planned
+
+| ID | Requirement | Priority | Status |
+| --- | --- | --- | --- |
+| HAB-01 | Validate snug shelter candidates from current edited density: enclosure, body clearance, entrance and reachable access. A broad open pit alone is insufficient. | MVP | todo |
+| HAB-02 | Feed manual Dig/Add/Flatten and robot terrain work into the same bounded local disturbance mechanism; disturbance decays when work ceases. Acoustic physics is not required. TUNE | MVP | todo |
+| HAB-03 | Revalidate affected homes/routes after terrain edits. Removed or blocked shelter cannot remain valid because of a stale score. | MVP | todo |
+| HAB-04 | Expose habitat validity and disturbance in debug inspection without requiring a player-facing score dashboard. | MVP | todo |
+
+### 4.17 Resident behavior (RES) — planned
+
+| ID | Requirement | Priority | Status |
+| --- | --- | --- | --- |
+| RES-01 | Start with one original rock-like cave species. Generate a few settlements only at valid habitat candidates; stable seed/config/version reproduces initial placement. Exact count/body remain open. | MVP | todo |
+| RES-02 | Use snug shelter, low disturbance and nearby companions as preferences; clearance and reachable access are hard constraints. Plant count/flatness are not resident suitability. | MVP | todo |
+| RES-03 | Brief disturbance causes visible retreat, followed by cautious return after sufficient quiet. TUNE | MVP | todo |
+| RES-04 | Sustained disturbance or home invalidation initiates bounded search for a reachable suitable home. Movement respects current terrain; no teleportation through intact rock. | MVP | todo |
+| RES-05 | Suitable new cavities may be occupied after quiet returns. Candidate validity, not whether the cavity is natural or excavated, determines eligibility. | MVP | todo |
+| RES-06 | Use a relocation advantage threshold and response cooldown to avoid home oscillation; resolve equal candidates stably and prevent conflicting occupancy. TUNE | MVP | todo |
+| RES-07 | If no reachable home exists, keep a visible bounded searching/waiting state. Do not silently delete residents or trigger automatic failure. | MVP | todo |
+| RES-08 | Make peeking, retreat and relocation distinguishable from the normal play camera; final body design remains open. | MVP | todo |
+
+### 4.18 Planet identity and persistence (PLN) — planned
+
+| ID | Requirement | Priority | Status |
+| --- | --- | --- | --- |
+| PLN-01 | Assign stable planet ID/seed/config and discovery status; repeat discovery does not duplicate an existing world. | MVP | todo |
+| PLN-02 | Support independently varying playable size, terrain and resource abundance/distribution within technical limits. Icon size alone does not satisfy size variation. | MVP | todo |
+| PLN-03 | Switching away and back in one session preserves edited terrain, collection/stock, robots, structures, residents, disturbance and local signal state. Store or reconstruct density, not seed alone. | MVP | todo |
+| PLN-04 | Separate view switching from world initialization. Discovery and revisiting must not reset a planet or duplicate income/resources. | MVP | todo |
+| PLN-05 | Choose and document shared/local funds, inactive-world ticking and billing before implementing continuous background operation. | Stretch | ? |
+| PLN-06 | Browser-reload save/load scope and format remain a separate decision; do not claim durable saves from PLN-03. | Stretch | ? |
+
+### 4.19 System overview (SYS) — planned
+
+| ID | Requirement | Priority | Status |
+| --- | --- | --- | --- |
+| SYS-01 | Show discovered planets in a navigable 3D spatial arrangement; orbital physics is unnecessary. | MVP | todo |
+| SYS-02 | Derive overview meshes from each current edited world, with revision-aware refresh. Holes/cuts must not revert to a decorative sphere. | MVP | todo |
+| SYS-03 | Hover reveals concise descriptive state; click visits the selected stored planet. Exact progress descriptor is open and must not prescribe a universal end goal. | MVP | todo |
+| SYS-04 | Refresh running-world changes while the overview is open, within a measured budget; choose cadence and inactive-world policy explicitly. | MVP | todo |
+
+### 4.20 Compact operating feedback (OPS) — planned UI change
+
+| ID | Requirement | Priority | Status |
+| --- | --- | --- | --- |
+| OPS-01 | Keep accounting internal where possible; use compact operating status rather than mandatory detailed spending rows. | MVP | todo |
+| OPS-02 | Explain material/funding restrictions and critical warnings with cause and available action. Do not hide current bankruptcy while it can terminate play. | MVP | todo |
+| OPS-03 | Do not change charges, bankruptcy, sale policy or fund ownership as an incidental UI edit. A revised hard-ending policy needs a new decision. | MVP | todo |
+
+**Role clarification:** AUT-15 currently includes antenna placement. D-038 is proposed only; no removal or reassignment is authorized by these requirements.
+
 ## 5. Algorithms and rules
+
+### 5.0a Planned resident update order
+
+Apply terrain edits and disturbance inputs → revalidate affected shelters/routes → decay disturbance on simulation time → update retreat/quiet timers → select among valid reachable homes → move with current-density clearance → publish occupancy/state for rendering. Companions bias valid choices; they never override clearance. Exact weights, timers, cave detector and path strategy remain provisional; see [procedural-system.md](procedural-system.md).
+
 
 ### 5.0 Autonomous work cycle
 
@@ -573,11 +630,29 @@ These are what make it possible to keep redesigning while building.
 | AUT-T6 | Same seed and tick-indexed commands reproduce decisions; changing seed/area changes work. Compare different render frame rates. | AUT-11 |
 | AUT-T7 | Browser playtest records frame time and control clarity during autonomous remeshing. | AUT-10/12 |
 
+### Planned sandbox acceptance
+
+These are future checks; none were run by this documentation update.
+
+| ID | Check | Covers |
+| --- | --- | --- |
+| HAB-T1 | Inspect a snug cavity and an exposed pit; validity follows geometry. Fill/block the cavity and verify it is invalidated. | HAB-01/03 |
+| RES-T1 | Apply brief disturbance near an occupied home, then stop. Observe retreat and eventual return rather than immediate relocation. | HAB-02, RES-03 |
+| RES-T2 | Apply sustained disturbance; observe a bounded search and collision-safe move to a reachable quiet home. | RES-02/04 |
+| RES-T3 | Create a suitable cavity and let disturbance fade; allow occupation. An unsuitable pit stays ineligible. | RES-05 |
+| RES-T4 | Provide equally good homes and competing residents; check stable choice, no occupancy conflict or rapid oscillation. | RES-06 |
+| RES-T5 | Remove all reachable shelters; residents remain visible with a bounded waiting/search response. | RES-07 |
+| RES-T6 | Rebuild initial conditions with the same seed/config; compare placements. Judge behavior readability in a normal-camera playtest. | RES-01/08 |
+| PLN-T1 | Edit planet A, visit B, then return to A; verify density, stocks, residents and robot state survive without duplicated rewards. | PLN-01/03/04 |
+| PLN-T2 | Compare configurations: playable size and resource abundance can differ independently. | PLN-02 |
+| SYS-T1 | Change terrain while overview is open; its simplified shape updates. Click it and inspect the same world. | SYS-01–04 |
+| OPS-T1 | Use compact financial feedback; a tester explains any shortage/critical warning and the available action. | OPS-01–03 |
+
 ### Deferred legacy acceptance
 
 
 
-Mapped to the success criteria in `design.md` §18.
+Mapped to the historical narrative criteria retained in `design.md` §18, not the active sandbox criteria.
 
 | ID | Check | Covers |
 | --- | --- | --- |
@@ -618,6 +693,8 @@ Known lesson learned to keep: without a two-sample border a chunk cannot read th
 
 Details and history in [`decisions.md`](decisions.md#open-questions).
 
+Current: cave detection/path strategy, resident body and tuning; account scope; inactive-world ticking/billing; reload saves; overview refresh budget; progress descriptors; D-038 antenna separation. These must not be inferred as settled implementation details.
+
 - **OQ-07** How to compute "no walkable path" (NAV-04) cheaply after arbitrary edits.
 - **OQ-08** Web Workers for meshing: needed for TECH-06, or is time-slicing on the main thread enough?
 - **OQ-09** Collision: mesh collider from chunk meshes, or sample the density field directly for the player capsule?
@@ -626,6 +703,9 @@ Details and history in [`decisions.md`](decisions.md#open-questions).
 ---
 
 ## Change log
+
+- **2026-10-20 / D-034–038:** Reconciled current implementation and state schema; added planned habitat, resident, persistent-planet, overview and compact-feedback requirements and acceptance. No runtime implementation or tests were changed.
+
 
 | Date | Version | Change |
 | --- | --- | --- |

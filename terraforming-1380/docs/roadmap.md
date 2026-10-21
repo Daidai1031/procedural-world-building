@@ -3,14 +3,83 @@
 | | |
 | --- | --- |
 | **Purpose** | The order of work, and what "done" means for each step. |
-| **Last updated** | 2026-10-14 |
-| **Current focus** | R1: one autonomous mining robot (implemented; browser playtest pending) |
+| **Last updated** | 2026-10-20 |
+| **Current focus** | S1: one resident species responding to habitat and disturbance (planned) |
 
-## Current roadmap — D-022
+## Current roadmap — D-034–037
+
+Documentation baseline updated; implementation below remains planned. Existing implemented foundations and their playtest gaps are preserved. D-038 antenna separation is proposed, not a prerequisite.
+
+### S0 — Reconcile the design and current prototype
+
+- [x] Define the sandbox and causal chain in READMEs/design (D-034).
+- [x] Explain residents, persistent planets and crit response (D-035–037).
+- [x] Add checkable requirements and distinguish current implementation from planned work.
+- [ ] Browser-check current robot, sales, exploration and signal interactions; log observations without claiming prior tests were rerun.
+
+### S1 — One visible resident feedback loop (next implementation)
+
+**Playable when:** residents occupy suitable cavities, retreat during brief work, and return after quiet.
+
+- [ ] Generate valid initial homes and one species — HAB-01, RES-01/02.
+- [ ] Feed manual and robot edits into local disturbance and habitat revalidation — HAB-02/03.
+- [ ] Show peeking, retreat and cautious return — RES-03/08.
+- [ ] Validate brief disturbance and blocked entrances — HAB-T1, RES-T1/6.
+- [ ] Record behavior clarity and frame responsiveness in tuning.md.
+
+### S2 — Relocation and newly created homes
+
+**Playable when:** sustained disturbance causes reachable relocation, and a suitable new cavity may be occupied after work stops.
+
+- [ ] Candidate validity, occupancy and collision-safe motion — RES-04/05.
+- [ ] Cooldowns and no-home waiting — RES-06/07.
+- [ ] Compare brief work, sustained work, a suitable tunnel and an exposed pit — RES-T2–5.
+- [ ] Keep scores, extra species, door-stone hauling and complex acoustics out of this slice.
+
+### S3 — Two planets that can be revisited
+
+**Playable when:** edit A → visit B → return to the same edited A.
+
+- [ ] Stable discovery IDs/config and stored planet records — PLN-01.
+- [ ] Preserve actual density and site state — PLN-03/04.
+- [ ] Choose global/local accounting and inactive-world behavior before background operations — PLN-05.
+- [ ] Verify no lost edits, reset residents or duplicated stock — PLN-T1.
+- [ ] Treat browser-reload saves as separate scope — PLN-06.
+
+### S4 — Live 3D system overview
+
+**Playable when:** discovered worlds show their actual edited shapes together; hover inspects and click visits.
+
+- [ ] Spatial overview, shared records and terrain-revision meshes — SYS-01/02.
+- [ ] Concise descriptive hover and return navigation — SYS-03.
+- [ ] Budget and verify live refresh — SYS-04, SYS-T1.
+- [ ] Do not substitute decorative icon spheres or imply all inactive planets simulate.
+
+### S5 — More varied starting conditions
+
+- [ ] Independently vary playable size, terrain and resource abundance — PLN-02/T2.
+- [ ] Compare shared rules under different conditions and player choices.
+- [ ] Expand species only after the first species and persistent travel read clearly.
+
+### Compact operations — bounded presentation task
+
+- [ ] Simplify visible accounting while keeping meaningful operating context — OPS-01.
+- [ ] Verify critical causes/remedies remain understandable — OPS-02, OPS-T1.
+- [ ] Preserve charges and bankruptcy until a new decision changes them — OPS-03.
+
+### Later / open
+
+Multiple Miners (AUT-13), final resident model, antenna-role separation (D-038), reload saves, richer ecology, narrative audits and cosmic endings. None is required to prove S1/S2. Existing three-robot functionality remains; no need to rebuild it as a “next prototype.”
+
+## Previous R1–R3 roadmap — historical
+
+The following records the earlier automation plan and its outstanding checks. It is not the active task order.
+
+#### Previous scope: D-022
 
 This replaces the old M2-first navigation sequence. Existing M0/M1/M1.5 work stays intact. The historical M0–M7 checklists below record the earlier plan and completed work; unchecked legacy tasks are not the active backlog.
 
-### R1 — One robot that mines on its own
+#### R1 — One robot that mines on its own
 **Playable when:** assign a local area and press Start once; a Miner scans, chooses, hovers to an entry, excavates a real tunnel, collects and repeats.
 - [x] Work area and Start/Pause/reassignment — AUT-01/08
 - [x] Local scanning and nearest discovered Mineral — AUT-02/03
@@ -24,13 +93,13 @@ This replaces the old M2-first navigation sequence. Existing M0/M1/M1.5 work sta
 
 **Exclude:** purchases, electricity, backpack, hauling, first person, complex metrics, questionnaire and endings. Use existing resource proxies before designing full ore deposits.
 
-### R2 — Multiple Miners
+#### R2 — Multiple Miners
 - [ ] Shared target reservation, safe release and reassignment — AUT-13
 - [ ] Observe different tunnels under the same simple rule
 - [ ] Validate no duplicate collections or conflicting target ownership
 No economic gate is required to test multiple robots.
 
-### R3 — A second procedural behavior
+#### R3 — A second procedural behavior
 - [x] Choose Builder reshaping or Gardener growth — AUT-14: Gardener with plants and antennas (D-025)
 - [x] Introduce only one new rule set and its visible terrain/life effect — AUT-15/16
 - [x] Interaction with mining: digging removes structures; no repair loop (automated tests)
@@ -38,7 +107,7 @@ No economic gate is required to test multiple robots.
 - [x] Builder: cut and fill toward one level, using the Miner's soil — AUT-17 (D-026)
 - [ ] Browser playtest: does the levelling read on the planet?
 
-### Later, only after the process works
+#### Later, only after the process works
 Lightweight mineral income, robot purchases, deployment expansion and electricity expenses; insolvency departure; life/memory choices; audit and signal ending. Prices and thresholds remain unsettled. First person is optional and deferred.
 
 ## Historical roadmap — retained for implementation history
@@ -197,6 +266,9 @@ Frame rate while remeshing · confusion about the two views · getting trapped f
 ---
 
 ## Change log
+
+- **2026-10-20 / D-034–037:** Added S0–S5 resident/persistence/overview slices and compact-operations task. Preserved R1–R3 and M0–M7 history; no new gameplay task is marked complete.
+
 
 | Date | Change |
 | --- | --- |
