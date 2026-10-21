@@ -103,6 +103,7 @@ export const tuning = {
     // `quietLevel` stops the peeks and makes it tremble, up to `tremble.amount` of its radius at `retreatLevel`.
     look: {
       lurk: -0.72, hide: -0.8, peek: 0.3, every: [6, 12], out: 2.8, rise: 0.3, climb: 1.1,
+      plants: { radius: 1.2, fullAt: 4, periodScale: 0.55, outBonus: 1.8 },
       glance: 0.9, glanceRate: 2.1,
       tremble: { amount: 0.2, roll: 0.18, rate: 11 },
     },

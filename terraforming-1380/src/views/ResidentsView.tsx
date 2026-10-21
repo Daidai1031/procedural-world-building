@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import { IcosahedronGeometry, Matrix4, MeshStandardMaterial, Quaternion, SphereGeometry, Vector3, type Group } from 'three'
 import type { createRunStore } from '../state/runState'
 import { burrowSites, hashSeed, type Burrow, type PlanetWorld } from '../world/planet'
-import { disturbanceAt, stepResidents } from '../systems/residents'
+import { disturbanceAt, plantCoverAt, stepResidents } from '../systems/residents'
 import { tuning } from '../config/tuning'
 import { palette } from '../config/palette'
 import { HALF } from '../systems/geometry'
@@ -54,11 +54,13 @@ const ease = (edge0: number, edge1: number, x: number) => {
 const mix = (a: readonly number[], b: readonly number[], t: number) => target.set(a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t)
 
 // D-055: 0 while lurking, 1 while surfaced. Each resident keeps its own rhythm, so the population never peeks in unison.
-function exposure(id: string, time: number, rise: number) {
-  const period = look.every[0] + fraction(`${id}:peek-period`) * (look.every[1] - look.every[0])
-  const into = (time + fraction(`${id}:peek-phase`) * period) % period - (period - look.out - 2 * rise)
+function exposure(id: string, time: number, rise: number, plantCover: number) {
+  const basePeriod = look.every[0] + fraction(`${id}:peek-period`) * (look.every[1] - look.every[0])
+  const period = basePeriod * (1 - plantCover * (1 - look.plants.periodScale))
+  const timeOut = look.out + plantCover * look.plants.outBonus
+  const into = (time + fraction(`${id}:peek-phase`) * period) % period - (period - timeOut - 2 * rise)
   if (into < 0) return 0
-  return ease(0, rise, into) * (1 - ease(look.out + rise, look.out + 2 * rise, into))
+  return ease(0, rise, into) * (1 - ease(timeOut + rise, timeOut + 2 * rise, into))
 }
 
 // Where along a burrow's tunnel (0 = mouth, 1 = pocket) the body sits `lift` above the ground. The mouth is placed
@@ -129,7 +131,7 @@ export function ResidentsView({ world, store }: { world: World; store: Store }) 
   useFrame(({ clock }, delta) => {
     const root = group.current
     if (!root) return
-    const { residents: list, habitat, seed } = store.getState()
+    const { residents: list, habitat, seed, structures } = store.getState()
     const burrows = burrowSites(seed)
     const time = clock.elapsedTime
     list.forEach((resident, index) => {
@@ -140,7 +142,9 @@ export function ResidentsView({ world, store }: { world: World; store: Store }) 
       const burrow = resident.burrowId ? burrows.find(item => item.id === resident.burrowId) : undefined
       const level = settled ? disturbanceAt(habitat, resident.home ?? resident.position) : 0
       const fear = Math.min(1, Math.max(0, (level - rules.quietLevel) / (rules.retreatLevel - rules.quietLevel)))
-      const out = resident.state === 'peeking' && fear === 0 ? exposure(resident.id, time, burrow ? look.climb : look.rise) : 0
+      const plantCover = plantCoverAt(structures, resident.home ?? resident.position)
+      const out = resident.state === 'peeking' && fear === 0
+        ? exposure(resident.id, time, burrow ? look.climb : look.rise, plantCover) : 0
       let goal = target.set(...resident.position)
       if (settled && burrow) {
         goal = mix(burrow.mouth, burrow.pocket, 0.82 + (tunnelExit(burrow, look.peek * radius) - 0.82) * out)

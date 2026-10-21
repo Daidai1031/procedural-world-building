@@ -102,6 +102,18 @@ export function disturbanceAt(habitat: HabitatState, p: Vec3) {
   return total
 }
 
+// Dense nearby plants make this shy species more willing to show itself. Antennas do not count.
+export function plantCoverAt(structures: RunState['structures'], p: Vec3) {
+  const { radius, fullAt } = rules.look.plants
+  let cover = 0
+  for (const structure of structures) {
+    if (structure.kind !== 'plant') continue
+    const proximity = Math.max(0, 1 - distance(structure.position, p) / radius)
+    cover += proximity * proximity
+  }
+  return Math.min(1, cover / fullAt)
+}
+
 export function recordDisturbance(store: Store, position: Vec3, kind: 'manual' | 'robot', excavated: boolean) {
   const d = rules.disturbance
   store.setState(state => {

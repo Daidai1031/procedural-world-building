@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { tuning } from '../src/config/tuning'
 import { createRunStore } from '../src/state/runState'
 import { HALF, distance, unit, type Vec3 } from '../src/systems/geometry'
-import { burrowOpen, disturbanceAt, homePreferenceScore, isValidHome, recordDisturbance, residentHomeSites, spawnResidents, stepResidents } from '../src/systems/residents'
+import { burrowOpen, disturbanceAt, homePreferenceScore, isValidHome, plantCoverAt, recordDisturbance, residentHomeSites, spawnResidents, stepResidents } from '../src/systems/residents'
 import { burrowSites } from '../src/world/planet'
 import { stepSimulation } from '../src/systems/simulation'
 import { useTerrainTool } from '../src/tools/terrainTool'
@@ -51,6 +51,21 @@ test('HAB-T0: surface homes require soil depth, slope, headroom, and spacing', (
     return radius > 2.08 && radius < 2.16 ? -0.01 : radius - 2
   } }
   assert.equal(isValidHome(blocked, home), false, 'headroom')
+})
+
+test('plant cover rises around dense plants and ignores antennas', () => {
+  const p: Vec3 = [0, 2, 0]
+  const structure = (kind: 'plant' | 'antenna', position: Vec3, index: number) => ({
+    id: `${kind}-${index}`, kind, position, normal: [0, 1, 0] as Vec3, bornTick: 0,
+  })
+  const antennaOnly = [structure('antenna', p, 0)]
+  const sparse = [structure('plant', [0.1, 2, 0], 0)]
+  const dense = Array.from({ length: 8 }, (_, index) => structure('plant', [index * 0.04, 2, 0], index))
+  assert.equal(plantCoverAt(antennaOnly, p), 0)
+  assert.ok(plantCoverAt(sparse, p) > 0)
+  assert.ok(plantCoverAt(dense, p) > plantCoverAt(sparse, p))
+  assert.equal(plantCoverAt(dense, p), 1)
+  assert.equal(plantCoverAt(dense, [4, 2, 0]), 0)
 })
 
 test('RES-T1: brief Miner noise hides a resident and quiet brings it back to the same home', () => {
