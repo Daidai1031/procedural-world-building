@@ -12,6 +12,14 @@ const DEFAULT_TARGET = [0, 0.75, 0]
 // quoted verbatim in step 10's prose and must stay literal.
 const DEFAULT_CAMERA_POSITION = [6, 5, 8]
 const ORTHOGRAPHIC_ZOOM = 60
+// Steps may ask for another starting view: `front` looks straight at a flat
+// drawing standing in the scene, so turning angles read true.
+const CAMERA_POSES = {
+  default: { position: DEFAULT_CAMERA_POSITION, target: DEFAULT_TARGET },
+  front: { position: [0, 2.5, 9], target: [0, 2.5, 0] },
+  asset: { position: [3.2, 2.3, 5.6], target: [0, 0.9, 0] },
+  overview: { position: [1.2, 10.5, 5.2], target: [1.2, 0, 0.2] },
+}
 
 // Only ever runs for a step whose frontmatter asks for it, or the viewport
 // toolbar's Recenter button. Navigation on its own leaves the camera exactly
@@ -24,8 +32,9 @@ function CameraReset() {
   useEffect(() => {
     if (cameraResetToken === 0 || !controls) return
 
-    camera.position.set(...DEFAULT_CAMERA_POSITION)
-    controls.target.set(...DEFAULT_TARGET)
+    const { position, target } = CAMERA_POSES[useSceneStore.getState().cameraPose] ?? CAMERA_POSES.default
+    camera.position.set(...position)
+    controls.target.set(...target)
     controls.update()
   }, [cameraResetToken, camera, controls])
 

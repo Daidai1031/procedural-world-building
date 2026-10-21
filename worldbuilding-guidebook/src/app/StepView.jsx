@@ -23,6 +23,7 @@ export default function StepView() {
   const setUnlocked = useSceneStore((state) => state.setUnlocked)
   const setCompare = useSceneStore((state) => state.setCompare)
   const requestCameraReset = useSceneStore((state) => state.requestCameraReset)
+  const setCameraPose = useSceneStore((state) => state.setCameraPose)
   const setLastStepId = useProgressStore((state) => state.setLastStepId)
   const markStepComplete = useProgressStore((state) => state.markStepComplete)
 
@@ -49,6 +50,8 @@ export default function StepView() {
     setCompare(scene.compare ?? null)
     setLastStepId(step.id)
 
+    // Recenter in the viewport toolbar returns to this step's pose.
+    setCameraPose(scene.cameraPose ?? 'default')
     if (scene.resetCamera) requestCameraReset()
     return () => useSceneStore.getState().setStep(null)
   }, [
@@ -59,6 +62,7 @@ export default function StepView() {
     setUnlocked,
     setCompare,
     setLastStepId,
+    setCameraPose,
     requestCameraReset,
   ])
 

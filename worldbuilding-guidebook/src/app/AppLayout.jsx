@@ -5,6 +5,8 @@ import { Outlet } from 'react-router-dom'
 import AccountDrawer from '../components/AccountDrawer.jsx'
 import CompositeLabPanel from '../components/CompositeLabPanel.jsx'
 import ControlStrip from '../components/ControlStrip.jsx'
+import BranchingPanel from '../components/BranchingPanel.jsx'
+import { BRANCHING_DEMOS } from '../scene/demos/branching/params.js'
 import PathPanel from '../components/PathPanel.jsx'
 import { PATH_DEMOS } from '../scene/demos/paths/params.js'
 import ParticlePanel from '../components/ParticlePanel.jsx'
@@ -23,6 +25,7 @@ import './layout.css'
 
 export default function AppLayout() {
   const isParticles = useSceneStore((state) => PARTICLE_DEMOS.includes(state.demoKey))
+  const isBranching = useSceneStore((state) => BRANCHING_DEMOS.includes(state.demoKey))
   const isPaths = useSceneStore((state) => PATH_DEMOS.includes(state.demoKey))
   const railPinned = useUiStore((state) => state.railPinned)
   const cardWidth = useUiStore((state) => state.cardWidth)
@@ -54,6 +57,7 @@ export default function AppLayout() {
       data-rail-pinned={railPinned}
       data-paths={isPaths}
       data-particles={isParticles}
+      data-branching={isBranching}
       style={{ '--layout-card-width': cardCollapsed ? 'var(--card-collapsed-width)' : `${cardWidth}px` }}
     >
       <SceneHost />
@@ -66,7 +70,7 @@ export default function AppLayout() {
       <SceneLegend />
       <TerrainLegend />
       <CompositeLabPanel />
-      {isPaths ? <PathPanel /> : isParticles ? <ParticlePanel /> : <ControlStrip />}
+      {isPaths ? <PathPanel /> : isParticles ? <ParticlePanel /> : isBranching ? <BranchingPanel /> : <ControlStrip />}
       <AccountDrawer />
       {TUTOR_ENABLED && <TutorDrawer />}
     </div>

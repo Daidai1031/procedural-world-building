@@ -28,6 +28,7 @@ export const useSceneStore = create((set) => ({
   compareRevision: 0,
   isRunning: false,
   cameraResetToken: 0,
+  cameraPose: 'default',
   projection: 'perspective',
   wireframe: false,
   axesVisible: false,
@@ -64,6 +65,7 @@ export const useSceneStore = create((set) => ({
     })),
   setParam: (key, value) =>
     set((state) => ({ params: { ...state.params, [key]: value } })),
+  setCameraPose: (cameraPose) => set({ cameraPose }),
   requestCameraReset: () =>
     set((state) => ({ cameraResetToken: state.cameraResetToken + 1 })),
   toggleProjection: () =>

@@ -1,4 +1,6 @@
 import { demoParams } from './demoParams.js'
+import BranchingDemo from './demos/branching/BranchingDemo.jsx'
+import { BRANCHING_DEMOS } from './demos/branching/params.js'
 import ParticleDemo from './demos/particles/ParticleDemo.jsx'
 import { PARTICLE_DEMOS } from './demos/particles/params.js'
 import PathDemo from './demos/paths/PathDemo.jsx'
@@ -23,6 +25,7 @@ import VoxelMeshDemo from './demos/voxels/VoxelMeshDemo.jsx'
 import VoxelTerrainDemo from './demos/voxels/VoxelTerrainDemo.jsx'
 
 export const demoRegistry = {
+  ...Object.fromEntries(BRANCHING_DEMOS.map((key) => [key, { component: BranchingDemo, params: demoParams[key] }])),
   ...Object.fromEntries(PARTICLE_DEMOS.map((key) => [key, { component: ParticleDemo, params: demoParams[key] }])),
   ...Object.fromEntries(PATH_DEMOS.map((key) => [key, { component: PathDemo, params: demoParams[key] }])),
   'shader-lab': { component: ShaderLabDemo, params: demoParams['shader-lab'] },
