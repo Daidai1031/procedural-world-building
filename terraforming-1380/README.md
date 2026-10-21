@@ -53,8 +53,7 @@ perpendicular to the line from the planet center, making a local terrace even
 on the planet's side. When Flatten is selected, choose **Horizontal** for the
 older global-Y platform. The hover disc follows the chosen plane. Dig and Add
 Terrain use round brushes.
-Planet Remaining updates as solid samples are removed or added. Canister and
-energy costs are scheduled for M2/M3; M1's fill action is unrestricted.
+Planet Remaining updates as solid samples are removed or added. Manual terrain edits currently incur per-sample operating charges; Builder fills consume shared soil. The legacy canister/fixed-energy budget is not the active limit.
 The rendered planet now uses three detail levels: nearby chunks keep the full
 mesh, while distant chunks use coarser meshes. Fine edges snap to coarse edges
 at their shared boundary. LOD preparation is spread over frames and a change
@@ -68,8 +67,7 @@ resource signals, faded by distance from the clicked point. Mineral, Life,
 and Memory use distinct marker shapes. Buried targets stay hidden outside
 Detector mode; exposed targets remain visible. Click elsewhere to move the
 scan. Press `T` or click **Terrain** to return to editing. The seeded markers
-are early target proxies; irregular deposits, collection, and scan costs
-are scheduled for M3.
+are early target proxies. Miner mineral collection and inventory sales are implemented; fuller irregular deposits and separate scan costs remain later work.
 
 `npm.cmd run build` type-checks and writes `dist/`.
 `npm.cmd test` checks seed determinism, terrain edits, detector locality and

@@ -3,7 +3,7 @@
 | | |
 | --- | --- |
 | **Purpose** | Every number that will change after playtesting, in one place, with its reason and where it lives in code. |
-| **Last updated** | 2026-10-14 |
+| **Last updated** | 2026-10-20 |
 | **Source of truth** | `src/config/tuning.ts`. This file mirrors it and records *why*. If the two differ, fix one of them the same day. |
 
 ## Rules
@@ -13,6 +13,42 @@
 - Prefer changing a value over changing a rule. If three value changes do not fix a problem, it is a design problem: open a decision in `decisions.md`.
 
 ---
+
+## Current operating values — source snapshot (2026-10-20)
+
+Source: [src/config/tuning.ts](../src/config/tuning.ts), checked against current code. These supersede older “economy deferred” prose and legacy fixed-budget guesses below. No values were changed by this documentation update.
+
+| Runtime parameter | Current value | Meaning |
+| --- | --- | --- |
+| economy.startingCapital | 0 | Starting credits |
+| economy.bankruptcyLimit | −50 | Run ends at or below this balance |
+| economy.mineralPrice | 40 | Credits per sold mineral |
+| economy.electricityRate | 0.55 | Credits per kW-minute |
+| economy.manualTerrainRate | 0.02 | Credits per changed terrain sample |
+| economy.power.miner / gardener / builder | 6 / 3 / 8 | kW while working |
+| signal.planetsAfter / maxPlanets | 3 / 5 | First reveal broadcast count / maximum entries |
+| signal.pulseSeconds / planetFadeSeconds | 3.2 / 4 | Visual seconds |
+
+D-037 changes intended presentation only. Funds scope across persistent sites, revised bankruptcy and inactive-world billing remain open.
+
+## Resident and planet tuning — planned parameter responsibilities
+
+No HAB/RES configuration keys exist yet. Names below describe tuning responsibilities, not new code constants. All numerical initial values remain TBD until the first implementation/playtest.
+
+| Responsibility | Why it matters | Status |
+| --- | --- | --- |
+| Resident body clearance and cavity fit | Distinguish snug shelters from blocked cavities or exposed pits | TBD |
+| Disturbance radius and work strength | Make local reactions visible without affecting the whole planet | TBD |
+| Disturbance decay and quiet delay | Distinguish short retreat from lasting relocation | TBD |
+| Sustained-disturbance duration | Avoid moving house after every brief action | TBD |
+| Relocation advantage and cooldown | Prevent oscillation | TBD |
+| Companion radius and bias | Form small groups without overriding safe access | TBD |
+| Search radius / candidate limit / movement step | Bound workload and respect terrain | TBD |
+| Initial count and size variation | Keep one species readable and affordable | TBD |
+| Planet radius / roughness / resource abundance ranges | Make independent starting differences visible | TBD |
+| Overview detail and revision refresh budget | Show live shape without full-resolution rendering of every world | TBD |
+
+Evidence to record: brief disturbance/recovery, sustained disturbance, unsuitable pit vs suitable cavity, blocked entrance, no available home, competing residents and normal-camera readability. Use HAB-T/RES-T checks in [spec.md](spec.md). Do not invent “measured” timings before observing them.
 
 ## Robot prototype tuning (D-023)
 
@@ -31,9 +67,12 @@ Values live in `src/config/tuning.ts` (`miner`). All are `guess`: no playtest ha
 | No-progress limits | Stops blocked work without endless retries | 45 stalled dig ticks; 900 move ticks; 600 dig ticks |
 | Edits per step | Caps remesh workload | 1 dig edit per robot per tick |
 
-Purchase prices, slot expansion, electricity costs and departure reserves remain deferred. Legacy fixed-cycle/energy numbers below are historical references superseded by D-022. Existing brush, Detector and LOD values remain valid for their implemented tools.
+Robot purchase prices and slot expansion remain deferred. Operating electricity and manual terrain costs are implemented; use the current snapshot above. The fixed-cycle/energy numbers below are historical references superseded by D-022. Existing brush, Detector and LOD values remain relevant to their implemented tools.
 
-## 1. Budget and economy
+## 1. Budget and economy — historical fixed-budget proposals
+
+This legacy table is retained for provenance. It is not the active operating account and must not overwrite current economy.* values. Fields remaining in code do not mean fixed-budget gameplay is active.
+
 
 | Parameter | Value | Range to try | Source | Notes |
 | --- | --- | --- | --- | --- |
@@ -195,6 +234,10 @@ Values live in `src/config/tuning.ts` (`visual`); colors live in `src/config/pal
 | `visual.atmosphere.falloff` | Height falloff, thin / dense dust | 0.05 / 0.24 | board |
 | `visual.atmosphere.rim` | Limb tint toward the atmosphere color | 0.35 | board |
 | `visual.atmosphere.drift` | Inner / outer shell drift (rad/s) | 0.03 / 0.012 | board |
+
+## Documentation change log
+
+- **2026-10-20 / D-034–037:** Documented current operating values and planned resident/planet tuning responsibilities. No runtime parameters changed and no playtest results were added.
 
 ## Playtest log
 

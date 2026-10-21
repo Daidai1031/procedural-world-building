@@ -1,53 +1,52 @@
 # Terraforming Contractor #1380 — Docs
 
-Design and development documents for the game. They are meant to be **edited while the game is being built**, not written once and frozen.
+The project is a **procedural sandbox where players freely reshape different planets**.
+
+**Starting conditions → player choices and robot work → environmental change → resident responses → different planetary outcomes.**
+
+## Start here
+
+1. [design.md](design.md): the player's freedom, experience and design intent.
+2. [procedural-system.md](procedural-system.md): how the causal chain works, including the first cave-dwelling species and persistent planets.
+3. [roadmap.md](roadmap.md): what to implement next, starting with one resident response.
+4. [spec.md](spec.md): exact requirements and future acceptance checks.
+
+**Current implementation:** terrain tools, Miner/Gardener/Builder, plant/antenna behavior, operations, surface exploration/atlas and reset-style travel.
+
+**Planned:** responsive residents, retained worlds across travel, independently varied playable planet sizes/resources and a live 3D overview. Documentation changes do not implement these.
 
 ## The documents
 
-| File                           | Answers                                                                                       | Changes when…                                        | Change how often                     |
-| ------------------------------ | --------------------------------------------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------ |
-| [`design.md`](design.md)       | **Why and what it feels like.** Pillars, story, tone, metrics, endings, art direction.        | the vision changes                                   | rarely; always with a decision entry |
-| [`spec.md`](spec.md)           | **What exactly the game must do.** Requirements with IDs, state, algorithms, controls, tests. | a rule is decided, or building teaches you something | often                                |
-| [`content.md`](content.md)     | **What the player reads.** Notices, archives, audit and ending text, all classifications.     | you rewrite a line or add an outcome                 | often                                |
-| [`tuning.md`](tuning.md)       | **Which numbers, and why.** Balance values, plus the playtest log.                            | after every playtest                                 | very often                           |
-| [`roadmap.md`](roadmap.md)     | **What to build next.** Milestones as playable slices with checklists.                        | a task finishes or the plan shifts                   | weekly                               |
-| [`decisions.md`](decisions.md) | **Why we chose that.** Decision log, open questions, rejected ideas.                          | any time design or spec changes                      | every change                         |
-| [`component-board.html`](component-board.html) | **What every component looks like.** The D-027 visual comparison board (open in a browser).    | a component style is chosen again                    | rarely                               |
-| [`archive/`](archive/)         | GDD v0.5, kept for reference.                                                                 | never                                                | –                                    |
+| File | Responsibility |
+| --- | --- |
+| [design.md](design.md) | Why the game exists, player experience and design pillars |
+| [procedural-system.md](procedural-system.md) | Readable causal explanation; rules link to spec rather than duplicate exact schemas |
+| [spec.md](spec.md) | Stable requirement IDs, current/planned state, algorithms and acceptance |
+| [content.md](content.md) | Draft player-facing copy, labels and tone; distinguish drafts from installed strings |
+| [tuning.md](tuning.md) | Current runtime values, planned parameter responsibilities and actual playtest evidence |
+| [roadmap.md](roadmap.md) | Active playable slices, then retained development history |
+| [decisions.md](decisions.md) | Accepted/proposed decisions and their reasons |
+| [reviews/2026-10-20-crit.md](reviews/2026-10-20-crit.md) | Paraphrased crit themes, subsequent decisions and evidence to collect |
+| [component-board.html](component-board.html) | Existing D-027 visual comparison board; resident body still undecided |
+| [archive/](archive/) | Historical GDD; not the active backlog |
 
-A rule of thumb: **design.md is the reason, spec.md is the rule, tuning.md is the number, content.md is the words.** If you are unsure where something goes, ask which of those it is.
+Design explains the intent; procedural-system connects effects; spec defines checkable rules; tuning holds numbers; content holds words.
 
-## Working agreement: changing the design while building
+## Updating these documents
 
-1. **Notice.** A playtest, a technical wall, or a new idea suggests a change.
-2. **Log it.** Add a `D-` entry to [`decisions.md`](decisions.md) (context, decision, why, what it affects). For a value change only, a line in the [playtest log](tuning.md#playtest-log) is enough.
-3. **Update the docs.** Edit `design.md` if the vision changed, `spec.md` if a rule changed, `content.md` for wording, `tuning.md` for numbers. Put the `D-` number in the change log at the bottom of the file.
-4. **Update the code and the roadmap** in the same commit or PR. Commit messages can start with the IDs they touch, for example `TERR-03: add chunk border`.
-5. **If code and docs disagree, one is wrong.** Fix it the same day.
+- Record design changes with a new D-number; preserve old decision text and explicitly describe supersession.
+- Distinguish **accepted**, **proposed**, **implemented**, and **verified in play**. They are different statuses.
+- Keep requirement IDs stable. Preserve historic completion records; do not mark future resident/planet work done because it is documented.
+- Documentation-only changes may record future design while explicitly stating that runtime is unchanged. Mark any implementation gap. Update code and matching status when that feature is built.
+- Actual runtime types and values live in src/state/runState.ts and src/config/tuning.ts. Spec/tuning snapshots describe the checked version; future schemas/values must be marked planned.
+- D-034–037 define the accepted sandbox direction. D-038 antenna separation is proposed only.
+- Detailed accounting can stay internal, but existing critical restrictions must remain understandable. No bankruptcy redesign is approved by D-037.
+- Historical narrative scope remains available; its old MVP labels are not the active task order.
 
-### Conventions
+## Next implementation
 
-- **Requirement IDs** (`TERR-03`, `CLS-07`, …) are permanent. Do not renumber. Cut a requirement by marking it `cut`, not by deleting it.
-- **`TUNE`** in the spec marks a number that lives in `tuning.md` and `src/config/tuning.ts`.
-- **`(open)` and `OQ-xx`** mark an undecided point. Each open question has a suggested default in `decisions.md` so work never waits.
-- **Status values** in the spec: `todo` · `wip` · `done` · `cut` · `?`.
-- **Naming.** One canonical English name per concept (Capital, Biosphere, Development Readiness, Stability, Historical Significance, Planet Remaining, Cosmic Exposure, Planetary Memory, Terrain Tool, Terrain Canister, Deep Echo). Use the same word in docs, code, and UI.
+S1 in [roadmap.md](roadmap.md): one species, valid snug cavities, local work disturbance, peeking/retreat and return after quiet. Use HAB-01–04 / RES-01–03/08 and their acceptance checks. Relocation follows in S2; persistent travel in S3; the overview in S4.
 
-## Suggested first steps
+## Location
 
-1. Read [`design.md`](design.md) §1–§7 for the autonomy-first direction and simple controls.
-2. Read D-022 in [`decisions.md`](decisions.md); legacy first-person and fixed-budget questions are deferred.
-3. Build R1 in [`roadmap.md`](roadmap.md), using AUT-01–12 in [`spec.md`](spec.md): one autonomous Miner. R2 adds multiple Miners; R3 adds one second behavior.
-
-R1 (one autonomous Miner) is implemented, see D-023. Multiple Miners (R2) and a second behavior (R3) are planned, not done.
-
-## Where this sits in the repo
-
-```text
-procedural-world-building/
-├── worldbuilding-guidebook/
-└── terraforming-1380/
-    ├── docs/            ← you are here
-    ├── src/
-    └── README.md        (how to run the game)
-```
+All game design/development docs stay in terraforming-1380/docs/. Course assignments remain under the repository's docs/exercise/; lesson content remains under worldbuilding-guidebook/. No lesson or exercise content was changed in this update.

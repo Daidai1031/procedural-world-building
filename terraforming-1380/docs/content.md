@@ -2,16 +2,53 @@
 
 | | |
 | --- | --- |
-| **Status** | Draft v0.1 |
-| **Last updated** | 2026-10-14 |
+| **Status** | Draft v0.2 — sandbox copy and current/legacy separation |
+| **Last updated** | 2026-10-20 |
 | **Purpose** | Every line the player reads, and every classification, in one place. Easy to edit, easy to review for tone. |
-| **Rule** | Each entry has a **key**. The game loads text by key from `src/content/*.json`. Changing the wording here and in the JSON should never need a code change. |
+| **Rule** | Entries use stable draft keys. Planned text is not implemented JSON. Some current UI text is still inline; verify its runtime location before changing it. |
 
 **Voice guide.** The company is calm, warm, and businesslike, and describes destruction as optimization. It never raises its voice and never apologizes. The predecessor (#1379) is terse and flat. The unknown is minimal: fewer words each time it speaks.
 
 ---
 
-## Robot prototype copy — planned (D-022)
+## Sandbox copy — planned (D-034–037)
+
+These are drafting keys, not installed localization keys. Residents communicate primarily through movement; observation text is secondary and appears only when useful.
+
+| Draft key | Text | Use |
+| --- | --- | --- |
+| project.pitch | A procedural sandbox for reshaping different planets. | Project introduction |
+| resident.observation.retreat | Nearby residents have retreated into shelter. | Optional local observation; only after observed behavior |
+| resident.observation.moving | A group is moving toward quieter shelter. | Only if the destination/behavior actually supports this statement |
+| resident.observation.return | Residents are emerging again. | Quiet recovery |
+| resident.observation.newHome | A newly formed cavity is now occupied. | Actual occupation, not any excavation |
+| resident.observation.searching | Residents are looking for shelter. | Bounded visible search/wait |
+| system.open | View discovered planets | Overview entry |
+| planet.visit | Visit planet | Stored world navigation |
+| planet.discovered | Discovered | Identity/status |
+| planet.terrainChanged | Terrain changed | Descriptive value; definition still open |
+| planet.activeWork | Active robots | Only running work counted |
+| operations.details | Operating details | Optional detail disclosure |
+
+Avoid “residents unhappy,” “planet failed,” or a universal “100% developed.” Do not report an entire species leaving a planet when only local relocation was simulated.
+
+### Compact operating messages
+
+Keep causes and remedies truthful to actual state. Funding is internal/compact, not invisible when it can end the run. Reuse the existing communicator instead of adding routine per-charge messages.
+
+- If minerals are in stock when funds are low, offer the existing sell action.
+- If no minerals are available, do not offer a nonexistent sale or imply sales are automatic.
+- A soil shortage explains why filling cannot continue and points to collecting soil or changing the task.
+- Current bankruptcy still requires an honest terminal message. Changing that rule is open, not a copy edit.
+
+### Draft role descriptions
+
+- **Miner:** Finds minerals and excavates toward them.
+- **Builder:** Cuts and fills ground using available soil.
+- **Gardener:** Grows vegetation on suitable ground. The current prototype also places antennas; D-038 proposes separating this role.
+- **Signal facility:** Broadcast to discover other planets. The current Gardener supplies antennas; final construction interaction is open.
+
+## Robot prototype copy — retained drafts (D-022)
 
 These keys are drafts for the next robot UI, not implemented JSON or UI. Economy and endings below remain later content.
 
@@ -30,6 +67,10 @@ These keys are drafts for the next robot UI, not implemented JSON or UI. Economy
 | robot.stop.blocked | Cannot continue excavation. Reassign work area. |
 
 Show the actual phase and selected target. Avoid a long tutorial or managerial questionnaire in R1.
+
+## Legacy narrative copy — retained, mostly deferred
+
+The opening/company voice may remain useful. Audit rewards, detailed statistics, archives and endings below are retained proposals, not an implementation report or mandatory sandbox UI. In particular, current D-032 broadcasts do not grant the financial rewards shown in legacy copy.
 
 ## 1. Opening
 
@@ -344,6 +385,9 @@ To be written. Suggested shape: one short sentence per fate, in company voice fo
 ---
 
 ## Change log
+
+- **2026-10-20 / D-034–038:** Added draft resident observations, descriptive planet labels and compact operating guidance; separated proposed copy from current runtime and legacy narrative text. No JSON or inline UI strings were changed.
+
 
 | Date | Change |
 | --- | --- |
