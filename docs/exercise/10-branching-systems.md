@@ -4,11 +4,11 @@
 **Course section:** Lesson 08 — Branching Systems  
 **Project:** [`worldbuilding-guidebook`](../../worldbuilding-guidebook/)  
 **Lesson content:** [`content/lessons/08-branching-systems/`](../../worldbuilding-guidebook/content/lessons/08-branching-systems/)  
-**Status:** Planned — eight learner-facing steps written; no branching scene, controls, practice scorer, asset generator, LOD renderer, or resident simulation implemented by this change.
+**Status:** Built, not yet reviewed by the author — all eight steps implemented on 2026-10-21 with source excerpts, fill practices and browser checks: 2D instruction playback, rewrite generations, bracket stack and forks, depth shaping, a seeded 3D asset lab, growth animation, three detail levels with real triangle counts, and a two-world resident experiment. Microscope was not played.
 
 ## Exercise goal and agreed scope
 
-Move from drawing instructions to an original procedural asset, then use an independent small world experiment to explore alternative outcomes. The learner is a complete beginner. Left-column prose is Chinese with English technical terms introduced in context; implementation notes stay in this document.
+Move from drawing instructions to an original procedural asset, then use an independent small world experiment to explore alternative outcomes. The learner is a complete beginner. The first plan said left-column prose is Chinese with English terms. Steps 01–02 were written in English instead, because `worldbuilding-guidebook/CLAUDE.md` fixes learner-facing content to English (the search index is English-only) and Lessons 01–07 are English. All eight steps are English. Implementation notes stay in this document.
 
 | Part | Included in the first implementation | Deferred |
 | --- | --- | --- |
@@ -27,9 +27,9 @@ Source basis: the uploaded Branching Systems slide screenshots and the lecture t
 
 | Lecture / assignment direction | Planned evidence | Status |
 | --- | --- | --- |
-| Explore L-systems for procedural geometry, including cases beyond trees | Explain axiom, productions, rewrite generations and interpretation; design an original alien asset, Steps 01–05 | Not started |
-| Consider multiple LODs and their role in frame rate | Same mature asset at three detail levels; actual rendered triangle counts and a distance-transition comparison, Step 07 | Not started |
-| Consider procedural world building with multiple possible outcomes | Same initial patch and rules, only robot work location differs; observed state and causal explanation, Step 08 | Not started |
+| Explore L-systems for procedural geometry, including cases beyond trees | Explain axiom, productions, rewrite generations and interpretation; design an original alien asset, Steps 01–05 | Built (see Steps 01–05 results) |
+| Consider multiple LODs and their role in frame rate | Same mature asset at three detail levels; actual rendered triangle counts and a distance-transition comparison, Step 07 | Built; counts recorded in Step 07 |
+| Consider procedural world building with multiple possible outcomes | Same initial patch and rules, only robot work location differs; observed state and causal explanation, Step 08 | Built; timings recorded in Step 08 |
 | Consider playing Microscope with classmates | Optional session notes describing a real contribution and its effect on the project | Optional; not played as part of this change |
 
 **Completion rule:** text and plans do not complete an exercise. Mark a step Done only after implementation, checks in the running app, and a filled Result entry. No invented measurements, screenshots, game integrations or classroom activities.
@@ -38,14 +38,14 @@ Source basis: the uploaded Branching Systems slide screenshots and the lecture t
 
 | Step | Lesson file | Status |
 | --- | --- | --- |
-| 01 · Follow Instructions | [01-follow-instructions.mdx](../../worldbuilding-guidebook/content/lessons/08-branching-systems/steps/01-follow-instructions.mdx) | Not started |
-| 02 · Rewrite & Repeat | [02-rewrite-and-repeat.mdx](../../worldbuilding-guidebook/content/lessons/08-branching-systems/steps/02-rewrite-and-repeat.mdx) | Not started |
-| 03 · Create Branches | [03-create-branches.mdx](../../worldbuilding-guidebook/content/lessons/08-branching-systems/steps/03-create-branches.mdx) | Not started |
-| 04 · Shape the Branches | [04-shape-the-branches.mdx](../../worldbuilding-guidebook/content/lessons/08-branching-systems/steps/04-shape-the-branches.mdx) | Not started |
-| 05 · Design an Alien Asset | [05-design-an-alien-asset.mdx](../../worldbuilding-guidebook/content/lessons/08-branching-systems/steps/05-design-an-alien-asset.mdx) | Not started |
-| 06 · Animate Growth | [06-animate-growth.mdx](../../worldbuilding-guidebook/content/lessons/08-branching-systems/steps/06-animate-growth.mdx) | Not started |
-| 07 · Detail at a Distance | [07-detail-at-a-distance.mdx](../../worldbuilding-guidebook/content/lessons/08-branching-systems/steps/07-detail-at-a-distance.mdx) | Not started |
-| 08 · Branching Worlds | [08-branching-worlds.mdx](../../worldbuilding-guidebook/content/lessons/08-branching-systems/steps/08-branching-worlds.mdx) | Not started |
+| 01 · Follow Instructions | [01-follow-instructions.mdx](../../worldbuilding-guidebook/content/lessons/08-branching-systems/steps/01-follow-instructions.mdx) | Built; checked in browser 2026-10-21 |
+| 02 · Rewrite & Repeat | [02-rewrite-and-repeat.mdx](../../worldbuilding-guidebook/content/lessons/08-branching-systems/steps/02-rewrite-and-repeat.mdx) | Built; checked in browser 2026-10-21 |
+| 03 · Create Branches | [03-create-branches.mdx](../../worldbuilding-guidebook/content/lessons/08-branching-systems/steps/03-create-branches.mdx) | Built; checked in browser 2026-10-21 |
+| 04 · Shape the Branches | [04-shape-the-branches.mdx](../../worldbuilding-guidebook/content/lessons/08-branching-systems/steps/04-shape-the-branches.mdx) | Built; checked in browser 2026-10-21 |
+| 05 · Design an Alien Asset | [05-design-an-alien-asset.mdx](../../worldbuilding-guidebook/content/lessons/08-branching-systems/steps/05-design-an-alien-asset.mdx) | Built; checked in browser 2026-10-21 |
+| 06 · Animate Growth | [06-animate-growth.mdx](../../worldbuilding-guidebook/content/lessons/08-branching-systems/steps/06-animate-growth.mdx) | Built; checked in browser 2026-10-21 |
+| 07 · Detail at a Distance | [07-detail-at-a-distance.mdx](../../worldbuilding-guidebook/content/lessons/08-branching-systems/steps/07-detail-at-a-distance.mdx) | Built; checked in browser 2026-10-21 |
+| 08 · Branching Worlds | [08-branching-worlds.mdx](../../worldbuilding-guidebook/content/lessons/08-branching-systems/steps/08-branching-worlds.mdx) | Built; checked in browser 2026-10-21 |
 
 ## Shared learning and canvas contract
 
@@ -78,7 +78,7 @@ Suggested parameter prefix: `branching`. Store generated structure separately fr
 
 ## Step 01 · Follow Instructions
 
-**Status:** Not started
+**Status:** Built (2026-10-21)
 
 **Understand.** A turtle is a drawing pen with position and heading. `F` draws; `+` and `-` rotate without translation.
 
@@ -90,11 +90,11 @@ Suggested parameter prefix: `branching`. Store generated structure separately fr
 
 **Project inspiration.** Inspect a generated skeleton before investing in its material or mesh.
 
-**Result.** —
+**Result.** Built in `src/scene/demos/branching/` (`turtle.js`, `lineExample.js`, `playback.js`, `BranchingDemo.jsx`) with `BranchingPanel.jsx` replacing the control strip. Measured with `scripts/branching.test.mjs` and `tests/lesson08.spec.js`: `F + F - F` at 90° ends at (0, 1.2) → turn → (-1.2, 1.2) → turn → (-1.2, 2.4) with 3 segments; the two turn instructions leave position and segment count unchanged (heading 0° → 90° → 0°). Replay reaches 5 of 5 on its own at 0.8 s per instruction. Segment length is fixed at 1.2 units. The step asks for the 30° / 90° comparison in prose; the test checks that the two end points differ, not the learner's reasoning. Added `scene.cameraPose: front` so the shared canvas faces the flat drawing; the panel's Recenter view button returns to it (added 2026-10-21 with Step 05; the other lesson panels have no such button).
 
 ## Step 02 · Rewrite & Repeat
 
-**Status:** Not started
+**Status:** Built (2026-10-21)
 
 **Understand.** Axiom `F`; production `F → F+F`; generation 0 is unchanged input. Replacements happen in parallel from the old string, never recursively within the same pass.
 
@@ -106,11 +106,11 @@ Suggested parameter prefix: `branching`. Store generated structure separately fr
 
 **Project inspiration.** Save a rule family to create related assets; do not treat more generations as automatically better design.
 
-**Result.** —
+**Result.** Rewrite is `generate` / `rewrite` in `lsystem.js`, limits 20,000 symbols and 4,096 F. Measured generations 0–4 hold 1, 2, 4, 8, 16 F (read from the panel in the browser, and from the generator in the tests); generation 2 is `F+F+F+F`; `+` survives; `rewrite('F', { F: 'FF' })` gives `FF`, so replacement reads the old string only. At 45° generation 3 closes a regular octagon and generation 4 draws it twice over (16 F, 8 distinct edges), which is the overlap the step warns about. The limit path was tested with `F → FFFFFFFF`: generation 4 (4,096 F) is kept and generation 5 is refused for symbols; a 100-F cap refuses generation 7 for segments and keeps generation 6. The slider only reaches 4, so the refusal message is never shown in the UI for this rule. Segment length 0.6; at the 15° minimum, generation 4 spans x −3.1…1.5 and y −0.3…3.8 on the board and stays inside it. No explicit Fit View button: Recenter view restores the front view but does not zoom.
 
 ## Step 03 · Create Branches
 
-**Status:** Not started
+**Status:** Built (2026-10-21)
 
 **Understand.** `[` saves and `]` restores position, heading and attachment; nested records return in reverse order.
 
@@ -122,11 +122,11 @@ Suggested parameter prefix: `branching`. Store generated structure separately fr
 
 **Project inspiration.** Explore root-like, mineral-like and attached-life skeletons without requiring realistic trees.
 
-**Result.** —
+**Result.** Brackets are in `turtle.js` (`save`, `restore`, validation in `parseInstructions`); `tree.js` adds segment ids, parents and depth; `forkExample.js` holds the presets. Measured with `scripts/branching.test.mjs` and `tests/lesson08.spec.js`: `F[+F]F` at 90° gives segments (0,0)→(0,1.2), (0,1.2)→(−1.2,1.2) and (0,1.2)→(0,2.4) with parents none, 0, 0 and depths 0, 1, 0, so the second trunk piece continues from the first segment and no line joins the side tip to the trunk tip. `]` leaves the segment count unchanged and restores position, heading, depth and parent; nested `F[+F[+F]F]F` gives depths 0, 1, 2, 1, 0 with at most 2 saved spots. `F]`, `F[+F` and `]F[` are refused before drawing. The one-sided rule `F → F[+F]F` has 1, 3, 9, 27 F at generations 0–3 and the two-sided rule `F → F[+F]F[-F]F` has 1, 5, 25, 125 F (311 symbols at generation 3). Segment length is divided by the number of trunk pieces per rewrite (2 or 3) so every generation reaches the same 4.2-unit trunk, which means drawings at different generations are not at a fixed segment length, unlike Step 02. The saved-spot ring, heading tick, dashed return cue and turn arc were checked in screenshots. Practice is a fill on `restore`; no new scorer.
 
 ## Step 04 · Shape the Branches
 
-**Status:** Not started
+**Status:** Built (2026-10-21)
 
 **Understand.** Branch depth and rewrite generation are different. Each nested bracket increases depth; restoring the stack restores it. A length ratio of 0.7 produces 1, 0.7, 0.49 at depths 0, 1, 2.
 
@@ -138,11 +138,11 @@ Suggested parameter prefix: `branching`. Store generated structure separately fr
 
 **Project inspiration.** Define a species through proportions and silhouette rather than colour alone.
 
-**Result.** —
+**Result.** Length is `length * lengthRatio ** depth` in `interpretTree` and thickness is `radiusAtDepth`, capped at 0.1. Measured in tests: with a 0.7 ratio the lengths at depths 0, 1, 2 are 1, 0.7, 0.49; changing the ratio from 1 to 0.4 leaves every segment's id, parent and depth unchanged, and every child still starts at its parent's end. Generation 2 of the two-sided rule already contains depths 0, 1, 2, so one generation holds several depths; generation 3 contains depths 0–3. Equal ignores both ratios (all segments share one width and length). A thickness ratio above 1 thickens outward and the panel says so. Click-to-inspect was checked in the browser by clicking the trunk: segment 60, depth 0, parent segment 54, length 0.16, thickness 0.09 at the defaults. Colour off keeps a readable silhouette in the screenshot; colour is drawn per depth with the layers at slightly different depths so overlaps do not flicker. Limits seen: at ratio 1.2 the outer tips become short thick blocks, which is the effect the step asks about, not a bug. Practice is a fill on `radiusAtDepth`.
 
 ## Step 05 · Design an Alien Asset
 
-**Status:** Not started
+**Status:** Built (2026-10-21)
 
 **Understand.** Rule family and parameters define the main character; bounded seeded variation differentiates individuals. Solid thickness and out-of-plane spread are distinct controls.
 
@@ -156,11 +156,11 @@ Suggested parameter prefix: `branching`. Store generated structure separately fr
 
 **Project inspiration.** A future Asset Lab could save rule/config/seed, then feed selected assets to Lesson 05's population system. This step produces no game integration.
 
-**Result.** —
+**Result.** `asset.js` (`generateAsset`, generator version 1), `assetGeometry.js` (tubes, skeleton), `AssetScenes.jsx`. One 3D pen walks the same instruction strings as the 2D lab; each `[` rolls the pen about its heading by spread × 137.5° × branch count, so spread 0 stays flat. Every random number comes from one seeded generator, consumed in instruction order, so camera, look and helpers never touch it. Measured in tests: the same configuration, version and seed give identical segment data; another seed does not; at variation 0 every seed gives the same asset; at spread 0 and variation 0 the asset matches the planar lab's endpoints with z = 0; at spread 0.7 some segments sit more than 0.05 off the plane; every side branch still starts at its parent's end in 3D; a 0.2 variation keeps every length within ±20% of the unvaried one. In the browser the canvas bytes for seed 5 were identical before and after visiting seed 6. Designs at generation 3, 27 segments each, size (width × depth × height, then widest side over height): Cave Fan 1.11 × 0.81 × 1.40 (0.79), Stone Coral 0.42 × 0.49 × 1.21 (0.40), Whisper Root 0.27 × 0.64 × 3.06 (0.21). Cave Fan uses a third rule, `F → F[+F][-F]`, which forks at the tip; its size is measured from the finished shape and scaled to its height, because trunk-based sizing does not work for it. The two fork-style rules could not make a wide fan, which is why. Three small copies (seeds 1–3, scale 0.45) stand beside the main asset at one shared scale. Preview hides only the floor grid. Choosing a design writes its angle, ratios, spread and variation; the 3D lab has its own angle and ratio settings so the 2D lab's values are not overwritten. Cave Fan is wide rather than low. No save, export or game integration.
 
 ## Step 06 · Animate Growth
 
-**Status:** Not started
+**Status:** Built (2026-10-21)
 
 **Understand.** Animate a precomputed structure; do not claim biological simulation. Parent attachment, not depth alone, determines connected growth.
 
@@ -172,11 +172,11 @@ Suggested parameter prefix: `branching`. Store generated structure separately fr
 
 **Project inspiration.** Optional reveal/awakening after excavation; seasonal change and environment-adaptive growth stay deferred.
 
-**Result.** —
+**Result.** `growth.js` (`growthSchedule`, `growthProgress`), `GrowthScene` in `AssetScenes.jsx`. The asset is generated once; time only chooses how much shows, and nothing in the animation is random. Measured in tests: at time 1 both modes equal the full graph (to 1e-9); at times 0, 0.2, 0.5, 0.9 every piece starts at the end its parent is showing; in From the base each piece starts exactly when its parent finishes, siblings start together and the last finish is at 1; at time 0.5 Together shows every piece at progress 0.5 while From the base differs; scrubbing 0 → 1 → 0.5 gives the same pieces as 0.5 first. In the browser (Cave Fan, 27 segments): at 0.5 From the base reports 7 of 27 pieces finished; at time 1 both modes report 27 of 27 finished and 0 growing; at time 0, 0 of 27. Play takes 4 seconds. Pieces are redrawn into fixed buffers each frame; no regeneration. Not measured: frame time.
 
 ## Step 07 · Detail at a Distance
 
-**Status:** Not started
+**Status:** Built (2026-10-21)
 
 **Understand.** LOD is multiple render versions of one asset, not age, species, or style. Triangle count measures geometry scale, not total frame time.
 
@@ -188,11 +188,11 @@ Suggested parameter prefix: `branching`. Store generated structure separately fr
 
 **Project inspiration.** Asset LOD can support surface populations. The live solar-system terrain overview is a separate game requirement; this lesson's LOD demo does not implement it.
 
-**Result.** —
+**Result.** `lod.js` (`buildLodSet`, `chooseLod`), `LodScene`. All levels are cut from the one seeded asset: LOD 1 drops the finest branches and LOD 2 keeps the trunk and first side branches, so every kept segment is the identical segment object. Cave Fan defaults: LOD 0 has 27 segments, 8 sides, 432 triangles; LOD 1 has 19 segments, 4 sides, 152 triangles; LOD 2 has 7 segments, 3 sides, 42 triangles. Triangle counts come from the index length of the same tube geometry that is drawn. Level choice is monotonic over distance 0–60 in both directions, switches exactly at the thresholds (below 8 → LOD 0, 8 up to 14 → LOD 1, 14 and beyond → LOD 2), and stays ordered even if the far slider is dragged below the near one. In the browser: camera distance 5 draws LOD 0 with 432 triangles, 11 draws LOD 1 with 152, 25 draws LOD 2 with 42; Level locked to LOD 1 keeps LOD 1 at any distance. Switching is abrupt on purpose, so popping can be seen. The camera distance slider moves the camera; zooming with the mouse updates the readout. Not done: distance bands drawn on the floor, the small repeated cluster, any frame-time measurement, crossfade. Geometries are disposed by effect cleanup when the asset changes; that was not inspected on the GPU.
 
 ## Step 08 · Branching Worlds
 
-**Status:** Not started
+**Status:** Built (2026-10-21)
 
 **Understand.** A branching narrative can author alternatives in advance. A rule-based environment experiment generates consequences from state. Neither automatically uses an L-system. Multiplicity does not require nondeterminism: identical input can reproduce the same run.
 
@@ -208,24 +208,24 @@ Move only world B's work marker; Play / Pause / Step and Synchronous Reset affec
 
 **Project inspiration.** Directly explores [the game's procedural chain](../../terraforming-1380/docs/procedural-system.md): starting conditions → robot work → environment change → resident response → outcome. The game uses habitat fit, disturbance and nearby companions for its first species; this lesson isolates disturbance and reachability. Promotion into the game requires actual edited-density shelter checks and the current [specification](../../terraforming-1380/docs/spec.md), not copying this teaching patch as a complete resident implementation. Keep money and win/lose labels outside the demo.
 
-**Result.** —
+**Result.** `worldExperiment.js` (pure simulation), `worldPlayback.js`, `WorldScene.jsx`, `WorldSide` in `BranchingLabPanels.jsx`. A 13 × 7 cave with three floor rows, four one-resident pocket cells (A at x 2–3, B at x 8–9 above the corridor), three residents at (2,4), (4,5), (5,3). Noise falls linearly to 0 at 6 cells from the robot and the robot's level rises 0.5 per second and falls 0.25 per second. A resident above 0.3 for 3 seconds (cooldown 8 s after a move) picks a pocket cell that has room, has noise at most 0.3, and is at least 0.15 quieter than where it stands, then walks a shortest path at 1.5 cells per second; otherwise it stays and logs why. Fixed step 1/30 s, no randomness. Measured over 20 simulated seconds: world A (robot at the far end) never changes; world B with the robot near the residents: residents 1 and 2 set off at 3.73 s and 3.80 s, reach pocket B at 10.4 s and 9.13 s, resident 3 stays at (5,3) because no pocket is quiet enough (logged at 3.97 s); Middle: residents 3 and 2 set off at 3.97 s and 4.30 s and reach pocket A at 7.30 s and 7.63 s while resident 1 stays calm; Far end: nothing happens and the log is empty; Quiet pockets None: all three bothered residents stay with 'no pocket has room' at 3.73–3.97 s. Tests also confirm: two runs are independent copies and match when the work spot matches; every cell and path step is walkable; a pocket cell never holds two residents; 30 Hz and 144 Hz frame delivery give the same final cells and log (step counts within 1); noise fades and a bothered resident logs 'is quiet again' after work stops; each log set-off has an arrival. In the browser: pausing leaves the log unchanged; toggling the noise overlay leaves the status text unchanged; Sync Reset empties the log; Restore Example resets the work spot and the pockets. World B's marker is chosen from a menu, not by clicking. A different route-blocked case is only tested through the path function because this map has none. These are teaching rules, not the game's resident rules. No Microscope session was played.
 
-## Evidence to fill after implementation
+## Evidence summary
 
 | Record | Values / observations |
 | --- | --- |
-| Asset intent and reference characteristics | — |
-| Axiom, productions, generation and limits | — |
-| Angle, length/radius ratios, spatial spread and variation | — |
-| Seed and generator version | — |
-| Growth schedule and comparison | — |
-| LOD 0 / 1 / 2 actual triangle counts and thresholds | — |
-| Initial world layout / residents / walkable routes / capacities | — |
-| Disturbance falloff, threshold, delay, fade and cooldown | — |
-| Controlled work positions, timestep and comparison duration | — |
-| Actual resident transitions and any no-route outcome | — |
-| Screenshots / recordings and source references | — |
-| Problems, fixes and next experiment | — |
+| Asset intent and reference characteristics | Three exploratory designs, not game species: Cave Fan (wide fork), Stone Coral (short, thick), Whisper Root (tall, sparse). Sizes in Step 05. No reference images were collected. |
+| Axiom, productions, generation and limits | Axiom `F`; `F → F+F` (Step 02); `F → F[+F]F`, `F → F[+F]F[-F]F`, `F → F[+F][-F]`; 20,000 symbols and 4,096 F; sliders reach generation 4 (2D) and 3 (forks, assets). |
+| Angle, length/radius ratios, spatial spread and variation | Defaults in `params.js`; designs write their own values (`ASSET_PRESETS`). Radius cap 0.1. Spread rolls each `[` by spread × 137.5°; variation up to ±50%. |
+| Seed and generator version | Seeds 1–99, default 1; thumbnails use 1, 2, 3; generator version 1. |
+| Growth schedule and comparison | Shared 0–1 timeline played over 4 s; Together vs From the base; numbers in Step 06. |
+| LOD 0 / 1 / 2 actual triangle counts and thresholds | 432 / 152 / 42 triangles (Cave Fan, 27 / 19 / 7 segments, 8 / 4 / 3 sides); thresholds 8 and 14. |
+| Initial world layout / residents / walkable routes / capacities | 13 × 7 patch, three residents, two pockets of two cells, one resident per cell, 4-direction shortest paths. |
+| Disturbance falloff, threshold, delay, fade and cooldown | Linear to 0 at 6 cells; threshold 0.3; delay 3 s; improvement 0.15; cooldown 8 s; level rise 0.5/s, fall 0.25/s. |
+| Controlled work positions, timestep and comparison duration | World A at (11,3); World B at (3,4), (7,4) or (11,3); step 1/30 s; 20 simulated seconds. |
+| Actual resident transitions and any no-route outcome | Times in Step 08. No route-blocked case occurs on this map; it is only covered by the path function test. |
+| Screenshots / recordings and source references | `worldbuilding-guidebook/artifacts/lesson08/`; source in `src/scene/demos/branching/`; tests `scripts/branching.test.mjs` and `tests/lesson08.spec.js`. No recordings. |
+| Problems, fixes and next experiment | Found by looking: drawings left the board at small angles, thick strokes blocked, a slider snapped back because it followed the measured distance, world B hid behind the legend, trunk-based sizing could not make a fan. Next: Fit View, a click-to-place work marker, a route-blocked world, LOD frame timing. |
 
 ## Optional Microscope reflection
 
