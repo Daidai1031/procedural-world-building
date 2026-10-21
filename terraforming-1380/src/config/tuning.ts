@@ -31,8 +31,18 @@ export const tuning = {
   // PLN-02, D-041: each signal planet draws size, relief and abundance independently; the home planet keeps `home`.
   // Radius and relief are fractions of the voxel world size; abundance multiplies the cluster counts below.
   planets: {
-    home: { radius: 0.34, relief: 0.16, minerals: 1, residents: 1 },
-    radius: [0.22, 0.36], relief: [0.06, 0.2], minerals: [0.4, 2], residents: [0.3, 2],
+    home: { radius: 0.34, relief: 0.16, minerals: 1, residents: 1, shape: 'sphere' },
+    // D-056/D-058: a wide size range, and relief down to exactly smooth. Only spheres carry relief; the other solids are bare geometry.
+    radius: [0.17, 0.38], relief: [0, 0.2], minerals: [0.4, 2], residents: [0.3, 2],
+    smoothBelow: 0.04,
+    // Share of signal planets per solid, in order of `shapes`.
+    shapes: ['sphere', 'cube', 'tetra', 'donut', 'apple', 'nail'], shapeWeights: [0.25, 0.15, 0.15, 0.15, 0.15, 0.15],
+    // Every size below is a multiple of the sphere radius the config asks for, chosen so the solid fits the voxel world.
+    cubeHalf: 0.72, cubeRound: 0.15, tetraReach: 1.05,
+    donut: { major: 0.78, minor: 0.42 },
+    // The bite and the stem dimple are spheres centered just outside the apple, so no ray from the center crosses solid twice.
+    apple: { bite: 0.5, biteReach: 1.12, biteDirection: [0.2, 0.25, 0.95], scallop: 0.24, dimple: 0.34 },
+    nail: { scale: 0.85, shaft: 0.2, head: 0.62, headTop: 1.1, headBottom: 0.88, tip: -1.4, shoulder: -0.5 },
   },
   gen: {
     cluster: { mineral: { count: 14 } },

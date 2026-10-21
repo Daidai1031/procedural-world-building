@@ -572,3 +572,20 @@ Electricity was later raised from 0.25 to 0.4, then to 0.55 credits per kW-minut
 - **Decision:** A calm resident is drawn lurking with only its crown above the ground. Every 6–12 seconds, on its own rhythm, it rises until its eyes clear the surface, glances left and right for about three seconds, and sinks back. A burrow resident climbs to its tunnel mouth for the same look. Disturbance above the quiet level stops the peeks and makes the body tremble, harder as it nears the retreat level. Hiding sits a little deeper but leaves the crown visible, so the trembling can be seen while work goes on nearby. The simulation states and their counts do not change; `peeking` still means calm.
 - **Why:** the author wanted residents to read as burrowing animals that stay hidden most of the time, and wanted their fear of construction to be visible.
 - **Affects:** `views/ResidentsView.tsx`, `config/tuning.ts` (`residents.look`), RES-03/08.
+
+## D-056 — Signal planets differ in solid shape, size and smoothness
+
+- **Date:** 2026-10-21
+- **Status:** accepted; implemented; automated check extended, checked by screenshots
+- **Decision:** A planet found by a signal is a sphere (40%), a cube (30%) or a tetrahedron (30%), chosen from its seed. Radius now ranges from 0.17 to 0.38 of the world, so the smallest planet is about a quarter the width of the largest. Only spheres have relief; a quarter of them are exactly smooth, and the cube and tetrahedron are bare geometry with no noise. The home planet stays the noisy sphere it was. Signal outlines in the system view match the solid.
+- **Why:** the author wanted planets to look unlike one another at a glance — tiny, triangular, cubic, with no folds.
+- **Affects:** `world/planet.ts` (`planetConfig`, `shapeDistance`), `config/tuning.ts` (`planets`), `views/SystemWorlds.tsx`, PLN-02.
+
+## D-058 — Donut, bitten apple and nail planets
+
+- **Date:** 2026-10-21
+- **Status:** accepted; implemented; automated check extended, checked by screenshots
+- **Decision:** Signal planets can also be a donut (a torus lying flat, with a hole through the middle), an apple with a large bite and two tooth marks taken out of one side and a dimple on top, or a nail (a long shaft with a flat head and a pointed tip). Chances are now sphere 25% and the other five 15% each. Like the cube and tetrahedron they have no relief.
+- **Why:** the author felt planets still looked too alike and asked for stranger silhouettes.
+- **Known limits:** the game treats "up" as away from the planet's center and reads ground along rays from it, so ground a ray cannot see first is not walkable: the inside of the donut's hole, the underside of the nail's head and the nail's thin upper shaft. Burrows and mineral deposits skip directions with no rock (the hole, the shaft), so donuts and especially nails have fewer burrows and residents (a nail starts with one to four).
+- **Affects:** `world/planet.ts` (`shapeDistance`, burrow guard), `world/resourceClusters.ts` (re-roll over air), `config/tuning.ts` (`planets`), `views/SystemWorlds.tsx`, PLN-02.

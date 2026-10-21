@@ -72,6 +72,7 @@ test('PLN-T2: home keeps its values; signal planets vary size, relief and abunda
   const { planetConfig } = await import('../src/world/planet')
   const { generateResourceClusters } = await import('../src/world/resourceClusters')
   assert.deepEqual(planetConfig('home'), tuning.planets.home)
+  const { shapeDistance } = await import('../src/world/planet')
   const configs = Array.from({ length: 40 }, (_, i) => planetConfig(`home/signal-${i + 1}`))
   for (const key of ['radius', 'relief', 'minerals', 'residents'] as const) {
     const values = configs.map(c => c[key])
@@ -79,6 +80,22 @@ test('PLN-T2: home keeps its values; signal planets vary size, relief and abunda
     assert.ok(values.every(v => v >= min && v <= max), key)
     assert.ok(Math.max(...values) - Math.min(...values) > (max - min) * 0.5, `${key} spreads across its range`)
   }
+  // D-056: all three solids appear, only spheres carry relief, and some spheres are exactly smooth.
+  assert.deepEqual([...new Set(configs.map(c => c.shape))].sort(), [...tuning.planets.shapes].sort())
+  assert.ok(configs.filter(c => c.shape !== 'sphere').every(c => c.relief === 0))
+  assert.ok(configs.some(c => c.shape === 'sphere' && c.relief === 0) && configs.some(c => c.shape === 'sphere' && c.relief > 0.1))
+  // Every solid stays inside the voxel world at the largest size and is solid at the center, empty far away.
+  for (const shape of tuning.planets.shapes) {
+    const size = tuning.planets.radius[1] * 6
+    assert.ok(shape === 'donut' ? shapeDistance(shape, size, size * tuning.planets.donut.major, 0, 0) < 0 : shapeDistance(shape, size, 0, 0, 0) < 0, shape)
+    for (let i = 0; i < 600; i += 1) {
+      const y = 1 - (2 * i + 1) / 600, ring = Math.sqrt(1 - y * y), angle = i * 2.39996
+      assert.ok(shapeDistance(shape, size, Math.cos(angle) * ring * 2.9, y * 2.9, Math.sin(angle) * ring * 2.9) > 0, shape + ' stays inside the voxel world')
+    }
+  }
+  // The donut has a hole through its middle; the apple has a bite out of its surface.
+  assert.ok(shapeDistance('donut', 2, 0, 0, 0) > 0 && shapeDistance('apple', 2, 3.5, 0, 0) > 0)
+  assert.ok(shapeDistance('apple', 2, ...([0.2, 0.25, 0.95].map(v => v * 2.2) as [number, number, number])) > 0, 'the bite is empty')
   // Independence: a large planet is not automatically rich, and vice versa.
   assert.ok(configs.some(c => c.radius > 0.3 && c.minerals < 1) && configs.some(c => c.radius < 0.28 && c.minerals > 1.2))
   const rich = configs.findIndex(c => c.minerals > 1.5), poor = configs.findIndex(c => c.minerals < 0.7)

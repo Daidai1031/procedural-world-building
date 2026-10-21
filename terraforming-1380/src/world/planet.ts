@@ -14,16 +14,64 @@ export function hashSeed(seed: string) {
   return hash >>> 0
 }
 
-export interface PlanetConfig { radius: number; relief: number; minerals: number; residents: number }
+export type PlanetShape = 'sphere' | 'cube' | 'tetra' | 'donut' | 'apple' | 'nail'
+export interface PlanetConfig { radius: number; relief: number; minerals: number; residents: number; shape: PlanetShape }
 
 // PLN-02, D-041: the starting conditions of a planet. The home seed keeps the original values; a planet found by a
 // signal reads each property from a different byte of its hash, so size, relief and abundance vary independently.
 export function planetConfig(seed: string): PlanetConfig {
-  const { home, radius, relief, minerals, residents } = tuning.planets
+  const { home, radius, relief, minerals, residents, shapes, shapeWeights, smoothBelow } = tuning.planets
   if (!seed.includes('/signal-')) return home
   const hash = hashSeed(`${seed}:config`)
   const pick = ([min, max]: readonly number[], shift: number) => min + ((hash >>> shift) & 255) / 255 * (max - min)
-  return { radius: pick(radius, 0), relief: pick(relief, 8), minerals: pick(minerals, 16), residents: pick(residents, 24) }
+  let roll = hashSeed(`${seed}:shape`) / 4294967296
+  const shape = shapes.find((_, i) => (roll -= shapeWeights[i]) < 0) ?? shapes[0]
+  const rough = pick(relief, 8)
+  return { radius: pick(radius, 0), relief: shape !== 'sphere' || rough < smoothBelow ? 0 : rough,
+    minerals: pick(minerals, 16), residents: pick(residents, 24), shape }
+}
+
+// Signed distance to the planet's solid, negative inside. `radius` is the sphere radius the config asks for.
+const TETRA_FACES: V3[] = [[1, 1, 1], [1, -1, -1], [-1, 1, -1], [-1, -1, 1]].map(v => v.map(c => c / Math.sqrt(3)) as V3)
+const unitVector = ([x, y, z]: readonly number[]): V3 => { const length = Math.hypot(x, y, z); return [x / length, y / length, z / length] }
+const APPLE_BITE = unitVector(tuning.planets.apple.biteDirection)
+// The bite's tooth marks sit on the rim of the bite, one each side of it, in the plane through the bite and the pole.
+const APPLE_TEETH = (() => {
+  const side = unitVector([-APPLE_BITE[2], 0, APPLE_BITE[0]])
+  return [-1, 1].map(sign => unitVector([0, 1, 2].map(i => APPLE_BITE[i] + side[i] * sign * 0.42))) as V3[]
+})()
+
+export function shapeDistance(shape: PlanetShape, radius: number, x: number, y: number, z: number) {
+  const { cubeHalf, cubeRound, tetraReach } = tuning.planets
+  if (shape === 'donut') {
+    const { major, minor } = tuning.planets.donut
+    return Math.hypot(Math.hypot(x, z) - radius * major, y) - radius * minor
+  }
+  if (shape === 'apple') {
+    const { bite, biteReach, scallop, dimple } = tuning.planets.apple
+    const to = (c: V3, reach: number, r: number) => r - Math.hypot(x - c[0] * radius * reach, y - c[1] * radius * reach, z - c[2] * radius * reach)
+    const cut = Math.max(to(APPLE_BITE, biteReach, radius * bite), ...APPLE_TEETH.map(t => to(t, biteReach, radius * scallop)),
+      to([0, 1, 0], biteReach, radius * dimple))
+    return Math.max(Math.hypot(x, y, z) - radius, cut)
+  }
+  if (shape === 'nail') {
+    const { scale, shaft, head, headTop, headBottom, tip, shoulder } = tuning.planets.nail
+    const r = radius * scale, round = Math.hypot(x, z)
+    const body = Math.max(round - r * shaft, shoulder * r - y, y - headTop * r)
+    const point = Math.max(round - r * shaft * Math.min(1, Math.max(0, (y - tip * r) / ((shoulder - tip) * r))), tip * r - y, y - shoulder * r)
+    const cap = Math.max(round - r * head, headBottom * r - y, y - headTop * r)
+    return Math.min(body, point, cap)
+  }
+  if (shape === 'cube') {
+    const half = radius * cubeHalf - cubeRound
+    const qx = Math.abs(x) - half, qy = Math.abs(y) - half, qz = Math.abs(z) - half
+    return Math.hypot(Math.max(qx, 0), Math.max(qy, 0), Math.max(qz, 0)) + Math.min(Math.max(qx, qy, qz), 0) - cubeRound
+  }
+  if (shape === 'tetra') {
+    const inradius = radius * tetraReach / 3
+    return Math.max(...TETRA_FACES.map(n => n[0] * x + n[1] * y + n[2] * z)) - inradius
+  }
+  return Math.hypot(x, y, z) - radius
 }
 
 function createBaseField(seed: string) {
@@ -34,7 +82,7 @@ function createBaseField(seed: string) {
     // TERR-01, TERR-02: negative inside; guidebook volume is y=0..size.
     const centeredY = y - VOXEL_WORLD_SIZE / 2
     const relief = (fractalNoise3D(x, centeredY, z, noise) - 0.5) * VOXEL_WORLD_SIZE * config.relief
-    return Math.hypot(x, centeredY, z) - radius + relief
+    return shapeDistance(config.shape, radius, x, centeredY, z) + relief
   }
 }
 
@@ -91,6 +139,8 @@ export function burrowSites(seed: string): Burrow[] {
       const pocket = direction.map(c => c * (ground - burrows.depth)) as V3
       const mouthDirection = norm(direction.map((c, i) => c + side[i] * burrows.slant) as V3)
       const mouth = mouthDirection.map(c => c * (surface(mouthDirection) + 0.12)) as V3
+      // A planet with a hole or a thin neck has no ground in some directions; a burrow needs rock to sink into.
+      if (ground < burrows.depth + 0.25) continue
       // Two groups can land close together on a small planet; keep pockets apart rather than merging them.
       if (out.some(o => Math.hypot(o.pocket[0] - pocket[0], o.pocket[1] - pocket[1], o.pocket[2] - pocket[2]) < burrows.minGap)) continue
       out.push({ id: `burrow-${g}-${k}`, pocket, mouth })

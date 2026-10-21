@@ -37,7 +37,8 @@ Implemented 2026-10-21 (D-041, D-045, D-046). Values live in `src/config/tuning.
 
 | Key | Value | Meaning |
 | --- | --- | --- |
-| `planets.radius / relief` | 0.22–0.36 / 0.06–0.2 (home 0.34 / 0.16) | Fractions of the voxel world |
+| `planets.radius / relief` | 0.17–0.38 / 0–0.2 (home 0.34 / 0.16) | Fractions of the voxel world; relief below 0.04 becomes exactly smooth (D-056) |
+| `planets.shapes / shapeWeights` | sphere, cube, tetra, donut, apple, nail / 0.25, then 0.15 each | D-056/D-058 solids of signal planets; only spheres carry relief |
 | `planets.minerals / residents` | ×0.4–2 / ×0.3–2 (home ×1) | Mineral and resident abundance configuration |
 | `residents.initialCount` | 11–13 | Seeded Ares-9 starting population, centered around twelve (D-052) |
 | `residents.size` | 0.75–1.25× | Deterministic body-size variation within one planet (D-053) |

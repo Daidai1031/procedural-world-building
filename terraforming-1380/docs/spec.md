@@ -438,7 +438,7 @@ The Detector is a separate, close-range inspection tool. The later Scanner retai
 | ID | Requirement | Priority | Status |
 | --- | --- | --- | --- |
 | PLN-01 | Assign stable planet ID/seed/config and discovery status; repeat discovery does not duplicate an existing world. | MVP | done (D-040) |
-| PLN-02 | Support independently varying playable size, terrain and resource abundance/distribution within technical limits. Icon size alone does not satisfy size variation. | MVP | done (D-041) |
+| PLN-02 | Support independently varying playable size, terrain and resource abundance/distribution within technical limits. Icon size alone does not satisfy size variation. | MVP | done (D-041/D-056/D-058) |
 | PLN-03 | Switching away and back in one session preserves edited terrain, collection/stock, robots, structures, residents, disturbance and local signal state. Store or reconstruct density, not seed alone. | MVP | done (D-040; residents pending S1) |
 | PLN-04 | Separate view switching from world initialization. Discovery and revisiting must not reset a planet or duplicate income/resources. | MVP | done (D-040) |
 | PLN-05 | Choose and document shared/local funds, inactive-world ticking and billing before implementing continuous background operation. | Stretch | decided (D-040: shared funds, inactive frozen) |

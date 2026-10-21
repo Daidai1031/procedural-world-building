@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
-import { Color, IcosahedronGeometry, MeshBasicMaterial, type Group, type Mesh, type MeshStandardMaterial } from 'three'
+import { BoxGeometry, Color, CylinderGeometry, IcosahedronGeometry, MeshBasicMaterial, TetrahedronGeometry, TorusGeometry, type Group, type Mesh, type MeshStandardMaterial } from 'three'
 import type { PlanetRegistry } from '../state/planets'
 import type { SystemPlanet } from '../systems/system'
 import type { SystemLayout } from '../systems/systemView'
@@ -41,7 +41,19 @@ function createWorldMaterial(baseRadius: number) {
   return { material, uniforms }
 }
 
-const outline = new IcosahedronGeometry(1, 1)
+// Unit-sized outlines per solid: the sphere's radius, the cube's half-extent and the tetrahedron's circumradius are all 1.
+const outlines = {
+  sphere: new IcosahedronGeometry(1, 1), cube: new BoxGeometry(2, 2, 2), tetra: new TetrahedronGeometry(1),
+  donut: new TorusGeometry(tuning.planets.donut.major, tuning.planets.donut.minor, 6, 14).rotateX(Math.PI / 2),
+  apple: new IcosahedronGeometry(1, 1),
+  nail: new CylinderGeometry(tuning.planets.nail.shaft, tuning.planets.nail.shaft, 2.4, 8),
+}
+const outlineScale = (seed: string) => {
+  const { radius, shape } = planetConfig(seed)
+  const size = radius * VOXEL_WORLD_SIZE
+  return shape === 'cube' ? size * tuning.planets.cubeHalf : shape === 'tetra' ? size * tuning.planets.tetraReach
+    : shape === 'nail' ? size * tuning.planets.nail.scale : size
+}
 // Raycasting ignores visibility, so worlds only react while the system view is fully open.
 const reachable = () => useSystemView.getState().phase === 'system'
 
@@ -96,7 +108,7 @@ function SignalWorld({ planet, position }: WorldProps) {
   })
 
   return <group ref={group} position={position} visible={false}>
-    <mesh geometry={outline} material={material} scale={planetConfig(planet.seed).radius * VOXEL_WORLD_SIZE}
+    <mesh geometry={outlines[planetConfig(planet.seed).shape]} material={material} scale={outlineScale(planet.seed)}
       onPointerOver={event => { if (!reachable()) return; event.stopPropagation(); setHover(planet.seed); gl.domElement.style.cursor = 'pointer' }}
       onPointerOut={() => { setHover(null); gl.domElement.style.cursor = '' }}
       onClick={event => { if (!reachable() || event.delta > 5 || event.button !== 0) return; event.stopPropagation(); pickWorld(planet.seed) }} />

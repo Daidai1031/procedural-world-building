@@ -30,6 +30,7 @@ export function generateResourceClusters(seed: string): ResourceCluster[] {
   // Keep both stable so existing seeds retain every mineral position.
   const random = randomStream(hashSeed(`${seed}:resource:mineral`))
   const count = Math.max(1, Math.round(tuning.gen.cluster.mineral.count * config.minerals))
+  let rerolls = 0
   for (let index = 0; index < count; index += 1) {
     const height = random() * 2 - 1
     const angle = random() * Math.PI * 2
@@ -45,6 +46,8 @@ export function generateResourceClusters(seed: string): ResourceCluster[] {
     }
     // Before D-044, three teaching targets were divided among three resource categories, so only
     // mineral-0 was shallow. Preserve that result rather than reinterpreting all three as minerals.
+    // Donuts and nails have directions with no rock (or only a thin neck); look somewhere else instead of burying air.
+    if (inside < 0.5 && rerolls < 200) { rerolls += 1; index -= 1; continue }
     const depth = index === 0 ? 0.14 + random() * 0.08 : 0.3 + random() * 1.15
     const distance = Math.max(0.25, inside - depth)
     clusters.push({
