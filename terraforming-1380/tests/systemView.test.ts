@@ -3,11 +3,24 @@ import assert from 'node:assert/strict'
 import { createRunStore } from '../src/state/runState'
 import { planetMarks, cameraPose, holdProgress, ORBIT_DISTANCE, parentSeed, systemArcs, systemDistance, systemLayout } from '../src/systems/systemView'
 import { planetPosition } from '../src/systems/system'
+import { planetConfig } from '../src/world/planet'
+import { VOXEL_WORLD_SIZE } from '../src/world/voxels/voxelMath.js'
 import { tuning } from '../src/config/tuning'
 
 const near = (a: number[], b: number[]) => a.forEach((v, i) => assert.ok(Math.abs(v - b[i]) < 1e-9, `${a} vs ${b}`))
 const seeds = ['home', 'home/signal-1', 'home/signal-2', 'home/signal-2/signal-1']
+const crowdedSeeds = [
+  'home',
+  ...Array.from({ length: tuning.signal.maxPlanets }, (_, i) => `home/signal-${i + 1}`),
+  ...[1, 2, 3].flatMap(parent => Array.from({ length: tuning.signal.maxPlanets }, (_, i) => `home/signal-${parent}/signal-${i + 1}`)),
+]
 const planets = seeds.map(seed => ({ seed, position: planetPosition(seed) }))
+const crowded = crowdedSeeds.map(seed => ({ seed, position: planetPosition(seed) }))
+const surfaceGap = (a: string, b: string, positions: Record<string, number[]>) => {
+  const pa = positions[a], pb = positions[b]
+  const d = Math.hypot(pa[0] - pb[0], pa[1] - pb[1], pa[2] - pb[2])
+  return d - planetConfig(a).radius * VOXEL_WORLD_SIZE - planetConfig(b).radius * VOXEL_WORLD_SIZE
+}
 
 // SYS-T2: pull 0 is exactly today's orbit pose, pull 1 looks at the layout center, and the steps between are monotonic.
 test('cameraPose at pull 0 is the orbit pose for any azimuth and polar', () => {
@@ -44,14 +57,11 @@ test('cameraPose keeps the angles, and focus moves the target toward the focused
 })
 
 // SYS-T3
-test('systemLayout puts the active planet at the origin and the rest at their offset from it', () => {
+test('systemLayout puts the active planet at the origin', () => {
   for (const active of seeds) {
     const layout = systemLayout(planets, active)
     assert.deepEqual(layout.positions[active], [0, 0, 0])
-    for (const seed of seeds) {
-      const expected = planetPosition(seed).map((v, i) => v - planetPosition(active)[i])
-      near(layout.positions[seed], seed === active ? [0, 0, 0] : expected)
-    }
+    for (const seed of seeds) assert.ok(layout.positions[seed])
   }
 })
 
@@ -61,6 +71,17 @@ test('systemLayout does not depend on the active planet except by translation', 
   for (const seed of seeds) near(b.positions[seed], a.positions[seed].map((v, i) => v + shift[i]))
   near(b.center, a.center.map((v, i) => v + shift[i]))
   assert.ok(Math.abs(a.extent - b.extent) < 1e-9)
+})
+
+test('systemLayout keeps a surface gap between known worlds, including deep signal branches', () => {
+  const layout = systemLayout(crowded, 'home')
+  const { minGap } = tuning.system.layout
+  for (let i = 0; i < crowdedSeeds.length; i++) {
+    for (let j = i + 1; j < crowdedSeeds.length; j++) {
+      assert.ok(surfaceGap(crowdedSeeds[i], crowdedSeeds[j], layout.positions) >= minGap - 1e-6,
+        `${crowdedSeeds[i]} vs ${crowdedSeeds[j]}`)
+    }
+  }
 })
 
 test('systemLayout extent reaches the far surface of the farthest world', () => {

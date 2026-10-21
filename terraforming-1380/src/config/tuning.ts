@@ -113,11 +113,16 @@ export const tuning = {
   system: {
     pullSeconds: 1.4, diveSeconds: 1.3, arriveSeconds: 0.9, holdMs: 900,
     focusDistanceFactor: 6.5,
-    distance: { min: 14, max: 48, margin: 1.1 },
-    zoom: { min: 12, max: 48, step: 0.08 },
+    distance: { min: 14, max: 64, margin: 1.1 },
+    zoom: { min: 12, max: 64, step: 0.08 },
     marks: { plants: 60, antennas: 8, residents: 16, robots: 12 },
     ghostOpacity: 0.17, arcOpacity: 0.55, arcLift: 2.2,
     fade: { otherWorlds: [0.25, 0.85], atmosphere: [0, 0.45], marks: [0.35, 0.9] },
+    // SYS-01: seeded ring layout, then a soft separation so later signal worlds keep surface clearance.
+    layout: {
+      baseSpacing: 7.4, perIndex: 0.55, radiusJitter: 1.8, angleJitter: 0.55, lift: 3.2,
+      outwardSpread: 1.15, minGap: 1.35, separatePasses: 14,
+    },
   },
   // D-043: Autopilot hands the whole planet to the crew. Each robot sweeps `sectors` work areas of `radius` in turn;
   // after a lap with no work it rests `restTicks`, doubling each fruitless lap up to `maxRestFactor` times. Builders

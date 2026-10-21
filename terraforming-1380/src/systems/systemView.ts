@@ -17,16 +17,51 @@ export interface SystemLayout { positions: Record<string, Vec3>; center: Vec3; e
 
 const worldRadius = (seed: string) => planetConfig(seed).radius * VOXEL_WORLD_SIZE
 
+// Push overlapping worlds apart in absolute space so the active-planet translation stays a pure offset (SYS-06).
+function separateWorlds(absolute: Record<string, Vec3>, seeds: string[]) {
+  const { minGap, separatePasses } = tuning.system.layout
+  for (let pass = 0; pass < separatePasses; pass++) {
+    let moved = false
+    for (let i = 0; i < seeds.length; i++) {
+      for (let j = i + 1; j < seeds.length; j++) {
+        const a = seeds[i], b = seeds[j]
+        const pa = absolute[a], pb = absolute[b]
+        const need = worldRadius(a) + worldRadius(b) + minGap
+        let dx = pb[0] - pa[0], dy = pb[1] - pa[1], dz = pb[2] - pa[2]
+        let dist = Math.hypot(dx, dy, dz)
+        if (dist >= need) continue
+        moved = true
+        if (dist < 1e-6) {
+          const spin = ((a.length * 17 + b.length * 31) % 628) / 100
+          dx = Math.cos(spin); dy = 0.25; dz = Math.sin(spin)
+          dist = Math.hypot(dx, dy, dz)
+        }
+        const push = (need - dist) / (2 * dist)
+        absolute[a] = [pa[0] - dx * push, pa[1] - dy * push, pa[2] - dz * push]
+        absolute[b] = [pb[0] + dx * push, pb[1] + dy * push, pb[2] + dz * push]
+      }
+    }
+    if (!moved) break
+  }
+}
+
 // SYS-05: every position is relative to the active planet, which stays at the scene origin.
 export function systemLayout(planets: LayoutPlanet[], activeSeed: string): SystemLayout {
-  const origin = planets.find(({ seed }) => seed === activeSeed)?.position ?? [0, 0, 0]
+  const seeds = planets.map(({ seed }) => seed)
+  const absolute: Record<string, Vec3> = {}
+  for (const { seed, position } of planets) absolute[seed] = [position[0], position[1], position[2]]
+  separateWorlds(absolute, seeds)
+
+  const origin = absolute[activeSeed] ?? [0, 0, 0]
   const positions: Record<string, Vec3> = {}
-  for (const { seed, position } of planets) {
-    positions[seed] = seed === activeSeed ? [0, 0, 0] : [position[0] - origin[0], position[1] - origin[1], position[2] - origin[2]]
+  for (const seed of seeds) {
+    const position = absolute[seed]
+    positions[seed] = seed === activeSeed ? [0, 0, 0]
+      : [position[0] - origin[0], position[1] - origin[1], position[2] - origin[2]]
   }
-  const list = planets.map(({ seed }) => positions[seed])
+  const list = seeds.map(seed => positions[seed])
   const center = (list.length === 0 ? [0, 0, 0] : [0, 1, 2].map(axis => list.reduce((sum, p) => sum + p[axis], 0) / list.length)) as Vec3
-  const extent = Math.max(0, ...planets.map(({ seed }) => Math.hypot(...positions[seed].map((v, i) => v - center[i])) + worldRadius(seed)))
+  const extent = Math.max(0, ...seeds.map(seed => Math.hypot(...positions[seed].map((v, i) => v - center[i])) + worldRadius(seed)))
   return { positions, center, extent }
 }
 

@@ -117,5 +117,6 @@ test('SYS: the overview lists visited planets and unvisited signal planets once,
   assert.equal(planets.find(p => p.active)?.seed, 'home/signal-1')
   assert.equal(planets.filter(p => p.visited).length, 2)
   const [x, y, z] = planetPosition('home/signal-1')
-  assert.ok(Math.hypot(x, y, z) > 5 && Math.hypot(x, y, z) < 9)
+  const reach = Math.hypot(x, y, z)
+  assert.ok(reach > 5 && reach < 12)
 })

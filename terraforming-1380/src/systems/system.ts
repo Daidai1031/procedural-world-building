@@ -25,18 +25,29 @@ export interface SystemPlanet {
   traits: string
 }
 
-const SPACING = 6.5
-
 // SYS-01: a stable spatial arrangement, not orbital physics. A planet found by a signal sits near the one that sent it.
+// Radius grows with sibling index and seed jitter so later answers do not land on the same ring; deeper children prefer the outward half.
 export function planetPosition(seed: string): [number, number, number] {
   const match = /^(.*)\/signal-(\d+)$/.exec(seed)
   if (!match) return [0, 0, 0]
-  const [, parent, index] = match
+  const [, parent, indexText] = match
+  const index = Number(indexText)
   const [px, py, pz] = planetPosition(parent)
   const hash = hashSeed(seed)
-  const angle = (Number(index) - 1) * 1.2566 + 0.6 + ((hash % 100) / 100 - 0.5) * 0.5
-  const lift = (((hash >>> 8) % 100) / 100 - 0.5) * 3
-  return [px + Math.cos(angle) * SPACING, py + lift, pz + Math.sin(angle) * SPACING]
+  const { baseSpacing, perIndex, radiusJitter, angleJitter, lift: liftRange, outwardSpread } = tuning.system.layout
+  const slot = index - 1
+  const unit = (hash % 100) / 100
+  const radius = baseSpacing + slot * perIndex + unit * radiusJitter
+  const grandparent = parentSeed(parent)
+  let angle = slot * (Math.PI * 2 / tuning.signal.maxPlanets) + 0.6 + (unit - 0.5) * angleJitter
+  if (grandparent) {
+    const [gx, , gz] = planetPosition(grandparent)
+    const away = Math.atan2(pz - gz, px - gx)
+    const span = Math.max(1, tuning.signal.maxPlanets - 1)
+    angle = away + (slot / span - 0.5) * Math.PI * outwardSpread + (unit - 0.5) * angleJitter
+  }
+  const lift = ((((hash >>> 8) % 100) / 100) - 0.5) * liftRange
+  return [px + Math.cos(angle) * radius, py + lift, pz + Math.sin(angle) * radius]
 }
 
 // PLN-02: the starting conditions in words, so planets can be compared before and after a visit.
