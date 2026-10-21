@@ -389,3 +389,42 @@ Electricity was later raised from 0.25 to 0.4, then to 0.55 credits per kW-minut
 - **Implementation boundary:** This is a documentation decision. Residents, persistent planet records and a live 3D system overview are not implemented by it. Keep existing implemented behavior identified separately from future intent.
 - **Affects:** root and game READMEs; design §1–3/5–6; subsequent spec and roadmap updates.
 - **Relationship:** Extends D-022's emphasis on procedural automation; supersedes its one-Miner-only description of the current design scope, not its implementation history.
+
+## D-035 — Residents make habitat consequences visible
+
+- **Date:** 2026-10-20
+- **Status:** accepted
+- **Context:** The user liked rock Pikmin as a reference and accepted the first planet's quiet cave-dweller concept.
+- **Decision:** Begin with one rock-like species preferring snug cavities, low disturbance and nearby companions. Brief disruption prompts retreat; sustained disruption or invalid shelter may prompt reachable relocation; quiet can allow return or occupation of suitable new cavities.
+- **Why:** Automatic resident behavior makes environmental change visible. Departure is feedback, not an automatic failure.
+- **Open:** final body design, generation counts, cave detector, routes and numerical thresholds. Wall-following/social gestures can follow the core response. A door pebble is optional animation, not a hauling requirement.
+- **Affects:** procedural-system §4–5; spec HAB/RES; content and tuning. All resident implementation remains todo.
+
+## D-036 — Preserve discovered worlds and compare their actual shapes
+
+- **Date:** 2026-10-20
+- **Status:** accepted
+- **Decision:** Expand D-032 toward a persistent multi-planet sandbox: varied starting conditions, per-planet state retained across travel, return visits, and a 3D system overview with current edited silhouettes and hover information.
+- **Why:** Planet differences and accumulated player choices should remain observable across worlds.
+- **Current gap:** D-032 travel replaces the run, carrying funds only; distant screen-positioned entries do not preserve old terrain or represent actual editable world sizes.
+- **Open:** inactive-world simulation, browser-reload saves, shared/local accounts and update budget. Orbital physics is not required.
+- **Affects:** design §10; procedural-system §2/6; spec PLN/SYS; roadmap. No state persistence or system view is implemented by this entry.
+
+## D-037 — Keep accounting internal and explain essential consequences
+
+- **Date:** 2026-10-20
+- **Status:** accepted
+- **Decision:** Weaken detailed financial presentation; calculations may remain internal. Show compact operating context and actionable warnings when money affects available actions.
+- **Why:** Keep attention on procedural processes and world changes while retaining understandable rules.
+- **Boundary:** D-031 debt/bankruptcy and existing charges remain implemented behavior. Changing the hard ending, thresholds, sale policy or ownership of funds is not approved by this interface decision.
+- **Affects:** design §7–8; spec OPS; content; tuning. Interface simplification remains todo.
+
+## D-038 — Separate signal infrastructure from gardening
+
+- **Date:** 2026-10-20
+- **Status:** proposed
+- **Context:** The crit discussion calls for clearer roles; the Gardener currently alternates plants and antennas (D-025).
+- **Proposal:** Keep cultivation and planet discovery causally distinct; choose a separate placement/construction path for antennas.
+- **Why:** A player should understand why planting differs from discovering a planet.
+- **Boundary:** No implementation owner or interaction is chosen. Do not remove current antenna placement or mark this accepted.
+- **Affects if accepted:** AUT-15, Gardener rules, signal controls, content and roadmap.

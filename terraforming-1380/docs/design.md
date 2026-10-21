@@ -159,14 +159,16 @@ Robots act without repeated dig clicks. Residents choose automatically from curr
 ### 7.1 Immediate controls
 Select robot, set a circular work area, start/pause, and reassign. The first goal is simply “mine discovered minerals in this area.” Goal menus, questionnaires, and strategy presets remain undecided and deferred.
 
-### 7.2 Three robot roles, introduced gradually
-| Role | Procedural work | Schedule |
-| --- | --- | --- |
-| Miner | Scan, choose a mineral, excavate, collect, repeat | Next prototype |
-| Builder | Reshape terrain with Add/Flatten; later reinforce it | Candidate second behavior |
-| Gardener | Find suitable exposed ground and seed or restore life | Later exploration |
+### 7.2 Three robot roles and discovery
 
-Robot type is separate from robot count. First test one Miner; then test multiple Miners without duplicating targets; then add one second behavior. Do not build all three at once.
+| Role | Current implementation | Design relationship |
+| --- | --- | --- |
+| Miner | Scans, excavates and collects minerals repeatedly | Changes terrain and, once implemented, local disturbance/habitat |
+| Builder | Cuts/fills toward a level using shared soil; prepared sites inform Gardener | Changes surfaces, cavities and routes |
+| Gardener | Plants/spreads vegetation and currently also places antennas | Cultivation is its core role; separating antenna construction is proposed (D-038) |
+| Signal facility | Explicit broadcast reveals distant planet entries (D-032) | Discovery is a separate causal function from planting |
+
+One of each robot exists in the prototype. Multiple Miners with shared target reservations remain planned. Robot types being implemented does not mean their feel, habitat effects or all performance targets are validated.
 
 ### 7.3 Movement and excavation
 Robots hover through empty space to a work site. A Miner enters solid ground by progressively excavating a tunnel, not by flying through intact rock. Movement and target choice must respond to changed terrain.
@@ -174,13 +176,15 @@ Robots hover through empty space to a work site. A Miner enters solid ground by 
 ### 7.4 Scanning and knowledge
 Robots learn targets through bounded scans; they do not start knowing the whole underground map. The player can also scan manually with the existing Detector. The first robot scan may reuse its local discovery queries without requiring a separate scanner robot.
 
-### 7.5 Existing tools and deferred equipment
-Keep Dig/Add/Flatten and Detector as working prototype tools. First-person walking, being trapped, Emergency Extraction, backpack, two-of-four loadout, upgrades, and detailed hauling are deferred. They do not gate autonomous mining.
+### 7.5 Manual intervention and exploration
 
-### 7.6 Later economy — agreed direction, not the next task
-Minerals may be sold for funds to buy robots and expand limited deployment slots. Rock/soil are construction material. Life and Memory are discoveries, not ordinary saleable ore. Running robots incur electricity expenses; approaching insolvency can force departure. Prices, billing, reserve thresholds, and remedies are unsettled.
+Dig/Add/Flatten and Detector remain useful forms of player choice, not temporary substitutes for automation. Outer-surface exploration and an atlas are implemented (D-029); full cave traversal, emergency extraction, backpack/loadout gameplay and upgrades remain deferred.
 
-Keep this layer lightweight. Do not require purchases, power, transport, or bankruptcy rules to validate the first robot. Fixed work cycles or a non-replenishable energy pool are superseded as the planned run budget.
+### 7.6 Background accounting, compact feedback
+
+Mineral sales, electricity billing, manual terrain charges and bankruptcy already exist. Keep their implementation distinct from the desired interface: money may be calculated internally, without listing every expense on screen. A compact operating status and contextual messages must explain any restriction or termination and the available next action.
+
+Do not silently remove or soften the current debt threshold. Whether bankruptcy should remain a hard ending in the sandbox is open. Robot purchases and deployment expansion remain later ideas.
 
 ### 7.7 Memory and signals
 Later, discovering life or archives can prompt a player decision. No separate archaeology robot is required. Keep broadcasting an explicit player choice rather than an automatic mining side effect.
@@ -189,26 +193,19 @@ Later, discovering life or archives can prompt a player decision. No separate ar
 
 ## 8. Metrics
 
-**D-022 scope:** The metrics below describe the retained narrative design, not the next prototype’s required dashboard. For autonomous mining, show robot state, current target, collected mineral count, and Planet Remaining. Complex metric trade-offs and formulas are deferred.
+The primary evidence is the world: edited geometry, robot actions and planned resident behavior. Readouts support that evidence; they do not define one best planet.
 
+### 8.1 Current estimates and intended presentation
 
-### 8.1 Five public metrics
+Current site indicators estimate ecology from terrain loss/plants/discoveries, stability from remaining mass, and prepared ground from Builder edits. These are implemented approximations, not a habitat model or a structural-connectivity simulation.
 
-| Metric | Meaning | Goes up by | Usual cost |
-| --- | --- | --- | --- |
-| **Capital** | Economic value created by the contract | Mining, selling resources, commercial signals | Lower mass, ecology, stability |
-| **Biosphere** | Amount and variety of life on the planet | Protecting life, seeding, causing less damage | Less buildable land, lower short-term profit |
-| **Development Readiness** | How easily the planet can keep being built on | Connected, stable, reachable building surfaces and transport routes | Natural landforms, ruins, habitats may vanish |
-| **Stability** | How intact the remaining structure is | Filling voids, keeping the core, reinforcing tunnels | Costs material, energy, money |
-| **Historical Significance** | How much humanity will remember this project | Monuments, discovering ruins, broadcasting | Pushes the player toward higher cosmic exposure |
+Prefer concise context: robot phase/stop reason, relevant material shortage, operating warning, and planet state. Detailed financial entries may stay internal. Later resident movement should make habitat changes understandable without adding a compulsory happiness score.
 
-### 8.2 Always visible: Planet Remaining
-Shows how much of the original voxel mass is left. It is presented as a neutral corporate statistic, not a moral score. The dark humor appears when the player gets richer while the planet gets smaller.
+### 8.2 Descriptive planet comparison
 
-```text
-CORPORATE VALUE: $8.2T
-PLANET REMAINING: 7.4%
-```
+The planned overview shows the actual edited shape and a few descriptive values, such as terrain changed, active work and resident distribution. The exact “development progress” measure is open. It must not imply a universal completion percentage.
+
+Planet Remaining can remain a neutral description of retained material. Development Readiness, ecological estimates, resident suitability and money are separate concepts.
 
 ### 8.3 Hidden metrics
 
@@ -238,6 +235,9 @@ It is deliberately separate from Capital: **Capital** is short-term money alread
 
 ## 9. Signals and cosmic exposure
 
+**Scope note (D-034/036):** The current D-032 broadcast increments exposure by antenna count and reveals planet entries; it does not award money or implement contact endings. The rewards and escalation below are retained narrative proposals, not current rules. Antenna-role separation is only proposed (D-038).
+
+
 ### 9.1 What the company shows
 The company never shows "Cosmic Exposure". It only shows the good news:
 
@@ -266,15 +266,13 @@ On a first playthrough the exact thresholds are never shown. The underground arc
 
 ## 10. The world
 
-### 10.1 Two views, one planet
+### 10.1 Planet views and system overview
 
-**Orbital view is primary:** observe robots, assign work areas, inspect tunnels, and compare cumulative silhouettes. The planet remains stationary while the camera orbits.
+**Implemented:** orbital work view and returnable outer-surface exploration share the current world. A 2D atlas samples terrain and exposes resource projections; it is a survey exception to the local-only Detector.
 
-First-person exploration is retained as an optional later idea. Surface controls, escape ramps, spherical gravity, and player collision are not prerequisites for the robot prototype.
+**Planned:** a 3D system overview contains every discovered planet, with actual edited silhouettes and concise hover information. Clicking selects/visits a planet; leaving preserves its site for return. D-032's current reset-style travel and screen-positioned icons are an initial discovery prototype, not this persistent system.
 
-Hovering makes roads unnecessary for robot travel. A future Builder should justify itself through reshaping or reinforcement rather than artificial road dependencies.
-
----
+Planet size, terrain and resource abundance should vary independently. Same-session preservation is required; inactive-world simulation and persistence across browser reloads remain open. Orbit-like spatial organization does not require orbital physics.
 
 ### 10.2 Random clusters, not layers
 The interior is *not* a tidy "minerals, then life, then memory" onion. Apart from the base materials (rock and soil), minerals, life, and memory are three content categories scattered as irregular 3D clusters.
@@ -304,6 +302,9 @@ Their proportions shift as the planet is hollowed out: mostly solid surfaces at 
 ---
 
 ## 11. Classification
+
+**Later narrative scope:** classifications and audits below are retained proposals, not current sandbox acceptance requirements.
+
 
 ### 11.1 Principles
 The system never says "you are a good person" or "you destroyed the planet". It describes the final world as a concrete, absurd object. Classification has three layers:
@@ -341,6 +342,9 @@ Rare outcomes reward extreme runs (for example *A Very Expensive Hole*, *An Unde
 ---
 
 ## 12. Audit and endings
+
+**Deferred narrative layer:** these endings do not prescribe one ideal sandbox result and are not prerequisites for the resident or multi-planet slices.
+
 
 When the contract ends, the player loses control and the system runs a deliberately over-formal check: geometry, remaining mass, unregistered life, unauthorized transmissions, shareholder value, cosmic observers. Before naming the result it shows the detected shape data and a metric summary, so the classification never feels random.
 
@@ -486,6 +490,9 @@ Not a classic alien ship. Options: a star that starts to move by itself; a small
 
 ## 16. Scope
 
+**D-034–037 override:** current work follows [roadmap.md](roadmap.md): one resident feedback loop, persistent travel between two planets, then a live system view. The older release list below is historical narrative scope, not the active backlog.
+
+
 **Next prototype:** one autonomous Miner, local discovery, nearest known target selection, hovering in empty space, progressive tunnel excavation, collection, repeat, Start/Pause/reassignment, and readable state feedback. Reuse existing seeded terrain, editable density, local remeshing, Detector and LOD.
 
 **After validation:** multiple Miners with target reservation; one second procedural behavior (Builder or Gardener, to be selected).
@@ -512,6 +519,19 @@ Not a classic alien ship. Options: a star that starts to move by itself; a small
 
 ## 18. Success criteria
 
+**Active sandbox criteria (D-034–037):**
+
+1. A player can pursue a self-chosen terraforming aim using manual tools and/or robot work.
+2. The player can explain a visible resident reaction by a preceding environmental change.
+3. Brief disturbance and sustained disturbance produce distinct, understandable responses.
+4. A suitable new cavity can be occupied after quiet returns; exposed flat ground is not automatically preferred.
+5. Switching away and back preserves the same planet's terrain, work and residents once that slice is implemented.
+6. The overview shows current edited shapes; no universal success/failure label is assigned to resident departure.
+7. Essential operating restrictions remain understandable without detailed financial accounting.
+
+**Historical narrative criteria:** the earlier list below is deferred and is not the current acceptance checklist.
+
+
 1. Assigning an area and starting once produces at least two automatic target cycles when targets are available.
 2. The player can explain the current robot state and target.
 3. Excavation leaves persistent tunnels in the actual density field.
@@ -528,6 +548,9 @@ Later audit/story acceptance checks are scheduled after this prototype.
 
 ## 19. References and inspiration
 
+**Resident direction:** the user selected rock Pikmin as a reference for the charm and readable silhouette of living stone. Create an original body; six generated rock studies remain unselected explorations. “Voting with their feet” supplies the migration-as-feedback concept; no full urban-economics simulation is implied.
+
+
 - Reference images: grayscale planetoids with floating rock. White background, specimen feel, rough surfaces, irregular silhouettes, fragment rhythm.
 - Sebastian Lague, *Coding Adventure: Terraforming* ([video](https://www.youtube.com/watch?v=vTMEdHcKgM4), [source](https://github.com/SebLague/Terraforming)).
 - [Astroneer controls](https://astroneer.wiki.gg/wiki/Controls) (Add Terrain, Flatten, backpack hotkeys) and [Astroneer on Steam](https://store.steampowered.com/app/361420/ASTRONEER/) for digging, gathering, shaping, and building interaction.
@@ -539,6 +562,18 @@ These are references for interaction, mood, and philosophical structure only. Ch
 ---
 
 ## Open design questions
+
+### Current sandbox questions (D-034–038)
+
+- Which original rock silhouette should the first species use?
+- Which cave detector and reachable-motion approximation are sufficient for the first slice?
+- How should inactive planets simulate, and should saves survive browser reloads?
+- Is funding shared across sites, and should the existing bankruptcy ending change?
+- Should antennas be separated from Gardener work? D-038 remains proposed.
+- Which concise descriptors best communicate development without prescribing a goal?
+
+### Retained earlier questions
+
 
 Tracked in detail in [`decisions.md`](decisions.md#open-questions). Design-level ones:
 
