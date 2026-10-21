@@ -1,6 +1,7 @@
 import { createInitialRunState, type RunState, type createRunStore } from '../state/runState'
 import { tuning } from '../config/tuning'
-import { hashSeed } from '../world/planet'
+import { hashSeed, planetConfig } from '../world/planet'
+import { registryFor } from '../state/planets'
 
 type Store = ReturnType<typeof createRunStore>
 
@@ -46,15 +47,23 @@ export function distantPlanets(seed: string): DistantPlanet[] {
       seed: childSeed,
       name: `KX-${100 + (hash % 900)}`,
       ndc: [slot[0] + jitter(4) * 0.06, slot[1] + jitter(12) * 0.06],
-      size: 0.06 + ((hash >>> 20) % 100) / 100 * 0.05,
+      // PLN-02: the drawn size follows the planet's real radius, not a decorative choice.
+      size: 0.04 + (planetConfig(childSeed).radius - tuning.planets.radius[0]) / (tuning.planets.radius[1] - tuning.planets.radius[0]) * 0.07,
       color: TINTS[hash % TINTS.length],
     }
   })
 }
 
-// Leave the current site for a new planet. Only the operating account travels with the contractor.
+// PLN-03/04: leave the current planet exactly as it is and arrive at the target, new or revisited.
+// Only the operating account and the player's tool selection travel with the contractor; D-040 freezes the planet left behind.
 export function travelTo(store: Store, seed: string) {
-  const capital = store.getState().metrics.capital
-  const next = createInitialRunState(seed)
-  store.setState({ ...next, metrics: { ...next.metrics, capital } })
+  const current = store.getState()
+  if (current.seed === seed) return
+  const registry = registryFor(store)
+  registry.world(current.seed).remeshDirty(Infinity)
+  registry.save(current)
+  const next = registry.snapshot(seed) ?? createInitialRunState(seed)
+  registry.discover(seed)
+  store.setState({ ...next, metrics: { ...next.metrics, capital: current.metrics.capital }, loadout: current.loadout,
+    economy: { ...next.economy, bankrupt: current.economy.bankrupt } })
 }

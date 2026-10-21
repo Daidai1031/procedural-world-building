@@ -11,9 +11,9 @@ The project is a **procedural sandbox where players freely reshape different pla
 3. [roadmap.md](roadmap.md): what to implement next, starting with one resident response.
 4. [spec.md](spec.md): exact requirements and future acceptance checks.
 
-**Current implementation:** terrain tools, Miner/Gardener/Builder, plant/antenna behavior, operations, surface exploration/atlas and reset-style travel.
+**Current implementation:** Autopilot mode (D-043), terrain tools, Miner/Gardener/Builder, plant/antenna behavior, operations with automatic mineral sales (D-039), surface exploration/atlas, planets retained across travel with a live 3D System overview (D-040), independently varied signal planets (D-041) and cave residents that hide, return and relocate (D-042).
 
-**Planned:** responsive residents, retained worlds across travel, independently varied playable planet sizes/resources and a live 3D overview. Documentation changes do not implement these.
+**Planned:** a person's playtest of S1–S5, the final resident body, compact accounting (OPS-01) and reload saves. Documentation changes do not implement these.
 
 ## The documents
 
@@ -45,7 +45,7 @@ Design explains the intent; procedural-system connects effects; spec defines che
 
 ## Next implementation
 
-S1 in [roadmap.md](roadmap.md): one species, valid snug cavities, local work disturbance, peeking/retreat and return after quiet. Use HAB-01–04 / RES-01–03/08 and their acceptance checks. Relocation follows in S2; persistent travel in S3; the overview in S4.
+S1–S5 are built (D-039–042). Next: playtest them together and record observations in [tuning.md](tuning.md), then finish compact operations (OPS-01).
 
 ## Location
 

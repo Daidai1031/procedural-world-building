@@ -1,7 +1,7 @@
 import { BackSide, BufferGeometry, Color, Float32BufferAttribute, Group, Mesh, Points, PointsMaterial, ShaderMaterial, SphereGeometry, Vector3 } from 'three'
 import { palette } from '../config/palette'
 import { tuning } from '../config/tuning'
-import { createPlanetField, hashSeed } from '../world/planet'
+import { createPlanetField, hashSeed, planetConfig } from '../world/planet'
 import { valueNoise3D, VOXEL_WORLD_SIZE } from '../world/voxels/voxelMath.js'
 
 type Direction = [number, number, number]
@@ -72,7 +72,7 @@ export function buildAtmospherePoints(seed: string, surfaceRadius = createSurfac
 function haloGeometry(seed: string, surfaceRadius: (direction: Direction) => number) {
   const geometry = new SphereGeometry(1, 72, 48)
   const position = geometry.attributes.position
-  const base = VOXEL_WORLD_SIZE * 0.34
+  const base = VOXEL_WORLD_SIZE * planetConfig(seed).radius
   const noiseSeed = hashSeed(`${seed}:halo`)
   const v = new Vector3()
   for (let i = 0; i < position.count; i += 1) {

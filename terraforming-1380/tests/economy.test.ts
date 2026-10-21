@@ -71,3 +71,24 @@ test('manual terrain edits are billed by the volume changed and stop at bankrupt
   store.setState(s => ({ economy: { ...s.economy, bankrupt: true } }))
   assert.equal(useTerrainTool(world, store, 'add', point, 0.38, 'radial').changed, false)
 })
+
+test('minerals are sold the moment they are collected, once each', async () => {
+  const { PlanetWorld } = await import('../src/world/planet')
+  const { collectExposedResources } = await import('../src/tools/collector')
+  const { VOXEL_WORLD_SIZE } = await import('../src/world/voxels/voxelMath.js')
+  const store = createRunStore('auto-sell')
+  const world = new PlanetWorld('auto-sell')
+  const mineral = store.getState().resourceClusters.find(c => c.category === 'mineral')!
+  const [x, y, z] = mineral.position
+  world.edit('dig', { x, y: y + VOXEL_WORLD_SIZE / 2, z }, mineral.radius + 1.2, 'radial')
+  const before = store.getState().metrics.capital
+  const found = collectExposedResources(world, store, ['mineral'])
+  const n = found.filter(c => c.category === 'mineral').length
+  assert.ok(n >= 1)
+  const state = store.getState()
+  assert.equal(state.economy.mineralStock, 0)
+  assert.equal(state.economy.mineralsSold, n)
+  assert.ok(Math.abs(state.metrics.capital - before - n * tuning.economy.mineralPrice) < 1e-8)
+  assert.equal(collectExposedResources(world, store, ['mineral']).length, 0)
+  assert.equal(store.getState().economy.mineralsSold, n)
+})

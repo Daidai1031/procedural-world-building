@@ -32,9 +32,10 @@ h1 { margin: 0; max-width: 240px; font-family: var(--font-title); font-size: 32p
 header em { display: block; margin-top: 8px; max-width: 250px; font-family: var(--font-display); font-size: 13px; line-height: 1.35; color: var(--ink-soft); }
 
 /* Mode switch */
-.mode-switch { top: 24px; left: 50%; translate: -50% 0; width: 340px; height: 54px; display: grid; grid-template-columns: 1fr 1fr; padding: 4px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; box-shadow: 0 10px 28px -16px rgba(53, 54, 50, 0.45); }
-.mode-thumb { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border-radius: 999px; background: var(--graphite); transition: transform 240ms var(--ease); }
+.mode-switch { top: 24px; left: 50%; translate: -50% 0; width: 340px; height: 54px; display: grid; grid-template-columns: repeat(3, 1fr); padding: 4px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; box-shadow: 0 10px 28px -16px rgba(53, 54, 50, 0.45); }
+.mode-thumb { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / 3); border-radius: 999px; background: var(--graphite); transition: transform 240ms var(--ease); }
 .mode-switch[data-mode='manual'] .mode-thumb { transform: translateX(100%); }
+.mode-switch[data-mode='autopilot'] .mode-thumb { transform: translateX(200%); }
 .mode-switch button { position: relative; display: grid; align-content: center; justify-items: center; gap: 1px; border: 0; border-radius: 999px; background: transparent; color: var(--ink); cursor: pointer; transition: color 240ms var(--ease), scale 120ms var(--ease); }
 .mode-switch button:active { scale: 0.97; }
 .mode-switch button[aria-checked='true'] { color: var(--paper); }
@@ -192,10 +193,6 @@ dl { display: grid; grid-template-columns: 60px 1fr; gap: 8px; margin-bottom: 0;
 .site-panel .warehouse { grid-template-columns: repeat(2, 1fr); }
 .site-panel h2 { margin-bottom: 8px; }
 .site-panel .storage-bay { max-width: 112px; }
-.sell-minerals { width: 100%; min-height: 36px; margin: 12px 0; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: var(--card); cursor: pointer; font-weight: 600; }
-.sell-minerals:hover:enabled { border-color: var(--graphite); }
-.sell-minerals:active:enabled { transform: scale(.98); }
-.sell-minerals:disabled { color: var(--ink-soft); background: var(--paper); cursor: default; }
 .operations { padding-top: 12px; border-top: 1px solid var(--line); }
 .account-balance { display: flex; align-items: baseline; justify-content: space-between; font-size: 12px; }
 .account-balance strong { font-size: 24px; font-variant-numeric: tabular-nums; }
@@ -292,7 +289,7 @@ main { --rail-left: 324px; --rail-right: 270px; --layout-gap: 24px; display: gri
 .sidebar-controls { display: flex; flex-direction: column; gap: 10px; flex: none; padding-right: 8px; }
 .sidebar-controls .mode-switch { width: 100%; height: 48px; }
 .sidebar-controls .mode-switch strong { font-size: 16px; }
-.sidebar-controls .exploration-toolbar button { width: 100%; }
+.sidebar-controls .exploration-toolbar button { flex: 1 1 0; min-width: 0; white-space: normal; line-height: 1.2; }
 .sidebar-controls .exploration-toolbar { width: 100%; }
 .site-reports { position: relative; inset: auto; width: 100%; flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 20px; padding: 0 0 12px; overflow-x: hidden; overflow-y: auto; scrollbar-width: thin; scrollbar-gutter: stable; }
 .site-reports .site-panel, .site-reports .planet-status { position: static; inset: auto; width: 100%; margin: 0; padding: 0; max-height: none; overflow: visible; flex: none; }
@@ -441,3 +438,49 @@ main[data-view='surface'] .sidebar-controls { padding: 0; }
   .opening-title, .opening-title-copy, .crew-model, .mode-thumb, .btn, .seg button, .tool-cards button, .mode-switch button, .phase-track li { animation: none; transition: none; }
   .slot-count { animation: none; }
 }
+.system-dialog { width: min(1100px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); padding: 24px; border: 1px solid var(--line); border-radius: 18px; background: var(--paper); color: var(--ink); overflow: auto; box-shadow: 0 24px 80px #0003; }
+.system-dialog::backdrop { background: #25272288; }
+.system-body { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 16px; margin-top: 16px; }
+.system-canvas { position: relative; height: min(560px, 62dvh); border: 1px solid var(--line); border-radius: 8px; background: var(--card); cursor: grab; }
+.system-canvas[data-hover='true'] { cursor: pointer; }
+.system-hint { position: absolute; left: 12px; right: 12px; bottom: 10px; margin: 0; font-size: 12px; color: var(--ink-soft); pointer-events: none; }
+.system-list { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.system-list li { display: grid; grid-template-columns: 12px 1fr auto; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); }
+.system-list li[data-hover='true'] { border-color: var(--graphite); }
+.system-list strong { display: block; font-size: 13px; }
+.system-list small { display: block; margin-top: 2px; font-size: 11px; color: var(--ink-soft); }
+.system-list button { min-height: 32px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--ink); cursor: pointer; font-size: 12px; }
+.system-list button:hover { border-color: var(--graphite); }
+.system-swatch { width: 12px; height: 12px; border-radius: 50%; background: #c9c4b8; border: 1px solid #8a887f; }
+.system-swatch[data-kind='here'] { background: #e4dfd4; box-shadow: 0 0 0 2px var(--graphite); }
+.system-swatch[data-kind='signal'] { background: none; border-style: dashed; }
+@media (max-width: 760px) {
+  .system-dialog { padding: 14px; }
+  .system-body { grid-template-columns: 1fr; }
+  .system-canvas { height: 46dvh; }
+}
+
+/* D-043 Autopilot panel */
+.btn-quiet { background: var(--card); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line); }
+.btn-quiet:hover { box-shadow: inset 0 0 0 1.5px var(--graphite); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.autopilot-intro { margin: 0 0 12px; font-size: 13px; line-height: 1.45; color: var(--ink-soft); }
+.autopilot-crew { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.autopilot-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 10px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
+.autopilot-row .robot-preview { width: 56px; height: 56px; }
+.autopilot-row h3 { margin: 0; font-size: 15px; }
+.autopilot-row p { margin: 2px 0 0; font-size: 11.5px; line-height: 1.3; color: var(--ink-soft); }
+.stepper { display: inline-grid; grid-template-columns: 34px 26px 34px; align-items: center; justify-items: center; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--paper); }
+.stepper button { width: 100%; height: 34px; border: 0; background: transparent; color: var(--ink); font-size: 18px; line-height: 1; cursor: pointer; }
+.stepper button:hover:enabled { background: #e4e0d5; }
+.stepper button:disabled { opacity: 0.35; cursor: default; }
+.stepper output { font-weight: 700; font-variant-numeric: tabular-nums; }
+.autopilot-toggle { display: flex; align-items: flex-start; gap: 10px; margin-top: 14px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.autopilot-toggle input { margin-top: 2px; accent-color: var(--graphite); }
+.autopilot-toggle small { display: block; margin-top: 2px; font-weight: 400; font-size: 11.5px; line-height: 1.35; color: var(--ink-soft); }
+.autopilot-note { margin: 10px 0 0; font-size: 11.5px; line-height: 1.4; color: var(--ink-soft); }
+.autopilot-roster { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.autopilot-roster li { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px dashed var(--line); font-size: 13px; font-weight: 600; }
+.autopilot-roster i { width: 10px; height: 10px; border-radius: 50%; }
+.autopilot-roster em { font-style: normal; font-weight: 500; color: var(--ink-soft); }
+.autopilot-roster em[data-resting='true'] { color: var(--rust); }

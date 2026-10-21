@@ -28,6 +28,12 @@ export const tuning = {
       drift: { inner: 0.03, outer: 0.012 },
     },
   },
+  // PLN-02, D-041: each signal planet draws size, relief and abundance independently; the home planet keeps `home`.
+  // Radius and relief are fractions of the voxel world size; abundance multiplies the cluster counts below.
+  planets: {
+    home: { radius: 0.34, relief: 0.16, minerals: 1, life: 1 },
+    radius: [0.22, 0.36], relief: [0.06, 0.2], minerals: [0.4, 2], life: [0.3, 2],
+  },
   gen: {
     cluster: { mineral: { count: 14 }, life: { count: 8 }, memory: { count: 6 } },
     surfaceTeachingTargets: 3,
@@ -59,7 +65,31 @@ export const tuning = {
     area: { min: 0.6, default: 1.2, max: 2.4, step: 0.1 },
   },
   // Broadcasting: each pulse lasts `pulseSeconds`; distant planets start to appear after `planetsAfter` broadcasts.
+  // S1/S2, D-042: cave residents. Lengths are world units, durations are resident ticks (30 per second).
+  residents: {
+    tickRate: 30,
+    // Initial burrows: groups of pockets under the surface, each with a slanted tunnel to the open air.
+    burrows: { groups: 2, perGroup: 3, occupiedPerGroup: 2, groupSpread: 0.55, pocketRadius: 0.21, tunnelRadius: 0.14, depth: 0.6, slant: 0.5, minGap: 0.6 },
+    // HAB-01: a home has room for the body, rock on most sides, and an opening that leads outside.
+    shelter: { clearance: 0.05, rayLength: 0.6, rayStep: 0.08, minEnclosure: 0.7, accessReach: 1.6, accessNodes: 3000 },
+    // HAB-02: every terrain edit adds local disturbance that fades each tick.
+    disturbance: { radius: 0.9, manual: 1.4, robot: 0.3, cap: 3, decay: 0.97, merge: 0.3, maxSources: 32 },
+    retreatLevel: 0.5, quietLevel: 0.15, quietTicks: 75, sustainedTicks: 240,
+    checkEvery: 15, reconsiderEvery: 300, waitRetry: 90,
+    search: { radius: 3.0, candidateLimit: 64, candidateMerge: 0.18, occupiedRadius: 0.3 },
+    cooldownTicks: 600, advantage: 0.12, companionRadius: 0.9, companionBonus: 0.04, distanceCost: 0.05,
+    speed: 0.012, surfaceLift: 0.09, pathStep: 0.07, bodyRadius: 0.1,
+  },
   signal: { pulseSeconds: 3.2, planetsAfter: 3, maxPlanets: 5, planetFadeSeconds: 4 },
+  // D-043: Autopilot hands the whole planet to the crew. Each robot sweeps `sectors` work areas of `radius` in turn;
+  // after a lap with no work it rests `restTicks`, doubling each fruitless lap up to `maxRestFactor` times. Builders
+  // instead share one queue of sectors, leave each after `builderJobsPerSector` jobs and retire when the queue is empty. Gardeners and Builders wait while funds sit below `holdBelow`
+  // and resume above `resumeAbove`. Signals go out every `broadcastEvery` ticks while antennas stand.
+  autopilot: {
+    maxPerKind: 4, defaults: { miner: 2, gardener: 1, builder: 1 },
+    miner: { sectors: 6, radius: 2.4 }, gardener: { sectors: 6, radius: 2.4 }, builder: { sectors: 12, radius: 1.4 },
+    restTicks: 900, maxRestFactor: 16, builderJobsPerSector: 15, holdBelow: -20, resumeAbove: -10, broadcastEvery: 600,
+  },
   structures: {
     plantSpacing: 0.25, antennaSpacing: 0.9, mixedClearance: 0.3, anchorLift: 0.14,
     maxPlants: 60, maxAntennas: 8,

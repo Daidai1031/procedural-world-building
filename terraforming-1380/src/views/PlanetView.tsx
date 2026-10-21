@@ -11,8 +11,9 @@ import { flattenNormal, type FlattenOrientation } from '../world/flattenPlane'
 
 const discNormal = new Vector3(0, 0, 1)
 
-export function PlanetView({ world, clusters, collectedIds, radius, detectorRadius, areaRadius, activeTool, selectedMode, flattenOrientation, onTarget }: {
+export function PlanetView({ world, baseRadius, clusters, collectedIds, radius, detectorRadius, areaRadius, activeTool, selectedMode, flattenOrientation, onTarget }: {
   world: PlanetWorld
+  baseRadius: number
   clusters: ResourceCluster[]
   collectedIds: string[]
   radius: number
@@ -28,7 +29,7 @@ export function PlanetView({ world, clusters, collectedIds, radius, detectorRadi
   const areaPreview = useRef<Mesh>(null)
   const planePreview = useRef<Group>(null)
   const previewNormal = useRef(new Vector3())
-  const material = useMemo(() => createTerrainMaterial(clusters), [clusters])
+  const material = useMemo(() => createTerrainMaterial(clusters, baseRadius), [clusters, baseRadius])
   useEffect(() => () => material.dispose(), [material])
   useEffect(() => {
     setResourceGlowActive(material, clusters.map(({ id }) => !collectedIds.includes(id)))

@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { AutoRobot, createRunStore } from '../state/runState'
 import { commsMessages, type CommsMessage } from '../systems/comms'
-import { sellMinerals } from '../systems/economy'
 
 // A handheld communicator: robot and account problems arrive here with one button to the screen that fixes them.
-export function Comms({ useRunStore, onOpenRobot }: {
+export function Comms({ useRunStore, onOpenRobot, onTakeOver }: {
   useRunStore: ReturnType<typeof createRunStore>
   onOpenRobot: (robot: AutoRobot) => void
+  onTakeOver: () => void
 }) {
   // The selector returns a string so the component only re-renders when the set of messages changes, not on every tick.
   const signature = useRunStore(state => commsMessages(state).map(m => `${m.id}|${m.text}|${m.action?.label ?? ''}`).join(';'))
@@ -30,11 +30,9 @@ export function Comms({ useRunStore, onOpenRobot }: {
   const run = (message: CommsMessage) => {
     const action = message.action
     if (!action) return
-    if (action.kind === 'sell') sellMinerals(useRunStore)
-    else {
-      onOpenRobot(action.robot)
-      setDismissed(current => [...current, message.id])
-    }
+    if (action.kind === 'takeover') onTakeOver()
+    else onOpenRobot(action.robot)
+    setDismissed(current => [...current, message.id])
     setOpen(false)
   }
   const urgent = active.some(m => m.level === 'alert')

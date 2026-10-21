@@ -22,8 +22,8 @@ const light: Record<RobotPhase, RobotLight> = {
 
 // AUT-10: the robot, its intended path, and the area it works in. Reads the store every frame instead of
 // subscribing, so 30 Hz simulation never re-renders React.
-export function MinerView({ world, store, active, selected }: {
-  world: PlanetWorld; store: ReturnType<typeof createRunStore>; active: boolean; selected: boolean
+export function MinerView({ world, store, robotId, active, selected }: {
+  world: PlanetWorld; store: ReturnType<typeof createRunStore>; robotId: string; active: boolean; selected: boolean
 }) {
   const body = useRef<Group>(null)
   const model = useMemo(() => createMiner(), [])
@@ -52,7 +52,7 @@ export function MinerView({ world, store, active, selected }: {
       return
     }
     const { robots, resourceClusters, simTick } = store.getState()
-    const robot = robots[0]
+    const robot = robots.find(({ id }) => id === robotId)
     if (!robot) return
     model.setState(light[robot.phase])
     model.update(clock.elapsedTime)

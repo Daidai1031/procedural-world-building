@@ -28,15 +28,15 @@ export interface GardenerState {
   resumePhase: GardenerPhase | null
 }
 
-export function spawnGardener(seed: string): GardenerState {
-  const random = randomStream(hashSeed(`${seed}:gardener:0`))
+export function spawnGardener(seed: string, index = 0): GardenerState {
+  const random = randomStream(hashSeed(`${seed}:gardener:${index}`))
   const height = random() * 2 - 1
   const angle = random() * Math.PI * 2
   const ring = Math.sqrt(1 - height * height)
   const direction: Vec3 = [Math.cos(angle) * ring, height, Math.sin(angle) * ring]
   const radius = surfaceRadius(createPlanetField(seed), direction)
   return {
-    id: 'gardener-0',
+    id: `gardener-${index}`,
     position: scale(direction, radius + rules.hoverHeight),
     area: { center: scale(direction, radius), radius: rules.area.default },
     phase: 'idle', site: null, placed: 0, surveys: 0, misses: 0, stopReason: null, phaseTicks: 0, resumePhase: null,

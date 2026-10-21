@@ -132,7 +132,7 @@ export interface RunState {
   gardeners: GardenerState[]
   builders: BuilderState[]
   // D-026: soil removed by Miners, spent by the Builder when filling. Counted in density samples.
-  economy: { mineralStock: number; revenue: number; electricitySpent: number; terrainSpent: number; bankrupt: boolean; preparedSamples: number }
+  economy: { mineralStock: number; mineralsSold: number; revenue: number; electricitySpent: number; terrainSpent: number; bankrupt: boolean; preparedSamples: number }
   preparedSites: [number, number, number][]
   soil: number
   // AUT-15/16: plants and antennas standing on the surface.
@@ -415,49 +415,49 @@ The Detector is a separate, close-range inspection tool. The later Scanner retai
 
 | ID | Requirement | Priority | Status |
 | --- | --- | --- | --- |
-| HAB-01 | Validate snug shelter candidates from current edited density: enclosure, body clearance, entrance and reachable access. A broad open pit alone is insufficient. | MVP | todo |
-| HAB-02 | Feed manual Dig/Add/Flatten and robot terrain work into the same bounded local disturbance mechanism; disturbance decays when work ceases. Acoustic physics is not required. TUNE | MVP | todo |
-| HAB-03 | Revalidate affected homes/routes after terrain edits. Removed or blocked shelter cannot remain valid because of a stale score. | MVP | todo |
-| HAB-04 | Expose habitat validity and disturbance in debug inspection without requiring a player-facing score dashboard. | MVP | todo |
+| HAB-01 | Validate snug shelter candidates from current edited density: enclosure, body clearance, entrance and reachable access. A broad open pit alone is insufficient. | MVP | done (D-042) |
+| HAB-02 | Feed manual Dig/Add/Flatten and robot terrain work into the same bounded local disturbance mechanism; disturbance decays when work ceases. Acoustic physics is not required. TUNE | MVP | done (D-042) |
+| HAB-03 | Revalidate affected homes/routes after terrain edits. Removed or blocked shelter cannot remain valid because of a stale score. | MVP | done (D-042) |
+| HAB-04 | Expose habitat validity and disturbance in debug inspection without requiring a player-facing score dashboard. | MVP | done (D-042) |
 
 ### 4.17 Resident behavior (RES) — planned
 
 | ID | Requirement | Priority | Status |
 | --- | --- | --- | --- |
-| RES-01 | Start with one original rock-like cave species. Generate a few settlements only at valid habitat candidates; stable seed/config/version reproduces initial placement. Exact count/body remain open. | MVP | todo |
-| RES-02 | Use snug shelter, low disturbance and nearby companions as preferences; clearance and reachable access are hard constraints. Plant count/flatness are not resident suitability. | MVP | todo |
-| RES-03 | Brief disturbance causes visible retreat, followed by cautious return after sufficient quiet. TUNE | MVP | todo |
-| RES-04 | Sustained disturbance or home invalidation initiates bounded search for a reachable suitable home. Movement respects current terrain; no teleportation through intact rock. | MVP | todo |
-| RES-05 | Suitable new cavities may be occupied after quiet returns. Candidate validity, not whether the cavity is natural or excavated, determines eligibility. | MVP | todo |
-| RES-06 | Use a relocation advantage threshold and response cooldown to avoid home oscillation; resolve equal candidates stably and prevent conflicting occupancy. TUNE | MVP | todo |
-| RES-07 | If no reachable home exists, keep a visible bounded searching/waiting state. Do not silently delete residents or trigger automatic failure. | MVP | todo |
-| RES-08 | Make peeking, retreat and relocation distinguishable from the normal play camera; final body design remains open. | MVP | todo |
+| RES-01 | Start with one original rock-like cave species. Generate a few settlements only at valid habitat candidates; stable seed/config/version reproduces initial placement. Exact count/body remain open. | MVP | done (D-042) |
+| RES-02 | Use snug shelter, low disturbance and nearby companions as preferences; clearance and reachable access are hard constraints. Plant count/flatness are not resident suitability. | MVP | done (D-042) |
+| RES-03 | Brief disturbance causes visible retreat, followed by cautious return after sufficient quiet. TUNE | MVP | done (D-042) |
+| RES-04 | Sustained disturbance or home invalidation initiates bounded search for a reachable suitable home. Movement respects current terrain; no teleportation through intact rock. | MVP | done (D-042) |
+| RES-05 | Suitable new cavities may be occupied after quiet returns. Candidate validity, not whether the cavity is natural or excavated, determines eligibility. | MVP | done (D-042) |
+| RES-06 | Use a relocation advantage threshold and response cooldown to avoid home oscillation; resolve equal candidates stably and prevent conflicting occupancy. TUNE | MVP | done (D-042) |
+| RES-07 | If no reachable home exists, keep a visible bounded searching/waiting state. Do not silently delete residents or trigger automatic failure. | MVP | done (D-042) |
+| RES-08 | Make peeking, retreat and relocation distinguishable from the normal play camera; final body design remains open. | MVP | done (D-042) |
 
 ### 4.18 Planet identity and persistence (PLN) — planned
 
 | ID | Requirement | Priority | Status |
 | --- | --- | --- | --- |
-| PLN-01 | Assign stable planet ID/seed/config and discovery status; repeat discovery does not duplicate an existing world. | MVP | todo |
-| PLN-02 | Support independently varying playable size, terrain and resource abundance/distribution within technical limits. Icon size alone does not satisfy size variation. | MVP | todo |
-| PLN-03 | Switching away and back in one session preserves edited terrain, collection/stock, robots, structures, residents, disturbance and local signal state. Store or reconstruct density, not seed alone. | MVP | todo |
-| PLN-04 | Separate view switching from world initialization. Discovery and revisiting must not reset a planet or duplicate income/resources. | MVP | todo |
-| PLN-05 | Choose and document shared/local funds, inactive-world ticking and billing before implementing continuous background operation. | Stretch | ? |
+| PLN-01 | Assign stable planet ID/seed/config and discovery status; repeat discovery does not duplicate an existing world. | MVP | done (D-040) |
+| PLN-02 | Support independently varying playable size, terrain and resource abundance/distribution within technical limits. Icon size alone does not satisfy size variation. | MVP | done (D-041) |
+| PLN-03 | Switching away and back in one session preserves edited terrain, collection/stock, robots, structures, residents, disturbance and local signal state. Store or reconstruct density, not seed alone. | MVP | done (D-040; residents pending S1) |
+| PLN-04 | Separate view switching from world initialization. Discovery and revisiting must not reset a planet or duplicate income/resources. | MVP | done (D-040) |
+| PLN-05 | Choose and document shared/local funds, inactive-world ticking and billing before implementing continuous background operation. | Stretch | decided (D-040: shared funds, inactive frozen) |
 | PLN-06 | Browser-reload save/load scope and format remain a separate decision; do not claim durable saves from PLN-03. | Stretch | ? |
 
 ### 4.19 System overview (SYS) — planned
 
 | ID | Requirement | Priority | Status |
 | --- | --- | --- | --- |
-| SYS-01 | Show discovered planets in a navigable 3D spatial arrangement; orbital physics is unnecessary. | MVP | todo |
-| SYS-02 | Derive overview meshes from each current edited world, with revision-aware refresh. Holes/cuts must not revert to a decorative sphere. | MVP | todo |
-| SYS-03 | Hover reveals concise descriptive state; click visits the selected stored planet. Exact progress descriptor is open and must not prescribe a universal end goal. | MVP | todo |
-| SYS-04 | Refresh running-world changes while the overview is open, within a measured budget; choose cadence and inactive-world policy explicitly. | MVP | todo |
+| SYS-01 | Show discovered planets in a navigable 3D spatial arrangement; orbital physics is unnecessary. | MVP | done (D-040) |
+| SYS-02 | Derive overview meshes from each current edited world, with revision-aware refresh. Holes/cuts must not revert to a decorative sphere. | MVP | done |
+| SYS-03 | Hover reveals concise descriptive state; click visits the selected stored planet. Exact progress descriptor is open and must not prescribe a universal end goal. | MVP | done |
+| SYS-04 | Refresh running-world changes while the overview is open, within a measured budget; choose cadence and inactive-world policy explicitly. | MVP | done (per-frame version check; inactive frozen) |
 
 ### 4.20 Compact operating feedback (OPS) — planned UI change
 
 | ID | Requirement | Priority | Status |
 | --- | --- | --- | --- |
-| OPS-01 | Keep accounting internal where possible; use compact operating status rather than mandatory detailed spending rows. | MVP | todo |
+| OPS-01 | Keep accounting internal where possible; use compact operating status rather than mandatory detailed spending rows. Minerals are sold automatically on delivery (D-039, implemented); detailed rows remain. | MVP | in progress |
 | OPS-02 | Explain material/funding restrictions and critical warnings with cause and available action. Do not hide current bankruptcy while it can terminate play. | MVP | todo |
 | OPS-03 | Do not change charges, bankruptcy, sale policy or fund ownership as an incidental UI edit. A revised hard-ending policy needs a new decision. | MVP | todo |
 
@@ -723,3 +723,20 @@ Current: cave detection/path strategy, resident body and tuning; account scope; 
 | 2026-10-14 | v0.3 | D-023: R1 Miner implemented. AUT-01–11 done; AUT-12 wip until measured on the target laptop. AUT-T1–6 are automated in `tests/miner.test.ts`; AUT-T7 needs a browser playtest. |
 | 2026-10-14 | v0.4 | D-025: Gardener (AUT-14–16) implemented; tests in `tests/gardener.test.ts`. |
 | 2026-10-14 | v0.5 | D-026: Builder (AUT-17) and shared soil stock implemented; tests in `tests/builder.test.ts`. |
+
+### Autopilot (D-043)
+
+Implemented 2026-10-21. Checks run in `tests/autopilot.test.ts`.
+
+| ID | Check |
+| --- | --- |
+| AUTO-01 | Hand-over deploys the chosen crew, switches to Auto and starts each robot in its own sector. |
+| AUTO-02 | An empty crew cannot start; counts clamp to 4 per kind. |
+| AUTO-03 | The sector rings cover the whole planet for each kind. |
+| AUTO-04 | Unattended, minerals are mined and sold and ground is shaped. |
+| AUTO-05 | A stopped robot moves to the next sector; a Miner with no mineral left stays put. |
+| AUTO-06 | Gardeners and Builders hold below ₡−20, resume above ₡−10; Miners keep working; comms reports it. |
+| AUTO-07 | Signals start with the first antenna, are 20 s apart, can be switched off, and stop once every planet answered. |
+| AUTO-08/09 | Cancel returns one paused robot per kind with default areas, even when a kind had none; counts are remembered. |
+| AUTO-10 | Index 0 spawns exactly as before. |
+| AUTO-11 | Builders take distinct sectors from one queue, share one level, stay within the job budget and retire. |

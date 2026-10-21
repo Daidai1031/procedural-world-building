@@ -14,14 +14,114 @@ export function hashSeed(seed: string) {
   return hash >>> 0
 }
 
-export function createPlanetField(seed: string) {
+export interface PlanetConfig { radius: number; relief: number; minerals: number; life: number }
+
+// PLN-02, D-041: the starting conditions of a planet. The home seed keeps the original values; a planet found by a
+// signal reads each property from a different byte of its hash, so size, relief and abundance vary independently.
+export function planetConfig(seed: string): PlanetConfig {
+  const { home, radius, relief, minerals, life } = tuning.planets
+  if (!seed.includes('/signal-')) return home
+  const hash = hashSeed(`${seed}:config`)
+  const pick = ([min, max]: readonly number[], shift: number) => min + ((hash >>> shift) & 255) / 255 * (max - min)
+  return { radius: pick(radius, 0), relief: pick(relief, 8), minerals: pick(minerals, 16), life: pick(life, 24) }
+}
+
+function createBaseField(seed: string) {
   const noise = { seed: hashSeed(seed), frequency: 3 / VOXEL_WORLD_SIZE, octaves: 4, persistence: 0.5 }
-  const radius = VOXEL_WORLD_SIZE * 0.34
+  const config = planetConfig(seed)
+  const radius = VOXEL_WORLD_SIZE * config.radius
   return (x: number, y: number, z: number) => {
     // TERR-01, TERR-02: negative inside; guidebook volume is y=0..size.
     const centeredY = y - VOXEL_WORLD_SIZE / 2
-    const relief = (fractalNoise3D(x, centeredY, z, noise) - 0.5) * VOXEL_WORLD_SIZE * 0.16
+    const relief = (fractalNoise3D(x, centeredY, z, noise) - 0.5) * VOXEL_WORLD_SIZE * config.relief
     return Math.hypot(x, centeredY, z) - radius + relief
+  }
+}
+
+type V3 = [number, number, number]
+export interface Burrow { id: string; pocket: V3; mouth: V3 }
+
+// RES-01, D-042: the seed places a few groups of burrows. Each is a pocket below the surface reached by a slanted
+// tunnel, so it is enclosed on most sides, unlike an open pit. Positions are centered coordinates (planet center at 0).
+const burrowCache = new Map<string, Burrow[]>()
+export function burrowSites(seed: string): Burrow[] {
+  const cached = burrowCache.get(seed)
+  if (cached) return cached
+  const field = createBaseField(seed)
+  const { burrows } = tuning.residents
+  const random = (() => {
+    let state = hashSeed(`${seed}:burrows`)
+    return () => {
+      state = (state + 0x6D2B79F5) >>> 0
+      let value = Math.imul(state ^ (state >>> 15), state | 1)
+      value ^= value + Math.imul(value ^ (value >>> 7), value | 61)
+      return ((value ^ (value >>> 14)) >>> 0) / 4294967296
+    }
+  })()
+  const norm = (v: V3): V3 => { const l = Math.hypot(...v) || 1; return [v[0] / l, v[1] / l, v[2] / l] }
+  const surface = (d: V3) => {
+    let inside = 0, outside = VOXEL_WORLD_SIZE / 2 - 0.1
+    for (let i = 0; i < 16; i++) {
+      const mid = (inside + outside) / 2
+      if (field(d[0] * mid, d[1] * mid + VOXEL_WORLD_SIZE / 2, d[2] * mid) < 0) inside = mid
+      else outside = mid
+    }
+    return inside
+  }
+  const randomDirection = (): V3 => {
+    const h = random() * 2 - 1, a = random() * Math.PI * 2, r = Math.sqrt(1 - h * h)
+    return [Math.cos(a) * r, h, Math.sin(a) * r]
+  }
+  const groups = Math.max(1, Math.round(burrows.groups * planetConfig(seed).life))
+  const out: Burrow[] = []
+  for (let g = 0; g < groups; g++) {
+    const center = randomDirection()
+    // Burrows sit on a ring around the group center, each tunnel leaving away from the center so neighbours never merge.
+    const helper: V3 = Math.abs(center[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0]
+    const t1 = norm([center[1] * helper[2] - center[2] * helper[1], center[2] * helper[0] - center[0] * helper[2], center[0] * helper[1] - center[1] * helper[0]])
+    const t2: V3 = [center[1] * t1[2] - center[2] * t1[1], center[2] * t1[0] - center[0] * t1[2], center[0] * t1[1] - center[1] * t1[0]]
+    const turn = random() * Math.PI * 2
+    for (let k = 0; k < burrows.perGroup; k++) {
+      const theta = turn + k * Math.PI * 2 / burrows.perGroup + (random() - 0.5) * 0.6
+      // The spread is a distance at pocket depth, so small planets get as much room between burrows as large ones.
+      const angle = burrows.groupSpread / Math.max(0.4, VOXEL_WORLD_SIZE * planetConfig(seed).radius - burrows.depth) * (0.85 + random() * 0.3)
+      const side: V3 = [0, 1, 2].map(i => t1[i] * Math.cos(theta) + t2[i] * Math.sin(theta)) as V3
+      const direction = norm([0, 1, 2].map(i => center[i] * Math.cos(angle) + side[i] * Math.sin(angle)) as V3)
+      const ground = surface(direction)
+      const pocket = direction.map(c => c * (ground - burrows.depth)) as V3
+      const mouthDirection = norm(direction.map((c, i) => c + side[i] * burrows.slant) as V3)
+      const mouth = mouthDirection.map(c => c * (surface(mouthDirection) + 0.12)) as V3
+      // Two groups can land close together on a small planet; keep pockets apart rather than merging them.
+      if (out.some(o => Math.hypot(o.pocket[0] - pocket[0], o.pocket[1] - pocket[1], o.pocket[2] - pocket[2]) < burrows.minGap)) continue
+      out.push({ id: `burrow-${g}-${k}`, pocket, mouth })
+    }
+  }
+  burrowCache.set(seed, out)
+  return out
+}
+
+function segmentDistance(p: V3, a: V3, b: V3) {
+  const ab = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], ap = [p[0] - a[0], p[1] - a[1], p[2] - a[2]]
+  const t = Math.max(0, Math.min(1, (ap[0] * ab[0] + ap[1] * ab[1] + ap[2] * ab[2]) / (ab[0] ** 2 + ab[1] ** 2 + ab[2] ** 2)))
+  return Math.hypot(ap[0] - ab[0] * t, ap[1] - ab[1] * t, ap[2] - ab[2] * t)
+}
+
+// The planet's initial density: noisy sphere minus the seeded burrows (max with the negated carve distance).
+export function createPlanetField(seed: string) {
+  const base = createBaseField(seed)
+  const burrows = burrowSites(seed)
+  const { pocketRadius, tunnelRadius } = tuning.residents.burrows
+  const reach = Math.max(...burrows.map(b => Math.hypot(b.mouth[0] - b.pocket[0], b.mouth[1] - b.pocket[1], b.mouth[2] - b.pocket[2]))) + pocketRadius
+  return (x: number, y: number, z: number) => {
+    let value = base(x, y, z)
+    const p: V3 = [x, y - VOXEL_WORLD_SIZE / 2, z]
+    for (const burrow of burrows) {
+      if (Math.abs(p[0] - burrow.pocket[0]) > reach || Math.abs(p[1] - burrow.pocket[1]) > reach || Math.abs(p[2] - burrow.pocket[2]) > reach) continue
+      const pocket = pocketRadius - Math.hypot(p[0] - burrow.pocket[0], p[1] - burrow.pocket[1], p[2] - burrow.pocket[2])
+      const tunnel = tunnelRadius - segmentDistance(p, burrow.pocket, burrow.mouth)
+      value = Math.max(value, pocket, tunnel)
+    }
+    return value
   }
 }
 
@@ -92,6 +192,11 @@ export class PlanetWorld {
     this.chunks = buildChunks(this.densityAt, resolution, this.chunksPerSide, CHUNK_BORDER)
       .map((chunk) => ({ ...chunk, version: 0, level: 0 }))
     for (const chunk of this.chunks) this.lodCache.set(`${chunk.key}-0`, chunk.mesh)
+  }
+
+  // SYS-02/04: changes whenever any chunk mesh is rebuilt, so a viewer can refresh only when the shape really changed.
+  get meshVersion() {
+    return this.chunks.reduce((sum, chunk) => sum + chunk.version, 0)
   }
 
   get planetRemaining() {

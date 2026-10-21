@@ -1,4 +1,5 @@
 import { notifyGroundChanged } from './workSites'
+import { recordDisturbance } from './residents'
 import type { createRunStore } from '../state/runState'
 import { tuning } from '../config/tuning'
 import { createPlanetField, hashSeed, type PlanetWorld } from '../world/planet'
@@ -31,15 +32,15 @@ export interface BuilderState {
   resumePhase: BuilderPhase | null
 }
 
-export function spawnBuilder(seed: string): BuilderState {
-  const random = randomStream(hashSeed(`${seed}:builder:0`))
+export function spawnBuilder(seed: string, index = 0): BuilderState {
+  const random = randomStream(hashSeed(`${seed}:builder:${index}`))
   const height = random() * 2 - 1
   const angle = random() * Math.PI * 2
   const ring = Math.sqrt(1 - height * height)
   const direction: Vec3 = [Math.cos(angle) * ring, height, Math.sin(angle) * ring]
   const radius = surfaceRadius(createPlanetField(seed), direction)
   return {
-    id: 'builder-0',
+    id: `builder-${index}`,
     position: scale(direction, radius + rules.hoverHeight),
     area: { center: scale(direction, radius), radius: rules.area.default },
     phase: 'idle', level: null, job: null, done: 0, surveys: 0, misses: 0, stopReason: null, phaseTicks: 0, resumePhase: null,
@@ -154,6 +155,7 @@ function build(world: PlanetWorld, store: RunStore, kind: BuilderJob, ground: Ve
   }))
   pruneStructures(world, store)
   notifyGroundChanged(store, ground, reachOf(kind))
+  recordDisturbance(store, ground, 'robot', false)
 }
 
 function stepBuilder(world: PlanetWorld, store: RunStore, source: BuilderState) {

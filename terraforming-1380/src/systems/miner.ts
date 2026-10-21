@@ -1,4 +1,5 @@
 import { notifyGroundChanged } from './workSites'
+import { recordDisturbance } from './residents'
 import type { createRunStore } from '../state/runState'
 import { tuning } from '../config/tuning'
 import { collectExposedResources } from '../tools/collector'
@@ -34,16 +35,16 @@ export interface MiningRobotState {
 const HALF = VOXEL_WORLD_SIZE / 2
 const miner = tuning.miner
 
-// One seeded Miner above a random surface point; its work area starts under it.
-export function spawnRobot(seed: string): MiningRobotState {
-  const random = randomStream(hashSeed(`${seed}:miner:0`))
+// A seeded Miner above a random surface point; its work area starts under it. Index 0 is the Auto-mode Miner.
+export function spawnRobot(seed: string, index = 0): MiningRobotState {
+  const random = randomStream(hashSeed(`${seed}:miner:${index}`))
   const height = random() * 2 - 1
   const angle = random() * Math.PI * 2
   const ring = Math.sqrt(1 - height * height)
   const direction: Vec3 = [Math.cos(angle) * ring, height, Math.sin(angle) * ring]
   const radius = surfaceRadius(createPlanetField(seed), direction)
   return {
-    id: 'miner-0',
+    id: `miner-${index}`,
     position: scale(direction, radius + miner.hoverHeight),
     area: { center: scale(direction, radius), radius: miner.area.default },
     phase: 'idle', knownTargetIds: [], targetId: null, collectedMinerals: 0, stopReason: null,
@@ -197,6 +198,7 @@ function stepRobot(world: PlanetWorld, store: RunStore, source: MiningRobotState
     store.setState((state) => ({ planetRemaining: world.planetRemaining, soil: state.soil + edit.removedSamples }))
     pruneStructures(world, store)
     notifyGroundChanged(store, next, miner.digRadius)
+    recordDisturbance(store, next, 'robot', edit.removedSamples > 0)
   }
   if (isEmptyAt(world, next)) {
     robot.position = next

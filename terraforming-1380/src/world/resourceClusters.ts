@@ -1,5 +1,5 @@
 import { tuning } from '../config/tuning'
-import { createPlanetField, hashSeed } from './planet'
+import { createPlanetField, hashSeed, planetConfig } from './planet'
 import { VOXEL_WORLD_SIZE } from './voxels/voxelMath.js'
 
 export type ResourceCategory = 'mineral' | 'life' | 'memory'
@@ -26,10 +26,12 @@ export function generateResourceClusters(seed: string): ResourceCluster[] {
   const field = createPlanetField(seed)
   const categories: ResourceCategory[] = ['mineral', 'life', 'memory']
   const clusters: ResourceCluster[] = []
+  const config = planetConfig(seed)
+  const abundance = { mineral: config.minerals, life: config.life, memory: 1 }
 
   for (const [categoryIndex, category] of categories.entries()) {
     const random = randomStream(hashSeed(`${seed}:resource:${category}`))
-    const count = tuning.gen.cluster[category].count
+    const count = Math.max(1, Math.round(tuning.gen.cluster[category].count * abundance[category]))
     for (let index = 0; index < count; index += 1) {
       const height = random() * 2 - 1
       const angle = random() * Math.PI * 2

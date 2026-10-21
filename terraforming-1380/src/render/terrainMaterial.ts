@@ -26,7 +26,7 @@ export function showWorkArea(area: { center: [number, number, number]; radius: n
 // lines by distance from the planet center. All three are world-space, so edits reshape the lines.
 // Resource glow: Lesson 04's world-space distance falloff, anchored to each resource point, so buried
 // targets tint the terrain around them without a camera-dependent term.
-export function createTerrainMaterial(clusters: ResourceCluster[] = []) {
+export function createTerrainMaterial(clusters: ResourceCluster[] = [], baseRadius = VOXEL_WORLD_SIZE * 0.34) {
   const material = new MeshStandardMaterial({ color: '#ffffff', roughness: 0.95, metalness: 0 })
   const count = clusters.length
   const resources = clusters.map((cluster) => new Vector4(...cluster.position, 1))
@@ -40,7 +40,7 @@ export function createTerrainMaterial(clusters: ResourceCluster[] = []) {
       uGlowRadius: { value: tuning.glow.radius },
       uGlowAlbedoMix: { value: tuning.glow.albedoMix },
       uGlowEmissive: { value: tuning.glow.emissive },
-      uBaseRadius: { value: VOXEL_WORLD_SIZE * 0.34 },
+      uBaseRadius: { value: baseRadius },
       uHeightRange: { value: contour.heightRange },
       uContourSpacing: { value: contour.spacing },
       uContourMajor: { value: contour.majorEvery },

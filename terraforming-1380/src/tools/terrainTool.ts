@@ -1,4 +1,5 @@
 import { notifyGroundChanged } from '../systems/workSites'
+import { recordDisturbance } from '../systems/residents'
 import { billManualTerrain } from '../systems/economy'
 import { HALF } from '../systems/geometry'
 import type { createRunStore, TerrainMode } from '../state/runState'
@@ -29,6 +30,7 @@ export function useTerrainTool(world: PlanetWorld, store: RunStore, mode: Terrai
     billManualTerrain(store, result.removedSamples + result.addedSamples)
     store.setState({ planetRemaining: world.planetRemaining })
     notifyGroundChanged(store, [point.x, point.y - HALF, point.z], mode === 'flatten' ? radius * Math.SQRT2 : radius)
+    recordDisturbance(store, [point.x, point.y - HALF, point.z], 'manual', result.removedSamples > 0)
   }
   return result
 }

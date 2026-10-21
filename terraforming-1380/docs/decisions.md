@@ -428,3 +428,56 @@ Electricity was later raised from 0.25 to 0.4, then to 0.55 credits per kW-minut
 - **Why:** A player should understand why planting differs from discovering a planet.
 - **Boundary:** No implementation owner or interaction is chosen. Do not remove current antenna placement or mark this accepted.
 - **Affects if accepted:** AUT-15, Gardener rules, signal controls, content and roadmap.
+
+## D-039 — Sell minerals automatically on delivery
+
+- **Date:** 2026-10-21
+- **Status:** accepted; implemented, not yet browser-verified
+- **Decision:** Every mineral is sold at the standard price the moment it is collected (robot or manual). The Sell button is removed. The warehouse bay now counts minerals sold. While bankrupt, sales stay blocked and minerals remain in stock as before.
+- **Why:** Selling by hand was bookkeeping that distracted from the terrain and robots (D-037). The user chose per-delivery settlement over timed batches.
+- **Supersedes:** the manual sale step of D-031/D-021 and the "sell" communicator action of D-033. Prices, charges and bankruptcy (D-037 boundary) are unchanged.
+- **Affects:** `tools/collector.ts`, `systems/economy.ts`, `systems/comms.ts`, SitePanel, Comms, run state `economy.mineralsSold`, content "Compact operating messages", OPS-01.
+
+## D-040 — Persistent planets: shared funds, frozen inactive worlds
+
+- **Date:** 2026-10-21
+- **Status:** accepted; implemented and browser-checked (edit A → visit B → return to A)
+- **Context:** The user moved S3–S5 ahead of S1/S2 (persistent planets, overview and varied planets first, residents after). PLN-05 required this choice before S3.
+- **Decision:** The operating account (funds and bankruptcy) is shared across planets. Every other part of the run state is kept per planet: terrain density, collected IDs, stock, soil, robots, structures and the planet's own signal state. Only the active planet simulates and bills; a planet you leave is frozen and its robots resume when you return. The player's tool selection travels with them. Planets live for the browser session only (PLN-06 unchanged).
+- **Navigation:** the 3D System overview (S4) is the way to move between known planets. It draws each visited planet from its current chunk meshes, refreshing when a mesh version changes; planets answered by a signal but never visited are drawn as outlines at their real radius. The screen-space distant planets in the main view stay as the discovery moment.
+- **Why:** Freezing keeps the cost and the explanation simple ("the crew pauses until you return") and avoids implying that every planet simulates.
+- **Affects:** `state/planets.ts` (registry), `systems/signal.ts` `travelTo`, `systems/system.ts`, `ui/SystemOverview.tsx`, `main.tsx`, `App.tsx`; PLN-01/03/04/05, SYS-01–04.
+
+## D-041 — Signal planets vary size, relief and abundance independently
+
+- **Date:** 2026-10-21
+- **Status:** accepted; implemented
+- **Decision:** `planetConfig(seed)` gives each planet a radius, a relief amplitude, a mineral abundance and a life abundance. The home seed keeps the original values (radius 0.34, relief 0.16, x1). A planet whose seed comes from a signal reads each property from a different byte of its hash within the ranges in `tuning.planets`, so a large planet is not automatically rich. Terrain, resources, robot spawn, atmosphere, contour shading and the signal shell all read the same config. The overview describes the traits in words (for example "Small, rugged, mineral-poor, teeming with life").
+- **Not yet:** different noise character per planet, memory abundance, and a playtest of whether small planets are too cramped for three robots.
+- **Affects:** `world/planet.ts`, `world/resourceClusters.ts`, `render/terrainMaterial.ts`, `render/atmosphere.ts`, `views/SignalView.tsx`, `views/PlanetView.tsx`, `config/tuning.ts`; PLN-02.
+
+## D-042 — First resident rules: seeded burrows, local disturbance, open-space routes
+
+- **Date:** 2026-10-21
+- **Status:** accepted; implemented; automated checks pass; browser-checked with scripted disturbance, not yet playtested by a person
+- **Context:** D-035 left the cave detector, routes, counts and thresholds open. The user asked for S1 and S2 after S3–S5.
+- **Burrows:** the initial terrain has no caves, so the seed carves groups of three burrows into the planet field: a pocket 0.6 below the ground and a slanted tunnel to the surface. Two of every three start occupied, leaving a spare home per group. The number of groups follows the planet's life abundance (D-041). The carving is part of `createPlanetField`, so every system sees the same terrain.
+- **Shelter test (HAB-01/03):** recomputed from current density: the body fits (density ≥ 0.05), at least 70% of 26 rays meet rock within 0.6, and a bounded flood fill through empty samples reaches a point with open sky above it. The flood-fill path is the resident's real way in and out. Open pits fail as "exposed"; plugged burrows fail as "sealed".
+- **Disturbance (HAB-02):** every manual edit and every Miner/Builder edit adds a fading source (manual 1.4, robot 0.3 per edit, capped at 3, ×0.97 per tick, radius 0.9). Removal edits are also kept as candidate cavities (last 64).
+- **Behaviour:** above 0.5 a resident hides deep in its pocket; after 2.5 s below 0.15 it peeks again (RES-03). After 8 s of disturbance, or when its home fails the shelter test, it searches burrows and dug candidates within 3.0 that are free, quiet and valid, scored by enclosure, companions, disturbance and distance, with a 0.12 advantage threshold and a 20 s cooldown (RES-04/06). It walks out along its own tunnel, over the ground and in through the new tunnel; any point more than half a sample into rock rejects the route. With nowhere to go it waits on the ground, visible, and retries (RES-07). Calm residents occasionally look for a clearly better cavity, which lets them move into a new tunnel after work stops (RES-05).
+- **Not crew:** residents run in Manual mode as well, never bill electricity, and freeze with their planet when you leave (D-040).
+- **Body:** a provisional pale lumpy rock with two dark eyes that faces out of the entrance or along its walk. The final body design (D-027 board) is still open.
+- **Affects:** `systems/residents.ts`, `views/ResidentsView.tsx`, `world/planet.ts` (`burrowSites`, field carving), run state `residents`/`habitat`, terrain tool, Miner, Builder, overview description, debug overlay; HAB-01–04, RES-01–08.
+
+## D-043 — Autopilot: a third mode that runs the whole planet
+
+- **Date:** 2026-10-21
+- **Status:** accepted; implemented; automated checks and a headless 30-minute simulation pass; browser-checked start and cancel, not yet playtested by a person
+- **Decision:** the mode switch gains **Autopilot** beside Auto and Manual. From either mode the player opens the Autopilot panel, sets how many Miners, Gardeners and Builders to deploy (0–4 each, at least one in total) and whether signals are sent automatically, then hands over. Cancelling (button, comms "Take over", or choosing Auto/Manual) returns to the human-in-the-loop Auto mode with one paused robot of each kind; the crew sizes are remembered.
+- **Whole planet:** each robot sweeps a ring of overlapping sectors (6 for Miners and Gardeners at radius 2.4, 12 for Builders at 1.4) using the existing work-area logic. A stopped robot moves to the next sector; after a lap with no work it rests 900 ticks, doubling per fruitless lap up to 16×. A Miner on a planet with no mineral left, and a Gardener at both caps, simply stay stopped.
+- **Builders:** they take sectors from one shared queue, level to one planet-wide height measured at hand-over, leave a sector after 15 jobs, and retire when the queue is empty. Reason: filling overshoots and flattening cuts it back, so a robot that repeats forever never converges (measured: 900–3700 jobs in 30 simulated minutes, paying electricity throughout). Autopilot therefore makes one pass; restart it for another.
+- **Funds:** Gardeners and Builders wait while funds are at or below ₡−20 and resume at ₡−10 or above; Miners keep earning. This is a safeguard so a hand-over cannot bankrupt an unattended run.
+- **Signals:** while antennas stand, a signal goes out every 20 s until all distant planets are visible (broadcast count `planetsAfter + maxPlanets − 1`), then stops. The manual button still works. This narrows design §9 ("a broadcast is an explicit player choice") to a choice the player makes once, at hand-over.
+- **Per planet:** `autopilot` lives in the run state, so a planet left running is frozen with the rest (D-040) and arriving at another planet starts in Auto.
+- **Not yet:** a person's playtest; a pass counter or per-robot sector overlay; letting Builders pass again after the terrain changes.
+- **Affects:** `systems/autopilot.ts`, `systems/simulation.ts`, `systems/comms.ts`, `ui/AutopilotPanel.tsx`, `ui/ModeSwitch.tsx`, `App.tsx`, per-robot views and the world map, `spawn*` indices; AUTO-01–11.

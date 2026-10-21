@@ -6,6 +6,8 @@ import { spawnRobot, type MiningRobotState } from '../systems/miner'
 import { spawnGardener, type GardenerState } from '../systems/gardener'
 import type { Structure } from '../systems/structures'
 import { spawnBuilder, type BuilderState } from '../systems/builder'
+import { spawnResidents, type HabitatState, type Resident } from '../systems/residents'
+import type { AutopilotState } from '../systems/autopilot'
 
 export type ToolId = 'terrain' | 'detector' | 'scanner' | 'deepScanner' | 'wideDrill' | 'bioSeeder' | 'stabilizer' | 'auto'
 export type AutoRobot = 'miner' | 'gardener' | 'builder'
@@ -66,13 +68,18 @@ export interface RunState {
   robots: MiningRobotState[]
   gardeners: GardenerState[]
   builders: BuilderState[]
+  // D-043: the crew sizes and the hand-over to full automation. Kept per planet, so a frozen planet resumes as it was left.
+  autopilot: AutopilotState
   // D-026: soil removed by Miners, spent by the Builder when filling. Counted in density samples.
-  economy: { mineralStock: number; revenue: number; electricitySpent: number; terrainSpent: number; bankrupt: boolean; preparedSamples: number }
+  economy: { mineralStock: number; mineralsSold: number; revenue: number; electricitySpent: number; terrainSpent: number; bankrupt: boolean; preparedSamples: number }
   preparedSites: [number, number, number][]
   soil: number
   // AUT-15/16: plants and antennas standing on the surface.
   structures: Structure[]
   structureCounter: number
+  // S1/S2, D-042: cave residents and the local disturbance they respond to. Kept per planet like terrain.
+  residents: Resident[]
+  habitat: HabitatState
   simTick: number
   flags: {
     archive1379Found: boolean
@@ -117,11 +124,14 @@ export function createInitialRunState(seed: string): RunState {
     robots: [spawnRobot(seed)],
     gardeners: [spawnGardener(seed)],
     builders: [spawnBuilder(seed)],
-    economy: { mineralStock: 0, revenue: 0, electricitySpent: 0, terrainSpent: 0, bankrupt: false, preparedSamples: 0 },
+    autopilot: { enabled: false, counts: { ...tuning.autopilot.defaults }, autoBroadcast: true, holding: false, level: null, claimed: 0, lastBroadcastTick: null, crew: {} },
+    economy: { mineralStock: 0, mineralsSold: 0, revenue: 0, electricitySpent: 0, terrainSpent: 0, bankrupt: false, preparedSamples: 0 },
     preparedSites: [],
     soil: 0,
     structures: [],
     structureCounter: 0,
+    residents: spawnResidents(seed),
+    habitat: { tick: 0, sources: [], candidates: [] },
     simTick: 0,
     flags: { archive1379Found: false, echoArrayRepaired: false, emergencyExtractionUsed: false },
   }

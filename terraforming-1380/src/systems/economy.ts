@@ -9,13 +9,14 @@ export function powerDemand(state: RunState) {
     + state.builders.filter(r => active(r.phase)).length * tuning.economy.power.builder
 }
 
+// D-039: minerals are sold the moment they are delivered. Stock only builds up while the run is bankrupt.
 export function sellMinerals(store: Store) {
   const state = store.getState()
   const amount = state.economy.mineralStock
   if (amount === 0 || state.economy.bankrupt) return 0
   const revenue = amount * tuning.economy.mineralPrice
   store.setState({ metrics: { ...state.metrics, capital: state.metrics.capital + revenue },
-    economy: { ...state.economy, mineralStock: 0, revenue: state.economy.revenue + revenue } })
+    economy: { ...state.economy, mineralStock: 0, mineralsSold: state.economy.mineralsSold + amount, revenue: state.economy.revenue + revenue } })
   return revenue
 }
 

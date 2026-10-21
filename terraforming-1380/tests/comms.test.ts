@@ -15,12 +15,9 @@ test('comms messages follow robot and account state and clear when resolved', ()
   assert.deepEqual(commsMessages(store.getState()), [])
 })
 
-test('low funds offer a sale when minerals are stored, otherwise point at the Miner', () => {
+test('low funds point at the Miner, and stop once bankrupt', () => {
   const store = createRunStore('funds')
-  assert.equal(commsMessages(store.getState())[0].action?.kind, 'robot')
-  store.setState(s => ({ economy: { ...s.economy, mineralStock: 2 } }))
-  assert.equal(commsMessages(store.getState())[0].action?.kind, 'sell')
-  assert.match(commsMessages(store.getState())[0].text, /2 unsold minerals worth ₡80\. Sell them first/)
+  assert.deepEqual(commsMessages(store.getState())[0].action, { kind: 'robot', robot: 'miner', label: 'Open the Miner' })
   store.setState(s => ({ economy: { ...s.economy, bankrupt: true } }))
   assert.deepEqual(commsMessages(store.getState()), [])
 })

@@ -7,6 +7,12 @@ import { HALF } from '../systems/geometry'
 import { resourceColors } from '../config/resourceColors'
 import { tuning } from '../config/tuning'
 
+// Every robot on the planet; kinds with more than one are numbered (Autopilot fields several).
+function crewPositions(state: ReturnType<ReturnType<typeof createRunStore>['getState']>) {
+  return ([['Miner', state.robots], ['Gardener', state.gardeners], ['Builder', state.builders]] as const).flatMap(([name, list]) =>
+    list.map((robot, i) => ({ position: robot.position as Vec3, label: list.length > 1 ? `${name} ${i + 1}` : name })))
+}
+
 const cols = 64, rows = 32
 const directions = Array.from({ length: cols * rows }, (_, i) => mapDirection((i % cols + 0.5) * 800 / cols, (Math.floor(i / cols) + 0.5) * 400 / rows))
 const originals = new WeakMap<PlanetWorld, number[]>()
@@ -34,7 +40,7 @@ export function WorldMap({ world, useRunStore, sites, positionRef, onLand, onClo
   const structures = useRunStore(s => s.structures)
   const remaining = useRunStore(s => s.planetRemaining)
   const [sample, setSample] = useState(() => ({ heights: directions.map(d => groundRadius(world, d)), player: positionRef.current,
-    robots: [useRunStore.getState().robots[0].position, useRunStore.getState().gardeners[0].position, useRunStore.getState().builders[0].position] }))
+    robots: crewPositions(useRunStore.getState()) }))
   const original = useMemo(() => baseline(world, seed), [world, seed])
   const [layers, setLayers] = useState({ resources: true, development: true, landing: true })
   const [landingError, setLandingError] = useState('')
@@ -45,7 +51,7 @@ export function WorldMap({ world, useRunStore, sites, positionRef, onLand, onClo
     const timer = window.setInterval(() => {
       const state = useRunStore.getState()
       setSample({ heights: directions.map(d => groundRadius(world, d)), player: positionRef.current,
-        robots: [state.robots[0].position, state.gardeners[0].position, state.builders[0].position] })
+        robots: crewPositions(state) })
     }, 1000)
     return () => window.clearInterval(timer)
   }, [world, useRunStore, positionRef])
@@ -78,9 +84,9 @@ export function WorldMap({ world, useRunStore, sites, positionRef, onLand, onClo
         return <g key={structure.id} transform={'translate(' + x + ' ' + y + ')'}><title>{structure.kind}</title>
           {structure.kind === 'plant' ? <path d="M0 -5 L5 4 H-5 Z" fill="#3f704b" stroke="#fff" strokeWidth=".6" /> : <path d="M-4 -4 H4 V4 H-4 Z" fill="#454641" stroke="#fff" strokeWidth="1" />}</g>
       })}
-      {layers.development && sample.robots.map((position, i) => {
-        const [x, y] = mapPoint(position)
-        return <g key={i} transform={'translate(' + x + ' ' + y + ')'}><circle r="6" fill="#353632" stroke="#fff" /><text y="-10" textAnchor="middle" fontSize="10" fill="#242720">{['Miner', 'Gardener', 'Builder'][i]}</text></g>
+      {layers.development && sample.robots.map((robot, i) => {
+        const [x, y] = mapPoint(robot.position)
+        return <g key={i} transform={'translate(' + x + ' ' + y + ')'}><circle r="6" fill="#353632" stroke="#fff" /><text y="-10" textAnchor="middle" fontSize="10" fill="#242720">{robot.label}</text></g>
       })}
       {layers.landing && sites.map(s => {
         const [x, y] = mapPoint(s.position)

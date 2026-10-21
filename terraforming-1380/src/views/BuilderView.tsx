@@ -14,8 +14,8 @@ const light: Record<BuilderPhase, RobotLight> = {
 }
 
 // D-026: the Builder, a line down to the ground it is shaping, and its work area while it is being set up.
-export function BuilderView({ store, active, selected }: {
-  store: ReturnType<typeof createRunStore>; active: boolean; selected: boolean
+export function BuilderView({ store, robotId, active, selected }: {
+  store: ReturnType<typeof createRunStore>; robotId: string; active: boolean; selected: boolean
 }) {
   const body = useRef<Group>(null)
   const model = useMemo(() => createBuilder(), [])
@@ -31,7 +31,7 @@ export function BuilderView({ store, active, selected }: {
   useEffect(() => () => { path.geometry.dispose(); (path.material as LineBasicMaterial).dispose() }, [path])
 
   useFrame((frame) => {
-    const robot = store.getState().builders[0]
+    const robot = store.getState().builders.find(({ id }) => id === robotId)
     if (body.current) body.current.visible = active && !!robot
     if (!active || !robot) {
       path.visible = false

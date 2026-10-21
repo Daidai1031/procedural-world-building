@@ -36,8 +36,7 @@ Avoid “residents unhappy,” “planet failed,” or a universal “100% devel
 
 Keep causes and remedies truthful to actual state. Funding is internal/compact, not invisible when it can end the run. Reuse the existing communicator instead of adding routine per-charge messages.
 
-- If minerals are in stock when funds are low, offer the existing sell action.
-- If no minerals are available, do not offer a nonexistent sale or imply sales are automatic.
+- Minerals sell automatically on delivery (D-039); there is no sell action. The low-funds message points at the Miner.
 - A soil shortage explains why filling cannot continue and points to collecting soil or changing the task.
 - Current bankruptcy still requires an honest terminal message. Changing that rule is open, not a copy edit.
 

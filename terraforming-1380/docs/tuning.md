@@ -31,9 +31,25 @@ Source: [src/config/tuning.ts](../src/config/tuning.ts), checked against current
 
 D-037 changes intended presentation only. Funds scope across persistent sites, revised bankruptcy and inactive-world billing remain open.
 
-## Resident and planet tuning — planned parameter responsibilities
+## Resident and planet tuning
 
-No HAB/RES configuration keys exist yet. Names below describe tuning responsibilities, not new code constants. All numerical initial values remain TBD until the first implementation/playtest.
+Implemented 2026-10-21 (D-041, D-042). Values live in `src/config/tuning.ts` under `planets` and `residents`. They are first guesses that passed the automated checks; none has been judged in a person's playtest yet.
+
+| Key | Value | Meaning |
+| --- | --- | --- |
+| `planets.radius / relief` | 0.22–0.36 / 0.06–0.2 (home 0.34 / 0.16) | Fractions of the voxel world |
+| `planets.minerals / life` | ×0.4–2 / ×0.3–2 (home ×1) | Multiply mineral clusters and burrow groups |
+| `residents.burrows` | 2 groups × 3, 2 occupied; pocket 0.21, tunnel 0.14, depth 0.6, spread 0.55, min gap 0.6 | Seeded homes |
+| `residents.shelter` | clearance 0.05, 26 rays to 0.6, enclosure ≥ 0.7, flood fill ≤ 1.6 / 3000 samples | HAB-01 |
+| `residents.disturbance` | radius 0.9, manual 1.4, robot 0.3, cap 3, ×0.97/tick | HAB-02 |
+| retreat / quiet | 0.5 / 0.15; quiet for 75 ticks (2.5 s) | RES-03 |
+| sustained | 240 ticks (8 s) | RES-04 |
+| search | radius 3.0, advantage 0.12, cooldown 600 ticks (20 s), reconsider every 300 | RES-05/06 |
+| motion | 0.012 per tick (0.36/s), body 0.1 | RES-08 |
+
+Measured (Node, 2026-10-21): about 0.03–0.06 ms per resident tick for 2–5 residents, worst single tick 1.6 ms while every resident was searching. Browser check: a resident peeks at its burrow mouth from the normal orbit camera, vanishes from the mouth when disturbed, and walks over the ground after about 8 s of sustained disturbance.
+
+The responsibilities below were planned before implementation and stay as the checklist for playtest notes.
 
 | Responsibility | Why it matters | Status |
 | --- | --- | --- |
@@ -288,3 +304,9 @@ Record every session, even a five-minute one. The point is to change the design 
 - **Seed:** 1380.
 - **Result:** Default radial and optional Horizontal stamps moved density samples toward their distinct plane fields. The radial edit's chunk mesh and normals matched a whole-volume remesh. Nine tests and the production build passed.
 - **Changes made:** Default Flatten orientation changed to Planet Surface; D-017's Horizontal plane remains selectable. Brush radius and edge feathering values did not change (D-019).
+
+## Autopilot (D-043)
+
+Runtime values in `tuning.autopilot`: up to 4 robots per kind (defaults 2/1/1); Miner and Gardener 6 sectors of radius 2.4, Builder 12 of 1.4; rest 900 ticks doubling to 16×; Builder 15 jobs per sector; funds hold at ₡−20, resume at ₡−10; signal every 600 ticks (20 s).
+
+Observed headless, 54 000 ticks (30 simulated minutes), seeds 1380, mars, abc with crews 2/1/1, 4/4/4 and 1/2/2: all 14 minerals sold within 5 minutes, plants and antennas at their caps, 7 signals sent, no bankruptcy, funds steady at about ₡290–520, Builders retired by 10 minutes with 178–180 jobs, planet remaining 92–94%. Not a person's playtest; the browser check covered start, cancel and the panels only.

@@ -1,4 +1,4 @@
-import { updateSiteIndicators } from '../systems/economy'
+import { sellMinerals, updateSiteIndicators } from '../systems/economy'
 import type { createRunStore } from '../state/runState'
 import type { PlanetWorld } from '../world/planet'
 import type { ResourceCategory, ResourceCluster } from '../world/resourceClusters'
@@ -19,6 +19,7 @@ export function collectExposedResources(world: PlanetWorld, store: ReturnType<ty
         lifeClusterIds: [...state.discoveries.lifeClusterIds, ...found.filter(c => c.category === 'life').map(c => c.id)],
       },
     }))
+    sellMinerals(store)
     updateSiteIndicators(store)
   }
   return found

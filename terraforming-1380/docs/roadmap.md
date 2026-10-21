@@ -3,8 +3,8 @@
 | | |
 | --- | --- |
 | **Purpose** | The order of work, and what "done" means for each step. |
-| **Last updated** | 2026-10-20 |
-| **Current focus** | S1: one resident species responding to habitat and disturbance (planned) |
+| **Last updated** | 2026-10-21 |
+| **Current focus** | Playtest S1–S5 and Autopilot (D-043) together; compact operations (OPS-01) |
 
 ## Current roadmap — D-034–037
 
@@ -17,53 +17,55 @@ Documentation baseline updated; implementation below remains planned. Existing i
 - [x] Add checkable requirements and distinguish current implementation from planned work.
 - [ ] Browser-check current robot, sales, exploration and signal interactions; log observations without claiming prior tests were rerun.
 
-### S1 — One visible resident feedback loop (next implementation)
+### S1 — One visible resident feedback loop
 
 **Playable when:** residents occupy suitable cavities, retreat during brief work, and return after quiet.
 
-- [ ] Generate valid initial homes and one species — HAB-01, RES-01/02.
-- [ ] Feed manual and robot edits into local disturbance and habitat revalidation — HAB-02/03.
-- [ ] Show peeking, retreat and cautious return — RES-03/08.
-- [ ] Validate brief disturbance and blocked entrances — HAB-T1, RES-T1/6.
-- [ ] Record behavior clarity and frame responsiveness in tuning.md.
+Built 2026-10-21 after S3–S5 (D-042).
+- [x] Generate valid initial homes and one species — HAB-01, RES-01/02.
+- [x] Feed manual and robot edits into local disturbance and habitat revalidation — HAB-02/03.
+- [x] Show peeking, retreat and cautious return — RES-03/08 (provisional body).
+- [x] Validate brief disturbance and blocked entrances — HAB-T1, RES-T1/6 automated in `tests/residents.test.ts`.
+- [~] Record behavior clarity and frame responsiveness in tuning.md. Cost is measured; clarity still needs a person's playtest.
 
 ### S2 — Relocation and newly created homes
 
 **Playable when:** sustained disturbance causes reachable relocation, and a suitable new cavity may be occupied after work stops.
 
-- [ ] Candidate validity, occupancy and collision-safe motion — RES-04/05.
-- [ ] Cooldowns and no-home waiting — RES-06/07.
-- [ ] Compare brief work, sustained work, a suitable tunnel and an exposed pit — RES-T2–5.
-- [ ] Keep scores, extra species, door-stone hauling and complex acoustics out of this slice.
+- [x] Candidate validity, occupancy and collision-safe motion — RES-04/05.
+- [x] Cooldowns and no-home waiting — RES-06/07.
+- [x] Compare brief work, sustained work, a suitable tunnel and an exposed pit — RES-T2–5 automated.
+- [x] Kept scores, extra species, door-stone hauling and complex acoustics out of this slice.
 
 ### S3 — Two planets that can be revisited
 
 **Playable when:** edit A → visit B → return to the same edited A.
 
-- [ ] Stable discovery IDs/config and stored planet records — PLN-01.
-- [ ] Preserve actual density and site state — PLN-03/04.
-- [ ] Choose global/local accounting and inactive-world behavior before background operations — PLN-05.
-- [ ] Verify no lost edits, reset residents or duplicated stock — PLN-T1.
+Built 2026-10-21, before S1/S2 at the user's request (D-040).
+- [x] Stable discovery IDs/config and stored planet records — PLN-01.
+- [x] Preserve actual density and site state — PLN-03/04.
+- [x] Choose global/local accounting and inactive-world behavior before background operations — PLN-05 (shared funds, inactive frozen).
+- [x] Verify no lost edits or duplicated stock — PLN-T1 automated in `tests/signal.test.ts`; browser check: dug crater, soil and antenna survived a return. Residents are part of the stored run state; a resident-specific return check is still to do.
 - [ ] Treat browser-reload saves as separate scope — PLN-06.
 
 ### S4 — Live 3D system overview
 
 **Playable when:** discovered worlds show their actual edited shapes together; hover inspects and click visits.
 
-- [ ] Spatial overview, shared records and terrain-revision meshes — SYS-01/02.
-- [ ] Concise descriptive hover and return navigation — SYS-03.
-- [ ] Budget and verify live refresh — SYS-04, SYS-T1.
-- [ ] Do not substitute decorative icon spheres or imply all inactive planets simulate.
+- [x] Spatial overview, shared records and terrain-revision meshes — SYS-01/02.
+- [x] Concise descriptive hover and return navigation — SYS-03.
+- [x] Live refresh: a per-frame mesh-version check, geometry rebuilt only on change; browser check showed a new trench appear while open — SYS-04, SYS-T1. Frame cost not yet measured.
+- [x] Unvisited planets are outlines, not terrain; inactive planets say the crew is paused.
 
 ### S5 — More varied starting conditions
 
-- [ ] Independently vary playable size, terrain and resource abundance — PLN-02/T2.
-- [ ] Compare shared rules under different conditions and player choices.
+- [x] Independently vary playable size, terrain and resource abundance — PLN-02/T2 (D-041).
+- [ ] Compare shared rules under different conditions and player choices (playtest).
 - [ ] Expand species only after the first species and persistent travel read clearly.
 
 ### Compact operations — bounded presentation task
 
-- [ ] Simplify visible accounting while keeping meaningful operating context — OPS-01.
+- [~] Simplify visible accounting while keeping meaningful operating context — OPS-01. Minerals now sell on delivery (D-039); detail rows remain.
 - [ ] Verify critical causes/remedies remain understandable — OPS-02, OPS-T1.
 - [ ] Preserve charges and bankruptcy until a new decision changes them — OPS-03.
 
@@ -286,3 +288,4 @@ Frame rate while remeshing · confusion about the two views · getting trapped f
 | 2026-10-14 | D-023: R1 Miner implemented (sphere work area, hover shell, radial tunnels, path line, debris); human playtest pending. |
 | 2026-10-14 | D-025: R3 Gardener implemented ahead of R2 (multiple Miners still open); human playtest pending. |
 | 2026-10-14 | D-026: Builder added; all three robot roles now exist. R2 (multiple Miners) still open. |
+- **2026-10-21 / D-043:** Autopilot mode built (crew counts, whole-planet sweep, automatic signals, cancel back to Auto). Needs a person's playtest.

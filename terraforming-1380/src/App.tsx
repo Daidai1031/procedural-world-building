@@ -4,7 +4,10 @@ import { Comms } from './ui/Comms'
 import { Starfield } from './ui/Starfield'
 import { SignalView } from './views/SignalView'
 import { DistantPlanetsView } from './views/DistantPlanetsView'
-import { travelTo, type DistantPlanet } from './systems/signal'
+import { travelTo, visiblePlanetCount } from './systems/signal'
+import { registryFor } from './state/planets'
+import { planetConfig } from './world/planet'
+import { SystemOverview } from './ui/SystemOverview'
 import { showWorkArea } from './render/terrainMaterial'
 import { WorldMap } from './ui/WorldMap'
 import { SurfaceCamera } from './views/SurfaceCamera'
@@ -16,7 +19,6 @@ import { updateSiteIndicators } from './systems/economy'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import type { AutoRobot, createRunStore } from './state/runState'
-import { PlanetWorld } from './world/planet'
 import { tuning } from './config/tuning'
 import { palette } from './config/palette'
 import { modeForClick } from './config/controls'
@@ -31,6 +33,8 @@ import type { ResourceCategory, ResourceCluster } from './world/resourceClusters
 import { CollectChip, type CollectFlight } from './ui/CollectChip'
 import { ModeSwitch, type PlayMode } from './ui/ModeSwitch'
 import { AutoPanel } from './ui/AutoPanel'
+import { AutopilotRunning, AutopilotSetup } from './ui/AutopilotPanel'
+import { cancelAutopilot, startAutopilot } from './systems/autopilot'
 import { ManualPanel } from './ui/ManualPanel'
 import { SitePanel } from './ui/SitePanel'
 import { ScreenProjector, type ProjectToScreen } from './views/ScreenProjector'
@@ -41,10 +45,12 @@ import { MinerView } from './views/MinerView'
 import { GardenerView } from './views/GardenerView'
 import { BuilderView } from './views/BuilderView'
 import { StructuresView } from './views/StructuresView'
+import { ResidentRunner, ResidentsView } from './views/ResidentsView'
+import { disturbanceAt, residentSummary } from './systems/residents'
 import { AtmosphereView } from './views/AtmosphereView'
 import { OrbitCamera } from './views/OrbitCamera'
 import { RemeshScheduler } from './views/RemeshScheduler'
-import { DebugOverlay, FrameMeter } from './debug/DebugOverlay'
+import { DebugHandles, DebugOverlay, FrameMeter } from './debug/DebugOverlay'
 import { VOXEL_WORLD_SIZE } from './world/voxels/voxelMath.js'
 
 type ManualTool = 'terrain' | 'detector'
@@ -57,9 +63,10 @@ const messages = {
 
 export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnType<typeof createRunStore>; debug: boolean; intro?: boolean }) {
   const [introOpen, setIntroOpen] = useState(intro)
-  const [travel, setTravel] = useState<DistantPlanet | null>(null)
+  const [travel, setTravel] = useState<{ seed: string; name: string } | null>(null)
   const completeIntro = useCallback(() => setIntroOpen(false), [])
   const seed = useRunStore((state) => state.seed)
+  const registry = useMemo(() => registryFor(useRunStore), [useRunStore])
   const bankrupt = useRunStore((state) => state.economy.bankrupt)
   const terrainMode = useRunStore((state) => state.loadout.terrainMode)
   const flattenOrientation = useRunStore((state) => state.loadout.flattenOrientation)
@@ -68,12 +75,22 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
   const collectedIds = useRunStore((state) => state.collectedIds)
   const detector = useRunStore((state) => state.detector)
   const autoRobot = useRunStore((state) => state.loadout.autoRobot)
-  const areaRadius = useRunStore((state) => (state.loadout.autoRobot === 'gardener' ? state.gardeners[0].area?.radius
-    : state.loadout.autoRobot === 'builder' ? state.builders[0].area?.radius : state.robots[0].area?.radius) ?? tuning.miner.area.default)
-  const world = useMemo(() => new PlanetWorld(seed), [seed])
+  const areaRadius = useRunStore((state) => (state.loadout.autoRobot === 'gardener' ? state.gardeners[0]?.area?.radius
+    : state.loadout.autoRobot === 'builder' ? state.builders[0]?.area?.radius : state.robots[0]?.area?.radius) ?? tuning.miner.area.default)
+  const autopilotOn = useRunStore((state) => state.autopilot.enabled)
+  const [preparing, setPreparing] = useState(false)
+  // Ids are joined into one string so the selector stays stable while robots only change phase.
+  const minerIds = useRunStore((state) => state.robots.map(({ id }) => id).join())
+  const gardenerIds = useRunStore((state) => state.gardeners.map(({ id }) => id).join())
+  const builderIds = useRunStore((state) => state.builders.map(({ id }) => id).join())
+  const world = useMemo(() => registry.world(seed), [registry, seed])
+  useEffect(() => { if (debug) Object.assign(window, { __world: world, __registry: registry, __travel: (to: string) => travelTo(useRunStore, to) }) }, [debug, world, registry, useRunStore])
   const [surfaceSite, setSurfaceSite] = useState<LandingSite | null>(null)
   const [landingVisit, setLandingVisit] = useState(0)
   const [mapOpen, setMapOpen] = useState(false)
+  const [systemOpen, setSystemOpen] = useState(false)
+  const knownPlanets = registry.list(state => state.planets.length)
+  const signalPlanets = useRunStore(state => visiblePlanetCount(state.signal.broadcastCount))
   const [landingSites, setLandingSites] = useState(() => findLandingSites(world))
   const walkerPosition = useRef<Vec3 | null>(null)
   const movement = useRef(new Set<string>())
@@ -104,7 +121,9 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
   const slotRefs = useRef<Partial<Record<ResourceCategory, HTMLElement | null>>>({})
   const lastManualTool = useRef<ManualTool>('terrain')
   const [fps, setFps] = useState<number | null>(null)
-  const mode: PlayMode = activeTool === 'auto' ? 'auto' : 'manual'
+  // Autopilot is a state of the crew rather than a tool: it runs the crew exactly as Auto does, but nobody places anything.
+  const mode: 'auto' | 'manual' = autopilotOn || activeTool === 'auto' ? 'auto' : 'manual'
+  const panelMode: PlayMode = autopilotOn || preparing ? 'autopilot' : mode
   const manualTool: ManualTool = activeTool === 'detector' ? 'detector' : 'terrain'
   const scanResults = useMemo(() => detector.center
     ? detectedClusters(clusters, detector.center, detector.radius).filter(({ id }) => !collectedIds.includes(id)) : [],
@@ -127,12 +146,35 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
   }, [useRunStore])
 
   const selectMode = useCallback((next: PlayMode) => {
+    if (next === 'autopilot') {
+      if (!useRunStore.getState().autopilot.enabled) {
+        setPreparing(true)
+        setMessage('Choose the crew, then hand over the planet')
+      }
+      return
+    }
+    // Leaving Autopilot for either mode hands the crew back to the player.
+    setPreparing(false)
+    cancelAutopilot(useRunStore)
     selectTool(next === 'auto' ? 'auto' : lastManualTool.current)
-  }, [selectTool])
+  }, [selectTool, useRunStore])
+
+  const handOver = useCallback(() => {
+    if (!startAutopilot(useRunStore, world, useRunStore.getState().autopilot.counts)) return
+    setPreparing(false)
+    showWorkArea(null)
+    setMessage('Autopilot engaged. The crew works the whole planet.')
+  }, [useRunStore, world])
+
+  const takeOver = useCallback(() => {
+    cancelAutopilot(useRunStore)
+    setMessage(messages.auto)
+  }, [useRunStore])
 
   // Comms shortcut: show the robot's station in Auto mode, select it, and bring its card into view.
   const openRobot = useCallback((robot: AutoRobot) => {
     returnToOrbit()
+    setPreparing(false)
     useRunStore.setState((state) => ({ loadout: { ...state.loadout, activeTool: 'auto', autoRobot: robot } }))
     setMessage(`Left click the surface to place the ${robot[0].toUpperCase() + robot.slice(1)}`)
     window.requestAnimationFrame(() => document.querySelector(`[aria-label="${robot[0].toUpperCase() + robot.slice(1)} controls"]`)
@@ -146,27 +188,27 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
 
   useEffect(() => {
     const keyDown = (event: KeyboardEvent) => {
-      if (introOpen || surfaceSite || mapOpen) return
+      if (introOpen || surfaceSite || mapOpen || systemOpen) return
       const key = event.key.toLowerCase()
-      if (!['f', 'd', 't', 'a', 'm'].includes(key) || event.repeat || event.altKey || event.ctrlKey || event.metaKey) return
+      if (!['f', 'd', 't', 'a', 'm', 'p'].includes(key) || event.repeat || event.altKey || event.ctrlKey || event.metaKey) return
       if (event.target instanceof HTMLElement && event.target.closest('button, input, textarea, select, [contenteditable]')) return
       const current = useRunStore.getState().loadout.activeTool
-      if (key === 'a' || key === 'm') {
+      if (key === 'a' || key === 'm' || key === 'p') {
         event.preventDefault()
-        selectMode(key === 'a' ? 'auto' : 'manual')
+        selectMode(key === 'a' ? 'auto' : key === 'm' ? 'manual' : 'autopilot')
         return
       }
-      if (current === 'auto') return
+      if (current === 'auto' || preparing || useRunStore.getState().autopilot.enabled) return
       event.preventDefault()
       if (key === 'd' || key === 't') selectTool(key === 'd' ? 'detector' : 'terrain')
       else if (current === 'terrain') cycleTerrainMode(useRunStore)
     }
     window.addEventListener('keydown', keyDown)
     return () => window.removeEventListener('keydown', keyDown)
-  }, [useRunStore, selectTool, selectMode, surfaceSite, mapOpen, introOpen])
+  }, [useRunStore, selectTool, selectMode, surfaceSite, mapOpen, systemOpen, introOpen, preparing])
 
   const target = useCallback((point: { x: number; y: number; z: number }, alt: boolean, ctrl: boolean) => {
-    if (surfaceSite || mapOpen) return
+    if (surfaceSite || mapOpen || preparing || useRunStore.getState().autopilot.enabled) return
     const tool = useRunStore.getState().loadout.activeTool
     if (tool === 'auto') {
       const center: [number, number, number] = [point.x, point.y - VOXEL_WORLD_SIZE / 2, point.z]
@@ -206,17 +248,19 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
       : result.changed
       ? `${terrain === 'dig' ? 'Dug' : terrain === 'add' ? 'Added' : `Flattened (${orientation})`} / ${result.removedSamples} removed, ${result.addedSamples} added samples`
       : 'No terrain changed at this point')
-  }, [world, useRunStore, radius, detector.radius, flyCollected, surfaceSite, mapOpen, introOpen])
+  }, [world, useRunStore, radius, detector.radius, flyCollected, surfaceSite, mapOpen, introOpen, preparing])
 
-  const hint = mode === 'auto'
-    ? [['Click', `place ${autoRobot === 'gardener' ? 'Gardener' : autoRobot === 'builder' ? 'Builder' : 'Miner'}`], ['Right drag', 'orbit'], ['M', 'manual']]
+  const hint = panelMode === 'autopilot'
+    ? [['Right drag', 'orbit'], ['A', 'auto'], ['M', 'manual']]
+    : mode === 'auto'
+    ? [['Click', `place ${autoRobot === 'gardener' ? 'Gardener' : autoRobot === 'builder' ? 'Builder' : 'Miner'}`], ['Right drag', 'orbit'], ['M', 'manual'], ['P', 'autopilot']]
     : [['Click', manualTool === 'detector' ? 'scan' : terrainMode === 'dig' ? 'dig' : terrainMode === 'add' ? 'add' : 'flatten'],
-      ['Right drag', 'orbit'], ['D / T', 'detector / terrain'], ['F', 'cycle mode'], ['Wheel', 'brush'], ['A', 'auto']]
+      ['Right drag', 'orbit'], ['D / T', 'detector / terrain'], ['F', 'cycle mode'], ['Wheel', 'brush'], ['A', 'auto'], ['P', 'autopilot']]
 
   return (
     <>
     <Starfield />
-    <main inert={introOpen || bankrupt || !!travel} aria-hidden={introOpen || bankrupt || !!travel || undefined} data-mode={mode} data-view={surfaceSite ? 'surface' : 'orbit'}>
+    <main inert={introOpen || bankrupt || !!travel} aria-hidden={introOpen || bankrupt || !!travel || undefined} data-mode={panelMode} data-view={surfaceSite ? 'surface' : 'orbit'}>
       <div className="app-topbar">
         <header className="brand">
           <p>Contract #1380</p>
@@ -235,16 +279,19 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
         {surfaceSite ? <SurfaceCamera key={landingVisit} world={world} start={surfaceSite.direction}
           positionRef={walkerPosition} movement={movement} onExit={returnToOrbit} /> : <OrbitCamera onWheel={adjustRadius} />}
         {!surfaceSite && <LandingMarkers sites={landingSites} onLand={land} />}
-        <PlanetView world={world} clusters={clusters} collectedIds={collectedIds} radius={radius} detectorRadius={detector.radius} areaRadius={areaRadius}
-          activeTool={surfaceSite ? 'explore' : activeTool === 'detector' ? 'detector' : activeTool === 'auto' ? 'miner' : 'terrain'} selectedMode={terrainMode}
+        <PlanetView world={world} baseRadius={planetConfig(seed).radius * VOXEL_WORLD_SIZE} clusters={clusters} collectedIds={collectedIds} radius={radius} detectorRadius={detector.radius} areaRadius={areaRadius}
+          activeTool={surfaceSite || preparing || autopilotOn ? 'explore' : activeTool === 'detector' ? 'detector' : activeTool === 'auto' ? 'miner' : 'terrain'} selectedMode={terrainMode}
           flattenOrientation={flattenOrientation} onTarget={target} />
         <AtmosphereView seed={seed} />
         <DetectorView world={world} clusters={clusters} collectedIds={collectedIds} center={detector.center} radius={detector.radius}
           active={!surfaceSite && activeTool === 'detector'} meshRevision={meshRevision} />
-        <MinerView world={world} store={useRunStore} active={mode === 'auto' || !!surfaceSite} selected={!surfaceSite && autoRobot === 'miner'} />
-        <GardenerView world={world} store={useRunStore} active={mode === 'auto' || !!surfaceSite} selected={!surfaceSite && autoRobot === 'gardener'} />
-        <BuilderView store={useRunStore} active={mode === 'auto' || !!surfaceSite} selected={!surfaceSite && autoRobot === 'builder'} />
+        {/* Only the first robot of each kind has a work area to show; the rest belong to Autopilot. */}
+        {minerIds.split(',').filter(Boolean).map((id, index) => <MinerView key={id} robotId={id} world={world} store={useRunStore} active={mode === 'auto' || !!surfaceSite} selected={index === 0 && !autopilotOn && !surfaceSite && autoRobot === 'miner'} />)}
+        {gardenerIds.split(',').filter(Boolean).map((id, index) => <GardenerView key={id} robotId={id} world={world} store={useRunStore} active={mode === 'auto' || !!surfaceSite} selected={index === 0 && !autopilotOn && !surfaceSite && autoRobot === 'gardener'} />)}
+        {builderIds.split(',').filter(Boolean).map((id, index) => <BuilderView key={id} robotId={id} store={useRunStore} active={mode === 'auto' || !!surfaceSite} selected={index === 0 && !autopilotOn && !surfaceSite && autoRobot === 'builder'} />)}
         <StructuresView store={useRunStore} />
+        <ResidentsView store={useRunStore} />
+        <ResidentRunner world={world} store={useRunStore} active={!bankrupt && !introOpen} />
         <SignalView store={useRunStore} />
         {!surfaceSite && <DistantPlanetsView store={useRunStore} seed={seed}
           onHover={planet => setMessage(planet ? `Distant planet ${planet.name} · click to travel` : messages[mode === 'auto' ? 'auto' : manualTool])}
@@ -253,11 +300,14 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
         <ScreenProjector projectRef={projectRef} />
         <RemeshScheduler world={world} onRemesh={() => setMeshRevision((revision) => revision + 1)} />
         {debug && <FrameMeter onSample={setFps} />}
+        {debug && <DebugHandles />}
       </Canvas>
       {!surfaceSite && <div className="left-sidebar">
-        <div className="sidebar-controls"><ModeSwitch mode={mode} onChange={selectMode} /></div>
-        <section className="panel" tabIndex={0} aria-label={mode === 'auto' ? 'Auto mode controls' : 'Manual mode controls'}>
-        {mode === 'auto'
+        <div className="sidebar-controls"><ModeSwitch mode={panelMode} onChange={selectMode} /></div>
+        <section className="panel" tabIndex={0} aria-label={panelMode === 'autopilot' ? 'Autopilot controls' : mode === 'auto' ? 'Auto mode controls' : 'Manual mode controls'}>
+        {panelMode === 'autopilot'
+          ? autopilotOn ? <AutopilotRunning useRunStore={useRunStore} onCancel={takeOver} /> : <AutopilotSetup useRunStore={useRunStore} onStart={handOver} />
+          : mode === 'auto'
           ? <AutoPanel useRunStore={useRunStore} onMessage={setMessage} />
           : <ManualPanel useRunStore={useRunStore} tool={manualTool} terrainMode={terrainMode} flattenOrientation={flattenOrientation}
             brush={radius} onBrush={setRadius} onTool={selectTool} detectorCount={detector.center ? scanResults.length : null} />}
@@ -268,6 +318,7 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
         <div className="sidebar-controls">
           <div className="exploration-toolbar">
             <button onClick={() => { movement.current.clear(); setMapOpen(true) }}>World map & landing ↗</button>
+            {!surfaceSite && (knownPlanets > 1 || signalPlanets > 0) && <button onClick={() => setSystemOpen(true)}>System overview ↗</button>}
             {surfaceSite && <button onClick={returnToOrbit}>Return to orbit ↑</button>}
           </div>
         </div>
@@ -279,9 +330,13 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
       {flights.map((flight) => <CollectChip key={flight.key} flight={flight}
         target={slotRefs.current[flight.category] ?? null} onDone={() => arrive(flight)} />)}
       {debug && <DebugOverlay fps={fps} seed={seed} chunkCount={world.chunks.length}
-        dirtyChunks={world.dirtyChunkCount} remeshMs={world.lastRemeshMs} lodCounts={world.lodCounts} />}
+        dirtyChunks={world.dirtyChunkCount} remeshMs={world.lastRemeshMs} lodCounts={world.lodCounts}
+        residents={(({ peeking, hiding, moving, waiting }) => `${peeking} peek · ${hiding} hide · ${moving} move · ${waiting} wait`)(residentSummary(useRunStore.getState().residents))}
+        habitat={(({ residents, habitat }) => `${residents.filter(r => r.home && r.homeValid).length}/${residents.length} homes ok · ${habitat.candidates.length} dug · peak ${Math.max(0, ...residents.map(r => r.home ? disturbanceAt(habitat, r.home) : 0)).toFixed(2)}`)(useRunStore.getState())} />}
       {mapOpen && <WorldMap world={world} useRunStore={useRunStore} sites={landingSites} positionRef={walkerPosition}
         onLand={land} onClose={() => setMapOpen(false)} />}
+      {systemOpen && <SystemOverview store={useRunStore} onClose={() => setSystemOpen(false)}
+        onVisit={(pickSeed, name) => { setSystemOpen(false); setTravel({ seed: pickSeed, name }) }} />}
       {surfaceSite && <div className="surface-hud">
         <p>{surfaceSite.name} · Surface exploration</p><span>WASD / arrows to walk · drag to look · Esc to orbit</span>
         <div className="walk-pad" aria-label="Walking controls">{[['w', 'Forward ↑'], ['a', 'Left ←'], ['s', 'Back ↓'], ['d', 'Right →']].map(([key, label]) =>
@@ -289,7 +344,7 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
             onPointerUp={() => movement.current.delete(key)} onPointerCancel={() => movement.current.delete(key)}
             onLostPointerCapture={() => movement.current.delete(key)} onBlur={() => movement.current.delete(key)}>{label}</button>)}</div>
       </div>}
-      <Comms useRunStore={useRunStore} onOpenRobot={openRobot} />
+      <Comms useRunStore={useRunStore} onOpenRobot={openRobot} onTakeOver={takeOver} />
       <footer>{hint.map(([keys, action]) => <span key={keys}><kbd>{keys}</kbd>{action}</span>)}</footer>
     </main>
     {introOpen && <OpeningTitle onComplete={completeIntro} />}
@@ -298,10 +353,12 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
       <div>
         <p>Signal answered</p>
         <h2 id="travel-title">Travel to {travel.name}?</h2>
-        <span>This site, its robots and its warehouse stay behind. Your funds travel with you.</span>
+        <span>{registry.has(travel.seed)
+          ? 'You have been here before. The planet is as you left it; this one pauses until you come back. Your funds travel with you.'
+          : 'This site stays exactly as you leave it, and its robots pause until you come back. Your funds travel with you.'}</span>
         <div className="travel-actions">
           <button onClick={() => setTravel(null)}>Stay here</button>
-          <button autoFocus onClick={() => travelTo(useRunStore, travel.seed)}>Travel →</button>
+          <button autoFocus onClick={() => { travelTo(useRunStore, travel.seed); setTravel(null) }}>Travel →</button>
         </div>
       </div>
     </section>}

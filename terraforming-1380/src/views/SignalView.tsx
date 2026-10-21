@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { DoubleSide, Group, Mesh, MeshBasicMaterial, Quaternion, RingGeometry, SphereGeometry, Vector3 } from 'three'
 import type { createRunStore } from '../state/runState'
+import { planetConfig } from '../world/planet'
 import { tuning } from '../config/tuning'
 import { palette } from '../config/palette'
 import { VOXEL_WORLD_SIZE } from '../world/voxels/voxelMath.js'
@@ -9,7 +10,6 @@ import { VOXEL_WORLD_SIZE } from '../world/voxels/voxelMath.js'
 const RINGS_PER_ANTENNA = 3
 const RING_STAGGER = 0.22
 const RING_TRAVEL = 3.2
-const PLANET_RADIUS = VOXEL_WORLD_SIZE * 0.34
 const z = new Vector3(0, 0, 1)
 const normal = new Vector3()
 
@@ -53,7 +53,7 @@ export function SignalView({ store }: { store: ReturnType<typeof createRunStore>
       shell.geometry = parts.shell
       shell.quaternion.identity()
       shell.position.set(0, 0, 0)
-      shell.scale.setScalar(PLANET_RADIUS * (1.05 + Math.min(age, 1) * 1.6))
+      shell.scale.setScalar(VOXEL_WORLD_SIZE * planetConfig(state.seed).radius * (1.05 + Math.min(age, 1) * 1.6))
       ;(shell.material as MeshBasicMaterial).opacity = 0.07 * Math.max(0, 1 - age)
       for (const antenna of pulse.antennas) {
         for (let k = 0; k < RINGS_PER_ANTENNA; k++) {

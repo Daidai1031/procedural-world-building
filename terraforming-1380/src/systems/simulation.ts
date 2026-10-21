@@ -1,14 +1,16 @@
 import { billElectricity, updateSiteIndicators } from './economy'
 import type { createRunStore } from '../state/runState'
 import type { PlanetWorld } from '../world/planet'
+import { stepAutopilot } from './autopilot'
 import { stepBuilders } from './builder'
 import { stepGardeners } from './gardener'
 import { stepMiners } from './miner'
 import { stepStructures } from './structures'
 
-// AUT-11: one fixed simulation step in a stable order: Miners, Gardener, Builder, then plant growth.
+// AUT-11: one fixed simulation step in a stable order: Autopilot (when on), Miners, Gardener, Builder, then plant growth.
 // Returns the resources collected during the step.
 export function stepSimulation(world: PlanetWorld, store: ReturnType<typeof createRunStore>) {
+  stepAutopilot(world, store)
   billElectricity(store)
   const collected = stepMiners(world, store)
   stepGardeners(world, store)
