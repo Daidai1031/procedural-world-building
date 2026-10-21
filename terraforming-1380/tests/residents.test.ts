@@ -3,7 +3,8 @@ import assert from 'node:assert/strict'
 import { tuning } from '../src/config/tuning'
 import { createRunStore } from '../src/state/runState'
 import { HALF, distance, unit, type Vec3 } from '../src/systems/geometry'
-import { burrowOpen, disturbanceAt, homePreferenceScore, isValidHome, plantCoverAt, recordDisturbance, residentHomeSites, spawnResidents, stepResidents } from '../src/systems/residents'
+import { burrowOpen, disturbanceAt, homePreferenceScore, isValidHome, planetSpecies, plantCoverAt, recordDisturbance, residentHomeSites, spawnResidents, stepResidents, temperament } from '../src/systems/residents'
+import { residentSpecies, type ResidentKind } from '../src/content/residents'
 import { burrowSites } from '../src/world/planet'
 import { stepSimulation } from '../src/systems/simulation'
 import { useTerrainTool } from '../src/tools/terrainTool'
@@ -178,6 +179,58 @@ test('RES-T5: added terrain over a hidden resident carries it up to the new surf
   assert.ok(Math.hypot(...resident.home!) > oldRadius)
   assert.equal(resident.state, 'hiding')
   assert.ok(Math.hypot(...resident.position) > Math.hypot(...before.position))
+})
+
+test('D-059: each planet has one native species and planets found by one signal never share it', () => {
+  assert.equal(planetSpecies('1380'), 'facet')
+  const all = new Set<string>()
+  for (const home of ['1380', 'a', 'b', 'c', 'd', 'e']) {
+    for (const parent of [home, `${home}/signal-2`]) {
+      const children = [1, 2, 3, 4, 5].map(i => planetSpecies(`${parent}/signal-${i}`))
+      assert.equal(new Set(children).size, children.length, `siblings of ${parent} repeat a species`)
+      assert.ok(!children.includes(planetSpecies(parent)), `a planet shares its finder's species (${parent})`)
+      assert.ok(!children.includes('facet'), 'the Facet Pebble stays on the home planet')
+      children.forEach(species => all.add(species))
+    }
+  }
+  assert.equal(all.size, Object.keys(residentSpecies).length - 1, 'every other species turns up somewhere')
+  assert.equal(planetSpecies('d/signal-3'), planetSpecies('d/signal-3'))
+})
+
+test('D-059: temperaments bend the shared rules in each species\' direction', () => {
+  const t = Object.fromEntries((Object.keys(residentSpecies) as ResidentKind[]).map(kind => [kind, temperament(kind)]))
+  for (const each of Object.values(t)) {
+    assert.ok(each.retreatLevel > rules.quietLevel, `${each.species} can still be calm without hiding`)
+    assert.ok(each.speed > 0 && each.quietTicks > 0 && each.fleeTicks > 0 && each.wanderEvery > 0)
+  }
+  assert.equal(t.facet.retreatLevel, rules.retreatLevel, 'the Facet Pebble is the baseline')
+  assert.ok(t.shard.wanderEvery < t.facet.wanderEvery && t.facet.wanderEvery < t.moss.wanderEvery, 'shards are restless, moss caps homebodies')
+  assert.ok(t.hermit.companionBonus < 0 && t.cairn.companionBonus > t.facet.companionBonus, 'hermits avoid company, cairns seek it')
+  assert.ok(t.crystal.retreatLevel < t.facet.retreatLevel && t.slab.retreatLevel > t.facet.retreatLevel, 'crystals are skittish, slabs stoic')
+  assert.ok(homePreferenceScore([1.5, 0, 0], [0, 0, 0], [[1.5, 0.8, 0]], t.hermit.companionBonus)
+    < homePreferenceScore([1, 0, 0], [0, 0, 0], [[1.5, 0.8, 0]], t.hermit.companionBonus), 'a hermit takes the lonelier home')
+})
+
+test('D-059: the same noise hides a skittish species but not a stoic one', () => {
+  const find = (species: ResidentKind) => {
+    for (const home of ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']) for (let i = 1; i <= 5; i += 1) {
+      const seed = `${home}/signal-${i}`
+      if (planetSpecies(seed) === species && spawnResidents(seed).some(resident => !resident.burrowId)) return seed
+    }
+    throw new Error(`no planet for ${species}`)
+  }
+  const stateAfterNoise = (seed: string) => {
+    const world = new PlanetWorld(seed)
+    const store = createRunStore(seed)
+    const resident = store.getState().residents.find(each => !each.burrowId)!
+    assert.equal(resident.state, 'peeking')
+    recordDisturbance(store, resident.home!, 'robot', false)
+    recordDisturbance(store, resident.home!, 'robot', false)
+    stepResidents(world, store)
+    return store.getState().residents.find(each => each.id === resident.id)!.state
+  }
+  assert.equal(stateAfterNoise(find('crystal')), 'hiding')
+  assert.equal(stateAfterNoise(find('slab')), 'peeking')
 })
 
 test('RES-T6: residents never claim homes inside the spacing limit', () => {

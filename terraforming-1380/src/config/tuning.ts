@@ -98,14 +98,46 @@ export const tuning = {
     search: { radius: 3.0, candidateLimit: 64, candidateMerge: 0.18, occupiedRadius: 0.3 },
     cooldownTicks: 600, advantage: 0.12, companionRadius: 0.9, companionBonus: 0.04, distanceCost: 0.05,
     speed: 0.012, surfaceLift: 0.09, pathStep: 0.07, bodyRadius: 0.1,
-    // D-055: presentation only. A calm resident lurks with its crown showing and surfaces now and then to look around;
-    // depths are fractions of its body radius (negative = below ground), times are seconds. Disturbance above
-    // `quietLevel` stops the peeks and makes it tremble, up to `tremble.amount` of its radius at `retreatLevel`.
+    // D-055/D-059: presentation only. A calm resident lurks with `crown` of its height above ground (`hideCrown` while
+    // hiding), but always deep enough to keep its eye rims at least `eyeCover` under ground, and surfaces now and then until
+    // its eyes clear the ground by `eyeClear`. Models are built in model units and drawn at `modelScale` world units
+    // per model unit, times the resident's size. Times are seconds.
+    // Disturbance above `quietLevel` stops the peeks and makes it tremble, up to `tremble.amount` of `bodyRadius`.
     look: {
-      lurk: -0.72, hide: -0.8, peek: 0.3, every: [6, 12], out: 2.8, rise: 0.3, climb: 1.1,
+      modelScale: 0.2, crown: 0.3, hideCrown: 0.2, eyeClear: 0.14, eyeCover: 0.05,
+      every: [6, 12], out: 2.8, rise: 0.3, climb: 1.1,
       plants: { radius: 1.2, fullAt: 4, periodScale: 0.55, outBonus: 1.8 },
       glance: 0.9, glanceRate: 2.1,
       tremble: { amount: 0.2, roll: 0.18, rate: 11 },
+    },
+    // D-059: a signal planet's species is the one whose authored native planet best matches it; this much seeded
+    // randomness (in steps of the 1–3 profile scales) is added to each species' score so near ties vary. Solids other
+    // than spheres have no noise relief; their edges count as this relief level instead (absent: flat).
+    speciesJitter: 1.5, solidRelief: { cube: 2, tetra: 3, nail: 3 },
+    // D-059: each species bends the shared rules. Simulation fields multiply the shared value: `speed`, `wander` (the
+    // stroll interval: lower is more restless), `retreat` (noise needed to hide: higher is braver), `quiet` (calm needed
+    // to come back out), `flee` (noise endured before moving away), `social` (companionBonus; negative seeks solitude),
+    // `burrow` (burrowBonus) and `population` (surface residents at the start). `look` fields replace the shared ones,
+    // except `tremble`, `gait`, `plants` and `scale`, which multiply. `glanceStyle`: snap holds each side, sweep pans
+    // slowly, dart jumps between random directions.
+    temperament: {
+      facet: {},
+      moss: { speed: 0.7, wander: 2.5, retreat: 1.3, quiet: 1.4, flee: 1.6, social: 1.3,
+        look: { every: [10, 18], out: 5, glance: 0.4, glanceRate: 0.7, glanceStyle: 'sweep', tremble: 0.6, gait: 0.7, plants: 2 } },
+      slab: { speed: 0.8, wander: 3, retreat: 1.6, quiet: 2, flee: 1.8, social: 1.5, population: 0.8,
+        look: { every: [12, 20], out: 4.5, glance: 0.5, glanceRate: 0.5, glanceStyle: 'sweep', tremble: 0.5, gait: 0.75, crown: 0.4 } },
+      crystal: { speed: 1.1, wander: 2, retreat: 0.65, quiet: 1.8, flee: 0.7,
+        look: { every: [9, 16], out: 1.8, glance: 0.7, glanceRate: 3, glanceStyle: 'dart', tremble: 1.4 } },
+      sentinel: { speed: 0.9, wander: 1.5, retreat: 1.4, quiet: 0.6, flee: 1.3, social: 0.6, population: 0.7,
+        look: { every: [4, 7], out: 4.5, glance: 1.2, glanceRate: 0.9, glanceStyle: 'sweep', tremble: 0.7 } },
+      hermit: { speed: 0.6, wander: 4, retreat: 0.7, quiet: 2.2, flee: 1.2, social: -1.5, burrow: 1.6, population: 0.6,
+        look: { every: [14, 24], out: 2, glance: 0.6, glanceRate: 2.6, glanceStyle: 'dart', crown: 0.45 } },
+      cairn: { speed: 0.85, wander: 0.8, retreat: 0.9, social: 3, population: 1.4,
+        look: { every: [5, 10], out: 3, glance: 0.8, glanceRate: 1.6, tremble: 1.2, gait: 0.8 } },
+      periscope: { speed: 0.75, wander: 2, quiet: 0.8, flee: 1.2, burrow: 1.4,
+        look: { every: [3, 6], out: 3.5, glance: 1, glanceRate: 1.4, glanceStyle: 'sweep', crown: 0.5 } },
+      shard: { speed: 1.5, wander: 0.35, retreat: 0.8, quiet: 0.6, flee: 0.6, social: 0.5,
+        look: { every: [4, 8], out: 1.5, glance: 1, glanceRate: 3.6, glanceStyle: 'dart', tremble: 1.3, gait: 1.4 } },
     },
   },
   signal: { pulseSeconds: 3.2, planetsAfter: 3, maxPlanets: 5, planetFadeSeconds: 4 },

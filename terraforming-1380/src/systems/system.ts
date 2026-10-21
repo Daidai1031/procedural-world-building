@@ -5,6 +5,8 @@ import { hashSeed, planetConfig } from '../world/planet'
 import { tuning } from '../config/tuning'
 import { planetName } from '../state/planets'
 import { parentSeed } from './systemView'
+import { planetSpecies } from './residents'
+import { residentSpecies } from '../content/residents'
 
 type Store = ReturnType<typeof createRunStore>
 
@@ -50,7 +52,7 @@ export function planetPosition(seed: string): [number, number, number] {
   return [px + Math.cos(angle) * radius, py + lift, pz + Math.sin(angle) * radius]
 }
 
-// PLN-02: the starting conditions in words, so planets can be compared before and after a visit.
+// PLN-02: the starting conditions in words, so planets can be compared before and after a visit. D-059: and who lives there.
 export function planetTraits(seed: string) {
   const config = planetConfig(seed)
   const { home } = tuning.planets
@@ -58,7 +60,7 @@ export function planetTraits(seed: string) {
   const relief = config.relief < 0.1 ? 'smooth' : config.relief > 0.17 ? 'rugged' : 'rolling'
   const minerals = config.minerals < 0.8 ? 'mineral-poor' : config.minerals > 1.3 ? 'mineral-rich' : 'some minerals'
   const residents = config.residents < 0.8 ? 'few residents' : config.residents > 1.3 ? 'many residents' : 'some residents'
-  return `${size}, ${relief}, ${minerals}, ${residents}`
+  return `${size}, ${relief}, ${minerals}, ${residents} · ${residentSpecies[planetSpecies(seed)].name}`
 }
 
 const active = (phase: string) => !['idle', 'paused', 'stopped'].includes(phase)

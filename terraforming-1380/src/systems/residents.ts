@@ -1,9 +1,10 @@
 import { tuning } from '../config/tuning'
 import type { Home, Resident, RunState, createRunStore } from '../state/runState'
-import { burrowSites, createPlanetField, hashSeed, type Burrow, type PlanetWorld } from '../world/planet'
+import { burrowSites, createPlanetField, hashSeed, planetConfig, type Burrow, type PlanetWorld } from '../world/planet'
 import { HALF, add, distance, dot, scale, unit, type Vec3 } from './geometry'
 import { groundRadius } from './exploration'
 import { VOXEL_WORLD_SIZE } from '../world/voxels/voxelMath.js'
+import { planetNatives, type ResidentKind } from '../content/residents'
 
 type Store = ReturnType<typeof createRunStore>
 type World = Pick<PlanetWorld, 'densityAt'>
@@ -11,6 +12,78 @@ const rules = tuning.residents
 const STEP = VOXEL_WORLD_SIZE / (tuning.grid.resolution - 1)
 
 export type { Home, Resident, ResidentState } from '../state/runState'
+
+// D-047/D-059: the home planet keeps the Facet Pebble. A signal planet gets the species whose authored native planet is
+// closest to it in size, relief and minerals (each on a 1–3 scale), plus a little seeded randomness. Planets found by
+// the same signal never share a species with one another or with the planet that found them.
+const speciesCache = new Map<string, ResidentKind>()
+export function planetSpecies(seed: string): ResidentKind {
+  const cached = speciesCache.get(seed)
+  if (cached) return cached
+  const match = /^(.*)\/signal-(\d+)$/.exec(seed)
+  if (!match) return 'facet'
+  const [, parent, index] = match
+  const taken = new Set<ResidentKind>([planetSpecies(parent)])
+  for (let i = 1; i < Number(index); i += 1) taken.add(planetSpecies(`${parent}/signal-${i}`))
+  const config = planetConfig(seed)
+  const { radius, relief, minerals } = tuning.planets
+  const level = (value: number, [min, max]: readonly number[]) => 1 + 2 * Math.min(1, Math.max(0, (value - min) / (max - min)))
+  const solid: Partial<Record<string, number>> = rules.solidRelief
+  const profile = [level(config.radius, radius), solid[config.shape] ?? level(config.relief, relief), level(config.minerals, minerals)]
+  const natives = planetNatives.filter(native => native.resident !== 'facet')
+  const open = natives.filter(native => !taken.has(native.resident))
+  const score = (native: typeof natives[number]) => hashSeed(`${seed}:species:${native.resident}`) / 4294967296 * rules.speciesJitter
+    - Math.abs(profile[0] - native.size) - Math.abs(profile[1] - native.relief) - Math.abs(profile[2] - native.mineralAbundance)
+  const species = (open.length ? open : natives).reduce((best, native) => score(native) > score(best) ? native : best).resident
+  speciesCache.set(seed, species)
+  return species
+}
+
+type GlanceStyle = 'snap' | 'sweep' | 'dart'
+interface TemperamentInput {
+  speed?: number; wander?: number; retreat?: number; quiet?: number; flee?: number; social?: number; burrow?: number; population?: number
+  look?: { every?: readonly [number, number]; out?: number; glance?: number; glanceRate?: number; glanceStyle?: GlanceStyle
+    tremble?: number; gait?: number; plants?: number; crown?: number; scale?: number }
+}
+
+// D-059: the shared rules with one species' character applied.
+export function temperament(species: ResidentKind) {
+  const input: TemperamentInput = rules.temperament[species]
+  const look = input.look ?? {}
+  return {
+    species,
+    speed: rules.speed * (input.speed ?? 1),
+    wanderEvery: Math.round(rules.wanderEvery * (input.wander ?? 1)),
+    // Hiding must still need more noise than counts as quiet.
+    retreatLevel: Math.max(rules.quietLevel + 0.05, rules.retreatLevel * (input.retreat ?? 1)),
+    quietTicks: Math.round(rules.quietTicks * (input.quiet ?? 1)),
+    fleeTicks: Math.round(rules.fleeTicks * (input.flee ?? 1)),
+    companionBonus: rules.companionBonus * (input.social ?? 1),
+    burrowBonus: rules.burrowBonus * (input.burrow ?? 1),
+    population: input.population ?? 1,
+    look: {
+      every: look.every ?? rules.look.every,
+      out: look.out ?? rules.look.out,
+      glance: look.glance ?? rules.look.glance,
+      glanceRate: look.glanceRate ?? rules.look.glanceRate,
+      glanceStyle: look.glanceStyle ?? 'snap' as GlanceStyle,
+      tremble: rules.look.tremble.amount * (look.tremble ?? 1),
+      gait: look.gait ?? 1,
+      plants: look.plants ?? 1,
+      crown: look.crown ?? rules.look.crown,
+      scale: rules.look.modelScale * (look.scale ?? 1),
+    },
+  }
+}
+export type Temperament = ReturnType<typeof temperament>
+
+const temperaments = new Map<ResidentKind, Temperament>()
+export function temperamentFor(seed: string) {
+  const species = planetSpecies(seed)
+  let found = temperaments.get(species)
+  if (!found) temperaments.set(species, found = temperament(species))
+  return found
+}
 
 export interface DisturbanceSource { position: Vec3; level: number }
 export interface HabitatState { tick: number; sources: DisturbanceSource[]; candidates: Vec3[] }
@@ -132,6 +205,7 @@ export function recordDisturbance(store: Store, position: Vec3, kind: 'manual' |
 
 function makeResident(seed: string, index: number, home: Home, burrow: Burrow | null): Resident {
   const state = burrow ? 'hiding' as const : 'peeking' as const
+  const { wanderEvery } = temperamentFor(seed)
   const resident: Resident = {
     id: `resident-${index}`,
     // D-053: stable per-resident variation makes individuals readable within one population.
@@ -140,7 +214,7 @@ function makeResident(seed: string, index: number, home: Home, burrow: Burrow | 
     position: home, state, path: [], homeValid: true, peek: home,
     quietTicks: 0, disturbedTicks: 0, lastMoveTick: -Infinity,
     nextCheck: index % rules.checkEvery,
-    nextWander: rules.wanderEvery + index * 40,
+    nextWander: wanderEvery + index * 40,
     searchRetries: 0,
   }
   resident.position = poseFor(seed, resident, state)
@@ -149,6 +223,7 @@ function makeResident(seed: string, index: number, home: Home, burrow: Burrow | 
 }
 
 // RES-01, D-052/D-054: one resident starts inside each open burrow; the rest are scattered on the surface.
+// D-059: a species' `population` scales how many start on the surface.
 export function spawnResidents(seed: string): Resident[] {
   const field = createPlanetField(seed)
   const spacing = VOXEL_WORLD_SIZE / (tuning.grid.resolution - 1)
@@ -157,7 +232,8 @@ export function spawnResidents(seed: string): Resident[] {
   const world = { densityAt: (x: number, y: number, z: number) => field(snap(x, true), snap(y, false), snap(z, true)) }
   const burrows = burrowSites(seed).filter(burrow => burrowOpen(world, burrow))
   const homes = residentHomeSites(world, seed).filter(home => burrows.every(burrow => distance(home, burrow.pocket) >= rules.minHomeSpacing))
-  const rolled = rules.initialCount[0] + hashSeed(`${seed}:residents:count`) % (rules.initialCount[1] - rules.initialCount[0] + 1)
+  const rolled = Math.round(temperamentFor(seed).population
+    * (rules.initialCount[0] + hashSeed(`${seed}:residents:count`) % (rules.initialCount[1] - rules.initialCount[0] + 1)))
   const surfaceCount = Math.max(0, Math.min(homes.length, Math.max(rolled, burrows.length) - burrows.length))
   return [
     ...burrows.map((burrow, index) => makeResident(seed, index, burrow.pocket, burrow)),
@@ -209,9 +285,9 @@ function routeTo(world: World, seed: string, from: Vec3, home: Home, burrowId: s
 }
 
 // D-051: nearby occupied homes make a candidate more attractive, without overriding habitat constraints.
-export function homePreferenceScore(candidate: Home, origin: Vec3, companionHomes: readonly Home[]) {
+export function homePreferenceScore(candidate: Home, origin: Vec3, companionHomes: readonly Home[], bonus: number = rules.companionBonus) {
   const companions = companionHomes.filter(home => distance(home, candidate) <= rules.companionRadius).length
-  return companions * rules.companionBonus - distance(candidate, origin) * rules.distanceCost
+  return companions * bonus - distance(candidate, origin) * rules.distanceCost
 }
 
 interface Destination { home: Home; burrowId: string | null }
@@ -240,7 +316,8 @@ function destinations(world: World, state: RunState, resident: Resident, residen
     if (!isValidHome(world, candidate, claimed)) continue
     surface.push({ home: candidate, burrowId: null })
   }
-  const score = (destination: Destination) => homePreferenceScore(destination.home, origin, claimed) + (destination.burrowId ? rules.burrowBonus : 0)
+  const { companionBonus, burrowBonus } = temperamentFor(state.seed)
+  const score = (destination: Destination) => homePreferenceScore(destination.home, origin, claimed, companionBonus) + (destination.burrowId ? burrowBonus : 0)
   const ordered = [...burrows, ...surface].sort((a, b) => score(b) - score(a)
     || distance(a.home, origin) - distance(b.home, origin)
     || a.home[0] - b.home[0] || a.home[1] - b.home[1] || a.home[2] - b.home[2])
@@ -264,10 +341,10 @@ function nearestHome(world: World, state: RunState, resident: Resident, resident
   return null
 }
 
-function moveToward(position: Vec3, target: Vec3) {
+function moveToward(position: Vec3, target: Vec3, speed: number) {
   const gap = distance(position, target)
-  if (gap <= rules.speed) return { position: target, arrived: true }
-  return { position: add(position, scale(add(target, scale(position, -1)), rules.speed / gap)), arrived: false }
+  if (gap <= speed) return { position: target, arrived: true }
+  return { position: add(position, scale(add(target, scale(position, -1)), speed / gap)), arrived: false }
 }
 
 function beginSearch(world: World, state: RunState, resident: Resident, residents: Resident[], wander = false) {
@@ -284,22 +361,23 @@ function beginSearch(world: World, state: RunState, resident: Resident, resident
 function stepResident(world: World, state: RunState, resident: Resident, residents: Resident[]): Resident {
   let r = { ...resident, path: [...resident.path] }
   const tick = state.habitat.tick
+  const nature = temperamentFor(state.seed)
   if (r.state === 'moving') {
     const target = r.path[0]
-    if (!target) return { ...r, state: 'hiding', position: poseFor(state.seed, r, 'hiding'), quietTicks: 0, nextWander: tick + rules.wanderEvery }
-    const step = moveToward(r.position, target)
+    if (!target) return { ...r, state: 'hiding', position: poseFor(state.seed, r, 'hiding'), quietTicks: 0, nextWander: tick + nature.wanderEvery }
+    const step = moveToward(r.position, target, nature.speed)
     r.position = step.position
     if (step.arrived) r.path = r.path.slice(1)
     if (r.path.length === 0) {
       r.state = 'hiding'; r.position = poseFor(state.seed, r, 'hiding'); r.quietTicks = 0; r.disturbedTicks = 0
-      r.lastMoveTick = tick; r.nextCheck = tick; r.nextWander = tick + rules.wanderEvery
+      r.lastMoveTick = tick; r.nextCheck = tick; r.nextWander = tick + nature.wanderEvery
     }
     return r
   }
 
   const here = r.home ?? r.position
   const level = disturbanceAt(state.habitat, here)
-  r.disturbedTicks = level > rules.retreatLevel ? r.disturbedTicks + 1 : Math.max(0, r.disturbedTicks - 2)
+  r.disturbedTicks = level > nature.retreatLevel ? r.disturbedTicks + 1 : Math.max(0, r.disturbedTicks - 2)
   r.quietTicks = level < rules.quietLevel ? r.quietTicks + 1 : 0
   const due = tick >= r.nextCheck
   if (r.state === 'searching') {
@@ -314,20 +392,20 @@ function stepResident(world: World, state: RunState, resident: Resident, residen
     if (!r.homeValid) return beginSearch(world, state, r, residents)
   }
   // Leave ongoing work instead of waiting in place. A taken burrow stays taken.
-  if (r.disturbedTicks >= rules.fleeTicks && tick - r.lastMoveTick >= rules.cooldownTicks) {
+  if (r.disturbedTicks >= nature.fleeTicks && tick - r.lastMoveTick >= rules.cooldownTicks) {
     return beginSearch(world, state, r, residents)
   }
   if (!r.burrowId && r.state === 'peeking' && r.disturbedTicks === 0 && tick >= r.nextWander) {
-    r.nextWander = tick + rules.wanderEvery
+    r.nextWander = tick + nature.wanderEvery
     const strolling = beginSearch(world, state, r, residents, true)
     if (strolling !== r) return strolling
   }
-  if (level > rules.retreatLevel) r.state = 'hiding'
-  else if (r.state === 'hiding' && r.quietTicks >= rules.quietTicks) r.state = 'peeking'
+  if (level > nature.retreatLevel) r.state = 'hiding'
+  else if (r.state === 'hiding' && r.quietTicks >= nature.quietTicks) r.state = 'peeking'
   if (r.home) {
     const pose = r.state === 'hiding' || r.state === 'peeking' ? r.state : 'peeking'
     r.peek = poseFor(state.seed, r, 'peeking')
-    r.position = moveToward(r.position, poseFor(state.seed, r, pose)).position
+    r.position = moveToward(r.position, poseFor(state.seed, r, pose), nature.speed).position
   }
   return r
 }

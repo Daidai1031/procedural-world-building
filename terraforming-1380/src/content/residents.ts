@@ -1,5 +1,6 @@
-// Native species and authored planet assignments.
-// This is descriptive content, separate from the live habitat simulation in systems/residents.ts.
+// Native species, their characters and their authored native planets.
+// This is descriptive content. The numbers behind each character live in config/tuning.ts (residents.temperament),
+// and systems/residents.ts (planetSpecies) uses the native planets below to choose each signal planet's species.
 
 export type ResidentKind = 'facet' | 'moss' | 'slab' | 'crystal' | 'sentinel' | 'hermit' | 'cairn' | 'periscope' | 'shard'
 export type ResidentRockFamily = 'gray' | 'sand' | 'rose' | 'slate' | 'basalt' | 'umber' | 'sage' | 'moss'
@@ -8,19 +9,30 @@ export type ShelterKind = 'sink' | 'cavity' | 'niche' | 'burrow'
 export interface ResidentSpecies {
   name: string
   rockFamilies: readonly ResidentRockFamily[]
+  /** Character and habits in a sentence, as tuned in residents.temperament. */
+  nature: string
 }
 
 // The first family is the default. Tall Slabs use palette.resident.strata for their banded bodies.
 export const residentSpecies = {
-  facet: { name: 'Facet Pebble', rockFamilies: ['gray', 'slate', 'sand'] },
-  moss: { name: 'Moss Cap', rockFamilies: ['umber', 'sage', 'gray'] },
-  slab: { name: 'Tall Slab', rockFamilies: ['rose', 'sand', 'slate'] },
-  crystal: { name: 'Crystal Crown', rockFamilies: ['slate', 'basalt', 'gray'] },
-  sentinel: { name: 'Cyclops Sentinel', rockFamilies: ['basalt', 'gray', 'umber'] },
-  hermit: { name: 'Hermit Shell', rockFamilies: ['gray', 'sand', 'slate'] },
-  cairn: { name: 'Cairn', rockFamilies: ['gray', 'sand', 'slate', 'rose', 'umber'] },
-  periscope: { name: 'Periscope', rockFamilies: ['gray', 'basalt', 'umber'] },
-  shard: { name: 'Shard', rockFamilies: ['sage', 'sand', 'gray'] },
+  facet: { name: 'Facet Pebble', rockFamilies: ['gray', 'slate', 'sand'],
+    nature: 'Curious and sociable; the baseline every other species is tuned against.' },
+  moss: { name: 'Moss Cap', rockFamilies: ['umber', 'sage', 'gray'],
+    nature: 'A slow homebody that basks for a long time, shrugs off some noise, rarely strolls and stays out longest among plants.' },
+  slab: { name: 'Tall Slab', rockFamilies: ['rose', 'sand', 'slate'],
+    nature: 'A stoic elder: hard to frighten and slow to leave, but once hidden it takes a long time to come back out.' },
+  crystal: { name: 'Crystal Crown', rockFamilies: ['slate', 'basalt', 'gray'],
+    nature: 'Skittish and still; it hides at the faintest noise, peeks only briefly and its crystals glint while it trembles.' },
+  sentinel: { name: 'Cyclops Sentinel', rockFamilies: ['basalt', 'gray', 'umber'],
+    nature: 'A brave lookout that surfaces often, pans its one eye slowly across the ground and comes back quickly.' },
+  hermit: { name: 'Hermit Shell', rockFamilies: ['gray', 'sand', 'slate'],
+    nature: 'A shy loner that keeps away from others, favours burrows and rolls a door stone shut when it hides.' },
+  cairn: { name: 'Cairn', rockFamilies: ['gray', 'sand', 'slate', 'rose', 'umber'],
+    nature: 'Gregarious and wobbly; it lives in crowds, settles next to companions and slumps into a pile when it hides.' },
+  periscope: { name: 'Periscope', rockFamilies: ['gray', 'basalt', 'umber'],
+    nature: 'Watches from below: its body stays buried and only the eye stalk rises, often and for a while.' },
+  shard: { name: 'Shard', rockFamilies: ['sage', 'sand', 'gray'],
+    nature: 'Restless and jumpy; it strolls often and fast, darts its gaze about and is quick to leave noise behind.' },
 } as const satisfies Record<ResidentKind, ResidentSpecies>
 
 export interface PlanetNative {
@@ -39,7 +51,9 @@ export interface PlanetNative {
   terrainTint: { low: string; high: string; steep: string }
 }
 
-// D-047 proposal: one native species per authored planet. The current procedural seed registry does not consume this yet.
+// D-047/D-059: one native species per planet. The home planet keeps the Facet Pebble; a signal planet gets the species
+// whose native planet here best matches its size, relief and mineral abundance. Names, codes, clustering, shelter and
+// terrain tints are authored for later and are not read yet.
 export const planetNatives: readonly PlanetNative[] = [
   { id: 'ares-9', name: 'Grey Plain', code: 'Ares-9', resident: 'facet', size: 2, relief: 2, mineralAbundance: 2, clustering: 2, shelter: 'sink', stage: 'S1',
     terrainTint: { low: '#6b6964', high: '#bdbab3', steep: '#4a4946' } },

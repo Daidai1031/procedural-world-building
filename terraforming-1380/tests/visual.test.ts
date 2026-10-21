@@ -6,6 +6,8 @@ import { resourceColors } from '../src/config/resourceColors'
 import { tuning } from '../src/config/tuning'
 import { buildAtmospherePoints, createSurfaceRadius } from '../src/render/atmosphere'
 import { createRobot, type RobotRole } from '../src/render/models/robots'
+import { createResidentKit, createResidentModel } from '../src/render/models/residents'
+import { residentSpecies, type ResidentKind } from '../src/content/residents'
 import { antennaColors, antennaGeometries, branchGeometries, crystalClusterGeometry, lichenGeometries } from '../src/render/models/surfaceModels'
 import { createTerrainMaterial, showWorkArea } from '../src/render/terrainMaterial'
 
@@ -63,6 +65,29 @@ test('robots keep their agreed silhouettes cheap to draw and their lights follow
     assert.equal(lamp?.color.getHexString(), new Color(palette.state.blocked).getHexString())
     robot.dispose()
   }
+})
+
+// D-059: every species from docs/ares9-residents.html builds from a seed, stays cheap and can be placed by its eyes.
+test('every resident species builds a seeded body with eyes below its top', () => {
+  const kit = createResidentKit()
+  for (const kind of Object.keys(residentSpecies) as ResidentKind[]) {
+    const model = createResidentModel(kind, 1380, kit)
+    const again = createResidentModel(kind, 1380, kit)
+    const other = createResidentModel(kind, 7, kit)
+    let meshes = 0
+    model.object.traverse((child) => { if (child instanceof Mesh) meshes += 1 })
+    assert.ok(meshes <= 40, `${kind} draws ${meshes} meshes`)
+    assert.ok(model.top > 0.3 && model.top < 1.6, `${kind} top ${model.top}`)
+    assert.ok(model.eyeLine > 0, `${kind} has eyes above its origin`)
+    assert.equal(model.stalkPeek, kind === 'periscope')
+    if (!model.stalkPeek) assert.ok(model.eyeLine < model.top, `${kind} eyes sit inside its outline`)
+    assert.equal(again.top, model.top, `${kind} is deterministic`)
+    assert.notEqual(other.top, model.top, `${kind} varies with its seed`)
+    model.update({ tuck: 0, shut: 0, peek: 0, shake: 0, walk: 1 }, 2, 0.05, 1)
+    model.update({ tuck: 1, shut: 1, peek: 0, shake: 1, walk: 0 }, 3, 0.05, 1)
+    for (const each of [model, again, other]) each.dispose()
+  }
+  kit.dispose()
 })
 
 test('plants grow by level and every template part has geometry', () => {
