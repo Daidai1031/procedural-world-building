@@ -3,7 +3,7 @@
 | | |
 | --- | --- |
 | **Status** | Draft v0.6 — resident feedback and persistent planets (D-034–037) |
-| **Last updated** | 2026-10-20 |
+| **Last updated** | 2026-10-21 |
 | **Answers the question** | *What exactly must the game do, and how do we know it does?* |
 | **Sibling files** | Why: [`design.md`](design.md) · Values: [`tuning.md`](tuning.md) · Text: [`content.md`](content.md) · Order of work: [`roadmap.md`](roadmap.md) · Why we chose: [`decisions.md`](decisions.md) |
 
@@ -452,6 +452,16 @@ The Detector is a separate, close-range inspection tool. The later Scanner retai
 | SYS-02 | Derive overview meshes from each current edited world, with revision-aware refresh. Holes/cuts must not revert to a decorative sphere. | MVP | done |
 | SYS-03 | Hover reveals concise descriptive state; click visits the selected stored planet. Exact progress descriptor is open and must not prescribe a universal end goal. | MVP | done |
 | SYS-04 | Refresh running-world changes while the overview is open, within a measured budget; choose cadence and inactive-world policy explicitly. | MVP | done (per-frame version check; inactive frozen) |
+| SYS-05 | The system view is a camera pull-back in the main scene: no dialog, no second Canvas. Entry by the *System overview ↗* button, key `O`, or a click on a distant planet; exit by *Return to orbit ↓*, `O` or `Esc`. (D-044) | MVP | todo |
+| SYS-06 | The active planet stays at the scene origin and is never scaled. Other worlds sit at `planetPosition(seed) − planetPosition(active)`. At `pull = 0` the camera pose equals today's orbit pose. Right-drag turns, wheel zooms, left click picks; tools are disabled while pulled back. | MVP | todo |
+| SYS-07 | Pulling back never pauses, resets or edits the crew: the active planet keeps simulating and its robots stay visible as small amber lights. Inactive planets stay frozen (D-040). | MVP | todo |
+| SYS-08 | A planet known only from a signal is a wireframe at its true radius, always, until visited. Visited planets use their current edited meshes with contour shading (SYS-02). | MVP | todo |
+| SYS-09 | State is drawn on each visited planet instead of a list: ghost shell at the original radius, plant dots, antenna ticks, resident glows, robot lights. Counts are capped (`tuning.system.marks`). Inactive planets read from their frozen snapshot. | MVP | todo |
+| SYS-10 | A dashed arc joins each planet to the planets its signals found. A broadcast on the active planet sends a pulse along its outgoing arcs. Arcs are descriptive and imply no goal. | MVP | todo |
+| SYS-11 | Traveling is one press-and-hold gesture (`tuning.system.holdMs`) on a focused, non-active world; early release cancels. `travelTo` is unchanged and called once. The Travel button and the confirmation dialog are removed. | MVP | todo |
+| SYS-12 | Travel plays a dive under a paper-colored veil, then arrives in orbit around the new planet with a transient caption. With reduced motion the animation is skipped. | MVP | todo |
+| SYS-13 | Name tags on every world; hover or focus adds a one-line caption in the existing description format. A visually hidden list of worlds gives keyboard and screen-reader access. | MVP | todo |
+| SYS-14 | While pulled back, both sidebars slide out and the canvas fills the main area; footer hints change; `A`, `M`, `P` still switch mode; `D`, `T`, `F` are ignored. | MVP | todo |
 
 ### 4.20 Compact operating feedback (OPS) — planned UI change
 
@@ -646,6 +656,12 @@ These are future checks; none were run by this documentation update.
 | PLN-T1 | Edit planet A, visit B, then return to A; verify density, stocks, residents and robot state survive without duplicated rewards. | PLN-01/03/04 |
 | PLN-T2 | Compare configurations: playable size and resource abundance can differ independently. | PLN-02 |
 | SYS-T1 | Change terrain while overview is open; its simplified shape updates. Click it and inspect the same world. | SYS-01–04 |
+| SYS-T2 | `cameraPose(0)` equals the orbit pose for any azimuth/polar; `cameraPose(1)` targets the layout center; distance and target are monotonic between. | SYS-05/06 |
+| SYS-T3 | `systemLayout` puts the active planet at the origin and offsets the rest; `parentSeed` and `systemArcs` return one arc per known child with a known parent. | SYS-06/10 |
+| SYS-T4 | `planetMarks` respects the caps, is deterministic and empty for a state with none. | SYS-09 |
+| SYS-T5 | `holdProgress` is clamped 0..1 and linear. | SYS-11 |
+| SYS-T6 | Browser: start a Miner, pull back, return; its progress continued and nothing reset. Broadcast while pulled back; the pulse runs along the outgoing arcs. | SYS-07/10 |
+| SYS-T7 | Browser: hold to travel, release early (no change), hold fully (one `travelTo`, funds unchanged, old planet paused). No dialog appears. Repeat with reduced motion. | SYS-11/12 |
 | OPS-T1 | Use compact financial feedback; a tester explains any shortage/critical warning and the available action. | OPS-01–03 |
 
 ### Deferred legacy acceptance

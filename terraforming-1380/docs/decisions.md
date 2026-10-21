@@ -3,7 +3,7 @@
 | | |
 | --- | --- |
 | **Purpose** | The memory of the project. Every time the design or spec changes, the *reason* goes here, so we can tell later whether a change was a good idea. |
-| **Last updated** | 2026-10-20 |
+| **Last updated** | 2026-10-21 |
 
 ## How to use this file
 
@@ -481,3 +481,18 @@ Electricity was later raised from 0.25 to 0.4, then to 0.55 credits per kW-minut
 - **Per planet:** `autopilot` lives in the run state, so a planet left running is frozen with the rest (D-040) and arriving at another planet starts in Auto.
 - **Not yet:** a person's playtest; a pass counter or per-robot sector overlay; letting Builders pass again after the terrain changes.
 - **Affects:** `systems/autopilot.ts`, `systems/simulation.ts`, `systems/comms.ts`, `ui/AutopilotPanel.tsx`, `ui/ModeSwitch.tsx`, `App.tsx`, per-robot views and the world map, `spawn*` indices; AUTO-01–11.
+
+## D-044 — The system view becomes a camera pull-back
+
+- **Date:** 2026-10-21
+- **Status:** accepted; **not implemented**. Implementation brief: [`system-view-brief.md`](system-view-brief.md); visual reference: [`system-view-concepts.html`](system-view-concepts.html).
+- **Context:** The System overview (D-040, S4) is a modal `<dialog>` with its own Canvas and a side list. The owner found it rigid and wanted something natural, flowing and immersive. Three interactive concepts were compared (A pull back, B signal chart, C drift).
+- **Decision:** Build **Concept A** as the structure, with B's arcs and C's readouts. The overview stops being a dialog: *System overview ↗* (and `O`) pulls the main camera back until every known world is visible in the same scene. The active planet is not scaled or moved; other worlds sit at `planetPosition(seed) − planetPosition(active)`.
+- **Decision:** **Signal arcs:** a dashed arc from each planet to the planets its signals found; a bright pulse runs along the active planet's outgoing arcs on every broadcast.
+- **Decision:** **Readouts on the planet replace the list:** a ghost shell at the original radius (how much rock is gone), green plant dots, antenna ticks with amber tips, warm resident glows and amber robot lights. Counts are capped. Text appears only as a name tag, and a one-line caption on hover or focus.
+- **Decision:** **Press and hold** (900 ms) replaces *Travel →* and the confirmation dialog. The confirmation text moves into the focus caption. The camera dives into the planet under a paper-colored veil, `travelTo` runs unchanged, and the camera returns to orbit around the new planet.
+- **Decision:** The crew **keeps working while pulled back**; the active planet's robots read as small amber lights. A planet known only from a signal **always stays a wireframe** at its true radius until it is visited.
+- **Why:** The pull-back keeps the player inside one world, the arcs make the signal story visible, and drawing state on the planet removes the duplicate list. Persistence (D-040), frozen inactive worlds and shared funds are unchanged.
+- **Supersedes:** the "overview is a dialog" and "Travel confirmation" parts of D-032 / D-040 only.
+- **Open:** hold duration, whether the wheel should also pull back in Auto and Autopilot, touch input, and handling of many worlds (see the brief, §9).
+- **Affects:** `ui/SystemOverview.tsx` (deleted), new `systems/systemView.ts`, `views/System*.tsx`, `ui/System*.tsx`, `ui/HoldToTravel.tsx`, `views/OrbitCamera.tsx`, `views/AtmosphereView.tsx`, `views/DistantPlanetsView.tsx`, `App.tsx`, `style.css`, `config/palette.ts`, `config/tuning.ts`; SYS-01, SYS-05–14.
