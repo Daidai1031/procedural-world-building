@@ -3,7 +3,7 @@ export const tuning = {
   // Prototype balance; credits, kW, and credits per kW-minute.
   economy: { startingCapital: 0, bankruptcyLimit: -50, mineralPrice: 40, electricityRate: 0.55, manualTerrainRate: 0.02,
     power: { miner: 6, gardener: 3, builder: 8 } },
-  ecology: { baseline: 60, plantValue: 0.6, lifeDisturbance: 2, terrainLoss: 60, preparedSamples: 10000 },
+  ecology: { baseline: 60, plantValue: 0.6, terrainLoss: 60, preparedSamples: 10000 },
   grid: { resolution: 64 },
   chunk: { size: 16 },
   lod: { maxLevels: 3, fullDetailDistance: 7, bandWidth: 2.5 },
@@ -31,12 +31,11 @@ export const tuning = {
   // PLN-02, D-041: each signal planet draws size, relief and abundance independently; the home planet keeps `home`.
   // Radius and relief are fractions of the voxel world size; abundance multiplies the cluster counts below.
   planets: {
-    home: { radius: 0.34, relief: 0.16, minerals: 1, life: 1 },
-    radius: [0.22, 0.36], relief: [0.06, 0.2], minerals: [0.4, 2], life: [0.3, 2],
+    home: { radius: 0.34, relief: 0.16, minerals: 1, residents: 1 },
+    radius: [0.22, 0.36], relief: [0.06, 0.2], minerals: [0.4, 2], residents: [0.3, 2],
   },
   gen: {
-    cluster: { mineral: { count: 14 }, life: { count: 8 }, memory: { count: 6 } },
-    surfaceTeachingTargets: 3,
+    cluster: { mineral: { count: 14 } },
   },
   // AUT-01–12: fixed 30 Hz simulation; distances are world units, durations are ticks.
   miner: {
@@ -55,32 +54,54 @@ export const tuning = {
     plantMaxSlope: 0.35, antennaMaxSlope: 0.6,
     area: { min: 0.6, default: 1.6, max: 2.4, step: 0.1 },
   },
-  // D-026: the Builder alternates flattening high ground and filling low ground toward one level.
+  // D-050: the Builder repairs local holes first, then trims isolated bumps.
   builder: {
     scanTicks: 12, workTicks: 18, hoverHeight: 0.4, travelSpeed: 0.03, arriveDistance: 0.06, maxMoveTicks: 900,
     candidates: 40, levelSamples: 60, blockedScans: 3,
-    pattern: ['flatten', 'fill'],
-    tolerance: 0.06, flattenRadius: 0.35, fillRadius: 0.18, fillCost: 28,
-    structureMargin: 0.15, minerClearance: 0.45,
+    pattern: ['fill', 'flatten'],
+    surfaceProbeRadius: 0.38, surfaceProbeSamples: 8, minHoleDepth: 0.09, minBumpHeight: 0.14,
+    flattenRadius: 0.35, fillRadius: 0.18, fillCost: 28,
+    structureMargin: 0.15, residentMargin: 0.22, minerClearance: 0.45,
     area: { min: 0.6, default: 1.2, max: 2.4, step: 0.1 },
   },
   // Broadcasting: each pulse lasts `pulseSeconds`; distant planets start to appear after `planetsAfter` broadcasts.
-  // S1/S2, D-042: cave residents. Lengths are world units, durations are resident ticks (30 per second).
+  // D-045/D-046: residents sink into valid surface homes. Lengths are world units; durations are 30 Hz ticks.
   residents: {
     tickRate: 30,
+    initialCount: [11, 13], size: [0.75, 1.25], minSoilDepth: 0.45, maxSlopeDeg: 25, headroom: 0.18, minHomeSpacing: 0.5,
+    homeCandidates: 24, homeCandidateSamples: 128, peekLift: 0.015, hideDepth: 0.075,
     // Initial burrows: groups of pockets under the surface, each with a slanted tunnel to the open air.
     burrows: { groups: 2, perGroup: 3, occupiedPerGroup: 2, groupSpread: 0.55, pocketRadius: 0.21, tunnelRadius: 0.14, depth: 0.6, slant: 0.5, minGap: 0.6 },
     // HAB-01: a home has room for the body, rock on most sides, and an opening that leads outside.
     shelter: { clearance: 0.05, rayLength: 0.6, rayStep: 0.08, minEnclosure: 0.7, accessReach: 1.6, accessNodes: 3000 },
     // HAB-02: every terrain edit adds local disturbance that fades each tick.
     disturbance: { radius: 0.9, manual: 1.4, robot: 0.3, cap: 3, decay: 0.97, merge: 0.3, maxSources: 32 },
-    retreatLevel: 0.5, quietLevel: 0.15, quietTicks: 75, sustainedTicks: 240,
-    checkEvery: 15, reconsiderEvery: 300, waitRetry: 90,
+    retreatLevel: 0.5, quietLevel: 0.15, quietTicks: 75, sustainedTicks: 240, fleeTicks: 60,
+    wanderEvery: 300, wanderArc: 0.45, burrowBonus: 0.85,
+    checkEvery: 15, searchRetryTicks: 90, maxSearchRetries: 6,
     search: { radius: 3.0, candidateLimit: 64, candidateMerge: 0.18, occupiedRadius: 0.3 },
     cooldownTicks: 600, advantage: 0.12, companionRadius: 0.9, companionBonus: 0.04, distanceCost: 0.05,
     speed: 0.012, surfaceLift: 0.09, pathStep: 0.07, bodyRadius: 0.1,
+    // D-055: presentation only. A calm resident lurks with its crown showing and surfaces now and then to look around;
+    // depths are fractions of its body radius (negative = below ground), times are seconds. Disturbance above
+    // `quietLevel` stops the peeks and makes it tremble, up to `tremble.amount` of its radius at `retreatLevel`.
+    look: {
+      lurk: -0.72, hide: -0.8, peek: 0.3, every: [6, 12], out: 2.8, rise: 0.3, climb: 1.1,
+      glance: 0.9, glanceRate: 2.1,
+      tremble: { amount: 0.2, roll: 0.18, rate: 11 },
+    },
   },
   signal: { pulseSeconds: 3.2, planetsAfter: 3, maxPlanets: 5, planetFadeSeconds: 4 },
+  // D-049: pulling the camera back to see every known world. All values are guesses until playtested.
+  system: {
+    pullSeconds: 1.4, diveSeconds: 1.3, arriveSeconds: 0.9, holdMs: 900,
+    focusDistanceFactor: 6.5,
+    distance: { min: 14, max: 48, margin: 1.1 },
+    zoom: { min: 12, max: 48, step: 0.08 },
+    marks: { plants: 60, antennas: 8, residents: 16, robots: 12 },
+    ghostOpacity: 0.17, arcOpacity: 0.55, arcLift: 2.2,
+    fade: { otherWorlds: [0.25, 0.85], atmosphere: [0, 0.45], marks: [0.35, 0.9] },
+  },
   // D-043: Autopilot hands the whole planet to the crew. Each robot sweeps `sectors` work areas of `radius` in turn;
   // after a lap with no work it rests `restTicks`, doubling each fruitless lap up to `maxRestFactor` times. Builders
   // instead share one queue of sectors, leave each after `builderJobsPerSector` jobs and retire when the queue is empty. Gardeners and Builders wait while funds sit below `holdBelow`

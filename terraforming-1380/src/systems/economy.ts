@@ -53,7 +53,7 @@ export function siteIndicators(state: RunState) {
   const remaining = Math.max(0, Math.min(1, state.planetRemaining))
   return {
     biosphere: clamp(tuning.ecology.baseline - (1 - remaining) * tuning.ecology.terrainLoss
-      + plants * tuning.ecology.plantValue - state.discoveries.lifeClusterIds.length * tuning.ecology.lifeDisturbance),
+      + plants * tuning.ecology.plantValue),
     stability: remaining * 100,
     developmentReadiness: clamp(state.economy.preparedSamples / tuning.ecology.preparedSamples * 100) * remaining,
   }

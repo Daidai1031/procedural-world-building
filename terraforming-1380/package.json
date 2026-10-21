@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "tsx --test tests/planet.test.ts tests/miner.test.ts tests/gardener.test.ts tests/builder.test.ts tests/visual.test.ts tests/economy.test.ts tests/exploration.test.ts tests/signal.test.ts tests/comms.test.ts tests/residents.test.ts tests/autopilot.test.ts"
+    "test": "tsx --test tests/planet.test.ts tests/miner.test.ts tests/gardener.test.ts tests/builder.test.ts tests/visual.test.ts tests/economy.test.ts tests/exploration.test.ts tests/signal.test.ts tests/comms.test.ts tests/residents.test.ts tests/autopilot.test.ts tests/systemView.test.ts"
   },
   "dependencies": {
     "@fontsource-variable/bricolage-grotesque": "^5.3.0",

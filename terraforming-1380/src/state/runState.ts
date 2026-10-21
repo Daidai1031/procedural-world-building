@@ -6,13 +6,37 @@ import { spawnRobot, type MiningRobotState } from '../systems/miner'
 import { spawnGardener, type GardenerState } from '../systems/gardener'
 import type { Structure } from '../systems/structures'
 import { spawnBuilder, type BuilderState } from '../systems/builder'
-import { spawnResidents, type HabitatState, type Resident } from '../systems/residents'
+import { spawnResidents, type HabitatState } from '../systems/residents'
 import type { AutopilotState } from '../systems/autopilot'
+import type { Vec3 } from '../systems/geometry'
 
 export type ToolId = 'terrain' | 'detector' | 'scanner' | 'deepScanner' | 'wideDrill' | 'bioSeeder' | 'stabilizer' | 'auto'
 export type AutoRobot = 'miner' | 'gardener' | 'builder'
 export type ModuleId = 'deepScanner' | 'wideDrill' | 'bioSeeder' | 'stabilizer'
 export type TerrainMode = 'dig' | 'add' | 'flatten'
+
+// Resident persistence belongs to the run store. A Home is a valid world-space surface point.
+export type Home = Vec3
+export type ResidentState = 'peeking' | 'hiding' | 'moving' | 'searching'
+export interface Resident {
+  id: string
+  size: number
+  home: Home | null
+  /** Set while the resident occupies a seeded burrow. One burrow holds one resident. */
+  burrowId: string | null
+  position: Vec3
+  state: ResidentState
+  path: Vec3[]
+  homeValid: boolean
+  peek: Vec3 | null
+  quietTicks: number
+  disturbedTicks: number
+  lastMoveTick: number
+  nextCheck: number
+  /** Earliest tick for a calm surface resident to stroll or enter a free burrow. */
+  nextWander: number
+  searchRetries: number
+}
 
 // CLS-02: data shape only, not computed in M0.
 export interface MorphologyFeatures {
@@ -39,11 +63,9 @@ export interface RunState {
     biosphere: number
     developmentReadiness: number
     stability: number
-    historicalSignificance: number
   }
   planetRemaining: number
   hidden: {
-    planetaryMemory: number
     fragmentation: number
     morphology: MorphologyFeatures
     cosmicExposure: number
@@ -59,8 +81,6 @@ export interface RunState {
     autoRobot: AutoRobot
   }
   canister: { amount: number; capacity: number }
-  minerals: Record<string, number>
-  discoveries: { artifactIds: string[]; lifeClusterIds: string[] }
   resourceClusters: ResourceCluster[]
   collectedIds: string[]
   detector: { center: [number, number, number] | null; radius: number }
@@ -77,15 +97,10 @@ export interface RunState {
   // AUT-15/16: plants and antennas standing on the surface.
   structures: Structure[]
   structureCounter: number
-  // S1/S2, D-042: cave residents and the local disturbance they respond to. Kept per planet like terrain.
+  // D-045/D-046: sunk residents and their disturbance state are kept per planet like terrain.
   residents: Resident[]
   habitat: HabitatState
   simTick: number
-  flags: {
-    archive1379Found: boolean
-    echoArrayRepaired: boolean
-    emergencyExtractionUsed: boolean
-  }
 }
 
 export function createInitialRunState(seed: string): RunState {
@@ -93,10 +108,9 @@ export function createInitialRunState(seed: string): RunState {
     seed,
     mode: 'orbital',
     budget: { workCyclesRemaining: tuning.budget.workCycles, energy: tuning.budget.energyTotal },
-    metrics: { capital: tuning.economy.startingCapital, biosphere: tuning.ecology.baseline, developmentReadiness: 0, stability: 100, historicalSignificance: 0 },
+    metrics: { capital: tuning.economy.startingCapital, biosphere: tuning.ecology.baseline, developmentReadiness: 0, stability: 100 },
     planetRemaining: 1,
     hidden: {
-      planetaryMemory: 0,
       fragmentation: 0,
       // Placeholder for an intact sphere, not measured morphology.
       morphology: {
@@ -116,8 +130,6 @@ export function createInitialRunState(seed: string): RunState {
       autoRobot: 'miner',
     },
     canister: { amount: 0, capacity: tuning.canister.capacity },
-    minerals: {},
-    discoveries: { artifactIds: [], lifeClusterIds: [] },
     resourceClusters: generateResourceClusters(seed),
     collectedIds: [],
     detector: { center: null, radius: tuning.detector.radius },
@@ -133,7 +145,6 @@ export function createInitialRunState(seed: string): RunState {
     residents: spawnResidents(seed),
     habitat: { tick: 0, sources: [], candidates: [] },
     simTick: 0,
-    flags: { archive1379Found: false, echoArrayRepaired: false, emergencyExtractionUsed: false },
   }
 }
 

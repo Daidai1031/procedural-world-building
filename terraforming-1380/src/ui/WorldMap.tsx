@@ -77,7 +77,7 @@ export function WorldMap({ world, useRunStore, sites, positionRef, onLand, onClo
         const [x, y] = mapPoint(cluster.position)
         return <g key={cluster.id} transform={'translate(' + x + ' ' + y + ')'}><title>{cluster.category + ' / subsurface deposit'}</title>
           <circle r="9" fill={resourceColors[cluster.category]} stroke="#fbfaf6" strokeWidth="1.5" />
-          <text textAnchor="middle" y="3" fontSize="9" fill="#242720">{cluster.category === 'mineral' ? 'M' : cluster.category === 'life' ? 'L' : 'A'}</text></g>
+          <text textAnchor="middle" y="3" fontSize="9" fill="#242720">M</text></g>
       })}
       {layers.development && structures.map(structure => {
         const [x, y] = mapPoint(structure.position)
@@ -101,7 +101,7 @@ export function WorldMap({ world, useRunStore, sites, positionRef, onLand, onClo
       {sample.player && <g transform={'translate(' + mapPoint(sample.player).join(' ') + ')'}><circle r="8" fill="#426e9c" stroke="white" strokeWidth="2" /><text y="-13" textAnchor="middle" fontSize="12" fill="#253e59" stroke="#fff" strokeWidth="3" paintOrder="stroke">You</text></g>}
       <text x="8" y="16" fontSize="10" fill="#353632">90° N</text><text x="8" y="390" fontSize="10" fill="#353632">90° S</text>
     </svg>
-    <div className="map-legend"><span>◉ M Mineral · L Life · A Archive</span><span>▲ Plants · ■ Antennas</span><span className="map-cut">■ Excavated</span><span className="map-fill">■ Filled</span><span>↓ Landing</span></div>
+    <div className="map-legend"><span>◉ M Mineral</span><span>▲ Plants · ■ Antennas</span><span className="map-cut">■ Excavated</span><span className="map-fill">■ Filled</span><span>↓ Landing</span></div>
     <p className="map-note">Surface height map · subsurface resources projected to the surface · updates every second</p>
     <div className="map-summary"><span>{(remaining * 100).toFixed(1)}% planet remaining</span><span>{mined} minerals collected</span><span>{structures.filter(s => s.kind === 'plant').length} living plants</span><span>{sites.filter(s => s.available).length} landing sites available</span></div>
     <div className="landing-picker"><label>Landing site <select value={selected} onChange={event => setSelected(event.target.value)}>

@@ -90,7 +90,7 @@ export function createGardener() {
     body.cube(0, -4.3, 0, graphite).cube(0, -5.2, 0, moss, 0.75).cube(0, -5.9, 0, moss, 0.45)
     for (let x = -6; x <= -4; x += 1) for (let y = -2; y <= 2; y += 1) for (let z = -2; z <= 2; z += 1) {
       if (x === -4 && Math.abs(y) < 2 && Math.abs(z) < 2) continue
-      if (y === 2 && x !== -6 && Math.abs(z) < 2) { body.cube(x, y, z, modelMaterial(palette.resource.life), 0.8); continue }
+      if (y === 2 && x !== -6 && Math.abs(z) < 2) { body.cube(x, y, z, modelMaterial(palette.vegetation.tip), 0.8); continue }
       body.cube(x, y, z, Math.abs(z) === 2 || x === -6 ? graphite : modelMaterial(palette.robot.body))
     }
     body.build(object)

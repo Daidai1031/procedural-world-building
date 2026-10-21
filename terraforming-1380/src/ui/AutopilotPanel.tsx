@@ -12,7 +12,7 @@ const names: Record<CrewKind, string> = { miner: 'Miner', gardener: 'Gardener', 
 const jobs: Record<CrewKind, string> = {
   miner: 'Digs ore and sells it',
   gardener: 'Plants and raises antennas',
-  builder: 'Levels and fills ground',
+  builder: 'Repairs holes and trims obstructions',
 }
 const phaseText: Record<string, string> = {
   idle: 'Ready', scanning: 'Scanning', moving: 'Flying', digging: 'Digging', collecting: 'Collecting',

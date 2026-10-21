@@ -15,13 +15,13 @@ export type BuilderJob = 'flatten' | 'fill'
 export type BuilderPhase = 'idle' | 'scanning' | 'moving' | 'working' | 'paused' | 'stopped'
 export type BuilderStopReason = 'level' | 'no-soil' | 'blocked'
 
-// D-026: one robot that levels its area toward a single height, alternating cutting and filling.
+// D-026/D-050: one robot that repairs local holes first, then trims isolated obstructions.
 export interface BuilderState {
   id: string
   position: Vec3
   area: WorkArea | null
   phase: BuilderPhase
-  // Planet-centred radius the area is levelled to, measured when work starts.
+  // Seeded reference height retained for stable surveys and autopilot hand-off.
   level: number | null
   job: { kind: BuilderJob; ground: Vec3 } | null
   done: number
@@ -95,7 +95,7 @@ function areaPoints(world: PlanetWorld, seed: string, key: string, area: WorkAre
   return points
 }
 
-// The level is the mean ground height of the area when work starts.
+// A stable reference height for the area. D-050 no longer flattens every point to it.
 export function measureLevel(world: PlanetWorld, seed: string, robot: Pick<BuilderState, 'id' | 'area'>) {
   if (!robot.area) return null
   const points = areaPoints(world, seed, `${seed}:${robot.id}:level`, robot.area, rules.levelSamples)
@@ -105,8 +105,9 @@ export function measureLevel(world: PlanetWorld, seed: string, robot: Pick<Build
 
 // Ground the Builder must leave alone: near a plant or antenna, or on the line of a Miner's live tunnel.
 export function isProtected(store: RunStore, ground: Vec3, reach: number) {
-  const { structures, robots, resourceClusters } = store.getState()
+  const { structures, robots, residents, resourceClusters } = store.getState()
   if (structures.some(({ position }) => distance(position, ground) < reach + rules.structureMargin)) return true
+  if (residents.some(resident => [resident.position, resident.peek].some(point => point && distance(point, ground) < reach + rules.residentMargin))) return true
   return robots.some((miner) => {
     if (!['moving', 'digging', 'collecting'].includes(miner.phase)) return false
     if (distance(miner.position, ground) < rules.minerClearance + reach) return true
@@ -121,14 +122,37 @@ export function isProtected(store: RunStore, ground: Vec3, reach: number) {
 
 const reachOf = (kind: BuilderJob) => kind === 'flatten' ? rules.flattenRadius : rules.fillRadius
 
-// Flatten takes the highest ground above the level, fill the lowest below it.
-function survey(world: PlanetWorld, store: RunStore, robot: BuilderState, kind: BuilderJob, area: WorkArea, level: number) {
+function localSurfaceLevel(world: PlanetWorld, ground: Vec3) {
+  const up = unit(ground)
+  const tangent = Math.abs(up[1]) < 0.9 ? unit([-up[2], 0, up[0]]) : [1, 0, 0] as Vec3
+  const bitangent = unit([
+    up[1] * tangent[2] - up[2] * tangent[1],
+    up[2] * tangent[0] - up[0] * tangent[2],
+    up[0] * tangent[1] - up[1] * tangent[0],
+  ])
+  const radius = Math.max(0.5, Math.hypot(...ground))
+  const heights: number[] = []
+  for (let i = 0; i < rules.surfaceProbeSamples; i += 1) {
+    const angle = i * Math.PI * 2 / rules.surfaceProbeSamples
+    const side = add(scale(tangent, Math.cos(angle)), scale(bitangent, Math.sin(angle)))
+    const direction = unit(add(up, scale(side, rules.surfaceProbeRadius / radius)))
+    heights.push(Math.hypot(...groundPoint(world, direction)))
+  }
+  heights.sort((a, b) => a - b)
+  return heights[Math.floor(heights.length / 2)]
+}
+
+// A fill target must be a local depression, not merely the low side of a naturally sloped area.
+// Flatten is a fallback for a locally prominent obstruction; it no longer cuts every point above one global plane.
+function survey(world: PlanetWorld, store: RunStore, robot: BuilderState, kind: BuilderJob, area: WorkArea) {
   const { seed } = store.getState()
   let best: { ground: Vec3; off: number } | null = null
   for (const ground of areaPoints(world, seed, `${seed}:${robot.id}:survey:${robot.surveys}`, area, rules.candidates)) {
     const height = Math.hypot(...ground)
-    const off = kind === 'flatten' ? height - level : level - height
-    if (off <= rules.tolerance || isProtected(store, ground, reachOf(kind))) continue
+    const nearby = localSurfaceLevel(world, ground)
+    const off = kind === 'fill' ? nearby - height : height - nearby
+    const threshold = kind === 'fill' ? rules.minHoleDepth : rules.minBumpHeight
+    if (off <= threshold || isProtected(store, ground, reachOf(kind))) continue
     if (!best || off > best.off) best = { ground, off }
   }
   return best
@@ -143,8 +167,9 @@ function stop(robot: BuilderState, reason: BuilderStopReason) {
 // One bounded terrain edit at the end of a job. Flatten only cuts and returns the rock it removes; fill spends soil.
 function build(world: PlanetWorld, store: RunStore, kind: BuilderJob, ground: Vec3, level: number) {
   const direction = unit(ground)
+  const targetLevel = kind === 'flatten' ? localSurfaceLevel(world, ground) : level
   const result = kind === 'flatten'
-    ? world.edit('flatten', ((p) => ({ x: p[0], y: p[1] + HALF, z: p[2] }))(scale(direction, level)), rules.flattenRadius, 'radial', true)
+    ? world.edit('flatten', ((p) => ({ x: p[0], y: p[1] + HALF, z: p[2] }))(scale(direction, targetLevel)), rules.flattenRadius, 'radial', true)
     : world.edit('add', { x: ground[0], y: ground[1] + HALF, z: ground[2] }, rules.fillRadius)
   if (!result.changed) return
   store.setState((state) => ({
@@ -154,7 +179,7 @@ function build(world: PlanetWorld, store: RunStore, kind: BuilderJob, ground: Ve
     soil: Math.max(0, state.soil + result.removedSamples - result.addedSamples),
   }))
   pruneStructures(world, store)
-  notifyGroundChanged(store, ground, reachOf(kind))
+  notifyGroundChanged(store, ground, reachOf(kind), world)
   recordDisturbance(store, ground, 'robot', false)
 }
 
@@ -181,12 +206,12 @@ function stepBuilder(world: PlanetWorld, store: RunStore, source: BuilderState) 
     if (robot.phaseTicks < rules.scanTicks) return robot
     robot.phaseTicks = 0
     const canFill = store.getState().soil >= rules.fillCost
-    const order = [0, 1].map((offset) => rules.pattern[(robot.done + offset) % rules.pattern.length] as BuilderJob)
+    const order = rules.pattern as readonly BuilderJob[]
     let found: { ground: Vec3 } | null = null
     let kind: BuilderJob = order[0]
     let wantedFill = false
     for (const job of order) {
-      const candidate = survey(world, store, robot, job, area, level)
+      const candidate = survey(world, store, robot, job, area)
       robot.surveys += 1
       if (job === 'fill' && candidate && !canFill) {
         wantedFill = true

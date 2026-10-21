@@ -241,13 +241,34 @@ test('TOOL-04 radial flatten defaults to the planet-facing tangent plane', () =>
   assert.deepEqual(triangles(oblique.chunks), triangles(buildChunks(oblique.densityAt, oblique.resolution, 1, CHUNK_BORDER)))
 })
 
+test('D-048 keeps every mineral position unchanged across the mineral-only migration', () => {
+  const positionsBeforeD044 = [
+    [1.7174622022441317, 0.44063174096594376, -0.7625572093745543],
+    [-1.2358108980700884, 0.27575876632840113, 0.6609710863023397],
+    [0.15399435380392532, 0.577197587242331, -0.2592952105413721],
+    [-0.42698852681751537, 0.17303856986071778, 1.006425975114094],
+    [0.9052334335709449, -0.35059678427540847, 0.3173773543276138],
+    [0.053498596787922216, -0.6874241144339878, -0.37427916205200573],
+    [0.5942006743862053, -1.1393128085884214, 0.07525207413889144],
+    [-0.9638299757786644, -0.15133098182215549, -0.2098871361040838],
+    [0.31145277164936, -1.0931249811383994, 0.6055621157491644],
+    [-0.23283557159265694, -1.3701685340351162, 0.5379025466937378],
+    [0.8010505478431065, 0.1822865033875555, -0.4125189462753083],
+    [0.24428509904831372, 0.8033279044602925, 0.531425374915966],
+    [-1.3032839176022335, -0.2737866456590217, -0.11317986261760046],
+    [1.0524203583129033, 0.1101812382872728, 0.7975747336475583],
+  ]
+  assert.deepEqual(generateResourceClusters('1380').map(({ position }) => position), positionsBeforeD044)
+})
+
 test('DET-01/03 seeded targets start embedded and stay hidden until scanned or exposed', () => {
   const seed = 'detector-replay'
   const clusters = generateResourceClusters(seed)
   const world = new PlanetWorld(seed)
   assert.deepEqual(clusters, generateResourceClusters(seed))
   assert.notDeepEqual(clusters, generateResourceClusters('other-seed'))
-  assert.equal(clusters.length, 28)
+  assert.equal(clusters.length, 14)
+  assert.ok(clusters.every(({ category }) => category === 'mineral'))
   const exposed = clusters.filter((cluster) => isResourceExposed(world, cluster))
   const buried = clusters.filter((cluster) => !isResourceExposed(world, cluster))
   assert.equal(exposed.length, 0, 'every target starts embedded in the solid sphere')

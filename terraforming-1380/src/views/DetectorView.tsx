@@ -7,7 +7,7 @@ import { crystalClusterGeometry } from '../render/models/surfaceModels'
 import { createDistanceSignalMaterial } from '../render/distanceSignalMaterial'
 import { detectedClusters, isResourceExposed } from '../tools/detector'
 import type { PlanetWorld } from '../world/planet'
-import type { ResourceCategory, ResourceCluster } from '../world/resourceClusters'
+import type { ResourceCluster } from '../world/resourceClusters'
 import { VOXEL_WORLD_SIZE } from '../world/voxels/voxelMath.js'
 
 const colors = resourceColors
@@ -39,19 +39,15 @@ function ResourceMarker({ cluster, material, buried }: {
   buried: boolean
 }) {
   // D-027 resource B: a Mineral reads as a small crystal cluster, sized to the target's radius. Visual only.
-  const crystals = useMemo(() => cluster.category === 'mineral' ? crystalClusterGeometry(cluster.id) : null, [cluster])
+  const crystals = useMemo(() => crystalClusterGeometry(cluster.id), [cluster])
   useEffect(() => () => crystals?.dispose(), [crystals])
   const crystalScale = (cluster.radius * 1.6) / (crystals?.boundingSphere?.radius ?? 1)
-  const shape = crystals ? <primitive object={crystals} attach="geometry" />
-    : cluster.category === 'life' ? <torusGeometry args={[cluster.radius, cluster.radius * 0.25, 6, 12]} />
-      : <boxGeometry args={[cluster.radius * 1.5, cluster.radius * 1.5, cluster.radius * 1.5]} />
   return (
-    <mesh position={cluster.position} scale={crystals ? crystalScale : 1} renderOrder={buried ? 11 : 0} raycast={() => null}
+    <mesh position={cluster.position} scale={crystalScale} renderOrder={buried ? 11 : 0} raycast={() => null}
       material={material}>
-      {shape}
-      {!buried && (crystals
-        ? <meshStandardMaterial color={colors.mineral} roughness={0.4} metalness={0.35} emissive={palette.crystalGlow} emissiveIntensity={0.4} />
-        : <meshBasicMaterial color={colors[cluster.category]} />)}
+      <primitive object={crystals} attach="geometry" />
+      {!buried && <meshStandardMaterial color={colors.mineral} roughness={0.4} metalness={0.35}
+        emissive={palette.crystalGlow} emissiveIntensity={0.4} />}
     </mesh>
   )
 }
@@ -77,23 +73,21 @@ export function DetectorView({ world, clusters: allClusters, collectedIds, cente
   const wireMaterial = useMemo(() => center
     ? createDistanceSignalMaterial(center, radius, tuning.detector.fadeWidth, '#66645f', 0.38)
     : null, [center, radius])
-  const signalMaterials = useMemo(() => center
-    ? Object.fromEntries((Object.keys(colors) as ResourceCategory[]).map((category) => [category,
-      createDistanceSignalMaterial(center, radius, tuning.detector.fadeWidth, colors[category], 0.96),
-    ])) as Record<ResourceCategory, ReturnType<typeof createDistanceSignalMaterial>>
+  const signalMaterial = useMemo(() => center
+    ? createDistanceSignalMaterial(center, radius, tuning.detector.fadeWidth, colors.mineral, 0.96)
     : null, [center, radius])
 
   useEffect(() => () => wireframe?.dispose(), [wireframe])
   useEffect(() => () => wireMaterial?.dispose(), [wireMaterial])
-  useEffect(() => () => Object.values(signalMaterials ?? {}).forEach((material) => material.dispose()), [signalMaterials])
+  useEffect(() => () => signalMaterial?.dispose(), [signalMaterial])
 
   return (
     <>
       {exposed.map((cluster) => <ResourceMarker key={cluster.id} cluster={cluster} buried={false} />)}
       {active && wireframe && wireMaterial &&
         <lineSegments geometry={wireframe} material={wireMaterial} renderOrder={10} raycast={() => null} />}
-      {active && signalMaterials && buried.map((cluster) =>
-        <ResourceMarker key={cluster.id} cluster={cluster} material={signalMaterials[cluster.category]} buried />)}
+      {active && signalMaterial && buried.map((cluster) =>
+        <ResourceMarker key={cluster.id} cluster={cluster} material={signalMaterial} buried />)}
     </>
   )
 }

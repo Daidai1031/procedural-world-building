@@ -172,7 +172,8 @@ test('AUTO-11: Builders share one pass over the planet, take different sectors, 
   assert.equal(store.getState().autopilot.claimed, 2)
   assert.equal(new Set(store.getState().builders.map(b => b.area!.center.join())).size, 2)
   assert.ok(store.getState().builders.every(b => b.level === store.getState().autopilot.level), 'one level for the whole planet')
-  run(world, store, 60000, () => store.getState().builders.every(b => b.phase === 'stopped'))
+  run(world, store, 60000, () => store.getState().autopilot.claimed === sectors
+    && store.getState().builders.every(b => b.phase === 'stopped'))
   const done = store.getState()
   assert.ok(done.builders.every(b => b.phase === 'stopped'), 'the pass finished')
   assert.equal(done.autopilot.claimed, sectors)

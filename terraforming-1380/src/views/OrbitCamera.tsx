@@ -1,24 +1,33 @@
 import { useEffect } from 'react'
 import { useThree } from '@react-three/fiber'
+import { ORBIT_DISTANCE } from '../systems/systemView'
+import { systemViewFrame, useSystemView } from '../state/systemView'
 
 // VIEW-01: right drag orbits the camera. The planet itself never auto-rotates.
+// D-049: the angles are shared with SystemCamera. In orbit view this component places the camera; while the
+// view is pulled back SystemCamera does, and the wheel zooms the system instead of changing the brush.
 export function OrbitCamera({ onWheel }: { onWheel: (direction: number) => void }) {
   const { camera, gl } = useThree()
 
   useEffect(() => {
     const canvas = gl.domElement
     let dragging = false
-    let azimuth = Math.atan2(camera.position.x, camera.position.z)
-    let polar = Math.acos(Math.max(-1, Math.min(1, camera.position.y / camera.position.length())))
+    const angles = systemViewFrame
+    // After travelling the camera is brand new; the player's own angles carry over instead.
+    if (useSystemView.getState().phase !== 'arriving') {
+      angles.azimuth = Math.atan2(camera.position.x, camera.position.z)
+      angles.polar = Math.acos(Math.max(-1, Math.min(1, camera.position.y / camera.position.length())))
+    }
     let lastX = 0
     let lastY = 0
 
     camera.up.set(0, 1, 0)
     const updateCamera = () => {
+      if (useSystemView.getState().phase !== 'orbit') return
       camera.position.set(
-        8 * Math.sin(polar) * Math.sin(azimuth),
-        8 * Math.cos(polar),
-        8 * Math.sin(polar) * Math.cos(azimuth),
+        ORBIT_DISTANCE * Math.sin(angles.polar) * Math.sin(angles.azimuth),
+        ORBIT_DISTANCE * Math.cos(angles.polar),
+        ORBIT_DISTANCE * Math.sin(angles.polar) * Math.cos(angles.azimuth),
       )
       camera.lookAt(0, 0, 0)
     }
@@ -33,8 +42,8 @@ export function OrbitCamera({ onWheel }: { onWheel: (direction: number) => void 
     }
     const pointerMove = (event: PointerEvent) => {
       if (!dragging) return
-      azimuth -= (event.clientX - lastX) * 0.006
-      polar = Math.max(0.12, Math.min(Math.PI - 0.12, polar + (event.clientY - lastY) * 0.006))
+      angles.azimuth -= (event.clientX - lastX) * 0.006
+      angles.polar = Math.max(0.12, Math.min(Math.PI - 0.12, angles.polar + (event.clientY - lastY) * 0.006))
       lastX = event.clientX
       lastY = event.clientY
       updateCamera()
@@ -43,11 +52,12 @@ export function OrbitCamera({ onWheel }: { onWheel: (direction: number) => void 
       if (!dragging) return
       dragging = false
       if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId)
-      canvas.style.cursor = 'crosshair'
+      canvas.style.cursor = useSystemView.getState().phase === 'orbit' ? 'crosshair' : ''
     }
     const wheel = (event: WheelEvent) => {
       event.preventDefault()
-      onWheel(Math.sign(event.deltaY))
+      if (useSystemView.getState().phase === 'orbit') onWheel(Math.sign(event.deltaY))
+      else if (useSystemView.getState().phase === 'system') systemViewFrame.wheel += Math.sign(event.deltaY)
     }
     const contextMenu = (event: MouseEvent) => event.preventDefault()
 

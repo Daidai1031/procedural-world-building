@@ -14,16 +14,16 @@ export function hashSeed(seed: string) {
   return hash >>> 0
 }
 
-export interface PlanetConfig { radius: number; relief: number; minerals: number; life: number }
+export interface PlanetConfig { radius: number; relief: number; minerals: number; residents: number }
 
 // PLN-02, D-041: the starting conditions of a planet. The home seed keeps the original values; a planet found by a
 // signal reads each property from a different byte of its hash, so size, relief and abundance vary independently.
 export function planetConfig(seed: string): PlanetConfig {
-  const { home, radius, relief, minerals, life } = tuning.planets
+  const { home, radius, relief, minerals, residents } = tuning.planets
   if (!seed.includes('/signal-')) return home
   const hash = hashSeed(`${seed}:config`)
   const pick = ([min, max]: readonly number[], shift: number) => min + ((hash >>> shift) & 255) / 255 * (max - min)
-  return { radius: pick(radius, 0), relief: pick(relief, 8), minerals: pick(minerals, 16), life: pick(life, 24) }
+  return { radius: pick(radius, 0), relief: pick(relief, 8), minerals: pick(minerals, 16), residents: pick(residents, 24) }
 }
 
 function createBaseField(seed: string) {
@@ -72,7 +72,7 @@ export function burrowSites(seed: string): Burrow[] {
     const h = random() * 2 - 1, a = random() * Math.PI * 2, r = Math.sqrt(1 - h * h)
     return [Math.cos(a) * r, h, Math.sin(a) * r]
   }
-  const groups = Math.max(1, Math.round(burrows.groups * planetConfig(seed).life))
+  const groups = Math.max(1, Math.round(burrows.groups * planetConfig(seed).residents))
   const out: Burrow[] = []
   for (let g = 0; g < groups; g++) {
     const center = randomDirection()

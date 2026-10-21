@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { RobotPreview } from './RobotPreview'
 import { RobotHelp } from './RobotHelp'
 import type { AutoRobot, createRunStore } from '../state/runState'
@@ -6,6 +6,7 @@ import { GardenerPanel } from './GardenerPanel'
 import { BuilderPanel } from './BuilderPanel'
 import { pauseRobot, setWorkArea, startRobot, type RobotPhase, type StopReason } from '../systems/miner'
 import { tuning } from '../config/tuning'
+import { AutopilotSetup, AutopilotRunning } from './AutopilotPanel'
 
 const phaseText: Record<RobotPhase, string> = {
   idle: 'Ready', scanning: 'Scanning', moving: 'Flying to site',
@@ -19,17 +20,53 @@ const running = ['scanning', 'moving', 'digging', 'collecting']
 const names: Record<AutoRobot, string> = { miner: 'Miner', gardener: 'Gardener', builder: 'Builder' }
 
 // D-025: Auto mode holds one panel per robot; the selected robot is the one a planet click places.
-export function AutoPanel({ useRunStore, onMessage }: {
+// D-043 updated: Autopilot is now a sub-mode within Auto, not a separate top-level mode.
+export function AutoPanel({ useRunStore, onMessage, onStartAutopilot, onCancelAutopilot }: {
   useRunStore: ReturnType<typeof createRunStore>
   onMessage: (message: string) => void
+  onStartAutopilot?: () => void
+  onCancelAutopilot?: () => void
 }) {
+  const autopilotEnabled = useRunStore(s => s.autopilot.enabled)
+  const [showAutopilot, setShowAutopilot] = useState(false)
   const selected = useRunStore((state) => state.loadout.autoRobot)
   const choose = (robot: AutoRobot) => {
     useRunStore.setState((state) => ({ loadout: { ...state.loadout, autoRobot: robot } }))
     onMessage(`Left click the surface to place the ${names[robot]}`)
   }
+
+  // 如果 Autopilot 正在运行，显示 Autopilot 运行面板
+  if (autopilotEnabled && onCancelAutopilot) {
+    return <AutopilotRunning useRunStore={useRunStore} onCancel={() => {
+      onCancelAutopilot()
+      setShowAutopilot(false)
+    }} />
+  }
+
+  // 如果显示 Autopilot 设置，显示设置面板
+  if (showAutopilot && onStartAutopilot) {
+    return <div className="autopilot-wrapper">
+      <button type="button" className="btn btn-quiet" style={{ marginBottom: '12px' }} onClick={() => setShowAutopilot(false)}>
+        ← Back to crew stations
+      </button>
+      <AutopilotSetup useRunStore={useRunStore} onStart={() => {
+        onStartAutopilot()
+        setShowAutopilot(false)
+      }} />
+    </div>
+  }
+
   return <>
-    <p className="kicker">Auto · crew stations / 03</p>
+    <div className="autopilot-header">
+      <p className="kicker">Auto · crew stations / 03</p>
+      <button type="button" className="btn-autopilot"
+        onClick={() => {
+          setShowAutopilot(true)
+          onMessage('Choose crew for Autopilot')
+        }}>
+        ⚙ Autopilot
+      </button>
+    </div>
     <div className="crew-stations">
       {(['miner', 'gardener', 'builder'] as const).map((robot) => <section className="crew-station" data-selected={selected === robot} key={robot} aria-label={names[robot] + ' controls'} tabIndex={0}
         onClick={(event) => {

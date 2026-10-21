@@ -32,8 +32,6 @@ export function ManualPanel({ useRunStore, tool, terrainMode, flattenOrientation
       <p className="hint">Click the planet to reveal wireframe and buried signals within a small area.</p>
       <ul className="legend">
         <li style={{ color: resourceColors.mineral }}>◇ Mineral</li>
-        <li style={{ color: resourceColors.life }}>○ Life</li>
-        <li style={{ color: resourceColors.memory }}>□ Memory</li>
       </ul>
       <dl className="facts"><dt>Signals in scan</dt><dd>{detectorCount ?? '—'}</dd></dl>
     </> : <>

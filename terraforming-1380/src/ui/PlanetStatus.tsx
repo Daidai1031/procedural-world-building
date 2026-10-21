@@ -23,16 +23,16 @@ export function PlanetStatus({ useRunStore }: { useRunStore: ReturnType<typeof c
     <p className="kicker">Planet condition</p>
     <div className="planet-remaining"><strong>{(remaining * 100).toFixed(1)}%</strong><span>Planet remaining</span></div>
     <dl className="planet-indicators">
-      {([['Biosphere', biosphere, 'Living plants, terrain retained and disturbed life sites'],
+      {([['Biosphere', biosphere, 'Living plants and retained terrain'],
         ['Prepared ground', development, 'Estimate from terrain shaped by the Builder, weighted by remaining mass'],
         ['Stability', stability, 'Estimate from remaining mass; local structural failures are not yet simulated']] as const).map(([name, value, description]) =>
         <div key={name} title={description}><dt>{name}<small>estimated</small></dt><dd>{value.toFixed(1)}<small>/100</small></dd>
           <meter min={0} max={100} value={value} aria-label={name} /></div>)}
     </dl>
-    <p className="planet-life">{plants} living plants <span>·</span> {antennas} antennas</p>
+    <p className="planet-meta">{plants} living plants <span>·</span> {antennas} antennas</p>
     <button className="broadcast" disabled={!antennas || sending || bankrupt} onClick={send}>
       {sending ? 'Broadcasting…' : antennas ? `Broadcast signal · ${antennas} antenna${antennas === 1 ? '' : 's'}` : 'Broadcast needs an antenna'}
     </button>
-    <p className="planet-life">{broadcasts ? `${broadcasts} signal${broadcasts === 1 ? '' : 's'} sent` : 'No signal sent yet'}</p>
+    <p className="planet-meta">{broadcasts ? `${broadcasts} signal${broadcasts === 1 ? '' : 's'} sent` : 'No signal sent yet'}</p>
   </section>
 }

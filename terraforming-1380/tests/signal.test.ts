@@ -73,7 +73,7 @@ test('PLN-T2: home keeps its values; signal planets vary size, relief and abunda
   const { generateResourceClusters } = await import('../src/world/resourceClusters')
   assert.deepEqual(planetConfig('home'), tuning.planets.home)
   const configs = Array.from({ length: 40 }, (_, i) => planetConfig(`home/signal-${i + 1}`))
-  for (const key of ['radius', 'relief', 'minerals', 'life'] as const) {
+  for (const key of ['radius', 'relief', 'minerals', 'residents'] as const) {
     const values = configs.map(c => c[key])
     const [min, max] = tuning.planets[key]
     assert.ok(values.every(v => v >= min && v <= max), key)

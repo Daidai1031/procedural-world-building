@@ -1,12 +1,11 @@
-export type PlayMode = 'auto' | 'manual' | 'autopilot'
+export type PlayMode = 'auto' | 'manual'
 
 const options: { mode: PlayMode; title: string }[] = [
   { mode: 'auto', title: 'Auto' },
   { mode: 'manual', title: 'Manual' },
-  { mode: 'autopilot', title: 'Autopilot' },
 ]
 
-// Auto (robots follow rules), Manual (the player edits terrain) and Autopilot (the crew runs the whole planet) are separate modes with separate panels.
+// Auto (robots follow rules, with optional Autopilot) and Manual (the player edits terrain) are the two main modes.
 export function ModeSwitch({ mode, onChange }: { mode: PlayMode; onChange: (mode: PlayMode) => void }) {
   return (
     <div className="mode-switch" role="radiogroup" aria-label="Play mode" data-mode={mode}>

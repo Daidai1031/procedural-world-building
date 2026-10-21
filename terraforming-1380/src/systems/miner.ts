@@ -197,7 +197,7 @@ function stepRobot(world: PlanetWorld, store: RunStore, source: MiningRobotState
     // D-026: the rock the Miner removes becomes soil the Builder can fill with.
     store.setState((state) => ({ planetRemaining: world.planetRemaining, soil: state.soil + edit.removedSamples }))
     pruneStructures(world, store)
-    notifyGroundChanged(store, next, miner.digRadius)
+    notifyGroundChanged(store, next, miner.digRadius, world)
     recordDisturbance(store, next, 'robot', edit.removedSamples > 0)
   }
   if (isEmptyAt(world, next)) {
@@ -210,8 +210,8 @@ function stepRobot(world: PlanetWorld, store: RunStore, source: MiningRobotState
       return robot
     }
   }
-  // AUT-06: only Minerals are mined; Life and Memory stay where they are.
-  const found = collectExposedResources(world, store, ['mineral'])
+  // AUT-06, D-044: Mineral is the only resource.
+  const found = collectExposedResources(world, store)
   if (found.length > 0) {
     collected.push(...found)
     robot.collectedMinerals += found.length

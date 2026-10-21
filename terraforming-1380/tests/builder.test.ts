@@ -58,8 +58,8 @@ test('Miner digging puts soil in stock', () => {
   assert.ok(store.getState().soil > 0)
 })
 
-// D-026: flatten and fill alternate, and the area ends up more level than it started.
-test('the Builder alternates flatten and fill and levels its area', () => {
+// D-050: local holes are repaired before isolated high points are trimmed.
+test('the Builder prioritizes filling local holes and reduces roughness', () => {
   const { world, store, center } = minedSite()
   const radius = tuning.builder.area.default
   const before = spread(heights(world, center, radius))
@@ -68,10 +68,9 @@ test('the Builder alternates flatten and fill and levels its area', () => {
   const jobs = runBuilder(world, store, 30000)
   assert.equal(builderOf(store).phase, 'stopped')
   assert.ok(['level', 'no-soil'].includes(builderOf(store).stopReason!))
-  assert.ok(jobs.some(({ kind }) => kind === 'flatten'))
   assert.ok(jobs.some(({ kind }) => kind === 'fill'))
-  // The pattern is flatten, fill; a job only repeats when the other had nothing to do.
-  assert.equal(jobs[0].kind, 'flatten')
+  assert.equal(jobs[0].kind, 'fill')
+  assert.ok(jobs.filter(({ kind }) => kind === 'fill').length >= jobs.filter(({ kind }) => kind === 'flatten').length)
   assert.ok(spread(heights(world, center, radius)) < before)
 })
 
@@ -110,6 +109,13 @@ test('the Builder never shapes ground next to a plant or antenna', () => {
     assert.ok(distance(job.ground, plantAt) >= reach + tuning.builder.structureMargin)
   }
   assert.ok(store.getState().structures.length >= planted, 'the plant is still standing')
+})
+
+test('the Builder treats residents as protected ground', () => {
+  const world = new PlanetWorld('1380')
+  const store = createRunStore('1380')
+  const resident = store.getState().residents[0]
+  assert.equal(isProtected(store, resident.position, tuning.builder.fillRadius), true)
 })
 
 // It does not shape ground on the line of a tunnel a Miner is digging.

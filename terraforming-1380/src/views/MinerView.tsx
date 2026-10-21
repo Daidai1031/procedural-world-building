@@ -94,10 +94,10 @@ export function MinerView({ world, store, robotId, active, selected }: {
     if (debris.current) {
       pool.forEach((piece, index) => {
         piece.age += delta
-        const life = Math.max(0, 1 - piece.age / DEBRIS_SECONDS)
+        const opacity = Math.max(0, 1 - piece.age / DEBRIS_SECONDS)
         piece.p.addScaledVector(piece.v, delta)
         scratch.position.copy(piece.p)
-        scratch.scale.setScalar(0.035 * life)
+        scratch.scale.setScalar(0.035 * opacity)
         scratch.updateMatrix()
         debris.current!.setMatrixAt(index, scratch.matrix)
       })

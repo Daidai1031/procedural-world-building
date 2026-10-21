@@ -129,7 +129,9 @@ export function createAtmosphere(seed: string) {
     group.add(points)
     return points
   })
-  const halo = new Mesh(haloGeometry(seed, surfaceRadius), haloMaterial(color, settings.strength * settings.haloOpacity))
+  const haloOpacity = settings.strength * settings.haloOpacity
+  const pointOpacity = Math.min(1, 1.7 * settings.strength)
+  const halo = new Mesh(haloGeometry(seed, surfaceRadius), haloMaterial(color, haloOpacity))
   halo.raycast = () => {}
   group.add(halo)
   return {
@@ -138,6 +140,12 @@ export function createAtmosphere(seed: string) {
     update(seconds: number) {
       layers[0].rotation.y = seconds * settings.drift.inner
       layers[1].rotation.y = seconds * settings.drift.outer
+    },
+    // D-049: the dust fades out as the camera pulls back; 1 is the normal look.
+    setFade(amount: number) {
+      group.visible = amount > 0.001
+      for (const layer of layers) (layer.material as PointsMaterial).opacity = pointOpacity * amount
+      ;(halo.material as ShaderMaterial).uniforms.uOpacity.value = haloOpacity * amount
     },
     dispose() {
       group.traverse((object) => {

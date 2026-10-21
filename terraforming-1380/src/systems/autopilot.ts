@@ -15,7 +15,7 @@ export type CrewKind = 'miner' | 'gardener' | 'builder'
 export const crewKinds: CrewKind[] = ['miner', 'gardener', 'builder']
 
 // What the controller remembers about one robot between ticks.
-export interface CrewMemory {
+export interface CrewProgress {
   // The sector the robot was last sent to.
   cursor: number
   // Sectors in a row that gave no work; a whole lap of them sends the robot to rest.
@@ -36,12 +36,12 @@ export interface AutopilotState {
   autoBroadcast: boolean
   // Funds are low: Gardeners and Builders wait while the Miners earn.
   holding: boolean
-  // The one height every Builder levels to, measured over the whole planet when Autopilot starts.
+  // Stable Builder reference height measured when Autopilot starts.
   level: number | null
   // Builder sectors handed out so far; they are claimed in order and never revisited.
   claimed: number
   lastBroadcastTick: number | null
-  crew: Record<string, CrewMemory>
+  crew: Record<string, CrewProgress>
 }
 
 // D-043: the "whole planet" is a ring of overlapping sectors; sector k of n is the k-th point of a Fibonacci sphere.
@@ -83,11 +83,11 @@ const working = (phase: string) => !['idle', 'paused', 'stopped'].includes(phase
 // What each kind has produced so far: minerals mined, structures placed, terrain jobs done.
 const progressOf = (kind: CrewKind, robot: Robot) => (kind === 'miner' ? robot.collectedMinerals : kind === 'gardener' ? robot.placed : robot.done) as number
 
-const fresh = (cursor: number, progress: number): CrewMemory => ({ cursor, laps: 0, misses: 0, progress, restUntil: 0, sectorStart: progress, retired: false })
+const fresh = (cursor: number, progress: number): CrewProgress => ({ cursor, laps: 0, misses: 0, progress, restUntil: 0, sectorStart: progress, retired: false })
 
 function send(store: RunStore, world: PlanetWorld, kind: CrewKind, id: string, cursor: number) {
   crews[kind].setArea(store, id, sectorArea(world, kind, cursor))
-  // Sectors overlap, so Builders that each took their own local mean would keep undoing one another.
+  // Give overlapping Builder sectors the same stable reference sample.
   if (kind === 'builder') {
     const { level } = store.getState().autopilot
     store.setState((state) => ({ builders: state.builders.map((robot) => robot.id === id ? { ...robot, level } : robot) }))
@@ -110,7 +110,7 @@ export function startAutopilot(store: RunStore, world: PlanetWorld, requested: R
       claimed: 0,
       level: measureLevel(world, seed, { id: 'autopilot', area: { center: [0, 0, 0], radius: 2 * VOXEL_WORLD_SIZE } }) },
   }))
-  const crew: Record<string, CrewMemory> = {}
+  const crew: Record<string, CrewProgress> = {}
   for (const kind of crewKinds) {
     crews[kind].list(store.getState()).forEach((robot, index, all) => {
       // Spread each kind around the ring so robots of one kind start in different sectors.
@@ -158,7 +158,7 @@ export function stepAutopilot(world: PlanetWorld, store: RunStore) {
   const tick = first.simTick
   const capital = first.metrics.capital
   const holding = first.autopilot.holding ? capital < rules.resumeAbove : capital <= rules.holdBelow
-  const memory: Record<string, CrewMemory> = { ...first.autopilot.crew }
+  const crewProgress: Record<string, CrewProgress> = { ...first.autopilot.crew }
   let changed = holding !== first.autopilot.holding
   let claimed = first.autopilot.claimed
 
@@ -166,11 +166,11 @@ export function stepAutopilot(world: PlanetWorld, store: RunStore) {
     const sectors = rules[kind].sectors
     crews[kind].list(first).forEach((source, index, all) => {
       const robot = source as unknown as Robot
-      const known = memory[robot.id] ?? fresh(kind === 'builder' ? index : Math.floor(index * sectors / all.length), progressOf(kind, robot))
+      const known = crewProgress[robot.id] ?? fresh(kind === 'builder' ? index : Math.floor(index * sectors / all.length), progressOf(kind, robot))
       const mine = { ...known }
       const progress = progressOf(kind, robot)
       if (progress > mine.progress) { mine.progress = progress; mine.misses = 0; mine.laps = 0 }
-      if (mine.misses !== known.misses || mine.laps !== known.laps || mine.progress !== known.progress || !memory[robot.id]) { memory[robot.id] = mine; changed = true }
+      if (mine.misses !== known.misses || mine.laps !== known.laps || mine.progress !== known.progress || !crewProgress[robot.id]) { crewProgress[robot.id] = mine; changed = true }
 
       if (crews[kind].holdable && holding) {
         if (working(robot.phase)) crews[kind].pause(store, robot.id)
@@ -195,7 +195,7 @@ export function stepAutopilot(world: PlanetWorld, store: RunStore) {
           mine.sectorStart = progress
           send(store, world, kind, robot.id, mine.cursor)
         }
-        memory[robot.id] = mine
+        crewProgress[robot.id] = mine
         changed = true
         return
       }
@@ -216,7 +216,7 @@ export function stepAutopilot(world: PlanetWorld, store: RunStore) {
         mine.cursor = (mine.cursor + 1) % sectors
         send(store, world, kind, robot.id, mine.cursor)
       }
-      memory[robot.id] = mine
+      crewProgress[robot.id] = mine
       changed = true
     })
   }
@@ -226,7 +226,7 @@ export function stepAutopilot(world: PlanetWorld, store: RunStore) {
     && (autopilot.lastBroadcastTick === null || simTick - autopilot.lastBroadcastTick >= rules.broadcastEvery)
   const sent = due && broadcast(store)
   if (changed || sent) {
-    store.setState((state) => ({ autopilot: { ...state.autopilot, holding, crew: memory, claimed,
+    store.setState((state) => ({ autopilot: { ...state.autopilot, holding, crew: crewProgress, claimed,
       lastBroadcastTick: sent ? simTick : state.autopilot.lastBroadcastTick } }))
   }
 }

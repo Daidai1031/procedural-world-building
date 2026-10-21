@@ -44,7 +44,7 @@ export function BuilderPanel({ useRunStore, onMessage }: {
   return <>
     <div className="panel-title">
       <h2>Builder 01</h2>
-      <RobotHelp name="Builder" action="Press Start: cut high ground and fill low ground" />
+      <RobotHelp name="Builder" action="Press Start: fill local holes, then trim isolated bumps" />
       <span className="status" data-stopped={phase === 'stopped'}>
         {phase === 'working' && job ? (job === 'flatten' ? 'Flattening' : 'Filling') : phaseText[phase]}
       </span>

@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef } from 'react'
 import type { ResourceCategory } from '../world/resourceClusters'
 import { resourceColors } from '../config/resourceColors'
 
-export const resourceGlyphs: Record<ResourceCategory, string> = { mineral: '◇', life: '○', memory: '□' }
+export const resourceGlyphs: Record<ResourceCategory, string> = { mineral: '◇' }
 
 export interface CollectFlight { key: string; category: ResourceCategory; from: { x: number; y: number } }
 

@@ -29,7 +29,7 @@ export function useTerrainTool(world: PlanetWorld, store: RunStore, mode: Terrai
   if (result.changed) {
     billManualTerrain(store, result.removedSamples + result.addedSamples)
     store.setState({ planetRemaining: world.planetRemaining })
-    notifyGroundChanged(store, [point.x, point.y - HALF, point.z], mode === 'flatten' ? radius * Math.SQRT2 : radius)
+    notifyGroundChanged(store, [point.x, point.y - HALF, point.z], mode === 'flatten' ? radius * Math.SQRT2 : radius, world)
     recordDisturbance(store, [point.x, point.y - HALF, point.z], 'manual', result.removedSamples > 0)
   }
   return result

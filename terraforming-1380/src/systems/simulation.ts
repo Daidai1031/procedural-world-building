@@ -6,8 +6,9 @@ import { stepBuilders } from './builder'
 import { stepGardeners } from './gardener'
 import { stepMiners } from './miner'
 import { stepStructures } from './structures'
+import { stepResidents } from './residents'
 
-// AUT-11: one fixed simulation step in a stable order: Autopilot (when on), Miners, Gardener, Builder, then plant growth.
+// AUT-11 / RES: one fixed simulation step in a stable order. Residents hear terrain work from this same tick.
 // Returns the resources collected during the step.
 export function stepSimulation(world: PlanetWorld, store: ReturnType<typeof createRunStore>) {
   stepAutopilot(world, store)
@@ -16,6 +17,7 @@ export function stepSimulation(world: PlanetWorld, store: ReturnType<typeof crea
   stepGardeners(world, store)
   stepBuilders(world, store)
   stepStructures(world, store)
+  stepResidents(world, store)
   store.setState((state) => ({ simTick: state.simTick + 1 }))
   updateSiteIndicators(store)
   return collected

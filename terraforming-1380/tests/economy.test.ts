@@ -4,14 +4,13 @@ import { createRunStore } from '../src/state/runState'
 import { billElectricity, powerDemand, sellMinerals, siteIndicators } from '../src/systems/economy'
 import { tuning } from '../src/config/tuning'
 
-test('selling transfers inventory to capital exactly once, leaving discoveries unchanged', () => {
+test('selling transfers mineral inventory to capital exactly once', () => {
   const store = createRunStore('economy')
-  store.setState(s => ({ economy: { ...s.economy, mineralStock: 3 }, discoveries: { lifeClusterIds: ['life'], artifactIds: ['archive'] } }))
+  store.setState(s => ({ economy: { ...s.economy, mineralStock: 3 } }))
   assert.equal(sellMinerals(store), 3 * tuning.economy.mineralPrice)
   assert.equal(store.getState().metrics.capital, tuning.economy.startingCapital + 3 * tuning.economy.mineralPrice)
   assert.equal(store.getState().economy.mineralStock, 0)
   assert.equal(sellMinerals(store), 0)
-  assert.deepEqual(store.getState().discoveries, { lifeClusterIds: ['life'], artifactIds: ['archive'] })
 })
 
 test('electricity is charged per simulated minute, only for running robots', () => {
@@ -43,12 +42,12 @@ test('funds go into debt while running and bankruptcy ends billing and sales at 
   assert.equal(store.getState().economy.mineralStock, 1)
 })
 
-test('plant loss, life disturbance and terrain loss reduce ecological estimates', () => {
+test('plants and retained terrain determine ecological estimates', () => {
   const store = createRunStore('ecology')
   const baseline = siteIndicators(store.getState())
   store.setState({ structures: [{ id: 'p', kind: 'plant', position: [0, 1, 0], normal: [0, 1, 0], bornTick: 0 }] })
   assert.ok(siteIndicators(store.getState()).biosphere > baseline.biosphere)
-  store.setState(s => ({ structures: [], planetRemaining: 0.8, discoveries: { ...s.discoveries, lifeClusterIds: ['l'] }, economy: { ...s.economy, preparedSamples: 1000 } }))
+  store.setState(s => ({ structures: [], planetRemaining: 0.8, economy: { ...s.economy, preparedSamples: 1000 } }))
   const result = siteIndicators(store.getState())
   assert.ok(result.biosphere < baseline.biosphere)
   assert.equal(result.stability, 80)
@@ -82,13 +81,13 @@ test('minerals are sold the moment they are collected, once each', async () => {
   const [x, y, z] = mineral.position
   world.edit('dig', { x, y: y + VOXEL_WORLD_SIZE / 2, z }, mineral.radius + 1.2, 'radial')
   const before = store.getState().metrics.capital
-  const found = collectExposedResources(world, store, ['mineral'])
-  const n = found.filter(c => c.category === 'mineral').length
+  const found = collectExposedResources(world, store)
+  const n = found.length
   assert.ok(n >= 1)
   const state = store.getState()
   assert.equal(state.economy.mineralStock, 0)
   assert.equal(state.economy.mineralsSold, n)
   assert.ok(Math.abs(state.metrics.capital - before - n * tuning.economy.mineralPrice) < 1e-8)
-  assert.equal(collectExposedResources(world, store, ['mineral']).length, 0)
+  assert.equal(collectExposedResources(world, store).length, 0)
   assert.equal(store.getState().economy.mineralsSold, n)
 })

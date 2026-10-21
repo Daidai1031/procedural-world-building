@@ -1,9 +1,12 @@
 import type { createRunStore } from '../state/runState'
 import { tuning } from '../config/tuning'
 import { distance, type Vec3 } from './geometry'
+import type { PlanetWorld } from '../world/planet'
+import { reconcileResidentsAfterGroundChange } from './residents'
 
 // Only wake an armed Gardener whose work area intersects the edited ground.
-export function notifyGroundChanged(store: ReturnType<typeof createRunStore>, center: Vec3, radius: number) {
+export function notifyGroundChanged(store: ReturnType<typeof createRunStore>, center: Vec3, radius: number, world?: PlanetWorld) {
+  if (world) reconcileResidentsAfterGroundChange(world, store, center, radius)
   const state = store.getState()
   if (state.structures.filter(s => s.kind === 'plant').length >= tuning.structures.maxPlants
     && state.structures.filter(s => s.kind === 'antenna').length >= tuning.structures.maxAntennas) return

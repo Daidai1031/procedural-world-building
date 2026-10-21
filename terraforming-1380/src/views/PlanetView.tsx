@@ -100,8 +100,8 @@ export function PlanetView({ world, baseRadius, clusters, collectedIds, radius, 
         <meshBasicMaterial color="#66645f" transparent opacity={0.3} wireframe depthTest={false} depthWrite={false} />
       </mesh>
       <mesh ref={areaPreview} visible={false} scale={areaRadius} raycast={() => null}>
-        <sphereGeometry args={[1, 20, 14]} />
-        <meshBasicMaterial color="#454641" transparent opacity={0.3} wireframe depthTest={false} depthWrite={false} />
+        <sphereGeometry args={[1, 14, 9]} />
+        <meshBasicMaterial color="#6b6a64" transparent opacity={0.12} wireframe depthWrite={false} />
       </mesh>
       <group ref={planePreview} visible={false} scale={radius}>
         <mesh raycast={() => null}>
