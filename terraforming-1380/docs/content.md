@@ -3,7 +3,7 @@
 | | |
 | --- | --- |
 | **Status** | Draft v0.2 — sandbox copy and current/legacy separation |
-| **Last updated** | 2026-10-20 |
+| **Last updated** | 2026-10-21 |
 | **Purpose** | Every line the player reads, and every classification, in one place. Easy to edit, easy to review for tone. |
 | **Rule** | Entries use stable draft keys. Planned text is not implemented JSON. Some current UI text is still inline; verify its runtime location before changing it. |
 
@@ -112,7 +112,6 @@ Use the right-hand phrase for anything the company says.
 
 | Reality | Key | Company phrase |
 | --- | --- | --- |
-| Life | `vocab.life` | Non-commercial biomass |
 | Ruins | `vocab.ruins` | Obsolete settlement material |
 | Ecological damage | `vocab.damage` | Site preparation |
 | Mass dug away | `vocab.mass` | Exported resources |
@@ -233,7 +232,7 @@ CONTRACT PERIOD COMPLETE
 ```text
 Scanning planetary geometry...
 Calculating remaining mass...
-Auditing unregistered life...
+Auditing resident distribution...
 Searching for unauthorized transmissions...
 Estimating shareholder value...
 Checking cosmic observers...
@@ -328,7 +327,7 @@ A BRIEFLY FAMOUS GREEN PINEAPPLE
 | :-: | --- | --- | --- | --- |
 | ✔ | `concrete_paper` | A Reinforced-Concrete Sheet of Paper | Extremely flat, lots of construction, stable, very low mass | Planned so safely it barely counts as a planet |
 | ✔ | `chip_crumbs` | A Historically Significant Pile of Chip Crumbs | Heavy fragmentation, high Historical Significance | Destruction packaged as progress |
-| ✔ | `green_pineapple` | A Biodiverse Green Pineapple | High Biosphere, spiky surface | Full of life, not safe to approach |
+| ✔ | `green_pineapple` | A Biodiverse Green Pineapple | High Biosphere, spiky surface | Thick with plants, not safe to approach |
 | ✔ | `treasure_hedgehog` | A Treasure-Stuffed Hedgehog | High mineral value, many mines and spikes | Very rich, very hard to approach |
 | ✔ | `tax_haven_doughnut` | A Luxury Tax-Haven Doughnut | Ring shape with a through-hole, high Capital and facilities | Corporate optimization turned into geometry |
 | ✔ | `soap_bubble` | A Very Expensive Soap Bubble | Hollow thin shell, high valuation, low Stability | A commercial myth that pops at a touch |
@@ -336,7 +335,6 @@ A BRIEFLY FAMOUS GREEN PINEAPPLE
 |  | `moldy_meatball` | A Moldy Meatball | Near-spherical, high Biosphere, low Stability | Alive, but can't be kept |
 |  | `expensive_parking_lot` | An Expensive Parking Lot | Flat, connected, stable; high Development Readiness, low Biosphere | Convenient for further development, no living world |
 |  | `breathing_swiss_cheese` | A Breathing Swiss Cheese | Many tunnels, high Biosphere | A damaged planet whose interior still holds an ecosystem |
-|  | `ghost_mooncake` | A Ghost-Filled Mooncake | Intact shell, high Planetary Memory | Looks ordinary, full of buried history |
 |  | `corporate_wedding_cake` | A Corporate Wedding Cake | Many regular tiered platforms, high Development Readiness and Capital | Space and class planned together |
 |  | `pyramid_scheme` | An Interstellar Pyramid Scheme | Pyramid form, high corporate value and monuments | Geometry and business meaning collide |
 |  | `misplaced_baguette` | A Baguette in the Wrong Galaxy | Extremely elongated, no clear function | Creativity escaping every plan metric |
@@ -347,7 +345,6 @@ A BRIEFLY FAMOUS GREEN PINEAPPLE
 
 | Key | Name | Condition |
 | --- | --- | --- |
-| `museum_nobody_visits` | A Museum Nobody Can Visit | Very high Planetary Memory, very low Development Readiness |
 | `pineapple_with_mortgage` | A Pineapple With a Mortgage | High Biosphere and Development Readiness, but negative Capital |
 | `expensive_hole` | A Very Expensive Hole | Extremely high Capital, almost no mass left |
 | `valuable_basketball` | Humanity's Most Valuable Basketball | Very small, near-spherical, very profitable |
@@ -375,7 +372,7 @@ To be written. Suggested shape: one short sentence per fate, in company voice fo
 ## 10. Unwritten (to fill as the game grows)
 
 - Extraction Terminal dialogue and sale confirmations
-- Bioscan Lab results for each life cluster type
+- Resident observation variants for each native species
 - Additional archive fragments (Stretch)
 - Fate lines (8.3)
 - Tooltips and onboarding prompts
@@ -385,6 +382,7 @@ To be written. Suggested shape: one short sentence per fate, in company voice fo
 
 ## Change log
 
+- **2026-10-21 / D-044:** Removed obsolete resource-category copy; Mineral is the only resource.
 - **2026-10-20 / D-034–038:** Added draft resident observations, descriptive planet labels and compact operating guidance; separated proposed copy from current runtime and legacy narrative text. No JSON or inline UI strings were changed.
 
 

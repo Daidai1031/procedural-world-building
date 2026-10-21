@@ -103,14 +103,14 @@ No economic gate is required to test multiple robots.
 
 #### R3 — A second procedural behavior
 - [x] Choose Builder reshaping or Gardener growth — AUT-14: Gardener with plants and antennas (D-025)
-- [x] Introduce only one new rule set and its visible terrain/life effect — AUT-15/16
+- [x] Introduce only one new rule set and its visible terrain/plant effect — AUT-15/16
 - [x] Interaction with mining: digging removes structures; no repair loop (automated tests)
 - [ ] Browser playtest: are plants and antennas readable, is the growth rate right?
 - [x] Builder: cut and fill toward one level, using the Miner's soil — AUT-17 (D-026)
 - [ ] Browser playtest: does the levelling read on the planet?
 
 #### Later, only after the process works
-Lightweight mineral income, robot purchases, deployment expansion and electricity expenses; insolvency departure; life/memory choices; audit and signal ending. Prices and thresholds remain unsettled. First person is optional and deferred.
+Lightweight mineral income, robot purchases, deployment expansion and electricity expenses; insolvency departure; resident choices; audit and signal ending. Prices and thresholds remain unsettled. First person is optional and deferred.
 
 ## Historical roadmap — retained for implementation history
 
@@ -165,7 +165,7 @@ Status: `[ ]` todo · `[~]` in progress · `[x]` done · `[-]` cut
 
 ## M1.5 — Inspect a local patch (D-018)
 
-**Playable when:** choose Detector or press `D`, then left-click the planet. A small wireframe region and any buried Mineral, Life, or Memory point signals there appear; press `T` to return to terrain editing. Exposed teaching targets remain visible normally.
+**Playable when:** choose Detector or press `D`, then left-click the planet. A small wireframe region and any buried Mineral point signals there appear; press `T` to return to terrain editing. Exposed teaching targets remain visible normally.
 
 - [x] Seeded, independent category target proxies and three surface teaching targets — GEN-01/04/07 (full irregular deposits remain M3)
 - [x] Local Detector selection, click anchor, and scan radius — DET-01
@@ -195,7 +195,7 @@ Status: `[ ]` todo · `[~]` in progress · `[x]` done · `[-]` cut
 **Goal:** the metrics make choices matter.
 **Playable when:** you scan, dig to a signal, sell it, watch the five metrics move against each other, and the budget runs out.
 
-- [ ] Full irregular clusters, discovery and collection for minerals, life, memory — GEN-01–06 (replace M1.5 point proxies)
+- [ ] Full irregular mineral clusters and collection — GEN-01–06 (replace M1.5 point proxies)
 - [ ] Detector energy cost or cooldown — DET-05 (decide OQ-15)
 - [ ] Scanner with direction, distance band, strength — SCAN-01–06
 - [ ] Budget and costs; decide OQ-01 — BUD-01–03
@@ -239,7 +239,7 @@ Status: `[ ]` todo · `[~]` in progress · `[x]` done · `[-]` cut
 
 - [ ] Point / line / surface layers — VIS-04
 - [ ] Wireframe states from local thickness and remaining mass — VIS-05, VIS-06, spec §5.4
-- [ ] Material blending for rock, soil, mineral, life, memory — VIS-03
+- [ ] Material blending for rock, soil and mineral — VIS-03
 - [ ] Scan visuals as dot grids and lines — SCAN-03
 - [ ] Cosmic ending visuals — VIS-09, VIS-10
 - [ ] Core sounds and the ending audio — AUD-01, AUD-03, AUD-04
@@ -289,3 +289,4 @@ Frame rate while remeshing · confusion about the two views · getting trapped f
 | 2026-10-14 | D-025: R3 Gardener implemented ahead of R2 (multiple Miners still open); human playtest pending. |
 | 2026-10-14 | D-026: Builder added; all three robot roles now exist. R2 (multiple Miners) still open. |
 - **2026-10-21 / D-043:** Autopilot mode built (crew counts, whole-planet sweep, automatic signals, cancel back to Auto). Needs a person's playtest.
+- **2026-10-21 / D-044, D-048:** Removed obsolete resource categories, retained Mineral as the only resource and locked seed `1380` mineral positions with a regression fixture.

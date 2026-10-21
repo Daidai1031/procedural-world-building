@@ -15,14 +15,15 @@ Players can pursue resource extraction, ecological flourishing, or strange plane
 - **Manual tools:** Dig, Add Terrain, Flatten, and a bounded Detector.
 - **Miner:** assign a spherical area and Start; it scans, chooses a mineral, hovers to an entry, excavates and collects, then repeats.
 - **Gardener:** surveys suitable ground, grows spreading plants, and currently also places antennas. Separating antenna construction from gardening is a proposal, not an implemented change.
-- **Builder:** cuts high ground and fills low ground toward a target level, using the shared soil stock. Prepared sites can wake a waiting Gardener.
+- **Builder:** repairs local holes first, then trims isolated obstructions, using the shared soil stock. Prepared sites can wake a waiting Gardener.
 - **Operations:** mineral storage/sales, soil stock, electricity billing, debt warning and bankruptcy; communicator messages explain operating problems.
+- **Resources:** Mineral is the only resource. Existing seed strings retain the same mineral positions (D-044, D-048).
 - **Exploration:** returnable outer-surface walking, landing sites and an updating 2D atlas.
 - **Discovery/travel:** explicit broadcasts reveal distant planet entries. Travel currently creates a fresh planet state and carries funds only; old sites are not preserved for return.
 
 ### Planned next
 
-One cave-dwelling, quiet-sensitive rock resident species; persistent planet records and return travel; a live 3D overview showing the actual edited shapes of discovered planets. These are design targets, not features shipped by this documentation update.
+One quiet-sensitive rock resident species now sinks into valid surface homes, hides from nearby work and relocates after sustained noise. Persistent planets and the live 3D overview remain part of the broader direction.
 
 The desired money interface is compact: detailed accounting may remain internal, while operating restrictions and critical warnings remain understandable. The current debt/game-over rule is retained until a replacement is explicitly decided.
 
@@ -63,8 +64,7 @@ same full-resolution density grid.
 
 Click **Detector** or press `D`, then left-click the planet to scan a small
 region. The scan shows a subdued local terrain wireframe and nearby buried
-resource signals, faded by distance from the clicked point. Mineral, Life,
-and Memory use distinct marker shapes. Buried targets stay hidden outside
+mineral signals, faded by distance from the clicked point. Buried targets stay hidden outside
 Detector mode; exposed targets remain visible. Click elsewhere to move the
 scan. Press `T` or click **Terrain** to return to editing. The seeded markers
 are early target proxies. Miner mineral collection and inventory sales are implemented; fuller irregular deposits and separate scan costs remain later work.

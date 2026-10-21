@@ -13,8 +13,8 @@
   --rule: #d4d0c6;
   --graphite: #3b3a37;
   --signal: #a8732a;
-  --life: #3f8a52;
-  --memory: #a83a72;
+  --positive: #3f8a52;
+  --negative: #a83a72;
   --f-display: "Archivo", "Noto Sans SC", system-ui, sans-serif;
   --f-body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
   --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
@@ -87,8 +87,8 @@ dl.spec dt { font-family: var(--f-mono); color: var(--muted); font-size: 11.5px;
 dl.spec dd { margin: 0; min-width: 0; }
 .pc { display: grid; gap: 3px; font-size: 12.5px; }
 .pc span::before { font-family: var(--f-mono); margin-right: 6px; }
-.pc .pro::before { content: "+"; color: var(--life); }
-.pc .con::before { content: "−"; color: var(--memory); }
+.pc .pro::before { content: "+"; color: var(--positive); }
+.pc .con::before { content: "−"; color: var(--negative); }
 .pick { margin: 0 14px 14px; font: 500 13px var(--f-body); padding: 8px; border: 1px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; }
 .card[data-chosen="true"] .pick { background: var(--ink); color: var(--paper); }
 
@@ -107,7 +107,7 @@ th { font-family: var(--f-mono); font-weight: 500; font-size: 11.5px; color: var
 .slip button { font: 500 13px var(--f-body); padding: 6px 14px; background: var(--paper); color: var(--ink); border: 0; cursor: pointer; }
 .slip textarea { position: absolute; left: -9999px; }
 .note { font-size: 12.5px; color: var(--muted); }
-.fallback { padding: 24px; color: var(--memory); }
+.fallback { padding: 24px; color: var(--negative); }
 @media (max-width: 560px) { #heroCanvas { aspect-ratio: 4 / 3; } }
 </style>
 
@@ -248,7 +248,7 @@ const M = {
   debris: std('#77746f', { roughness: 0.95 }),
   amber: std('#c98a2b', { emissive: '#c98a2b', emissiveIntensity: 0.9 }),
   mineral: std('#cfa726', { roughness: 0.4, metalness: 0.35, emissive: '#5a4508', emissiveIntensity: 0.4 }),
-  life: std('#3f9a58', { roughness: 0.7, emissive: '#123a1e', emissiveIntensity: 0.4 }),
+  vegetation: std('#3f9a58', { roughness: 0.7, emissive: '#123a1e', emissiveIntensity: 0.4 }),
   stem: std('#56624b', { roughness: 0.8 }),
   moss: std('#6b8160', { roughness: 0.75 }),
   ochre: std('#8c7a5c', { roughness: 0.7 }),
@@ -351,7 +351,7 @@ function nozzle(put) { put(0, -4.3, 0, M.graphite); put(0, -5.2, 0, M.moss, 0.75
 const G_BODY = {
   G1: (hold, lamp) => {
     const put = voxelPut(hold, 0.02); orbShell(put, lamp, M.moss); nozzle(put)
-    put(0, 4.2, 0, M.life); put(0.9, 5, 0, M.life, 0.7); put(-0.9, 5.1, 0.4, M.life, 0.6)
+    put(0, 4.2, 0, M.vegetation); put(0.9, 5, 0, M.vegetation, 0.7); put(-0.9, 5.1, 0.4, M.vegetation, 0.6)
     const tilt = new THREE.Group(); tilt.rotation.z = 0.28; hold.add(tilt); const spin = new THREE.Group(); tilt.add(spin)
     for (let i = 0; i < 26; i++) { const a = i / 26 * Math.PI * 2; const m = mesh(cubeGeo, i % 6 === 0 ? M.charcoal : M.moss); m.scale.setScalar(0.013); m.position.set(Math.cos(a) * 0.106, 0, Math.sin(a) * 0.106); m.rotation.y = -a; m.userData.edgeAngle = 1; spin.add(m) }
     return { hover: 0.15, spin: (t) => { spin.rotation.y = t * 1.2 } }
@@ -361,7 +361,7 @@ const G_BODY = {
     const gimbal = new THREE.Group(); gimbal.rotation.x = Math.PI / 2; hold.add(gimbal); const spin = new THREE.Group(); gimbal.add(spin)
     for (let i = 0; i < 28; i++) {
       const a = i / 28 * Math.PI * 2, pod = i % 7 === 0
-      const m = mesh(cubeGeo, pod ? M.life : M.graphite); m.scale.setScalar(pod ? 0.024 : 0.012); m.position.set(Math.cos(a) * 0.11, 0, Math.sin(a) * 0.11); m.rotation.y = -a; m.userData.edgeAngle = 1; spin.add(m)
+      const m = mesh(cubeGeo, pod ? M.vegetation : M.graphite); m.scale.setScalar(pod ? 0.024 : 0.012); m.position.set(Math.cos(a) * 0.11, 0, Math.sin(a) * 0.11); m.rotation.y = -a; m.userData.edgeAngle = 1; spin.add(m)
     }
     return { hover: 0.16, spin: (t) => { spin.rotation.y = t * 0.9 } }
   },
@@ -369,7 +369,7 @@ const G_BODY = {
     const put = voxelPut(hold, 0.02); orbShell(put, lamp, M.moss); nozzle(put)
     for (let x = -6; x <= -4; x++) for (let y = -2; y <= 2; y++) for (let z = -2; z <= 2; z++) {
       if (x === -4 && Math.abs(y) < 2 && Math.abs(z) < 2) continue
-      if (y === 2 && x !== -6 && Math.abs(z) < 2) { put(x, y, z, M.life, 0.8); continue }
+      if (y === 2 && x !== -6 && Math.abs(z) < 2) { put(x, y, z, M.vegetation, 0.8); continue }
       put(x, y, z, Math.abs(z) === 2 || x === -6 ? M.graphite : M.body)
     }
     const arms = []
@@ -397,7 +397,7 @@ function makeGardener(kind) {
   const body = G_BODY[kind](hold, lamp)
   const ringMat = new THREE.MeshBasicMaterial({ color: '#3b3a37', transparent: true, opacity: 0.6, depthWrite: false, side: THREE.DoubleSide })
   const ring = new THREE.Mesh(new THREE.RingGeometry(0.96, 1, 72), ringMat); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.004; ring.userData.keep = true; root.add(ring)
-  const seed = mesh(cubeGeo, M.life); seed.scale.setScalar(0.014); seed.userData.keep = true; root.add(seed)
+  const seed = mesh(cubeGeo, M.vegetation); seed.scale.setScalar(0.014); seed.userData.keep = true; root.add(seed)
   const lichen = LOCK.vegA(), sprout = LOCK.vegD(), plantG = new THREE.Group(); plantG.add(lichen.obj, sprout.obj); sprout.obj.scale.setScalar(0.55); root.add(plantG)
   const mast = LOCK.antA(); mast.obj.position.x = -0.02; root.add(mast.obj)
   const tick = (t) => {
@@ -553,7 +553,7 @@ LOCK.vegD = () => {
     const grow = (p, dir, len, depth, level) => {
       const q = p.clone().addScaledVector(dir, len)
       const seg = rod(p, q, 0.0012 + 0.0011 * depth, M.stem); seg.userData.edgeAngle = 89; g.add(seg); parts.push({ o: seg, level })
-      if (depth === 0) { const tip = mesh(new THREE.SphereGeometry(0.0065, 8, 6), r() > 0.3 ? M.life : lichenMats[1]); tip.position.copy(q); tip.userData.edgeAngle = 89; g.add(tip); parts.push({ o: tip, level: level + 1 }); return }
+      if (depth === 0) { const tip = mesh(new THREE.SphereGeometry(0.0065, 8, 6), r() > 0.3 ? M.vegetation : lichenMats[1]); tip.position.copy(q); tip.userData.edgeAngle = 89; g.add(tip); parts.push({ o: tip, level: level + 1 }); return }
       const n = depth > 2 ? 2 : 3
       for (let i = 0; i < n; i++) {
         const d = dir.clone().applyAxisAngle(new THREE.Vector3(1, 0, 0), (r() - 0.5) * 1.1).applyAxisAngle(new THREE.Vector3(0, 1, 0), r() * 6.28)

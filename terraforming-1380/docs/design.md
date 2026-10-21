@@ -5,7 +5,7 @@
 | | |
 | --- | --- |
 | **Status** | Concept v0.7 — multi-planet procedural sandbox (D-034) |
-| **Last updated** | 2026-10-20 |
+| **Last updated** | 2026-10-21 |
 | **Answers the question** | *What is this game, why does it exist, and how should it feel?* |
 | **Not in this file** | Exact rules, numbers, data formats → [`spec.md`](spec.md). Tunable values → [`tuning.md`](tuning.md). Player-facing text → [`content.md`](content.md). |
 
@@ -101,7 +101,6 @@ The base is the narrative hub and the player's control center.
 | Base system | Player function | Narrative function |
 | --- | --- | --- |
 | **Extraction Terminal** | Converts mined matter into money | Encourages treating the planet as inventory |
-| **Bioscan Lab** | Detects underground life and ecological networks | Reveals that Ares-9 is not uninhabited |
 | **Terraform Console** | Controls digging, filling, flattening | Lets the player directly change the voxel world |
 | **Deep Echo Array** | Sends ever stronger signals into space | Converts communication into fame and cosmic exposure |
 
@@ -164,7 +163,7 @@ Select robot, set a circular work area, start/pause, and reassign. The first goa
 | Role | Current implementation | Design relationship |
 | --- | --- | --- |
 | Miner | Scans, excavates and collects minerals repeatedly | Changes terrain and, once implemented, local disturbance/habitat |
-| Builder | Cuts/fills toward a level using shared soil; prepared sites inform Gardener | Changes surfaces, cavities and routes |
+| Builder | Repairs local holes before trimming isolated bumps; prepared sites inform Gardener | Changes surfaces, cavities and routes without erasing broad natural slopes |
 | Gardener | Plants/spreads vegetation and currently also places antennas | Cultivation is its core role; separating antenna construction is proposed (D-038) |
 | Signal facility | Explicit broadcast reveals distant planet entries (D-032) | Discovery is a separate causal function from planting |
 
@@ -186,8 +185,8 @@ Mineral sales, electricity billing, manual terrain charges and bankruptcy alread
 
 Do not silently remove or soften the current debt threshold. Whether bankruptcy should remain a hard ending in the sandbox is open. Robot purchases and deployment expansion remain later ideas.
 
-### 7.7 Memory and signals
-Later, discovering life or archives can prompt a player decision. No separate archaeology robot is required. Keep broadcasting an explicit player choice rather than an automatic mining side effect.
+### 7.7 Residents and signals
+Resident responses can prompt a player decision. Keep broadcasting an explicit player choice rather than an automatic mining side effect.
 
 ---
 
@@ -197,7 +196,7 @@ The primary evidence is the world: edited geometry, robot actions and planned re
 
 ### 8.1 Current estimates and intended presentation
 
-Current site indicators estimate ecology from terrain loss/plants/discoveries, stability from remaining mass, and prepared ground from Builder edits. These are implemented approximations, not a habitat model or a structural-connectivity simulation.
+Current site indicators estimate ecology from terrain loss and plants, stability from remaining mass, and prepared ground from Builder edits. These are implemented approximations, not a habitat model or a structural-connectivity simulation.
 
 Prefer concise context: robot phase/stop reason, relevant material shortage, operating warning, and planet state. Detailed financial entries may stay internal. Later resident movement should make habitat changes understandable without adding a compulsory happiness score.
 
@@ -212,7 +211,6 @@ Planet Remaining can remain a neutral description of retained material. Developm
 | Hidden metric | Meaning | Revealed |
 | --- | --- | --- |
 | **Cosmic Exposure** | Likelihood and severity of being noticed and attacked | Final audit or contact ending |
-| **Planetary Memory** | Ecological and civilizational history discovered and preserved | Final classification |
 | **Fragmentation** | How many disconnected pieces the planet has become | Shape classification |
 | **Morphology Features** | Flatness, elongation, spikiness, holes, regularity | Shape classification |
 
@@ -275,18 +273,16 @@ On a first playthrough the exact thresholds are never shown. The underground arc
 Planet size, terrain and resource abundance should vary independently. Same-session preservation is required; inactive-world simulation and persistence across browser reloads remain open. Orbit-like spatial organization does not require orbital physics.
 
 ### 10.2 Random clusters, not layers
-The interior is *not* a tidy "minerals, then life, then memory" onion. Apart from the base materials (rock and soil), minerals, life, and memory are three content categories scattered as irregular 3D clusters.
+The interior is not divided into collectible layers. Apart from base rock and soil, Mineral is the only resource and is scattered as seeded 3D targets.
 
 | Category | Possible forms | Gameplay role |
 | --- | --- | --- |
 | **Rock** | Main structure of the planet, everywhere | Goes to the canister; used for filling, roads, escape ramps |
 | **Soil** | Softer surface cover, pockets, cave sediment | Same use as rock; easier to dig, softer color |
 | **Minerals** | Veins, crystal clusters, isolated high-value nodes | Sold for Capital; lures the player onward |
-| **Life** | Mycelial networks, spore sacs, roots, glowing tissue | Affects Biosphere; forces a protect-or-mine choice |
-| **Memory** | Fossils, ruins, archives, old equipment | Raises Planetary Memory; advances #1379 and planet history |
 | **Core** | Small, near the center | High risk; damaging it sharply lowers Stability, but it does not fill the interior |
 
-Generation principles: the three categories use different noise, seeds, or cluster generators and may overlap (a precious mineral might wrap a life network). The same category can appear at any depth; deeper is not guaranteed to be better. A few surface targets teach the mechanic; most high-value targets are buried. Robot scans and the manual Detector reveal nearby signals; the implemented survey atlas can show full resource projections (D-029). Each run has a new seed. Rare signals cluster around the core, but going there also makes Stability loss or punching through more likely.
+Generation principle: minerals may appear at any depth; deeper is not guaranteed to be better. One shallow target teaches the mechanic and the rest are buried. Robot scans and the manual Detector reveal nearby signals; the implemented survey atlas can show the full mineral projection (D-029). Each run has a new seed, while D-048 preserves mineral positions for every existing seed.
 
 ### 10.3 Terrain representation
 The planet is a 3D scalar density field: solid density means planet, empty density means air or dug-out space. Procedural noise makes the initial surface and interior variation. Marching Cubes turns the field into a smooth mesh, brush operations edit local density, and only affected chunks are rebuilt. The result is a smooth Astroneer-like feel rather than Minecraft blocks.
@@ -346,7 +342,7 @@ Rare outcomes reward extreme runs (for example *A Very Expensive Hole*, *An Unde
 **Deferred narrative layer:** these endings do not prescribe one ideal sandbox result and are not prerequisites for the resident or multi-planet slices.
 
 
-When the contract ends, the player loses control and the system runs a deliberately over-formal check: geometry, remaining mass, unregistered life, unauthorized transmissions, shareholder value, cosmic observers. Before naming the result it shows the detected shape data and a metric summary, so the classification never feels random.
+When the contract ends, the player loses control and the system runs a deliberately over-formal check: geometry, remaining mass, resident distribution, unauthorized transmissions, shareholder value, cosmic observers. Before naming the result it shows the detected shape data and a metric summary, so the classification never feels random.
 
 ```text
 PLANET REMAINING: 18.2%
@@ -363,7 +359,7 @@ Fate status is one of **UNNOTICED**, **RECENTLY NOTICED**, **BEING OBSERVED**, *
 
 | Ending | Condition | What happens |
 | --- | --- | --- |
-| **Silent** | Never broadcast | Normal audit; stars unchanged. With high Planetary Memory, a local archive may show *"Thank you for keeping quiet."* The game never says whether silence was necessary. |
+| **Silent** | Never broadcast | Normal audit; stars unchanged. The game never says whether silence was necessary. |
 | **Heard** | Broadcast once, or low total exposure | Classification, then a distant black dot crosses the star. The UI cannot compute its speed (*"Distance: calculating…"*). A faint line: *"We heard you, 1380."* Hard cut to black. Intent is never explained. |
 | **Observed** | Broadcast several times | The distant object stops without slowing, changes direction, points at Ares-9. Arrival time is impossible or undefined. "We heard you" comes with heavy interference. |
 | **Erased** | Keeps broadcasting at maximum power | The audit produces a funny classification, then a very thin line of light arrives from off-screen. The planet breaks apart, compresses to a bright point, or vanishes from the render. Final screen: *"Contractor #1380 successfully entered history."* The classification line can also be cut off mid-word. |
@@ -376,7 +372,6 @@ The company describes destruction in neutral or cheerful business language.
 
 | Reality | Company says |
 | --- | --- |
-| Life | Non-commercial biomass |
 | Ruins | Obsolete settlement material |
 | Ecological damage | Site preparation |
 | Planet mass dug away | Exported resources |
@@ -387,7 +382,7 @@ Example notices, sponsor lines, and all other copy live in [`content.md`](conten
 
 **Orbital UI (D-024):** warm off-white background, stationary gray planet and orbit camera. A top switch separates **Auto** (a Miner panel with work area, Start/Pause, phase track, target and stop reason) from **Manual** (Terrain and Detector). A right-hand Site report shows Planet Remaining and the warehouse in both modes. Type is Fraunces for display and Bricolage Grotesque for interface text. Later economy and narrative panels are deferred.
 
-**First-person UI:** minimal crosshair and contextual prompts; bottom shows terrain mode, brush size, canister level, the two modules, and energy; screen edges hint at base direction, detected resources, life signals, unstable terrain; metrics panel collapsed by default and opened at decision points.
+**First-person UI:** minimal crosshair and contextual prompts; bottom shows terrain mode, brush size, canister level, the two modules, and energy; screen edges hint at base direction, detected minerals and unstable terrain; metrics panel collapsed by default and opened at decision points.
 
 ---
 
@@ -418,8 +413,6 @@ Roughly **80% grayscale, 15% low-saturation material color, 5% status accent.** 
 | Planet body | Limestone `#B8B5AE`, mid gray `#77746F`, charcoal `#383838` | Volume through value and roughness |
 | Rock and soil | Cool gray, gray-brown, pink-gray | Same function, different feel and dig speed |
 | Minerals | Old gold, muted mustard yellow `#cfa726` | Slightly more noticeable than surroundings; the glow reads as gold ore, not a lamp |
-| Life | Moss green `#3f9a58` | Like specimens or mold, not fluorescent props |
-| Memory | Deep rose pink `#c52b7d` | Ties to archives, fossils, old equipment |
 | Danger and signal | Dark rust red or low-saturation amber | Key warnings only, tightly limited in area |
 | Wireframe | Graphite gray, gray-brown, near black | Never default debug green; opacity rises with danger |
 
@@ -436,7 +429,7 @@ Fine grain, graphite scratches, dust, hairline cracks, subtle bump, uneven rough
 | --- | --- | --- |
 | Point | Scan echoes, far debris, mineral readouts, decaying particles | Few, unequal sizes, specimen-plate rhythm |
 | Line | Outline, contours, scan rays, structural stress, wireframe | Thin, low contrast, slightly broken or offset; stronger only when dangerous |
-| Surface | Walkable terrain, ore bodies, life tissue, remaining structure | Mostly gray solid; content told apart by texture and value |
+| Surface | Walkable terrain, mineral bodies, plants and remaining structure | Mostly gray solid; content told apart by texture and value |
 
 Scanning does not paint a bright translucent color over targets. Dot grids, short lines, local contours, and small value changes appear along the signal direction so it looks like an instrument drawing.
 
@@ -480,7 +473,6 @@ Not a classic alien ship. Options: a star that starts to move by itself; a small
 
 - Digging, moving grains, and filling must feel satisfying.
 - Each underground zone has subtle ambient sound.
-- Exposed life gives a low, harmonic sound.
 - Company notifications use calm, friendly chimes.
 - Old archives contain noise, dropouts, and incomplete speech.
 - On cosmic contact, strip out most ambience first, then add very low frequencies.
@@ -497,7 +489,7 @@ Not a classic alien ship. Options: a star that starts to move by itself; a small
 
 **After validation:** multiple Miners with target reservation; one second procedural behavior (Builder or Gardener, to be selected).
 
-**Retained later direction:** limited deployment, robot purchases and electricity costs, near-bankruptcy departure, life/memory responses, corporate audit and signal endings.
+**Retained later direction:** limited deployment, robot purchases and electricity costs, near-bankruptcy departure, resident responses, corporate audit and signal endings.
 
 **Deferred:** first person, backpack, loadouts, detailed transport, complex economy, collapse simulation, questionnaires, and full metric optimization. No robot code is delivered by this document revision.
 
@@ -579,7 +571,6 @@ Tracked in detail in [`decisions.md`](decisions.md#open-questions). Design-level
 
 - **OQ-01** Superseded by D-022: later funds pay operating costs; fixed cycles/energy are not the run budget.
 - **OQ-02** Deferred: Emergency Extraction only matters if first person returns.
-- **OQ-03** Should Silent ending's "Thank you for keeping quiet" require high Planetary Memory, or always appear?
 - **OQ-04** How much of the Erased ending is shown in first person versus orbit?
 - **OQ-05** Is the game English-only, or bilingual in the UI (the Chinese GDD drafted bilingual text)?
 
@@ -587,6 +578,7 @@ Tracked in detail in [`decisions.md`](decisions.md#open-questions). Design-level
 
 ## Change log
 
+- **2026-10-21 / D-044, D-048:** Made Mineral the only resource and preserved every existing seed's mineral positions.
 - **2026-10-20 / D-034:** Reframed the project as a freely directed multi-planet procedural sandbox; added the action–environment–resident consequence chain and distinguished implemented foundations from planned features.
 
 

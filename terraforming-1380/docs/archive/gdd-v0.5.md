@@ -1,5 +1,7 @@
 # Terraforming Contractor #1380
 
+> Historical archive. D-044 supersedes this document's multi-resource model: Mineral is now the only resource. Do not implement obsolete resource categories from this file.
+
 ## Game Design Document 
 
 **Document status:** Concept v0.5

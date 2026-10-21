@@ -485,7 +485,7 @@ Electricity was later raised from 0.25 to 0.4, then to 0.55 credits per kW-minut
 ## D-049 — The system view becomes a camera pull-back
 
 - **Date:** 2026-10-21
-- **Status:** accepted; **not implemented**. Implementation brief: [`system-view-brief.md`](system-view-brief.md); visual reference: [`system-view-concepts.html`](system-view-concepts.html).
+- **Status:** implemented 2026-10-21 (all four phases; frame-time and LOD-rebuild measurements still open, see `tuning.md`). Implementation brief: [`system-view-brief.md`](system-view-brief.md); visual reference: [`system-view-concepts.html`](system-view-concepts.html).
 - **Context:** The System overview (D-040, S4) is a modal `<dialog>` with its own Canvas and a side list. The owner found it rigid and wanted something natural, flowing and immersive. Three interactive concepts were compared (A pull back, B signal chart, C drift).
 - **Decision:** Build **Concept A** as the structure, with B's arcs and C's readouts. The overview stops being a dialog: *System overview ↗* (and `O`) pulls the main camera back until every known world is visible in the same scene. The active planet is not scaled or moved; other worlds sit at `planetPosition(seed) − planetPosition(active)`.
 - **Decision:** **Signal arcs:** a dashed arc from each planet to the planets its signals found; a bright pulse runs along the active planet's outgoing arcs on every broadcast.
@@ -496,3 +496,79 @@ Electricity was later raised from 0.25 to 0.4, then to 0.55 credits per kW-minut
 - **Supersedes:** the "overview is a dialog" and "Travel confirmation" parts of D-032 / D-040 only.
 - **Open:** hold duration, whether the wheel should also pull back in Auto and Autopilot, touch input, and handling of many worlds (see the brief, §9).
 - **Affects:** `ui/SystemOverview.tsx` (deleted), new `systems/systemView.ts`, `views/System*.tsx`, `ui/System*.tsx`, `ui/HoldToTravel.tsx`, `views/OrbitCamera.tsx`, `views/AtmosphereView.tsx`, `views/DistantPlanetsView.tsx`, `App.tsx`, `style.css`, `config/palette.ts`, `config/tuning.ts`; SYS-01, SYS-05–14.
+
+## D-044 — Mineral-only extraction
+
+- **Date:** 2026-10-21
+- **Status:** accepted; implemented
+- **Decision:** Mineral is the only resource. Plants and residents remain world systems, not resource categories.
+
+## D-045 — Residents shelter by sinking into solid ground
+
+- **Date:** 2026-10-21
+- **Status:** accepted; implemented
+- **Decision:** Replace D-042 cave homes with seeded surface homes. A valid home has at least 0.45 soil depth, at most 25° slope, 0.18 headroom and 0.5 spacing. A hiding resident sinks into the soil; a peeking resident remains half exposed.
+- **Behaviour:** Brief local noise causes hiding and quiet restores peeking at the same home. Sustained noise selects the nearest free, quiet, valid home and follows an above-surface route. If none exists, the resident enters visible `searching`, retries six times at bounded intervals, and waits for a terrain change to reset the retry budget.
+- **Simulation:** `stepResidents` runs from the shared fixed-step `stepSimulation` in Auto/Autopilot; a matching fixed-step runner keeps residents active in Manual without advancing the crew.
+- **Supersedes:** D-042's cave shelter test, burrow occupancy, scored relocation and unbounded waiting behavior. Its local disturbance field remains.
+
+## D-046 — Terrain edits safely displace sunk residents
+
+- **Date:** 2026-10-21
+- **Status:** accepted; implemented
+- **Decision:** `notifyGroundChanged` reconciles affected residents against current edited density. Removing support ejects a sunk resident onto the resulting outer surface and starts `searching`. Added terrain carries a hidden resident and its home outward so it cannot remain buried under the old surface.
+- **Affects:** manual terrain tools, Miner digging and Builder edits.
+
+## D-047 — One authored native species per planet
+
+- **Date:** 2026-10-21
+- **Status:** proposed; data added, runtime assignment incomplete
+- **Proposal:** Define one authored native species for each planet, beginning with Ares-9 and the Facet Pebble.
+
+## D-048 — Preserve mineral positions across the resource migration
+
+- **Date:** 2026-10-21
+- **Status:** accepted; implemented and regression-tested
+- **Decision:** Keep the mineral random-stream namespace exactly `${seed}:resource:mineral` and preserve its call order.
+
+## D-050 — Builder repairs local holes before trimming bumps
+
+- **Date:** 2026-10-21
+- **Status:** accepted; implemented
+- **Decision:** Compare Builder candidates with a local terrain ring, fill genuine depressions first, and only then trim isolated protrusions to their local surroundings. Natural broad slopes are not flattened to one global plane.
+
+## D-051 — Residents prefer neighbouring homes
+
+- **Date:** 2026-10-21
+- **Status:** accepted; implemented; automated check added
+- **Decision:** Keep validity, quiet and occupancy as hard relocation constraints. Rank eligible homes with a small social bonus for every occupied home within 0.9 units and a travel-distance cost, so a resident may choose a slightly farther separate home beside companions but never overlap them or accept unsafe ground.
+- **Affects:** `systems/residents.ts`, resident tuning and RES-04/06.
+
+## D-052 — Ares-9 starts with roughly twelve residents
+
+- **Date:** 2026-10-21
+- **Status:** accepted; implemented; automated check updated
+- **Decision:** Raise the deterministic starting population from 3–5 to 11–13, centered around twelve. Existing home validity, spacing and bounded candidate limits remain unchanged.
+- **Affects:** `config/tuning.ts`, RES-01 and resident readability/performance playtesting.
+
+## D-053 — Residents on one planet vary visibly in size
+
+- **Date:** 2026-10-21
+- **Status:** accepted; implemented; automated check added
+- **Decision:** Give every resident a deterministic body scale between 0.75× and 1.25×. Identity and seed determine the scale, so revisiting or replaying a planet preserves each individual's size.
+- **Affects:** `config/tuning.ts`, `systems/residents.ts`, rendering through the existing body scale and RES-01.
+
+## D-054 — Residents occupy burrows one at a time and leave work
+
+- **Date:** 2026-10-21
+- **Status:** accepted; implemented; automated checks added
+- **Decision:** Each open seeded burrow starts with one resident inside it. Everyone else starts scattered on valid surface ground. A resident prefers a free burrow, but an occupied burrow is never shared. Calm surface residents stroll, and burrow residents slide between the pocket and the tunnel. About two seconds of local disturbance makes them leave that place; if no free burrow is quiet, they wait or walk on open ground.
+- **Affects:** `systems/residents.ts`, resident state and RES-01/04.
+
+## D-055 — Residents live mostly underground, peek out and tremble near work
+
+- **Date:** 2026-10-21
+- **Status:** accepted; implemented in rendering only; checked by screenshots, not yet in a person's playtest
+- **Decision:** A calm resident is drawn lurking with only its crown above the ground. Every 6–12 seconds, on its own rhythm, it rises until its eyes clear the surface, glances left and right for about three seconds, and sinks back. A burrow resident climbs to its tunnel mouth for the same look. Disturbance above the quiet level stops the peeks and makes the body tremble, harder as it nears the retreat level. Hiding sits a little deeper but leaves the crown visible, so the trembling can be seen while work goes on nearby. The simulation states and their counts do not change; `peeking` still means calm.
+- **Why:** the author wanted residents to read as burrowing animals that stay hidden most of the time, and wanted their fear of construction to be visible.
+- **Affects:** `views/ResidentsView.tsx`, `config/tuning.ts` (`residents.look`), RES-03/08.

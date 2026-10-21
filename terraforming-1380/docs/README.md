@@ -28,7 +28,7 @@ The project is a **procedural sandbox where players freely reshape different pla
 | [decisions.md](decisions.md) | Accepted/proposed decisions and their reasons |
 | [reviews/2026-10-20-crit.md](reviews/2026-10-20-crit.md) | Paraphrased crit themes, subsequent decisions and evidence to collect |
 | [component-board.html](component-board.html) | Existing D-027 visual comparison board; resident body still undecided |
-| [system-view-brief.md](system-view-brief.md) | Implementation brief for the D-049 system-view redesign (not yet built); [system-view-concepts.html](system-view-concepts.html) is its interactive visual reference |
+| [system-view-brief.md](system-view-brief.md) | Implementation brief for the D-049 system-view redesign (built 2026-10-21); [system-view-concepts.html](system-view-concepts.html) is its interactive visual reference |
 | [archive/](archive/) | Historical GDD; not the active backlog |
 
 Design explains the intent; procedural-system connects effects; spec defines checkable rules; tuning holds numbers; content holds words.

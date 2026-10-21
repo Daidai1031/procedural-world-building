@@ -3,7 +3,7 @@
 | | |
 | --- | --- |
 | **Purpose** | Every number that will change after playtesting, in one place, with its reason and where it lives in code. |
-| **Last updated** | 2026-10-20 |
+| **Last updated** | 2026-10-21 |
 | **Source of truth** | `src/config/tuning.ts`. This file mirrors it and records *why*. If the two differ, fix one of them the same day. |
 
 ## Rules
@@ -33,21 +33,27 @@ D-037 changes intended presentation only. Funds scope across persistent sites, r
 
 ## Resident and planet tuning
 
-Implemented 2026-10-21 (D-041, D-042). Values live in `src/config/tuning.ts` under `planets` and `residents`. They are first guesses that passed the automated checks; none has been judged in a person's playtest yet.
+Implemented 2026-10-21 (D-041, D-045, D-046). Values live in `src/config/tuning.ts` under `planets` and `residents`. They are first guesses that passed the automated checks; none has been judged in a person's playtest yet.
 
 | Key | Value | Meaning |
 | --- | --- | --- |
 | `planets.radius / relief` | 0.22–0.36 / 0.06–0.2 (home 0.34 / 0.16) | Fractions of the voxel world |
-| `planets.minerals / life` | ×0.4–2 / ×0.3–2 (home ×1) | Multiply mineral clusters and burrow groups |
-| `residents.burrows` | 2 groups × 3, 2 occupied; pocket 0.21, tunnel 0.14, depth 0.6, spread 0.55, min gap 0.6 | Seeded homes |
-| `residents.shelter` | clearance 0.05, 26 rays to 0.6, enclosure ≥ 0.7, flood fill ≤ 1.6 / 3000 samples | HAB-01 |
+| `planets.minerals / residents` | ×0.4–2 / ×0.3–2 (home ×1) | Mineral and resident abundance configuration |
+| `residents.initialCount` | 11–13 | Seeded Ares-9 starting population, centered around twelve (D-052) |
+| `residents.size` | 0.75–1.25× | Deterministic body-size variation within one planet (D-053) |
+| `residents.homeCandidates / homeCandidateSamples` | 24 / 128 | Bounded deterministic surface-home search |
+| `residents.minSoilDepth / maxSlopeDeg` | 0.45 / 25° | D-045 surface-home support and slope limits |
+| `residents.headroom / minHomeSpacing` | 0.18 / 0.5 | Clear space above a home and separation between homes |
+| `residents.peekLift / hideDepth` | 0.015 / 0.075 | Simulation poses for a surface home (the view draws its own, below) |
+| `residents.look` | lurk −0.72, hide −0.8, peek +0.3 body radii; a peek every 6–12 s, 2.8 s out; tremble 0.2 radius at 11 Hz | D-055 presentation: crown-only lurking, periodic look-around, trembling near work |
 | `residents.disturbance` | radius 0.9, manual 1.4, robot 0.3, cap 3, ×0.97/tick | HAB-02 |
 | retreat / quiet | 0.5 / 0.15; quiet for 75 ticks (2.5 s) | RES-03 |
-| sustained | 240 ticks (8 s) | RES-04 |
-| search | radius 3.0, advantage 0.12, cooldown 600 ticks (20 s), reconsider every 300 | RES-05/06 |
+| flee | 60 ticks (2 s) of disturbance, then leave the work | RES-04, D-054 |
+| burrow preference | bonus 0.85; one resident per burrow; wander every 300 ticks | D-054 |
+| search | retry every 90 ticks, at most 6 retries; score = nearby companions × 0.04 − travel distance × 0.05 | RES-04/07, D-051 |
 | motion | 0.012 per tick (0.36/s), body 0.1 | RES-08 |
 
-Measured (Node, 2026-10-21): about 0.03–0.06 ms per resident tick for 2–5 residents, worst single tick 1.6 ms while every resident was searching. Browser check: a resident peeks at its burrow mouth from the normal orbit camera, vanishes from the mouth when disturbed, and walks over the ground after about 8 s of sustained disturbance.
+Automated checks cover deterministic surface homes, brief retreat and return, sustained-noise relocation, bounded searching, support removal and added-terrain lift. Browser feel remains to be playtested.
 
 The responsibilities below were planned before implementation and stay as the checklist for playtest notes.
 
@@ -58,9 +64,9 @@ The responsibilities below were planned before implementation and stay as the ch
 | Disturbance decay and quiet delay | Distinguish short retreat from lasting relocation | TBD |
 | Sustained-disturbance duration | Avoid moving house after every brief action | TBD |
 | Relocation advantage and cooldown | Prevent oscillation | TBD |
-| Companion radius and bias | Form small groups without overriding safe access | TBD |
+| Companion radius and bias | Form small groups without overriding safe access | radius 0.9 / bonus 0.04 implemented; playtest TBD |
 | Search radius / candidate limit / movement step | Bound workload and respect terrain | TBD |
-| Initial count and size variation | Keep one species readable and affordable | TBD |
+| Initial count and size variation | Keep one species readable and affordable | 11–13 and 0.75–1.25× implemented; readability/performance playtest TBD |
 | Planet radius / roughness / resource abundance ranges | Make independent starting differences visible | TBD |
 | Overview detail and revision refresh budget | Show live shape without full-resolution rendering of every world | TBD |
 
@@ -137,11 +143,7 @@ This legacy table is retained for provenance. It is not the active operating acc
 | `detector.radius` | 0.95 | 0.7–1.3 | guess | World units; bounded local reveal (D-018) |
 | `detector.fadeWidth` | 0.24 | 0.15–0.35 | guess | World-space falloff at scan boundary (D-018) |
 | `gen.cluster.mineral.count` | 14 | 8–25 | guess | |
-| `gen.cluster.life.count` | 8 | 4–15 | guess | |
-| `gen.cluster.memory.count` | 6 | 3–10 | guess | M1.5 point proxies; M3 must reserve the guaranteed #1379 archive |
-| `gen.surfaceTeachingTargets` | 3 | 2–5 | guess | GEN-04 |
 | `gen.minSpawnDistanceFromBase` | 10 | | guess | GEN-05 |
-| `gen.archive1379.depthFraction` | 0.25–0.4 of radius | | guess | Reachable but not on the surface |
 
 ## 4. Metrics
 
@@ -154,8 +156,6 @@ This legacy table is retained for provenance. It is not the active operating acc
 | `dr.debounceMs` | 500 | 200–1500 | guess | Recompute after edits settle |
 | `stability.weights` | w1 .30, w2 .25, w3 .15, w4 .20, w5 .10 | | guess | massRemaining, thinShell, core, largest component, stabilizer |
 | `history.perMonument` | 8 | | guess | |
-| `history.perMemoryFound` | 6 | | guess | |
-| `biosphere.perLifeCluster` | 8 | | guess | |
 
 ## 5. Signals and endings
 
@@ -218,19 +218,20 @@ Values live in `src/config/tuning.ts` (`gardener`, `structures`). All are `guess
 | Spread | Interval, reach, attempts | every 450 ticks, 0.3–0.7, 6 |
 | Travel | Speed and hover height (same as Miner) | 0.03 / tick, 0.4 |
 
-## Builder tuning (D-026)
+## Builder tuning (D-026, D-050)
 
 Values live in `src/config/tuning.ts` (`builder`). All are `guess`.
 
 | Parameter | Purpose | Current value |
 | --- | --- | --- |
-| Job pattern | Alternation | flatten, fill |
-| Level samples | Ground points averaged into the target level | 60 |
+| Job priority | Repair order | fill, then flatten |
+| Level samples | Stable reference-height samples | 60 |
 | Survey | Ground points per survey; empty surveys before stopping | 40; 3 |
-| Tolerance | How far from the level ground may be before it is worked | 0.06 |
+| Local surface probe | Ring radius / samples | 0.38 / 8 |
+| Local relief thresholds | Minimum hole depth / isolated bump height | 0.09 / 0.14 |
 | Brush | Flatten radius / fill radius | 0.35 / 0.18 |
 | Fill cost | Soil needed in stock before a fill | 28 samples |
-| Clearances | Extra margin around structures / around a live Miner tunnel | 0.15 / 0.45 |
+| Clearances | Structures / residents / live Miner tunnel | 0.15 / 0.22 / 0.45 |
 | Work time | Ticks per job | 18 |
 | Area | Work area radius | 0.6–2.4, default 1.2 |
 
@@ -296,8 +297,8 @@ Record every session, even a five-minute one. The point is to change the design 
 ### PT-004 - 2026-09-30 - Detector automated check
 - **Tester:** Codex automated check; browser visibility and FPS await a human playtest.
 - **Seed:** `detector-replay` plus a comparison seed.
-- **Result:** The 28 M1.5 target proxies repeat exactly for the same seed and change with another. Surface teaching targets are exposed, buried targets are hidden until selected in a local scan or dug open, and a distant scan returns none. Eight tests and the production build passed.
-- **Changes made:** Started with a 0.95-unit Detector radius and 0.24-unit world-space fade width (D-018). These are guesses pending a browser playtest.
+- **Result:** The original M1.5 target proxies repeated exactly for the same seed and changed with another. D-044 later removed the obsolete categories; 14 mineral proxies remain and D-048 locks their pre-migration coordinates. `mineral-0` stays shallow, buried minerals stay hidden until selected in a local scan or dug open, and a distant scan returns none.
+- **Changes made:** Started with a 0.95-unit Detector radius and 0.24-unit world-space fade width (D-018). D-044 changed resource scope without retuning either value.
 
 ### PT-005 - 2026-09-30 - dual Flatten planes
 - **Tester:** Codex automated check; browser feel still awaits a human playtest.
@@ -310,3 +311,19 @@ Record every session, even a five-minute one. The point is to change the design 
 Runtime values in `tuning.autopilot`: up to 4 robots per kind (defaults 2/1/1); Miner and Gardener 6 sectors of radius 2.4, Builder 12 of 1.4; rest 900 ticks doubling to 16×; Builder 15 jobs per sector; funds hold at ₡−20, resume at ₡−10; signal every 600 ticks (20 s).
 
 Observed headless, 54 000 ticks (30 simulated minutes), seeds 1380, mars, abc with crews 2/1/1, 4/4/4 and 1/2/2: all 14 minerals sold within 5 minutes, plants and antennas at their caps, 7 signals sent, no bankruptcy, funds steady at about ₡290–520, Builders retired by 10 minutes with 178–180 jobs, planet remaining 92–94%. Not a person's playtest; the browser check covered start, cancel and the panels only.
+
+## System view (D-049)
+
+All values are `guess` until playtested; they live in `tuning.system` in `src/config/tuning.ts`. Phase 1 uses `pullSeconds`, `focusDistanceFactor`, `distance`, `zoom` and `fade.otherWorlds`; the rest are reserved for later phases.
+
+| Key | Value | Used for |
+| --- | --- | --- |
+| `pullSeconds` | 1.4 | pull-back and return, ease-in-out cubic |
+| `diveSeconds` / `arriveSeconds` / `holdMs` | 1.3 / 0.9 / 900 | hold-to-travel (Phase 3) |
+| `focusDistanceFactor` | 6.5 | camera distance to a focused world, in its radii |
+| `distance` | min 14, max 48, margin 1.1 | fit of the whole system in the field of view |
+| `zoom` | min 12, max 48, step 0.08 | wheel zoom in system view |
+| `fade.otherWorlds` | pull 0.25 → 0.85 | other worlds and name tags fade in |
+| `marks`, `ghostOpacity`, `arcOpacity`, `arcLift`, `fade.atmosphere`, `fade.marks` | see file | readouts and arcs (Phase 2) |
+
+Not measured yet: frame time with all worlds visible, and the LOD rebuild cost when pulling back and returning.

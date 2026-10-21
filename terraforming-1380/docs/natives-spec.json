@@ -1,0 +1,31 @@
+{
+  "doc": "planet-natives",
+  "project": "Terraforming Contractor #1380",
+  "date": "2026-10-21",
+  "status": "D-044 through D-046 and D-048 are implemented; D-047 remains proposed",
+  "sourceOfTruth": {
+    "speciesAndPlanetAssignments": "../src/content/residents.ts",
+    "visualTokens": "../src/config/palette.ts#resident",
+    "behaviorTuning": "../src/config/tuning.ts#residents",
+    "currentBehavior": "../src/systems/residents.ts"
+  },
+  "decisions": {
+    "D-044": "Mineral is the only resource. The former additional resource categories and their discovery state are removed.",
+    "D-045": "Residents sink into valid surface homes, hide after nearby noise, return after brief noise, and relocate to the nearest free valid home after sustained noise.",
+    "D-046": "Before a terrain edit reaches a sunk resident, push it onto the resulting surface. Added terrain above a hidden resident makes it rise to the new surface. A valid home requires enough soil depth.",
+    "D-047": "Author one native species per planet across nine planets. The first playable authored slice is Ares-9 with the Facet Pebble.",
+    "D-048": "Keep the mineral seed namespace exactly `${seed}:resource:mineral` and preserve the generator's random-call order so existing mineral positions do not move."
+  },
+  "scales": {
+    "size": { "1": "small", "2": "medium", "3": "large" },
+    "relief": { "1": "flat", "2": "rolling", "3": "steep" },
+    "mineralAbundance": { "1": "sparse", "2": "average", "3": "rich" },
+    "clustering": { "1": "scattered", "2": "average", "3": "clumped" }
+  },
+  "visualDirection": {
+    "principle": "Keep terrain restrained and give resident silhouettes the stronger color identity.",
+    "families": ["mineral lavender", "warm ochre", "coral rose", "slate blue", "deep violet", "terracotta", "jade", "moss green"],
+    "note": "The runtime palette is intentionally not duplicated here so design and code cannot drift."
+  },
+  "implementationBoundary": "Home and Resident live in the run store. Ares-9 gets 3-5 deterministic residents. Surface-home validation, sinking behavior, bounded searching and terrain-edit displacement are implemented."
+}

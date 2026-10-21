@@ -415,23 +415,23 @@ The Detector is a separate, close-range inspection tool. The later Scanner retai
 
 | ID | Requirement | Priority | Status |
 | --- | --- | --- | --- |
-| HAB-01 | Validate snug shelter candidates from current edited density: enclosure, body clearance, entrance and reachable access. A broad open pit alone is insufficient. | MVP | done (D-042) |
+| HAB-01 | Validate sunk surface homes from current density: soil depth ≥ 0.45, slope ≤ 25°, headroom ≥ 0.18 and spacing ≥ 0.5. | MVP | done (D-045) |
 | HAB-02 | Feed manual Dig/Add/Flatten and robot terrain work into the same bounded local disturbance mechanism; disturbance decays when work ceases. Acoustic physics is not required. TUNE | MVP | done (D-042) |
-| HAB-03 | Revalidate affected homes/routes after terrain edits. Removed or blocked shelter cannot remain valid because of a stale score. | MVP | done (D-042) |
+| HAB-03 | Reconcile affected homes immediately after terrain edits: removed support ejects the resident onto the new surface; added terrain carries a hidden resident outward. | MVP | done (D-046) |
 | HAB-04 | Expose habitat validity and disturbance in debug inspection without requiring a player-facing score dashboard. | MVP | done (D-042) |
 
 ### 4.17 Resident behavior (RES) — planned
 
 | ID | Requirement | Priority | Status |
 | --- | --- | --- | --- |
-| RES-01 | Start with one original rock-like cave species. Generate a few settlements only at valid habitat candidates; stable seed/config/version reproduces initial placement. Exact count/body remain open. | MVP | done (D-042) |
-| RES-02 | Use snug shelter, low disturbance and nearby companions as preferences; clearance and reachable access are hard constraints. Plant count/flatness are not resident suitability. | MVP | done (D-042) |
+| RES-01 | Start Ares-9 with roughly twelve deterministic rock residents: one inside each open burrow and the rest scattered on valid surface homes, with stable 0.75–1.25× body-size variation. | MVP | done (D-045/D-052/D-053/D-054) |
+| RES-02 | Soil depth, slope, headroom, spacing and current occupancy are hard home constraints. | MVP | done (D-045) |
 | RES-03 | Brief disturbance causes visible retreat, followed by cautious return after sufficient quiet. TUNE | MVP | done (D-042) |
-| RES-04 | Sustained disturbance or home invalidation initiates bounded search for a reachable suitable home. Movement respects current terrain; no teleportation through intact rock. | MVP | done (D-042) |
-| RES-05 | Suitable new cavities may be occupied after quiet returns. Candidate validity, not whether the cavity is natural or excavated, determines eligibility. | MVP | done (D-042) |
-| RES-06 | Use a relocation advantage threshold and response cooldown to avoid home oscillation; resolve equal candidates stably and prevent conflicting occupancy. TUNE | MVP | done (D-042) |
-| RES-07 | If no reachable home exists, keep a visible bounded searching/waiting state. Do not silently delete residents or trigger automatic failure. | MVP | done (D-042) |
-| RES-08 | Make peeking, retreat and relocation distinguishable from the normal play camera; final body design remains open. | MVP | done (D-042) |
+| RES-04 | Ongoing disturbance or home invalidation sends a resident away from the work to a free quiet burrow, or to open ground when every burrow is taken. One burrow holds one resident. | MVP | done (D-045/D-051/D-054) |
+| RES-05 | Re-evaluate seeded and recently edited surface candidates from current density. | MVP | done (D-045) |
+| RES-06 | Resolve equal candidates stably and prevent conflicting occupancy. TUNE | MVP | done (D-045) |
+| RES-07 | If no home is available, keep a visible `searching` state with six bounded retries. A terrain change resets the retry budget. | MVP | done (D-045/D-046) |
+| RES-08 | Make peeking, retreat and relocation distinguishable from the normal play camera: calm residents lurk with the crown showing and periodically surface to look around, and nearby disturbance makes them tremble; final body design remains open. | MVP | done (D-042/D-055) |
 
 ### 4.18 Planet identity and persistence (PLN) — planned
 
@@ -452,16 +452,16 @@ The Detector is a separate, close-range inspection tool. The later Scanner retai
 | SYS-02 | Derive overview meshes from each current edited world, with revision-aware refresh. Holes/cuts must not revert to a decorative sphere. | MVP | done |
 | SYS-03 | Hover reveals concise descriptive state; click visits the selected stored planet. Exact progress descriptor is open and must not prescribe a universal end goal. | MVP | done |
 | SYS-04 | Refresh running-world changes while the overview is open, within a measured budget; choose cadence and inactive-world policy explicitly. | MVP | done (per-frame version check; inactive frozen) |
-| SYS-05 | The system view is a camera pull-back in the main scene: no dialog, no second Canvas. Entry by the *System overview ↗* button, key `O`, or a click on a distant planet; exit by *Return to orbit ↓*, `O` or `Esc`. (D-049) | MVP | todo |
-| SYS-06 | The active planet stays at the scene origin and is never scaled. Other worlds sit at `planetPosition(seed) − planetPosition(active)`. At `pull = 0` the camera pose equals today's orbit pose. Right-drag turns, wheel zooms, left click picks; tools are disabled while pulled back. | MVP | todo |
-| SYS-07 | Pulling back never pauses, resets or edits the crew: the active planet keeps simulating and its robots stay visible as small amber lights. Inactive planets stay frozen (D-040). | MVP | todo |
-| SYS-08 | A planet known only from a signal is a wireframe at its true radius, always, until visited. Visited planets use their current edited meshes with contour shading (SYS-02). | MVP | todo |
-| SYS-09 | State is drawn on each visited planet instead of a list: ghost shell at the original radius, plant dots, antenna ticks, resident glows and robot lights. Counts are capped (`tuning.system.marks`). Inactive planets read from their frozen snapshot. | MVP | todo |
-| SYS-10 | A dashed arc joins each planet to the planets its signals found. A broadcast on the active planet sends a pulse along its outgoing arcs. Arcs are descriptive and imply no goal. | MVP | todo |
-| SYS-11 | Traveling is one press-and-hold gesture (`tuning.system.holdMs`) on a focused, non-active world; early release cancels. `travelTo` is unchanged and called once. The Travel button and the confirmation dialog are removed. | MVP | todo |
-| SYS-12 | Travel plays a dive under a paper-colored veil, then arrives in orbit around the new planet with a transient caption. With reduced motion the animation is skipped. | MVP | todo |
-| SYS-13 | Name tags on every world; hover or focus adds a one-line caption in the existing description format. A visually hidden list of worlds gives keyboard and screen-reader access. | MVP | todo |
-| SYS-14 | While pulled back, both sidebars slide out and the canvas fills the main area; footer hints change; `A`, `M`, `P` still switch mode; `D`, `T`, `F` are ignored. | MVP | todo |
+| SYS-05 | The system view is a camera pull-back in the main scene: no dialog, no second Canvas. Entry by the *System overview ↗* button, key `O`, or a click on a distant planet; exit by *Return to orbit ↓*, `O` or `Esc`. (D-049) | MVP | done |
+| SYS-06 | The active planet stays at the scene origin and is never scaled. Other worlds sit at `planetPosition(seed) − planetPosition(active)`. At `pull = 0` the camera pose equals today's orbit pose. Right-drag turns, wheel zooms, left click picks; tools are disabled while pulled back. | MVP | done |
+| SYS-07 | Pulling back never pauses, resets or edits the crew: the active planet keeps simulating and its robots stay visible as small amber lights. Inactive planets stay frozen (D-040). | MVP | done (not browser-verified: crew keeps working while pulled back) |
+| SYS-08 | A planet known only from a signal is a wireframe at its true radius, always, until visited. Visited planets use their current edited meshes with contour shading (SYS-02). | MVP | done |
+| SYS-09 | State is drawn on each visited planet instead of a list: ghost shell at the original radius, plant dots, antenna ticks, resident glows and robot lights. Counts are capped (`tuning.system.marks`). Inactive planets read from their frozen snapshot. | MVP | done |
+| SYS-10 | A dashed arc joins each planet to the planets its signals found. A broadcast on the active planet sends a pulse along its outgoing arcs. Arcs are descriptive and imply no goal. | MVP | done |
+| SYS-11 | Traveling is one press-and-hold gesture (`tuning.system.holdMs`) on a focused, non-active world; early release cancels. `travelTo` is unchanged and called once. The Travel button and the confirmation dialog are removed. | MVP | done |
+| SYS-12 | Travel plays a dive under a paper-colored veil, then arrives in orbit around the new planet with a transient caption. With reduced motion the animation is skipped. | MVP | done (reduced motion shortens the animations to 0.2 s; not browser-verified) |
+| SYS-13 | Name tags on every world; hover or focus adds a one-line caption in the existing description format. A visually hidden list of worlds gives keyboard and screen-reader access. | MVP | done |
+| SYS-14 | While pulled back, both sidebars slide out and the canvas fills the main area; footer hints change; `A`, `M`, `P` still switch mode; `D`, `T`, `F` are ignored. | MVP | done |
 
 ### 4.20 Compact operating feedback (OPS) — planned UI change
 
@@ -477,7 +477,7 @@ The Detector is a separate, close-range inspection tool. The later Scanner retai
 
 ### 5.0a Planned resident update order
 
-Apply terrain edits and disturbance inputs → revalidate affected shelters/routes → decay disturbance on simulation time → update retreat/quiet timers → select among valid reachable homes → move with current-density clearance → publish occupancy/state for rendering. Companions bias valid choices; they never override clearance. Exact weights, timers, cave detector and path strategy remain provisional; see [procedural-system.md](procedural-system.md).
+Apply terrain edits and disturbance inputs → reconcile affected sunk residents with the new surface → decay disturbance on simulation time → update retreat/quiet timers → select the nearest free valid home → follow an above-surface route → publish occupancy/state for rendering. `stepResidents` runs in the shared fixed-step simulation; Manual mode advances the same step independently of the crew.
 
 
 ### 5.0 Autonomous work cycle
@@ -650,7 +650,7 @@ These are future checks; none were run by this documentation update.
 | RES-T1 | Apply brief disturbance near an occupied home, then stop. Observe retreat and eventual return rather than immediate relocation. | HAB-02, RES-03 |
 | RES-T2 | Apply sustained disturbance; observe a bounded search and collision-safe move to a reachable quiet home. | RES-02/04 |
 | RES-T3 | Create a suitable cavity and let disturbance fade; allow occupation. An unsuitable pit stays ineligible. | RES-05 |
-| RES-T4 | Provide equally good homes and competing residents; check stable choice, no occupancy conflict or rapid oscillation. | RES-06 |
+| RES-T4 | Provide equally good homes and competing residents; check stable choice, preference for a separate nearby home, no occupancy conflict or rapid oscillation. | RES-04/06 |
 | RES-T5 | Remove all reachable shelters; residents remain visible with a bounded waiting/search response. | RES-07 |
 | RES-T6 | Rebuild initial conditions with the same seed/config; compare placements. Judge behavior readability in a normal-camera playtest. | RES-01/08 |
 | PLN-T1 | Edit planet A, visit B, then return to A; verify density, stocks, residents and robot state survive without duplicated rewards. | PLN-01/03/04 |
