@@ -1,0 +1,78 @@
+.app[data-particles='true'] .scene-host[data-slot='full'] {
+  left: calc(var(--rail-width) + var(--layout-card-width) + var(--space-5) * 2);
+  bottom: 280px;
+}
+
+.particle-panel {
+  position: fixed;
+  left: calc(var(--rail-width) + var(--layout-card-width) + var(--space-5) * 2);
+  right: var(--space-5);
+  bottom: var(--space-5);
+  z-index: var(--z-strip);
+  max-height: 256px;
+  overflow: auto;
+  display: grid;
+  grid-template-columns: minmax(200px, 1.3fr) minmax(240px, 1fr);
+  gap: var(--space-3) var(--space-5);
+  padding: var(--space-4);
+  border: var(--hairline) solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+  font-size: var(--text-sm);
+}
+
+.particle-parameters {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-3);
+  align-content: start;
+}
+.particle-parameter { display: grid; gap: var(--space-1); }
+.particle-parameter--toggle { display: flex; align-items: center; gap: var(--space-2); cursor: pointer; }
+.particle-parameter > span, .particle-page__head { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); }
+.particle-parameter output, .particle-page dd, .particle-recipe dd, .particle-status, .particle-clock {
+  font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
+}
+.particle-panel button, .particle-panel select, .particle-panel input { min-height: 44px; touch-action: manipulation; }
+.particle-panel button, .particle-panel select {
+  padding: var(--space-2) var(--space-3);
+  border: var(--hairline) solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper-2);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+.particle-panel button { min-width: 44px; }
+.particle-panel button:disabled { color: var(--ink-faint); cursor: default; }
+.particle-panel button:not(:disabled):active { background: var(--paper-3); }
+.particle-panel .particle-primary { background: var(--summit); }
+.particle-panel input { accent-color: var(--ink); margin: 0; width: 100%; }
+.particle-panel input[type='checkbox'] { width: 22px; min-height: 22px; flex: none; }
+.particle-parameter--toggle { min-height: 44px; }
+
+.particle-side { display: grid; gap: var(--space-3); align-content: start; }
+.particle-playback { display: grid; gap: var(--space-1); }
+.particle-buttons { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.particle-clock { font-size: var(--text-xs); color: var(--ink-dim); }
+
+.particle-page, .particle-recipe { border-left: 3px solid var(--water-deep); padding-left: var(--space-3); }
+.particle-page dl, .particle-recipe dl { display: grid; grid-template-columns: auto 1fr; gap: var(--space-1) var(--space-3); margin: var(--space-2) 0; }
+.particle-page dt, .particle-recipe dt { color: var(--ink-dim); }
+.particle-page dd, .particle-recipe dd { margin: 0; }
+.particle-recipe dl { font-size: var(--text-xs); gap: 2px var(--space-3); margin: var(--space-1) 0; }
+.particle-status { display: block; font-size: var(--text-xs); color: var(--ink-dim); }
+
+.particle-level__track {
+  position: relative;
+  height: 12px;
+  border: var(--hairline) solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper-2);
+  overflow: hidden;
+}
+.particle-level__fill { position: absolute; inset: 0 auto 0 0; background: var(--ink-dim); }
+.particle-level__tick { position: absolute; top: 0; bottom: 0; width: 3px; margin-left: -1px; background: var(--clay-deep); }
+
+@media (max-width: 720px) { .particle-panel { grid-template-columns: 1fr; max-height: 45vh; } }

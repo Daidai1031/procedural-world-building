@@ -1,4 +1,6 @@
 import { demoParams } from './demoParams.js'
+import ParticleDemo from './demos/particles/ParticleDemo.jsx'
+import { PARTICLE_DEMOS } from './demos/particles/params.js'
 import PathDemo from './demos/paths/PathDemo.jsx'
 import { PATH_DEMOS } from './demos/paths/params.js'
 import SceneAnatomyDemo from './demos/sceneAnatomy/SceneAnatomyDemo.jsx'
@@ -21,6 +23,7 @@ import VoxelMeshDemo from './demos/voxels/VoxelMeshDemo.jsx'
 import VoxelTerrainDemo from './demos/voxels/VoxelTerrainDemo.jsx'
 
 export const demoRegistry = {
+  ...Object.fromEntries(PARTICLE_DEMOS.map((key) => [key, { component: ParticleDemo, params: demoParams[key] }])),
   ...Object.fromEntries(PATH_DEMOS.map((key) => [key, { component: PathDemo, params: demoParams[key] }])),
   'shader-lab': { component: ShaderLabDemo, params: demoParams['shader-lab'] },
   'composite-lab': { component: CompositeLabDemo, params: {} },

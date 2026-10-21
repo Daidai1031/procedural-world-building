@@ -7,6 +7,8 @@ import CompositeLabPanel from '../components/CompositeLabPanel.jsx'
 import ControlStrip from '../components/ControlStrip.jsx'
 import PathPanel from '../components/PathPanel.jsx'
 import { PATH_DEMOS } from '../scene/demos/paths/params.js'
+import ParticlePanel from '../components/ParticlePanel.jsx'
+import { PARTICLE_DEMOS } from '../scene/demos/particles/params.js'
 import EntityPanel from '../components/EntityPanel.jsx'
 import InsetCard from '../components/InsetCard.jsx'
 import OutlineRail from '../components/OutlineRail.jsx'
@@ -20,6 +22,7 @@ import { useUiStore } from '../store/uiStore.js'
 import './layout.css'
 
 export default function AppLayout() {
+  const isParticles = useSceneStore((state) => PARTICLE_DEMOS.includes(state.demoKey))
   const isPaths = useSceneStore((state) => PATH_DEMOS.includes(state.demoKey))
   const railPinned = useUiStore((state) => state.railPinned)
   const cardWidth = useUiStore((state) => state.cardWidth)
@@ -50,6 +53,7 @@ export default function AppLayout() {
       className="app"
       data-rail-pinned={railPinned}
       data-paths={isPaths}
+      data-particles={isParticles}
       style={{ '--layout-card-width': cardCollapsed ? 'var(--card-collapsed-width)' : `${cardWidth}px` }}
     >
       <SceneHost />
@@ -62,7 +66,7 @@ export default function AppLayout() {
       <SceneLegend />
       <TerrainLegend />
       <CompositeLabPanel />
-      {isPaths ? <PathPanel /> : <ControlStrip />}
+      {isPaths ? <PathPanel /> : isParticles ? <ParticlePanel /> : <ControlStrip />}
       <AccountDrawer />
       {TUTOR_ENABLED && <TutorDrawer />}
     </div>

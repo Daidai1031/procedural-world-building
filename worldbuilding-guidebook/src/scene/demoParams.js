@@ -1,4 +1,5 @@
 import { distributionParams, farmParams, scatterParams } from './demos/distributions/params.js'
+import { particleParams, PARTICLE_DEMOS } from './demos/particles/params.js'
 import { pathParams, PATH_DEMOS } from './demos/paths/params.js'
 import { sceneAnatomyParams } from './demos/sceneAnatomy/params.js'
 import { coordinateSpaceParams, shaderLabParams } from './demos/shaders/params.js'
@@ -8,6 +9,7 @@ import { cellParams, chunkParams, csgOrderParams, csgParams, editParams, lodPara
 // Params are kept apart from the demo components so the scene store can read
 // defaults without importing components, which import the store back.
 export const demoParams = {
+  ...Object.fromEntries(PARTICLE_DEMOS.map((key) => [key, particleParams])),
   ...Object.fromEntries(PATH_DEMOS.map((key) => [key, pathParams])),
   'scene-anatomy': sceneAnatomyParams,
   'shader-lab': shaderLabParams,
