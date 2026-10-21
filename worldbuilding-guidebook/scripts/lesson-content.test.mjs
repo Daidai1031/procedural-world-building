@@ -24,7 +24,7 @@ test('Lesson 02 has two complete chapters with valid controls and real snippet r
       slugs.add(slug)
       const filename = `${directory}/steps/${file}`
       const raw = await readFile(filename, 'utf8')
-      const [, yaml, prose] = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/)
+      const [, yaml, prose] = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/)
       const step = parse(yaml)
       assert.ok(step.title && step.goal && step.keywords.length >= 3)
       const words = prose.trim().split(/\s+/).length

@@ -33,8 +33,10 @@ export const useSceneStore = create((set) => ({
   axesVisible: false,
   grayscale: false,
   outlinesVisible: true,
+  sceneStatus: '',
 
-  setDemoKey: (demoKey) => set({ demoKey, hiddenEntities: [] }),
+  setDemoKey: (demoKey) => set({ demoKey, hiddenEntities: [], sceneStatus: '' }),
+  setSceneStatus: (sceneStatus) => set({ sceneStatus }),
   setInsetKey: (insetKey) => set({ insetKey }),
   setInsetSwapped: (insetSwapped) => set({ insetSwapped }),
   toggleInsetSwapped: () => set((state) => ({ insetSwapped: !state.insetSwapped })),

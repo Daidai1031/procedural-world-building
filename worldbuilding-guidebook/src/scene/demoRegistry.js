@@ -3,6 +3,7 @@ import SceneAnatomyDemo from './demos/sceneAnatomy/SceneAnatomyDemo.jsx'
 import NoiseTerrainDemo from './demos/proceduralMaps/NoiseTerrainDemo.jsx'
 import FarmlandDemo from './demos/distributions/FarmlandDemo.jsx'
 import ScatterDemo from './demos/distributions/ScatterDemo.jsx'
+import { OrientationDemo, PopulationDemo, SlopeDemo } from './demos/distributions/DistributionDemo.jsx'
 import CompositeLabDemo from './demos/shaders/CompositeLabDemo.jsx'
 import CoordinateSpaceDemo from './demos/shaders/CoordinateSpaceDemo.jsx'
 import ShaderLabDemo from './demos/shaders/ShaderLabDemo.jsx'
@@ -34,6 +35,9 @@ export const demoRegistry = {
   'volume-diagram': { component: VolumeDiagramDemo, params: demoParams['volume-diagram'] },
   'scatter-terrain': { component: ScatterDemo, params: demoParams['scatter-terrain'] },
   'scatter-farmland': { component: FarmlandDemo, params: demoParams['scatter-farmland'] },
+  'scatter-orientation': { component: OrientationDemo, params: demoParams['scatter-orientation'] },
+  'scatter-slope': { component: SlopeDemo, params: demoParams['scatter-slope'] },
+  'scatter-population': { component: PopulationDemo, params: demoParams['scatter-population'] },
   'scene-anatomy': {
     component: SceneAnatomyDemo,
     params: demoParams['scene-anatomy'],

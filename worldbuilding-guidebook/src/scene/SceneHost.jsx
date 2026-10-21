@@ -117,6 +117,7 @@ export default function SceneHost() {
   const insetKey = useSceneStore((state) => state.insetKey)
   const insetSwapped = useSceneStore((state) => state.insetSwapped)
   const toggleInsetSwapped = useSceneStore((state) => state.toggleInsetSwapped)
+  const sceneStatus = useSceneStore((state) => state.sceneStatus)
   const Demo = demoKey ? demoRegistry[demoKey]?.component : null
 
   const inCorner = insetSwapped && getInset(insetKey) !== null
@@ -153,6 +154,8 @@ export default function SceneHost() {
           {Demo && <Demo key={demoKey} />}
         </Canvas>
       </div>
+
+      {sceneStatus && <output className="scene-status" aria-live="polite">{sceneStatus}</output>}
 
       {inCorner && (
         <p className="view-slot__caption">

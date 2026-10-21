@@ -8,6 +8,68 @@ keywords:
   - anchor
   - variation
   - lerp
+scene:
+  demo: scatter-population
+  resetCamera: true
+  unlock:
+    - scatterTreesVisible
+    - scatterRocksVisible
+    - scatterFarmlandVisible
+    - scatterAntennasVisible
+    - scatterBaseVisible
+    - scatterExclusionRadius
+    - scatterPopulationOverlay
+  compare:
+    label: Random versus terrain-driven appearance
+    a:
+      params:
+        scatterVariationSource: random
+      caption: Random only
+    b:
+      params:
+        scatterVariationSource: terrain
+      caption: Terrain driven
+  legend:
+    title: Independent layers
+    items:
+      - swatch: scatter-tree
+        shape: block
+        label: Trees
+        note: Noise patches, moisture, and a 33-degree slope limit; always upright.
+      - swatch: scatter-rock
+        shape: block
+        label: Rocks
+        note: Random candidates, a 60-degree limit, and surface alignment.
+      - swatch: scatter-field
+        shape: block
+        label: Farmland
+        note: Lattice cells near water, aligned to slopes no steeper than 8 degrees.
+      - swatch: scatter-antenna
+        shape: block
+        label: Antennas
+        note: Sparse upright sites on ground no steeper than 5 degrees.
+      - swatch: scatter-base
+        shape: block
+        label: Base
+        note: Four buildings around the flattest suitable anchor; other layers clear its radius.
+code:
+  file: src/scene/demos/distributions/scatter.js
+  fn: terrainDrivenScale
+practice:
+  kind: fill
+  prompt: Complete the scale endpoints so dry sites start at 0.8 and fully wet sites reach 1.2.
+  from:
+    file: src/scene/demos/distributions/scatter.js
+    region: moistureScale
+  blanks:
+    - line: 1
+      answer: "0.8 + (1.2 - 0.8) * moisture"
+      options:
+        - "0.8 + (1.2 - 0.8) * moisture"
+        - "1.2 + (0.8 - 1.2) * moisture"
+        - "1 + (1 - 1) * moisture"
+      explanation: Moisture 0 selects 0.8 and moisture 1 selects 1.2. Reversing the endpoints makes wetter sites smaller.
+      hint: At moisture 0 the multiplied term disappears; at moisture 1 the expression should add 0.4.
 ---
 
 A **scattering layer** groups one asset type with its placement rules. Trees, rocks, farmland, and antennas can share the same terrain data while using different masks, densities, slope limits, and seeds. Switching one layer off should leave the others exactly where they were.
@@ -19,5 +81,3 @@ Terrain data can also change an instance once it is accepted. In this designed w
 For example, normalised moisture can drive `baseScale = lerp(0.8, 1.2, moisture)`: moisture 0 picks the first value and moisture 1 the second. A seeded multiplier between 0.95 and 1.05 follows. Compared on the same positions, random-only variation looks noisy, while terrain-driven variation reads as a pattern across the land.
 
 The moisture relationship is an authored world rule, not a general claim about all trees.
-
-*The interactive scene and practice for this step are planned but not built yet.*

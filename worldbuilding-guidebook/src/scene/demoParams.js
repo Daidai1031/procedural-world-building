@@ -1,4 +1,4 @@
-import { farmParams, scatterParams } from './demos/distributions/params.js'
+import { distributionParams, farmParams, scatterParams } from './demos/distributions/params.js'
 import { sceneAnatomyParams } from './demos/sceneAnatomy/params.js'
 import { coordinateSpaceParams, shaderLabParams } from './demos/shaders/params.js'
 import { noiseParams, erosionParams } from './demos/proceduralMaps/params.js'
@@ -23,6 +23,9 @@ export const demoParams = {
   'volume-diagram': volumeDiagramParams,
   'scatter-terrain': scatterParams,
   'scatter-farmland': farmParams,
+  'scatter-orientation': { ...scatterParams, ...distributionParams },
+  'scatter-slope': { ...scatterParams, ...distributionParams },
+  'scatter-population': { ...scatterParams, ...farmParams, ...distributionParams },
 }
 
 export function getDemoParams(demoKey) {

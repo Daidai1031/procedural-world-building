@@ -7,6 +7,43 @@ keywords:
   - upright
   - surface aligned
   - yaw
+scene:
+  demo: scatter-orientation
+  resetCamera: true
+  unlock:
+    - scatterAssetType
+    - scatterAlignment
+    - scatterYawRange
+    - scatterShowNormals
+  legend:
+    title: Reading orientation
+    items:
+      - swatch: scatter-normal
+        shape: grid
+        label: Surface normal
+        note: The blue line points away from the sampled patch of ground.
+      - swatch: scatter-rock
+        shape: block
+        label: Selected asset
+        note: Position stays fixed while tilt and yaw change independently.
+code:
+  file: src/scene/demos/distributions/terrain.js
+  fn: normalAt
+practice:
+  kind: fill
+  prompt: Finish the quaternion composition so yaw turns around the up direction chosen by the tilt without changing that up direction.
+  from:
+    file: src/scene/demos/distributions/scatter.js
+    region: orientationRule
+  blanks:
+    - line: 3
+      answer: "tilt.multiply(turn)"
+      options:
+        - "tilt.multiply(turn)"
+        - "turn.multiply(tilt)"
+        - "tilt.slerp(turn)"
+      explanation: Applying the local yaw before the surface tilt keeps the object's final up direction equal to the selected surface normal.
+      hint: Compose the local turn into the tilt; interpolating between the two rotations would not preserve either rule.
 ---
 
 A **surface normal** points straight out of a small patch of ground. It gives an object a direction to line up with: aligning the object's own up direction with the normal makes it tilt with the slope.
@@ -16,5 +53,3 @@ Three assets, three rules. A rock looks grounded when it follows the slope. A fa
 **Random yaw** adds variety by turning an object around whichever up direction it uses. Variety does not need random tipping in every direction.
 
 Position, tilt, and yaw are three separate parts of an object's transform. Changing the orientation rule changes how accepted objects face; it does not remove any candidate positions. On flat ground, upright and surface-aligned look identical, so the difference only shows on a slope.
-
-*The interactive scene and practice for this step are planned but not built yet.*

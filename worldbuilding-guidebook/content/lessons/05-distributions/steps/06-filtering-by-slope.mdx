@@ -7,6 +7,45 @@ keywords:
   - cosine
   - accepted count
   - candidate count
+scene:
+  demo: scatter-slope
+  resetCamera: true
+  unlock:
+    - scatterAssetType
+    - scatterMaxSlope
+    - scatterShowRejected
+    - scatterShowNormals
+  legend:
+    title: Reading the filter
+    items:
+      - swatch: scatter-rock
+        shape: block
+        label: Accepted candidate
+        note: Its terrain normal falls inside the current maximum slope.
+      - swatch: scatter-rejected
+        shape: dot
+        label: Rejected candidate
+        note: It remains visible as a point so the filter can be inspected.
+      - label: Live count
+        formula: accepted / candidates
+        note: The lower-right readout updates as the slope limit changes.
+code:
+  file: src/scene/demos/distributions/scatter.js
+  fn: acceptsSlope
+practice:
+  kind: fill
+  prompt: Finish the slope rule. Flat ground has a dot product near 1, so it should pass a strict maximum-slope setting.
+  from:
+    file: src/scene/demos/distributions/scatter.js
+    region: slopeRule
+  blanks:
+    - line: 1
+      answer: ">="
+      options:
+        - ">="
+        - "<="
+      explanation: A larger normal-up dot product means a smaller slope angle, so eligible ground stays at or above the cosine threshold.
+      hint: Which comparison keeps values close to 1 when the threshold is also close to 1?
 ---
 
 Orientation decides how an object faces after it is placed. A **slope filter** decides whether it may appear at all. A tree can stay upright and still be kept off a cliff.
@@ -18,5 +57,3 @@ Each asset keeps its own limit. A rock can rest on a steep hillside, a tree need
 Lower a limit and more candidates are rejected; raise it and steeper ground opens up. Once a filter is active, the **accepted count** can fall below the **candidate count**, so both numbers are worth showing.
 
 On a spherical planet, local up points outward from the planet centre instead of always along world y.
-
-*The interactive scene and practice for this step are planned but not built yet.*

@@ -7,6 +7,65 @@ keywords:
   - minimum spacing
   - reproducible layout
   - assignment
+scene:
+  demo: scatter-population
+  resetCamera: true
+  unlock:
+    - scatterTreesVisible
+    - scatterRocksVisible
+    - scatterFarmlandVisible
+    - scatterAntennasVisible
+    - scatterBaseVisible
+    - scatterSeed
+    - scatterExclusionRadius
+    - scatterAntennaSpacing
+    - scatterPopulationOverlay
+  legend:
+    title: Population protocol
+    items:
+      - swatch: scatter-tree
+        shape: block
+        label: Trees
+        formula: noise × density · moisture · slope ≤ 33°
+        note: Upright; moisture drives scale and colour.
+      - swatch: scatter-rock
+        shape: block
+        label: Rocks
+        formula: random candidates · slope ≤ 60°
+        note: Surface aligned with seeded yaw and scale.
+      - swatch: scatter-field
+        shape: block
+        label: Farmland
+        formula: lattice · near water · slope ≤ 8°
+        note: Surface aligned; rows keep a fixed yaw.
+      - swatch: scatter-antenna
+        shape: block
+        label: Antennas
+        formula: slope ≤ 5° · minimum spacing
+        note: Tested in a fixed order so the sparse layout is repeatable.
+      - swatch: scatter-base
+        shape: block
+        label: Base
+        formula: flattest suitable anchor
+        note: Four fixed building offsets and a protected exclusion radius.
+code:
+  file: src/scene/demos/distributions/scatter.js
+  fn: buildPopulation
+practice:
+  kind: fill
+  prompt: Complete the minimum-spacing comparison so a candidate is rejected only when it is closer than the required distance to an accepted antenna.
+  from:
+    file: src/scene/demos/distributions/scatter.js
+    region: spacingRule
+  blanks:
+    - line: 1
+      answer: "<"
+      options:
+        - "<"
+        - ">"
+        - "==="
+      explanation: Distances below the minimum violate the rule. Candidates exactly at the minimum remain valid.
+      hint: Which comparison identifies a distance that is too small?
 ---
 
 A population brings several asset types together. For each layer, state four things: where its candidates come from, which conditions accept them, how its instances are oriented, and what changes their appearance. A useful protocol explains *why* an object appears at a location, not just how many copies exist.
@@ -17,4 +76,13 @@ Record the seed and parameters of any layout worth coming back to. Compare two p
 
 This step gathers the lesson's assignment: a population of trees, rocks, farmland, antennas, and a base, each with its own independent controls and a written protocol, a repeatable layout, at least one terrain-based acceptance rule, and at least one property driven by terrain data. Any three distinct asset types satisfy the minimum; the full set is what Ares-9 needs.
 
-*The interactive scene and practice for this step are planned but not built yet.*
+
+The finished protocol is explicit and reproducible:
+
+| Layer | Candidates | Acceptance | Orientation | Appearance |
+| --- | --- | --- | --- | --- |
+| Trees | Seeded random points | Noise patch, moisture, slope, base clearance | Upright with seeded yaw | Moisture and a small seeded multiplier |
+| Rocks | Seeded random points | Slope and base clearance | Surface aligned with seeded yaw | Small seeded scale variation |
+| Farmland | Regular lattice | Near and above water, slope, base clearance | Surface aligned, fixed yaw | Moisture-driven colour and scale |
+| Antennas | Sparse seeded points | Slope, base clearance, minimum spacing | Upright | Fixed authored form |
+| Base | Seeded anchor candidates | Flattest suitable site | Upright | Four fixed building forms |

@@ -27,6 +27,21 @@ scene:
 code:
   file: src/scene/demos/distributions/random.js
   fn: createRandom
+practice:
+  kind: fill
+  prompt: Complete the fixed draw order for each candidate. Drawing x and then z from the same seeded sequence makes the layout repeatable.
+  from:
+    file: src/scene/demos/distributions/scatter.js
+    region: candidateDrawOrder
+  blanks:
+    - line: 2
+      answer: "(random() - 0.5) * FOOTPRINT_SIZE"
+      options:
+        - "(random() - 0.5) * FOOTPRINT_SIZE"
+        - "heightAt(x, z)"
+        - "Math.random() * FOOTPRINT_SIZE"
+      explanation: The same seeded generator supplies x and z in a fixed order. Math.random would break reproducibility, while heightAt supplies y after both coordinates exist.
+      hint: Use the same seeded generator and the same centred footprint conversion as the x coordinate.
 ---
 
 A **seeded random generator** produces a repeatable sequence of values. The scattering system uses that sequence to choose positions. Change the seed and a new layout appears; restore it and the original layout returns, as long as the algorithm, the settings, and the order in which values are drawn also stay the same.
@@ -36,5 +51,3 @@ Keep the **terrain seed** and the **scatter seed** apart. Changing only the scat
 More candidates do not have to mean a completely different layout. If position samples are always drawn in the same order, the first candidates stay put and new ones are added after them. That only holds if extra random draws, for rotation or scale, are taken consistently too.
 
 A seed alone is not a saved scene. It reproduces a layout only together with the rest of the generator's inputs.
-
-*The practice for this step is planned but not built yet.*

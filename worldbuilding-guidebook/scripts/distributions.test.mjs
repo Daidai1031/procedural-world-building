@@ -5,15 +5,24 @@ import { createRandom } from '../src/scene/demos/distributions/random.js'
 import { buildRockGeometry } from '../src/scene/demos/distributions/rock.js'
 import {
   acceptCandidates,
+  acceptsSlope,
+  applyMinimumSpacing,
   buildFarmLayout,
   buildLayout,
+  buildPopulation,
   drawAcceptanceValues,
+  filterBySlope,
+  findBaseAnchor,
   generateCandidates,
   generateLatticeCandidates,
   instanceMatrix,
   maskNoiseAt,
   placementNoiseAt,
   placementProbability,
+  orientedInstanceMatrix,
+  outsideRadius,
+  slopeDegreesAt,
+  terrainDrivenScale,
 } from '../src/scene/demos/distributions/scatter.js'
 import {
   SCATTER_WORLD_SIZE,
@@ -23,6 +32,7 @@ import {
   distanceToWaterAt,
   heightAt,
   moistureAt,
+  normalAt,
 } from '../src/scene/demos/distributions/terrain.js'
 
 test('the seeded generator repeats its sequence and stays in [0, 1)', () => {
@@ -235,4 +245,62 @@ test('lattice tiles never overlap; the same number of random tiles does', () => 
   assert.equal(random.length, lattice.length)
   assert.equal(overlaps(lattice), 0)
   assert.ok(overlaps(random) > 0)
+})
+
+test('terrain normals are unit vectors and aligned transforms keep their up direction', () => {
+  const candidate = generateCandidates(100, 42).sort((a, b) => slopeDegreesAt(b) - slopeDegreesAt(a))[0]
+  const normal = normalAt(candidate.x, candidate.z)
+  assert.ok(Math.abs(normal.length() - 1) < 1e-9)
+  assert.ok(slopeDegreesAt(candidate) > 1, 'the orientation check must use a sloped point')
+
+  for (const yaw of [0, Math.PI / 3, Math.PI]) {
+    const aligned = orientedInstanceMatrix(candidate, { alignToSurface: true, yaw })
+    const up = new Vector3(0, 1, 0).transformDirection(aligned)
+    assert.ok(up.distanceTo(normal) < 1e-6)
+    assert.ok(new Vector3().setFromMatrixPosition(aligned).distanceTo(new Vector3(candidate.x, candidate.y, candidate.z)) < 1e-6)
+  }
+  const upright = new Vector3(0, 1, 0).transformDirection(orientedInstanceMatrix(candidate, { alignToSurface: false, yaw: 1 }))
+  assert.ok(upright.distanceTo(new Vector3(0, 1, 0)) < 1e-6)
+})
+
+test('slope limits accept progressively fewer candidates', () => {
+  const candidates = generateCandidates(400, 51)
+  const counts = [90, 60, 33, 8, 5, 0].map((limit) => filterBySlope(candidates, limit).accepted.length)
+  counts.slice(1).forEach((count, index) => assert.ok(count <= counts[index]))
+  assert.equal(counts[0], candidates.length)
+  for (const candidate of candidates) assert.equal(acceptsSlope(candidate, 33), slopeDegreesAt(candidate) <= 33 + 1e-9)
+  const split = filterBySlope(candidates, 8)
+  assert.equal(split.accepted.length + split.rejected.length, candidates.length)
+})
+
+test('minimum spacing is repeatable and increasing it never adds antennas', () => {
+  const candidates = generateCandidates(200, 73)
+  const near = applyMinimumSpacing(candidates, 0.5)
+  const far = applyMinimumSpacing(candidates, 1.2)
+  assert.deepEqual(near, applyMinimumSpacing(candidates, 0.5))
+  assert.ok(far.length <= near.length)
+  for (const [index, first] of far.entries()) {
+    for (const second of far.slice(index + 1)) assert.ok(Math.hypot(first.x - second.x, first.z - second.z) >= 1.2)
+  }
+})
+
+test('the base anchor is the flattest suitable candidate and clears every population layer', () => {
+  const candidates = generateCandidates(80, 443)
+  const anchor = findBaseAnchor(candidates, 1.7)
+  const suitable = candidates.filter((candidate) => candidate.y > 1.7 && Math.abs(candidate.x) < SCATTER_WORLD_SIZE / 2 - 0.8 && Math.abs(candidate.z) < SCATTER_WORLD_SIZE / 2 - 0.8)
+  assert.ok(anchor)
+  assert.equal(slopeDegreesAt(anchor), Math.min(...suitable.map(slopeDegreesAt)))
+
+  const population = buildPopulation({ seed: 42, exclusionRadius: 1.1, antennaSpacing: 1 })
+  assert.deepEqual(population, buildPopulation({ seed: 42, exclusionRadius: 1.1, antennaSpacing: 1 }))
+  for (const type of ['tree', 'rock', 'farmland', 'antenna']) {
+    assert.ok(population[type].every(({ candidate }) => outsideRadius(candidate, population.anchor, 1.1)))
+  }
+})
+
+test('terrain-driven scale preserves the authored dry and wet ranges', () => {
+  for (const randomValue of [0, 0.5, 0.999]) {
+    assert.ok(terrainDrivenScale(0, randomValue) >= 0.76 && terrainDrivenScale(0, randomValue) <= 0.84)
+    assert.ok(terrainDrivenScale(1, randomValue) >= 1.14 && terrainDrivenScale(1, randomValue) <= 1.26)
+  }
 })

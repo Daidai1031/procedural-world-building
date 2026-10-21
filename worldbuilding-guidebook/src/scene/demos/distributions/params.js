@@ -74,6 +74,95 @@ export const farmParams = {
   },
 }
 
+export const distributionParams = {
+  scatterAssetType: {
+    type: 'select', label: 'Asset', default: 'rock',
+    options: [
+      { value: 'rock', label: 'Rock' },
+      { value: 'tree', label: 'Tree' },
+      { value: 'farmland', label: 'Farmland' },
+      { value: 'antenna', label: 'Antenna' },
+    ],
+  },
+  scatterAlignment: {
+    type: 'select', label: 'Orientation', default: 'surface',
+    options: [
+      { value: 'surface', label: 'Surface aligned' },
+      { value: 'upright', label: 'Upright' },
+    ],
+  },
+  scatterYawRange: {
+    type: 'float', label: 'Yaw range', min: 0, max: 180, step: 15, default: 90,
+  },
+  scatterShowNormals: {
+    type: 'boolean', label: 'Show normals', default: true,
+  },
+  scatterMaxSlope: {
+    type: 'float', label: 'Max slope', min: 0, max: 90, step: 1, default: 33,
+  },
+  scatterShowRejected: {
+    type: 'boolean', label: 'Rejected points', default: true,
+  },
+  scatterTreesVisible: {
+    type: 'boolean', label: 'Trees', default: true,
+  },
+  scatterRocksVisible: {
+    type: 'boolean', label: 'Rocks', default: true,
+  },
+  scatterFarmlandVisible: {
+    type: 'boolean', label: 'Farmland', default: true,
+  },
+  scatterAntennasVisible: {
+    type: 'boolean', label: 'Antennas', default: true,
+  },
+  scatterBaseVisible: {
+    type: 'boolean', label: 'Base', default: true,
+  },
+  scatterExclusionRadius: {
+    type: 'float', label: 'Base clearance', min: 0.4, max: 2, step: 0.1, default: 0.9,
+  },
+  scatterAntennaSpacing: {
+    type: 'float', label: 'Antenna spacing', min: 0, max: 2.5, step: 0.1, default: 1.2,
+  },
+  scatterPopulationOverlay: {
+    type: 'select', label: 'Ground overlay', default: 'height',
+    options: [
+      { value: 'height', label: 'Height' },
+      { value: 'moisture', label: 'Moisture' },
+      { value: 'slope', label: 'Slope' },
+    ],
+  },
+  scatterVariationSource: {
+    type: 'select', label: 'Variation', default: 'random', hideFromStrip: true,
+    options: [
+      { value: 'random', label: 'Random only' },
+      { value: 'terrain', label: 'Terrain driven' },
+    ],
+  },
+}
+
+export function distributionSettingsFromParams(params) {
+  return {
+    assetType: params.scatterAssetType,
+    alignment: params.scatterAlignment,
+    yawRange: params.scatterYawRange,
+    showNormals: params.scatterShowNormals,
+    maxSlope: params.scatterMaxSlope,
+    showRejected: params.scatterShowRejected,
+    exclusionRadius: params.scatterExclusionRadius,
+    antennaSpacing: params.scatterAntennaSpacing,
+    overlay: params.scatterPopulationOverlay,
+    variationSource: params.scatterVariationSource,
+    visible: {
+      tree: params.scatterTreesVisible,
+      rock: params.scatterRocksVisible,
+      farmland: params.scatterFarmlandVisible,
+      antenna: params.scatterAntennasVisible,
+      base: params.scatterBaseVisible,
+    },
+  }
+}
+
 export function farmSettingsFromParams(params) {
   return {
     cellSize: FARM_CELL_SIZE,

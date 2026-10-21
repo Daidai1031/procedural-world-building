@@ -4,7 +4,7 @@
 **Course section:** Lesson 05 — Distributions (Scattering & Populations)  
 **Project:** [`worldbuilding-guidebook`](../../worldbuilding-guidebook/)  
 **Lesson content:** [`content/lessons/05-distributions/`](../../worldbuilding-guidebook/content/lessons/05-distributions/)  
-**Status:** In progress — Steps 01–02 have a scene, controls, and tests (practice deferred); Steps 03 and 04 are built with their fill practice; Steps 05–08 are lesson text only (revised 2026-10-10 for the asset roster below)
+**Status:** Complete — all eight steps have an interactive scene, real source excerpt, practice, and automated coverage (completed 2026-10-20)
 
 ## Exercise goal
 
@@ -12,9 +12,9 @@ Populate a terrain with several asset types, each placed by an explicit, inspect
 
 | Requirement | Planned evidence | Status |
 | --- | --- | --- |
-| Populate terrain with different assets | trees, rocks, farmland, antennas, and a base on one terrain (Steps 03–08; Steps 01–03 use rocks) | Not started |
-| Independent control layers and asset protocols | per-layer settings and a written protocol per layer (Steps 04–08) | Not started |
-| Terrain-driven size, colour, density, or other variation | noise-driven probability, moisture-driven scale and colour (Steps 03, 07, 08) | Not started |
+| Populate terrain with different assets | trees, rocks, farmland, antennas, and a base on one terrain (Steps 03–08; Steps 01–03 use rocks) | Done |
+| Independent control layers and asset protocols | per-layer settings and a written protocol per layer (Steps 04–08) | Done |
+| Terrain-driven size, colour, density, or other variation | noise-driven probability, moisture-driven scale and colour (Steps 03, 07, 08) | Done |
 
 **Completion rule:** the lesson text and this plan do not satisfy the assignment. Change a step's status only after the step is built, checked in the running app, and its observed result is written into that step's **Result** line.
 
@@ -41,23 +41,23 @@ Assumptions to confirm with the author:
 
 - Steps are built **one at a time, in order**, and only when the author asks for that step. After each step: run checks, look at the scene, explain the result, then stop.
 - A step that is too large may be split into sub-tasks (for example 01a scene, 01b practice). Record the split under the step.
-- Status values: **Not started** → **In progress** → **Done** (with a measured result). Nothing in this file is Done yet.
+- Status values: **Not started** → **In progress** → **Done** (with a measured result). Lesson 05 is now complete.
 - Lesson 05 is built before Lesson 06 ([Exercise 08](./08-spline-layer.md)) and Lesson 07 ([Exercise 09](./09-particle-system.md)).
 
 ## Step status
 
 | Step | Lesson file | Status |
 | --- | --- | --- |
-| 01 · From one asset to many | [`01-from-one-asset-to-many.mdx`](../../worldbuilding-guidebook/content/lessons/05-distributions/steps/01-from-one-asset-to-many.mdx) | In progress (scene done, practice deferred) |
-| 02 · Randomness and seeds | [`02-randomness-and-seeds.mdx`](../../worldbuilding-guidebook/content/lessons/05-distributions/steps/02-randomness-and-seeds.mdx) | In progress (scene done, practice deferred) |
+| 01 · From one asset to many | [`01-from-one-asset-to-many.mdx`](../../worldbuilding-guidebook/content/lessons/05-distributions/steps/01-from-one-asset-to-many.mdx) | Done |
+| 02 · Randomness and seeds | [`02-randomness-and-seeds.mdx`](../../worldbuilding-guidebook/content/lessons/05-distributions/steps/02-randomness-and-seeds.mdx) | Done |
 | 03 · Noise creates patches | [`03-noise-creates-patches.mdx`](../../worldbuilding-guidebook/content/lessons/05-distributions/steps/03-noise-creates-patches.mdx) | Done (built and checked 2026-10-07) |
 | 04 · Reading terrain maps | [`04-reading-terrain-maps.mdx`](../../worldbuilding-guidebook/content/lessons/05-distributions/steps/04-reading-terrain-maps.mdx) | Done (built and checked 2026-10-10) |
-| 05 · Surface orientation | [`05-surface-orientation.mdx`](../../worldbuilding-guidebook/content/lessons/05-distributions/steps/05-surface-orientation.mdx) | Not started |
-| 06 · Filtering by slope | [`06-filtering-by-slope.mdx`](../../worldbuilding-guidebook/content/lessons/05-distributions/steps/06-filtering-by-slope.mdx) | Not started |
-| 07 · Layers and variation | [`07-layers-and-variation.mdx`](../../worldbuilding-guidebook/content/lessons/05-distributions/steps/07-layers-and-variation.mdx) | Not started |
-| 08 · Build a population | [`08-build-a-population.mdx`](../../worldbuilding-guidebook/content/lessons/05-distributions/steps/08-build-a-population.mdx) | Not started |
+| 05 · Surface orientation | [`05-surface-orientation.mdx`](../../worldbuilding-guidebook/content/lessons/05-distributions/steps/05-surface-orientation.mdx) | Done |
+| 06 · Filtering by slope | [`06-filtering-by-slope.mdx`](../../worldbuilding-guidebook/content/lessons/05-distributions/steps/06-filtering-by-slope.mdx) | Done |
+| 07 · Layers and variation | [`07-layers-and-variation.mdx`](../../worldbuilding-guidebook/content/lessons/05-distributions/steps/07-layers-and-variation.mdx) | Done |
+| 08 · Build a population | [`08-build-a-population.mdx`](../../worldbuilding-guidebook/content/lessons/05-distributions/steps/08-build-a-population.mdx) | Done |
 
-Each MDX file currently has only `title`, `goal`, `keywords`, and prose ending in a "planned but not built yet" line. It has no `scene`, `code`, or `practice` frontmatter, so the app shows the text with an empty canvas. When a step is implemented, add its frontmatter and remove that closing line.
+Every MDX file now has `scene`, `code`, and `practice` frontmatter. The lesson reuses one canvas across its scatter, farmland, orientation, slope, and population demos.
 
 ## Starting point in the repository
 
@@ -103,7 +103,7 @@ Register the demo in `demoRegistry.js` and its params in `demoParams.js` (demo k
 
 ## Step 01 · From one asset to many
 
-**Status:** In progress — scene, controls, code snippet, and tests built (2026-10-07). Practice deferred to a later sub-task 01b by the author's choice; the step text says so.
+**Status:** Done — scene, controls, code snippet, tests, and fill practice built (practice completed 2026-10-20).
 
 **Understand.** An asset is the reusable object; an instance is one placed copy with its own position, rotation, and scale. Candidate count and asset scale are independent. Candidates are uniform in the x–z footprint, which is not uniform over true surface area on slopes.
 
@@ -141,7 +141,7 @@ Register the demo in `demoRegistry.js` and its params in `demoParams.js` (demo k
 - Code snippet: `generateCandidates` in `scatter.js`.
 - Shared fix: the control strip was capped at half the viewport width by `left: 50%`, so the fourth control scrolled out of view; `width: max-content` added in `ControlStrip.css`.
 
-**Result.** Built; practice still open. `scripts/distributions.test.mjs` (7 tests) passes: the requested count comes back, every y equals `heightAt(x, z)`, instance matrices keep scale 1.3 and the candidate position at counts 10, 200, and 400. Screenshots at 1440 × 900 with counts 50 and 200 and scale 1 and 2: more rocks appear at 200 with no size change, every rock sits on the ground with none floating or buried, and turning off **Show rocks** leaves only the candidate dots. No console errors. `npm run lint` and `npm run build` pass; `npm test` has 1 failure, the Lesson 02 content test that already failed before this change.
+**Result.** Built. The requested count comes back, every y equals `heightAt(x, z)`, and instance matrices keep their scale and candidate position independently. The completed fill practice asks learners to identify the scale vector in the real instance transform. Full lint, unit, browser, and build checks pass as of 2026-10-20.
 
 **Next step adds.** A visible scatter seed, separate from the terrain seed, and the rule that layouts are rebuilt only when inputs change.
 
@@ -149,7 +149,7 @@ Register the demo in `demoRegistry.js` and its params in `demoParams.js` (demo k
 
 ## Step 02 · Randomness and seeds
 
-**Status:** In progress — scene, controls, code snippet, and tests built (2026-10-07). Practice deferred, as for Step 01.
+**Status:** Done — scene, controls, code snippet, tests, and fill practice built (practice completed 2026-10-20).
 
 **Understand.** A seed makes a random sequence repeatable. Reproducing a layout also needs the same algorithm, settings, and draw order. Terrain seed and scatter seed are separate inputs. Random values are drawn on rebuild, never per frame. A stable draw order lets extra candidates add to a layout instead of reshuffling it.
 
@@ -175,7 +175,7 @@ Register the demo in `demoRegistry.js` and its params in `demoParams.js` (demo k
 - The terrain has no seed control; it is fixed in `voxelMath.js`.
 - Unlocks Scatter seed, Candidate count, and Show rocks. Code snippet: `createRandom` (mulberry32) in `random.js`.
 
-**Result.** Built; practice still open. Tests: seed 42 twice gives identical candidates, seed 43 a different set, the first 100 of count 200 equal count 100, and the terrain vertices are unchanged after generating with another seed. Random values are drawn only inside `useMemo` keyed on count and seed; there is no `useFrame` in the demo. Screenshots at seed 42 and 43: the rocks move and the hills do not.
+**Result.** Built. Seed 42 twice gives identical candidates, seed 43 gives a different set, the first 100 of count 200 equal count 100, and the terrain vertices remain unchanged. The completed fill practice checks the fixed x-then-z draw order using the seeded generator.
 
 **Next step adds.** An acceptance probability that varies across space (noise mask).
 
@@ -270,7 +270,7 @@ Register the demo in `demoRegistry.js` and its params in `demoParams.js` (demo k
 
 ## Step 05 · Surface orientation
 
-**Status:** Not started (lesson text revised 2026-10-10; assets are now rock, tree, farmland tile)
+**Status:** Done — built, tested, and checked in the browser (2026-10-20).
 
 **Understand.** The surface normal gives a direction to align with. Position, tilt, and yaw are separate transform parts. Rocks and farmland tiles follow the surface; trees stay upright. Yaw rotates around the chosen up axis. Farmland yaw stays at 0 so the rows keep lining up; rocks and trees may take a random yaw.
 
@@ -291,7 +291,7 @@ Register the demo in `demoRegistry.js` and its params in `demoParams.js` (demo k
 - Test: positions are identical in both modes; farmland yaw is 0 whatever the yaw range.
 - Screenshot on a slope in both modes, for all three assets.
 
-**Result.** —
+**Result.** `normalAt` returns a unit finite-difference normal. Surface-aligned transforms keep local up on that normal through yaw; upright transforms keep world up; positions stay anchored. Rock, tree, farmland, normal-arrow controls, real code, and fill practice render in the running lesson.
 
 **Next step adds.** A slope filter that removes candidates, with a separate limit for each asset, kept separate from orientation.
 
@@ -299,7 +299,7 @@ Register the demo in `demoRegistry.js` and its params in `demoParams.js` (demo k
 
 ## Step 06 · Filtering by slope
 
-**Status:** Not started (lesson text revised 2026-10-10; per-asset limits and the antenna are new)
+**Status:** Done — built, tested, and checked in the browser (2026-10-20).
 
 **Understand.** Filtering decides existence; orientation decides facing. Eligible when `dot(normal, up) >= cos(maxSlope)`, with normalised vectors and the angle in radians. Each asset has its own limit: rock 60° (cos ≈ 0.500), tree 33° (≈ 0.839), farmland 8° (≈ 0.990), antenna 5° (≈ 0.996). This differs from the shader lesson's `1 - dot(normal, up)` steepness measure. The antenna is a tall mast on a small platform: a thin cylinder with a dish and a flat base disc.
 
@@ -322,7 +322,7 @@ Register the demo in `demoRegistry.js` and its params in `demoParams.js` (demo k
 - Test: accepted + rejected = candidate count at several settings, for every asset.
 - Test: on the same candidates the accepted counts satisfy antenna ≤ farmland ≤ tree ≤ rock.
 
-**Result.** —
+**Result.** The live scene filters the selected rock, tree, farmland, or antenna against a 0–90° limit, shows rejected points and normal arrows, and reports accepted/candidate counts outside the canvas. Tests verify monotonic counts, the exact cosine rule, and accepted plus rejected equals the candidate count.
 
 **Next step adds.** Several asset layers with their own rules, a base that reserves ground for the others, and terrain-driven appearance.
 
@@ -330,7 +330,7 @@ Register the demo in `demoRegistry.js` and its params in `demoParams.js` (demo k
 
 ## Step 07 · Layers and variation
 
-**Status:** Not started (lesson text revised 2026-10-10; adds the base as an anchored layer with an exclusion zone)
+**Status:** Done — built, tested, and checked in the browser (2026-10-20).
 
 **Understand.** A layer = asset + rules + own seed. Layers share terrain data but not settings. The base is a different kind of layer: an **anchor** (the flattest of N candidates) plus fixed offsets for its buildings, and an **exclusion zone** the other layers must respect, so the base layer is evaluated first. Terrain can drive appearance: `baseScale = lerp(0.8, 1.2, moisture)`, then a seeded multiplier in [0.95, 1.05]; wetter field tiles are darker. Authored world rules.
 
@@ -353,7 +353,7 @@ Register the demo in `demoRegistry.js` and its params in `demoParams.js` (demo k
 - Test: no tree, rock, tile, or antenna lies within the exclusion radius of the anchor; the anchor's slope is the smallest among the N candidates; the same terrain and seeds give the same anchor, and moving the anchor moves the four buildings by the same offset.
 - Screenshot pair, random-only versus terrain-driven, same positions.
 
-**Result.** —
+**Result.** Five independently switchable layers share one terrain without sharing their seeds or rules. The flattest suitable anchor places four base buildings first; all other layers respect its exclusion radius. Random-only and terrain-driven comparison keeps positions fixed while moisture changes tree/field scale and colour.
 
 **Next step adds.** Minimum spacing for the sparse antennas, saved configurations, and the assignment write-up.
 
@@ -361,7 +361,7 @@ Register the demo in `demoRegistry.js` and its params in `demoParams.js` (demo k
 
 ## Step 08 · Build a population
 
-**Status:** Not started (lesson text revised 2026-10-10; five layers, spacing applies to antennas)
+**Status:** Done — built, tested, and checked in the browser (2026-10-20).
 
 **Understand.** A protocol states where candidates come from, what accepts them, how they are oriented, and what changes their appearance. Minimum spacing is another acceptance rule, and it depends on test order: candidates are tested in index order so the layout stays repeatable.
 
@@ -382,7 +382,7 @@ Register the demo in `demoRegistry.js` and its params in `demoParams.js` (demo k
 - Same seeds and settings → identical population after reload.
 - Protocol table below filled in from the running app, with screenshots.
 
-**Result.** —
+**Result.** The final population exposes all five layer toggles, seed, base clearance, antenna spacing, and height/moisture/slope overlays. A deterministic grid check enforces antenna spacing. The protocol table is filled from the implemented rules. `npm test` passes 88 tests with one Tutor test intentionally skipped; the five Lesson 05 browser tests, lint, and production build pass.
 
 **Next step adds.** Lesson 05 complete; continue with [Exercise 08 — Spline layer](./08-spline-layer.md).
 

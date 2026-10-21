@@ -1,13 +1,21 @@
 import { Matrix4, Quaternion, Vector3 } from 'three'
 import { fractalNoise } from '../proceduralMaps/noiseMath.js'
 import { createRandom } from './random.js'
-import { SCATTER_WORLD_SIZE, buildWaterDistanceGrid, distanceToWaterAt, heightAt, normaliseNoise } from './terrain.js'
+import { SCATTER_WORLD_SIZE, buildWaterDistanceGrid, distanceToWaterAt, heightAt, moistureAt, normalAt, normaliseNoise } from './terrain.js'
 
 // Candidates stay this far inside the edge, so a rock never hangs over a wall.
 const FOOTPRINT_SIZE = 0.94 * SCATTER_WORLD_SIZE
 
 const ACCEPTANCE_SEED_OFFSET = 7919
 const MASK_SEED = 5
+const WORLD_UP = new Vector3(0, 1, 0)
+
+export const ASSET_SLOPE_LIMITS = {
+  rock: 60,
+  tree: 33,
+  farmland: 8,
+  antenna: 5,
+}
 
 // Every candidate draws x, then z, in the same order. A larger count therefore
 // continues the same sequence: the first candidates keep their places and the
@@ -17,8 +25,10 @@ export function generateCandidates(count, seed) {
   const candidates = []
 
   for (let index = 0; index < count; index += 1) {
+    // #region candidateDrawOrder
     const x = (random() - 0.5) * FOOTPRINT_SIZE
     const z = (random() - 0.5) * FOOTPRINT_SIZE
+    // #endregion
     const y = heightAt(x, z)
     candidates.push({ x, y, z })
   }
@@ -29,11 +39,141 @@ export function generateCandidates(count, seed) {
 // One instance's transform: moved to its candidate and scaled by the asset
 // scale. The count of candidates plays no part in it.
 export function instanceMatrix(candidate, scale, target = new Matrix4()) {
+  // #region instanceTransform
   return target.compose(
     new Vector3(candidate.x, candidate.y, candidate.z),
     new Quaternion(),
     new Vector3(scale, scale, scale),
   )
+  // #endregion
+}
+
+export function slopeDegreesAt(candidate) {
+  const dot = Math.min(1, Math.max(-1, normalAt(candidate.x, candidate.z).dot(WORLD_UP)))
+  return Math.acos(dot) * 180 / Math.PI
+}
+
+export function acceptsSlope(candidate, maxSlopeDegrees) {
+  const normal = normalAt(candidate.x, candidate.z)
+  const maxSlopeRadians = maxSlopeDegrees * Math.PI / 180
+  // #region slopeRule
+  return normal.dot(WORLD_UP) >= Math.cos(maxSlopeRadians)
+  // #endregion
+}
+
+// Tilt from world up to the terrain normal, then yaw around the object's local
+// up. Multiplication in this order leaves the chosen up vector unchanged.
+export function orientedInstanceMatrix(candidate, { alignToSurface = true, yaw = 0, scale = 1 } = {}, target = new Matrix4()) {
+  const up = alignToSurface ? normalAt(candidate.x, candidate.z) : WORLD_UP
+  // #region orientationRule
+  const tilt = new Quaternion().setFromUnitVectors(WORLD_UP, up)
+  const turn = new Quaternion().setFromAxisAngle(WORLD_UP, yaw)
+  const orientation = tilt.multiply(turn)
+  // #endregion
+  return target.compose(
+    new Vector3(candidate.x, candidate.y, candidate.z),
+    orientation,
+    new Vector3(scale, scale, scale),
+  )
+}
+
+export function filterBySlope(candidates, maxSlopeDegrees) {
+  const accepted = []
+  const rejected = []
+  for (const candidate of candidates) (acceptsSlope(candidate, maxSlopeDegrees) ? accepted : rejected).push(candidate)
+  return { accepted, rejected }
+}
+
+export function applyMinimumSpacing(candidates, minimumSpacing) {
+  if (minimumSpacing <= 0) return [...candidates]
+  const accepted = []
+  const cellSize = minimumSpacing
+  const grid = new Map()
+  const key = (x, z) => `${Math.floor(x / cellSize)},${Math.floor(z / cellSize)}`
+
+  for (const candidate of candidates) {
+    const cellX = Math.floor(candidate.x / cellSize)
+    const cellZ = Math.floor(candidate.z / cellSize)
+    let clear = true
+    for (let dz = -1; dz <= 1 && clear; dz += 1) {
+      for (let dx = -1; dx <= 1 && clear; dx += 1) {
+        for (const other of grid.get(`${cellX + dx},${cellZ + dz}`) ?? []) {
+          // #region spacingRule
+          if (Math.hypot(candidate.x - other.x, candidate.z - other.z) < minimumSpacing) clear = false
+          // #endregion
+        }
+      }
+    }
+    if (!clear) continue
+    accepted.push(candidate)
+    const bucketKey = key(candidate.x, candidate.z)
+    grid.set(bucketKey, [...(grid.get(bucketKey) ?? []), candidate])
+  }
+  return accepted
+}
+
+export function findBaseAnchor(candidates, waterLevel = 1.7) {
+  const edge = SCATTER_WORLD_SIZE / 2 - 0.8
+  const suitable = candidates.filter((candidate) => candidate.y > waterLevel && Math.abs(candidate.x) < edge && Math.abs(candidate.z) < edge)
+  return suitable.reduce((best, candidate) => !best || slopeDegreesAt(candidate) < slopeDegreesAt(best) ? candidate : best, null)
+}
+
+export function outsideRadius(candidate, anchor, radius) {
+  return !anchor || Math.hypot(candidate.x - anchor.x, candidate.z - anchor.z) >= radius
+}
+
+export function terrainDrivenScale(moisture, randomValue, terrainDriven = true) {
+  // #region moistureScale
+  const baseScale = terrainDriven ? 0.8 + (1.2 - 0.8) * moisture : 1
+  // #endregion
+  return baseScale * (0.95 + randomValue * 0.1)
+}
+
+function decorate(candidates, seed, { alignToSurface, terrainDriven = false, fixedScale = 1, allowYaw = true } = {}) {
+  const random = createRandom(seed)
+  return candidates.map((candidate) => {
+    const moisture = moistureAt(candidate.x, candidate.z)
+    return {
+      candidate,
+      alignToSurface,
+      moisture,
+      yaw: allowYaw ? (random() - 0.5) * Math.PI * 2 : 0,
+      scale: terrainDriven ? terrainDrivenScale(moisture, random(), true) : fixedScale * (0.95 + random() * 0.1),
+    }
+  })
+}
+
+export function buildPopulation({ seed = 42, exclusionRadius = 0.9, antennaSpacing = 1.2, terrainDriven = true } = {}) {
+  const waterLevel = 1.7
+  const anchorCandidates = generateCandidates(80, seed + 401)
+  const anchor = findBaseAnchor(anchorCandidates, waterLevel)
+  const outsideBase = (candidate) => outsideRadius(candidate, anchor, exclusionRadius)
+
+  const treeCandidates = generateCandidates(220, seed + 101)
+  const treeValues = drawAcceptanceValues(treeCandidates.length, seed + 101)
+  const trees = treeCandidates.filter((candidate, index) =>
+    treeValues[index] < placementProbability(maskNoiseAt(candidate.x, candidate.z, 0.45), 0.8) &&
+    moistureAt(candidate.x, candidate.z) > 0.18 && acceptsSlope(candidate, ASSET_SLOPE_LIMITS.tree) && outsideBase(candidate))
+
+  const rocks = generateCandidates(110, seed + 201)
+    .filter((candidate) => acceptsSlope(candidate, ASSET_SLOPE_LIMITS.rock) && outsideBase(candidate))
+
+  const waterGrid = buildWaterDistanceGrid(waterLevel)
+  const farmland = generateLatticeCandidates(0.6).filter((candidate) =>
+    distanceToWaterAt(waterGrid, candidate.x, candidate.z) < 0.7 && candidate.y > waterLevel &&
+    acceptsSlope(candidate, ASSET_SLOPE_LIMITS.farmland) && outsideBase(candidate))
+
+  const antennaCandidates = generateCandidates(80, seed + 301)
+    .filter((candidate) => acceptsSlope(candidate, ASSET_SLOPE_LIMITS.antenna) && outsideBase(candidate))
+  const antennas = applyMinimumSpacing(antennaCandidates, antennaSpacing)
+
+  return {
+    anchor,
+    tree: decorate(trees, seed + 111, { alignToSurface: false, terrainDriven }),
+    rock: decorate(rocks, seed + 211, { alignToSurface: true, fixedScale: 0.95 }),
+    farmland: decorate(farmland, seed + 311, { alignToSurface: true, terrainDriven, allowYaw: false }),
+    antenna: decorate(antennas, seed + 411, { alignToSurface: false, fixedScale: 1, allowYaw: false }),
+  }
 }
 
 // Acceptance values come from their own generator, so drawing them never moves

@@ -151,4 +151,11 @@
   /* Lesson 05's rocks: a neutral stone that stands apart from the green and
      yellow ground ramp. */
   --scatter-rock: #8f8a84;
+  --scatter-tree: #137a43;
+  --scatter-trunk: #76513a;
+  --scatter-field: #8a6a00;
+  --scatter-antenna: #405c83;
+  --scatter-base: #a33470;
+  --scatter-rejected: #b13434;
+  --scatter-normal: #2a5fc4;
 }

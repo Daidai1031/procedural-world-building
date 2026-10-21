@@ -54,14 +54,14 @@ export function TerrainMesh({ build, side, overlayColor }) {
   )
 }
 
-export function CandidateDots({ candidates }) {
+export function CandidateDots({ candidates, color = '--clay-deep' }) {
   const meshRef = useRef(null)
   useInstancePlacement(meshRef, candidates, 1)
 
   return (
     <instancedMesh ref={meshRef} args={[null, null, INSTANCE_CAPACITY]} frustumCulled={false}>
       <sphereGeometry args={[CANDIDATE_DOT_RADIUS, 12, 8]} />
-      <meshBasicMaterial color={readToken('--clay-deep')} />
+      <meshBasicMaterial color={readToken(color)} />
     </instancedMesh>
   )
 }

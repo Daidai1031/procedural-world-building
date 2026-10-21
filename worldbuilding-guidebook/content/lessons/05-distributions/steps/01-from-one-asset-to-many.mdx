@@ -28,6 +28,21 @@ scene:
 code:
   file: src/scene/demos/distributions/scatter.js
   fn: generateCandidates
+practice:
+  kind: fill
+  prompt: Complete the instance transform so changing the asset scale changes each rock's size without changing how many candidate positions exist.
+  from:
+    file: src/scene/demos/distributions/scatter.js
+    region: instanceTransform
+  blanks:
+    - line: 4
+      answer: "new Vector3(scale, scale, scale)"
+      options:
+        - "new Vector3(scale, scale, scale)"
+        - "new Vector3(candidate.x, candidate.y, candidate.z)"
+        - "new Vector3(count, count, count)"
+      explanation: The final vector in compose controls scale on x, y, and z. Candidate position and candidate count have separate jobs.
+      hint: Which vector uses the asset scale equally on all three axes?
 ---
 
 An **asset** is a reusable object, such as a rock or a tree. An **instance** is one appearance of that asset in the scene, with its own position, rotation, and scale.
@@ -37,5 +52,3 @@ Scattering starts with **candidate positions**. On a height-field terrain, each 
 Asking for more candidates tests more places. It does not change the size of any rock: how many positions there are and how large each object is are two separate settings. With no filters, every candidate on the terrain is accepted.
 
 Candidates spread evenly over the x–z footprint are not spread evenly over the ground itself: a steep slope covers more surface than its footprint shows, so it receives fewer objects per square metre of ground.
-
-*The practice for this step is planned but not built yet.*

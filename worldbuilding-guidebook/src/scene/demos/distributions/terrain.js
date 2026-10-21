@@ -1,5 +1,6 @@
 import { fractalNoise } from '../proceduralMaps/noiseMath.js'
 import { VOXEL_WORLD_SIZE, groundHeight } from '../voxels/voxelMath.js'
+import { Vector3 } from 'three'
 
 // The same ground as Lessons 03 and 04, read straight from its height function
 // instead of through a voxel grid, so every candidate gets the exact height.
@@ -11,6 +12,16 @@ export const TERRAIN_SEGMENTS = 96
 
 export function heightAt(x, z) {
   return groundHeight(x, z)
+}
+
+// A centred finite difference gives the direction perpendicular to the height
+// field. Keeping this query beside heightAt means every distribution layer
+// reads the same ground, instead of rebuilding normals from its display mesh.
+export function normalAt(x, z, target = new Vector3()) {
+  const epsilon = 0.01
+  const riseX = heightAt(x - epsilon, z) - heightAt(x + epsilon, z)
+  const riseZ = heightAt(x, z - epsilon) - heightAt(x, z + epsilon)
+  return target.set(riseX, epsilon * 2, riseZ).normalize()
 }
 
 function gridPosition(index) {
