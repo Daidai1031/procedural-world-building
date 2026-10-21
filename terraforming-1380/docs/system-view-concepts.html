@@ -1,0 +1,746 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>
+<title>System View Concepts</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Audiowide&family=Outfit:wght@400;500;600&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+/* Layout: one long reading page. Diagnosis, then three live concept stages (each followed by a three-column note), shared building blocks, comparison and recommendation. Same type and paper palette as the game. */
+:root {
+  --paper: #F3F1EB; --card: #FBFAF6; --ink: #353632; --soft: #62635c; --line: #d6d3ca; --graphite: #454641; --amber: #c98a2b; --green: #3f9a58; --rust: #a4533a;
+  --f-title: "Audiowide", "Outfit", sans-serif; --f-ui: "Bricolage Grotesque", "Noto Sans SC", system-ui, sans-serif; --f-mono: "IBM Plex Mono", ui-monospace, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--paper); }
+body { margin: 0; color: var(--ink); font: 16px/1.65 var(--f-ui);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 72px; }
+.wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 64px; }
+header { padding-top: 48px; display: grid; gap: 12px; }
+.eyebrow { font: 500 12px var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); }
+h1 { margin: 0; font: 700 clamp(30px, 5vw, 50px)/1.1 var(--f-ui); letter-spacing: -.01em; text-wrap: balance; }
+h2 { margin: 0; font: 700 clamp(22px, 3vw, 30px)/1.15 var(--f-ui); text-wrap: balance; }
+h3 { margin: 0; font: 600 17px var(--f-ui); }
+p { margin: 0; max-width: 68ch; }
+.lede { font-size: 18px; color: var(--soft); }
+code { font: 13px var(--f-mono); background: #ebe8df; padding: 1px 6px; border-radius: 5px; }
+a { color: inherit; }
+nav.toc { display: flex; flex-wrap: wrap; gap: 8px; }
+nav.toc a { font: 500 13px var(--f-ui); text-decoration: none; border: 1px solid var(--line); background: var(--card); padding: 4px 12px; border-radius: 999px; }
+nav.toc a:hover { border-color: var(--graphite); }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+.diag { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
+.diag div { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; font-size: 14px; color: var(--soft); }
+.diag b { display: block; color: var(--ink); font-size: 15px; margin-bottom: 4px; }
+.diag small { display: block; margin-top: 6px; font: 12px var(--f-mono); color: #7b7c74; }
+
+.concept { display: grid; gap: 14px; border-top: 1.5px solid var(--ink); padding-top: 18px; }
+.concept-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+.key { font: 500 12px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--amber); }
+.tagline { color: var(--soft); font-size: 17px; }
+.stage { position: relative; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; background: var(--paper); outline: none; user-select: none; -webkit-user-select: none; }
+.stage:focus-visible { box-shadow: 0 0 0 2px var(--amber); }
+.stage canvas { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; cursor: grab; touch-action: pan-y; }
+.stage svg.over { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.stage svg .hit { pointer-events: all; cursor: pointer; fill: transparent; }
+.dyn { position: absolute; inset: 0; pointer-events: none; }
+.tag { position: absolute; transform: translate(-50%, -100%); text-align: center; white-space: nowrap; transition: opacity .35s; pointer-events: none; opacity: 0; }
+.tag b { display: block; font: 500 11px var(--f-mono); letter-spacing: .14em; text-transform: uppercase; }
+.tag i { display: block; font: normal 500 10px var(--f-mono); letter-spacing: .1em; color: var(--amber); }
+.tag small { display: block; max-height: 0; opacity: 0; overflow: hidden; font-size: 12px; color: var(--soft); transition: max-height .35s, opacity .35s; }
+.tag.on small { max-height: 50px; opacity: 1; }
+.cap { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); width: min(780px, 92%); text-align: center; font-size: 14px; color: var(--soft); pointer-events: none; min-height: 22px; transition: opacity .3s; }
+.hud { position: absolute; left: 14px; top: 12px; right: 14px; display: flex; gap: 8px 10px; align-items: center; flex-wrap: wrap; }
+.chip { font: 500 12px var(--f-ui); background: color-mix(in srgb, var(--card) 86%, transparent); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; color: var(--ink); }
+button.chip { cursor: pointer; }
+button.chip:hover { border-color: var(--graphite); }
+.hud label { display: flex; align-items: center; gap: 8px; font: 500 12px var(--f-ui); }
+.hud input[type=range] { width: 130px; accent-color: var(--graphite); }
+.hud .sp { flex: 1; }
+.veil { position: absolute; inset: 0; background: var(--paper); opacity: 0; pointer-events: none; }
+.veil.fade { transition: opacity .9s ease; }
+.toast { position: absolute; left: 50%; top: 56px; transform: translate(-50%, -6px); background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 6px 16px; font-size: 13px; opacity: 0; transition: opacity .4s, transform .4s; pointer-events: none; white-space: nowrap; }
+.toast.on { opacity: 1; transform: translate(-50%, 0); }
+.hold { position: absolute; transform: translate(-50%, 0); display: none; align-items: center; gap: 8px; padding: 5px 16px 5px 5px; border: 1px solid var(--graphite); border-radius: 999px; background: var(--card); color: var(--ink); font: 600 13px var(--f-ui); cursor: pointer; user-select: none; touch-action: none; }
+.hold svg { width: 30px; height: 30px; flex: none; }
+.hold .track { fill: none; stroke: var(--line); stroke-width: 3; }
+.hold .prog { fill: none; stroke: var(--amber); stroke-width: 3; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; stroke-dasharray: 88; stroke-dashoffset: 88; }
+.hold.done { background: var(--graphite); color: var(--paper); }
+
+.plate-name { font: 400 21px var(--f-title); fill: var(--ink); }
+.plate-tr { font: 400 15px var(--f-ui); fill: var(--soft); }
+.plate-dt { font: 400 13px var(--f-mono); fill: var(--soft); opacity: 0; transition: opacity .3s; }
+.plate.hov .plate-dt, .plate.act .plate-dt { opacity: 1; }
+.plates .plate { transition: opacity .3s; }
+.has-hov .plate:not(.hov) { opacity: .42; }
+.arc { fill: none; stroke: var(--graphite); stroke-width: 1.4; stroke-dasharray: 3 7; stroke-linecap: round; opacity: .7; }
+.ring-bg { fill: none; stroke: var(--line); stroke-width: 1.2; stroke-dasharray: 2 8; }
+.gauge-track { fill: none; stroke: var(--line); stroke-width: 2; stroke-dasharray: 1 5; }
+.gauge { fill: none; stroke: var(--graphite); stroke-width: 2.6; stroke-linecap: round; }
+.pulse-ring { fill: none; stroke: var(--amber); stroke-width: 1.4; opacity: 0; }
+.pin-label { font: 500 11px var(--f-mono); letter-spacing: .12em; fill: var(--amber); }
+.ripple { fill: none; stroke: var(--amber); stroke-width: 2; animation: ripple 1.2s ease-out forwards; transform-box: fill-box; transform-origin: center; }
+@keyframes ripple { from { transform: scale(.4); opacity: .9; } to { transform: scale(1.6); opacity: 0; } }
+.pin-dot { animation: pinpulse 2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes pinpulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.35); } }
+
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px 28px; }
+.cols section { display: grid; gap: 6px; align-content: start; }
+.cols h4 { margin: 0; font: 600 12px var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--soft); }
+.cols ul { margin: 0; padding-left: 18px; font-size: 14.5px; color: var(--soft); display: grid; gap: 4px; }
+.cols li b { color: var(--ink); font-weight: 600; }
+
+.blocks { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.block { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; display: grid; gap: 12px; align-content: start; }
+.legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.legend li { display: grid; grid-template-columns: 54px 1fr; gap: 12px; align-items: center; font-size: 14px; color: var(--soft); }
+.legend li b { color: var(--ink); font-weight: 600; display: block; }
+.legend svg { width: 54px; height: 40px; }
+.demo { position: relative; height: 90px; display: grid; place-items: center; background: var(--paper); border-radius: 12px; border: 1px dashed var(--line); }
+.demo .hold { position: static; transform: none; display: inline-flex; }
+
+.tbl { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 720px; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px 10px 0; border-bottom: 1px solid var(--line); }
+th { font: 500 12px var(--f-mono); letter-spacing: .06em; color: var(--soft); text-transform: uppercase; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+.rec { background: var(--card); border: 1px solid var(--graphite); border-radius: 16px; padding: 20px 22px; display: grid; gap: 10px; }
+.rec ol, .qs { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 15px; }
+@media (max-width: 700px) { .tag small { display: none; } .hud input[type=range] { width: 90px; } }
+@media (prefers-reduced-motion: reduce) { .pin-dot, .ripple { animation: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Terraforming Contractor #1380 · System view · 2026-10-21</span>
+    <h1>让星系视图自然流动起来</h1>
+    <p class="lede">现在的 System overview 是一个盖在游戏上的弹窗。下面有三种完全不同的做法，都能直接操作。每个画面里的四个世界就是你截图里的那四个：Home site、KX-506（你在这里）、KX-687、KX-868。</p>
+    <nav class="toc" aria-label="Sections"><a href="#diag">现在的问题</a><a href="#A">A 拉远</a><a href="#B">B 信号星图</a><a href="#C">C 漂流</a><a href="#blocks">共用部件</a><a href="#compare">对比与建议</a></nav>
+  </header>
+
+  <section id="diag" style="display:grid; gap:16px" aria-labelledby="h-diag">
+    <h2 id="h-diag">现在的问题（从代码和截图看到的）</h2>
+    <div class="diag">
+      <div><b>像换了一个程序</b>用 <code>&lt;dialog&gt;.showModal()</code> 盖住整个游戏，还要点 Close 回来。玩家的“在宇宙里”感觉被打断。<small>SystemOverview.tsx</small></div>
+      <div><b>同一件事讲两遍</b>左边是 3D 画面，右边又是一列卡片，把同样的信息写成小字。眼睛要在两边来回，卡片的方框感也最重。</div>
+      <div><b>说明离星球太远</b>悬停后的描述在画面最底下一行，而星球在中间。看的是这里，读的是那里。</div>
+      <div><b>出发要点两次</b>先点 Travel →，再弹出第二个确认对话框（<code>travel-dialog</code>）。出发应该是一个动作，不是两个窗口。</div>
+      <div><b>读不出星球的状态</b>已去过的和只收到信号的靠“实体 / 线框”区分。残留岩石百分比、植物、居民都只写成文字，星球本身看不出来。</div>
+      <div><b>关系没画出来</b>代码里知道谁的信号招来了谁（<code>planetPosition</code> 按 signal 链排布），画面上却没有任何连线。</div>
+    </div>
+  </section>
+
+  <!-- ============ A ============ -->
+  <section id="A" class="concept" aria-labelledby="h-A">
+    <div class="concept-head"><span class="key">Concept A</span><h2 id="h-A">拉远</h2></div>
+    <p class="tagline">不换界面，只是把镜头拉远。你一直待在同一片宇宙里。</p>
+    <div class="stage" id="stageA" tabindex="0" aria-label="Concept A: pull back from the planet to see every world">
+      <canvas width="1280" height="720"></canvas>
+      <div class="dyn"></div>
+      <div class="hud"><button class="chip" data-act="toggle">Pull back</button><label>Orbit<input type="range" min="0" max="100" value="0" aria-label="Zoom level"> System</label><span class="sp"></span><button class="chip" data-act="reset">Reset demo</button></div>
+      <button class="hold" aria-label="Hold to travel"><svg viewBox="0 0 30 30"><circle class="track" cx="15" cy="15" r="14"/><circle class="prog" cx="15" cy="15" r="14"/></svg><span>Hold to travel</span></button>
+      <div class="cap"></div><div class="toast"></div><div class="veil"></div>
+    </div>
+    <div class="cols">
+      <section><h4>怎么用</h4><ul>
+        <li><b>进入：</b>点一下画面让它获得焦点，再滚轮往外滚（或拖下面的滑块）。游戏里的 “System overview ↗” 按钮变成同一个动作。</li>
+        <li><b>阅读：</b>星球变小时，大气点和模型细节淡出；别的世界从纸色里浮现；虚线弧把“谁招来了谁”连起来。名字贴在各自星球上方，悬停才展开一句话。</li>
+        <li><b>出发：</b>点一个世界，镜头滑向它，下面出现按住环。按住约 0.9 秒，镜头冲进去、纸色淡出，落在新星球的轨道上。</li>
+      </ul></section>
+      <section><h4>在 repo 里要改什么</h4><ul>
+        <li>删掉 <code>SystemOverview</code> 的 dialog 和第二个 Canvas。</li>
+        <li>复用其中的 <code>mergeChunks</code>（SYS-02：始终用世界当前被编辑过的网格）。</li>
+        <li><code>OrbitCamera</code> 的范围放宽到约 30，加一个 system 层。</li>
+        <li>把 <code>DistantPlanetsView</code> 的固定屏幕位置，换成真实方位（<code>planetPosition</code>）。</li>
+        <li>工作量：<b>中到高</b>。</li>
+      </ul></section>
+      <section><h4>要注意</h4><ul>
+        <li>同一个 Canvas 里要同时放几颗完整的星球网格，性能要测。</li>
+        <li>当前星球照常运行，其他星球按 D-040 保持冻结，这个不变。</li>
+        <li>缩放过程中左右两侧的面板要一起滑出，否则又变回“界面盖着画面”。</li>
+      </ul></section>
+    </div>
+  </section>
+
+  <!-- ============ B ============ -->
+  <section id="B" class="concept" aria-labelledby="h-B">
+    <div class="concept-head"><span class="key">Concept B</span><h2 id="h-B">信号星图</h2></div>
+    <p class="tagline">把它画成一张测绘图：每个世界是一块标本板，信号是连线。</p>
+    <div class="stage" id="stageB" aria-label="Concept B: a signal chart of known worlds">
+      <canvas width="1280" height="720"></canvas>
+      <svg class="over" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="hud"><span class="chip">Hover a plate · click to follow the signal there</span><span class="sp"></span><button class="chip" data-act="reset">Reset demo</button></div>
+      <div class="toast"></div><div class="veil"></div>
+    </div>
+    <div class="cols">
+      <section><h4>怎么用</h4><ul>
+        <li><b>进入：</b>从游戏里滑出一张纸色的图，不是黑色弹窗。游戏仍在背后（轻度虚化），当前星球的机器人照常转。</li>
+        <li><b>阅读：</b>星球大小按真实半径画，所以大小可以直接比。外圈的弧表示剩下的岩石比例，虚线是它们之间的信号。每隔几秒从 Home 发出一圈涟漪，沿弧线传出去，就是你的广播。</li>
+        <li><b>出发：</b>点一块板，琥珀色的小标沿信号线滑过去（经过中转站就会停一下），到站时荡开一圈涟漪。</li>
+      </ul></section>
+      <section><h4>在 repo 里要改什么</h4><ul>
+        <li>同样去掉 dialog，保留半透明的纸色覆盖层。</li>
+        <li>用一个正交相机渲染各世界的网格，叠一层 SVG。</li>
+        <li>连线数据已有：seed 路径里 <code>/signal-N</code> 就是父子关系。</li>
+        <li>工作量：<b>低到中</b>，是三种里最容易做的。</li>
+      </ul></section>
+      <section><h4>要注意</h4><ul>
+        <li>它是“看地图”，不是“在宇宙里”。沉浸感比 A、C 弱。</li>
+        <li>固定排版不再是真实 3D 位置，spec 里 SYS-01 “navigable 3D spatial arrangement”要改写。</li>
+        <li>每个去过的星球最多还能招来 5 个新星球（<code>tuning.signal.maxPlanets</code>），世界会越来越多，所以要有自动排版规则，避免互相压住。</li>
+      </ul></section>
+    </div>
+  </section>
+
+  <!-- ============ C ============ -->
+  <section id="C" class="concept" aria-labelledby="h-C">
+    <div class="concept-head"><span class="key">Concept C</span><h2 id="h-C">漂流</h2></div>
+    <p class="tagline">沿一条水平的带慢慢漂，一次只面对一颗星球，其余在两侧探出头。</p>
+    <div class="stage" id="stageC" tabindex="0" aria-label="Concept C: drift sideways from world to world">
+      <canvas width="1280" height="720"></canvas>
+      <div class="dyn"></div>
+      <div class="hud"><button class="chip" data-act="prev" aria-label="Previous world">‹</button><button class="chip" data-act="next" aria-label="Next world">›</button><span class="chip">Drag sideways · arrow keys</span><span class="sp"></span><button class="chip" data-act="reset">Reset demo</button></div>
+      <button class="hold" aria-label="Hold to travel"><svg viewBox="0 0 30 30"><circle class="track" cx="15" cy="15" r="14"/><circle class="prog" cx="15" cy="15" r="14"/></svg><span>Hold to travel</span></button>
+      <div class="cap"></div><div class="toast"></div><div class="veil"></div>
+    </div>
+    <div class="cols">
+      <section><h4>怎么用</h4><ul>
+        <li><b>进入：</b>画面向一侧漂开，当前星球居中，别的世界在两边露出一半。像翻一排标本。</li>
+        <li><b>阅读：</b>居中的那颗放大，状态直接画在它身上：幽灵外壳（被挖走的岩石）、绿点（植物）、竖线（天线）、暖色光点（居民）。下面只留名字和一句话。远近不同的世界有视差。</li>
+        <li><b>出发：</b>居中后按住下面的环，星球涨满画面，换成新的轨道视角。</li>
+      </ul></section>
+      <section><h4>在 repo 里要改什么</h4><ul>
+        <li>新写一个一维相机（沿 x 漂移、居中吸附），其余复用网格。</li>
+        <li><code>system.ts</code> 里的 <code>describe()</code> 数据已够用，只是换成画在星球上。</li>
+        <li>工作量：<b>中</b>。</li>
+      </ul></section>
+      <section><h4>要注意</h4><ul>
+        <li>并排比较两颗星球不方便，只能来回切。</li>
+        <li>世界多了，这条带会很长，要有快速跳转。</li>
+        <li>和 B 一样，SYS-01 的 3D 空间排布要改成一维顺序。</li>
+      </ul></section>
+    </div>
+  </section>
+
+  <!-- ============ shared ============ -->
+  <section id="blocks" style="display:grid; gap:18px" aria-labelledby="h-blocks">
+    <h2 id="h-blocks">三个方案都能共用的两件事</h2>
+    <div class="blocks">
+      <div class="block">
+        <h3>1 · 把状态画在星球上，不写成小字</h3>
+        <p style="color:var(--soft); font-size:14px">现在每个世界都靠一长串文字说明。下面这些记号，数据都已经在 <code>describe()</code> 里，只是换了表现方式。文字只在悬停或聚焦时补一句。</p>
+        <ul class="legend">
+          <li><svg viewBox="0 0 54 40"><circle cx="27" cy="20" r="15" fill="none" stroke="#3b3a37" stroke-opacity=".35" stroke-dasharray="2 3"/><path d="M27 8 A12 12 0 1 1 15.5 23" fill="#8a887f" fill-opacity=".5" stroke="#454641" stroke-width="2"/></svg><span><b>幽灵外壳</b>原来的球形轮廓。剩下多少岩石，一眼就能看出被挖走了多少。</span></li>
+          <li><svg viewBox="0 0 54 40"><circle cx="20" cy="26" r="2.4" fill="#3f9a58"/><circle cx="27" cy="22" r="2.4" fill="#3f9a58"/><circle cx="33" cy="27" r="2.4" fill="#3f9a58"/><circle cx="25" cy="30" r="2.4" fill="#3f9a58"/></svg><span><b>绿点</b>植物，按真实位置分布。</span></li>
+          <li><svg viewBox="0 0 54 40"><path d="M27 34 V10" stroke="#3b3a37" stroke-width="2"/><circle cx="27" cy="9" r="3" fill="#c98a2b"/></svg><span><b>竖线加琥珀尖</b>天线。有几根，就是还能发几次信号。</span></li>
+          <li><svg viewBox="0 0 54 40"><circle cx="27" cy="20" r="9" fill="#e0b070" fill-opacity=".3"/><circle cx="27" cy="20" r="4" fill="#e0b070"/></svg><span><b>暖色光点</b>居民，会随它们躲藏、移动而变化。</span></li>
+          <li><svg viewBox="0 0 54 40"><circle cx="27" cy="20" r="4.5" fill="#c98a2b"/><circle cx="27" cy="20" r="10" fill="none" stroke="#c98a2b" stroke-opacity=".5"/></svg><span><b>闪烁的琥珀灯</b>机器人正在工作。暂停的世界灯是灭的。</span></li>
+          <li><svg viewBox="0 0 54 40"><circle cx="27" cy="20" r="14" fill="none" stroke="#8a887f"/><path d="M13 20 H41 M27 6 V34 M17 10 Q27 20 17 30 M37 10 Q27 20 37 30" fill="none" stroke="#8a887f" stroke-opacity=".6"/></svg><span><b>线框</b>只收到信号、还没去过。只有真实大小，没有地形。</span></li>
+        </ul>
+      </div>
+      <div class="block">
+        <h3>2 · 出发是一个动作，不是两个窗口</h3>
+        <p style="color:var(--soft); font-size:14px">现在是 Travel → 然后再弹确认框。改成“按住”：松手就取消，所以不再需要二次确认。原来确认框里的话（“这个星球会暂停，资金会带走”）直接写在聚焦的说明里。</p>
+        <div class="demo"><button class="hold" id="holdDemo"><svg viewBox="0 0 30 30"><circle class="track" cx="15" cy="15" r="14"/><circle class="prog" cx="15" cy="15" r="14"/></svg><span>Hold to travel</span></button></div>
+        <p style="color:var(--soft); font-size:14px">试试按住它。0.9 秒是我的起点，太短会误触，太长会烦，需要你上手感受后定。</p>
+        <p style="color:var(--soft); font-size:14px">另外两种出发动作：沿信号线拖那枚小标（B 很适合）；或者继续往星球里滚轮放大，直到“落”进去。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="compare" style="display:grid; gap:18px" aria-labelledby="h-compare">
+    <h2 id="h-compare">对比与我的建议</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>&nbsp;</th><th>A 拉远</th><th>B 信号星图</th><th>C 漂流</th></tr></thead>
+      <tbody>
+        <tr><td>沉浸感</td><td>最强。同一片宇宙，没有切换</td><td>较弱。是一张图</td><td>强。像翻看收藏</td></tr>
+        <tr><td>看清关系</td><td>弧线，但会被视角遮挡</td><td>最好。一眼看到信号链</td><td>最弱。一次只看一个</td></tr>
+        <tr><td>比较大小和状态</td><td>能同时看，但要转视角</td><td>最好。并排、真实大小</td><td>要来回切换</td></tr>
+        <tr><td>和现有玩法的联系</td><td>最紧。天空里的远行星直接变成目标</td><td>信号和广播被画出来</td><td>适合慢慢看每个世界的变化</td></tr>
+        <tr><td>实现成本</td><td>中到高</td><td>低到中</td><td>中</td></tr>
+        <tr><td>需要改的 spec</td><td>基本不用（SYS-01 仍是 3D）</td><td>SYS-01 要改</td><td>SYS-01 要改</td></tr>
+      </tbody>
+    </table></div>
+    <div class="rec">
+      <h3>我的建议：以 A 为骨架，借 B 的线、借 C 的读法</h3>
+      <ol>
+        <li><b>用 A 的拉远</b>当入口和结构：没有弹窗，镜头直接拉出去，你的“自然、流动、沉浸”主要靠这一点。</li>
+        <li><b>用 B 的信号弧线</b>：弧线本来就是游戏的核心故事（你发出信号，宇宙回应），值得画出来，还能在每次广播时亮一下。</li>
+        <li><b>用 C 的方式读星球</b>：幽灵外壳、绿点、天线、居民光点，直接画在星球上，列表可以整个删掉。</li>
+        <li><b>用“按住出发”</b>替掉现在的两步弹窗。</li>
+      </ol>
+      <p style="color:var(--soft); font-size:14px">如果你更看重“一眼看懂全局”，B 是最便宜、也最容易先做出来试的版本。如果更看重“一颗一颗地看”，选 C。</p>
+    </div>
+    <h3>想先请你定的几件事</h3>
+    <ol class="qs">
+      <li>三个方向里，你更想要哪一种感觉？或者就按上面的组合？</li>
+      <li>拉远的时候，当前星球上的机器人还要继续动吗？（我建议继续，只是变成小光点。）</li>
+      <li>按住出发的时间长度，和要不要保留“这个星球会暂停”的提示。</li>
+      <li>只收到信号的星球，要不要在聚焦时慢慢“固化”成一个简单的球，还是始终保持线框？</li>
+    </ol>
+  </section>
+</div>
+
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }</script>
+<script type="module">
+import * as THREE from 'three'
+import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js'
+
+const $ = (s, r = document) => r.querySelector(s)
+const SIZE = 6, SCALE = 0.7, PAPER = '#F3F1EB'
+const PAPER_C = new THREE.Color(PAPER)
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches
+const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t) }
+const lerp = (a, b, t) => a + (b - a) * t
+const ease = (t) => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
+const V = THREE.Vector3
+
+function rng(seed) { let s = seed >>> 0; return () => { s += 0x6D2B79F5; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296 } }
+function hash3(x, y, z) { let h = Math.imul(x, 374761393) ^ Math.imul(y, 668265263) ^ Math.imul(z, 1274126177); h = Math.imul(h ^ (h >>> 13), 1274126177); h ^= h >>> 16; return (h >>> 0) / 4294967295 }
+function noise3(x, y, z) {
+  const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z), f = (t) => t * t * (3 - 2 * t)
+  const u = f(x - xi), v = f(y - yi), w = f(z - zi), L = (a, b, t) => a + (b - a) * t, c = (a, b, d) => hash3(xi + a, yi + b, zi + d)
+  return L(L(L(c(0,0,0), c(1,0,0), u), L(c(0,1,0), c(1,1,0), u), v), L(L(c(0,0,1), c(1,0,1), u), L(c(0,1,1), c(1,1,1), u), v), w)
+}
+function randomDir(r) { for (;;) { const v = new V(r() * 2 - 1, r() * 2 - 1, r() * 2 - 1); const l = v.lengthSq(); if (l <= 1 && l > .01) return v.normalize() } }
+
+// ---------- the four worlds from the screenshot ----------
+const SPECS = [
+  { id: 'home', name: 'Home site', radius: .34, relief: .16, seed: 3, visited: true, active: false, pos: [0, 0, 0], parent: null,
+    traits: 'Mid-sized, rolling, some minerals, some life', remaining: .96, residents: 4, plants: 53, antennas: 8, robots: 3,
+    bite: { dir: [.45, .3, .84], ang: .46, depth: .62 } },
+  { id: 'k506', name: 'KX-506', radius: .34, relief: .19, seed: 11, visited: true, active: true, pos: [6.4, .9, 2.4], parent: 'home',
+    traits: 'Mid-sized, rugged, mineral-poor, little life', remaining: .99, residents: 2, plants: 2, antennas: 0, robots: 4,
+    bite: { dir: [-.5, .4, .76], ang: .3, depth: .34 } },
+  { id: 'k687', name: 'KX-687', radius: .36, relief: .19, seed: 23, visited: false, active: false, pos: [-5.4, -.6, 4.6], parent: 'home',
+    traits: 'Large, rugged, mineral-rich, little life' },
+  { id: 'k868', name: 'KX-868', radius: .22, relief: .07, seed: 31, visited: false, active: false, pos: [1.2, 1.3, -6.2], parent: 'home',
+    traits: 'Small, smooth, mineral-poor, some life' },
+]
+const cloneSpecs = () => SPECS.map((s) => ({ ...s, pos: [...s.pos], bite: s.bite ? { ...s.bite, dir: [...s.bite.dir] } : null }))
+function describe(s) {
+  if (!s.visited) return `${s.traits} · answered a signal, not visited yet`
+  const status = s.active ? (s.robots ? `${s.robots} robots at work` : 'Crew idle') : (s.robots ? 'Crew paused until you return' : 'Quiet')
+  return `${s.traits} · ${Math.round(s.remaining * 100)}% of the original rock · ${s.residents} residents · ${s.plants} plants, ${s.antennas} antennas · ${status}`
+}
+
+// ---------- planet geometry, marks, atmosphere ----------
+function surfR(s, d) {
+  const base = s.radius * SIZE, amp = SIZE * s.relief
+  let r = base + (noise3(d.x * 1.6 + s.seed, d.y * 1.6 + 2, d.z * 1.6 + 9) - .5) * amp * .57 + (noise3(d.x * 4.5, d.y * 4.5 + s.seed, d.z * 4.5) - .5) * amp * .15
+  if (s.bite) { const a = d.angleTo(new V(...s.bite.dir).normalize()); if (a < s.bite.ang) r -= s.bite.depth * Math.pow(1 - smooth(0, s.bite.ang, a), .6) }
+  return r
+}
+const geoms = new Map()
+function geomFor(s) {
+  if (!geoms.has(s.id)) {
+    let g = new THREE.IcosahedronGeometry(1, 30); g.deleteAttribute('normal'); g.deleteAttribute('uv'); g = mergeVertices(g)
+    const p = g.attributes.position, v = new V()
+    for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).normalize(); const r = surfR(s, v); p.setXYZ(i, v.x * r, v.y * r, v.z * r) }
+    g.computeVertexNormals(); geoms.set(s.id, g)
+  }
+  return geoms.get(s.id)
+}
+function marksFor(s) {
+  const r = rng(s.seed * 131 + 7), bite = s.bite ? new V(...s.bite.dir).normalize() : null
+  const away = (d, m) => !bite || d.angleTo(bite) > m
+  const pt = (d, lift) => d.clone().multiplyScalar(surfR(s, d) + lift)
+  const out = { plants: [], ant: [], res: [], rob: [] }
+  const cs = []; let guard = 0
+  while (cs.length < 3 && guard++ < 200) { const d = randomDir(r); if (away(d, (s.bite?.ang || 0) + .3)) cs.push(d) }
+  for (let i = 0; i < Math.min(s.plants, 60); i++) { const d = cs[i % 3].clone().add(new V(r() - .5, r() - .5, r() - .5).multiplyScalar(.55)).normalize(); if (away(d, (s.bite?.ang || 0) + .1)) out.plants.push(pt(d, .02)) }
+  for (let i = 0; i < Math.min(s.antennas, 8); i++) { const d = randomDir(r); if (!away(d, (s.bite?.ang || 0) + .2)) continue; const a = pt(d, 0); out.ant.push([a, a.clone().multiplyScalar(1 + .62 / a.length())]) }
+  const around = (ang, lift) => { if (!bite) return pt(randomDir(r), lift); const u = new V().crossVectors(bite, randomDir(r)).normalize(); return pt(bite.clone().multiplyScalar(Math.cos(ang)).addScaledVector(u, Math.sin(ang)).normalize(), lift) }
+  for (let i = 0; i < Math.min(s.residents, 8); i++) out.res.push(around((s.bite?.ang || .3) * (.8 + r() * .3), .03))
+  for (let i = 0; i < Math.min(s.robots, 6); i++) out.rob.push(around((s.bite?.ang || .3) * (.2 + r() * .6), .16))
+  return out
+}
+function atmoPoints(s) {
+  const r = rng(s.seed * 17 + 3), pos = []; let n = 0, g = 0
+  while (n < 2600 && g++ < 30000) {
+    const d = randomDir(r), m = noise3(d.x * 2 + 7, d.y * 2, d.z * 2 + 3)
+    if (r() > .15 + .85 * smooth(.4, .66, m)) continue
+    const rad = surfR(s, d) + .02 - Math.log(1 - r() * .97) * (.05 + .24 * m); pos.push(d.x * rad, d.y * rad, d.z * rad); n++
+  }
+  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3))
+  return new THREE.Points(geo, new THREE.PointsMaterial({ color: '#9fadb5', size: 2, sizeAttenuation: false, transparent: true, opacity: .5, depthWrite: false }))
+}
+function planetMaterial(base) {
+  const m = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: .96, metalness: 0 })
+  const u = { uBase: { value: base }, uBright: { value: 1 }, uFade: { value: 0 }, uPaper: { value: PAPER_C.clone() }, uAtmo: { value: new THREE.Color('#9fadb5') }, uRim: { value: .35 } }
+  m.userData.u = u
+  m.onBeforeCompile = (s) => {
+    Object.assign(s.uniforms, u)
+    s.vertexShader = s.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vP;\nvarying vec3 vNo;').replace('#include <begin_vertex>', '#include <begin_vertex>\nvP = position; vNo = normal;')
+    s.fragmentShader = s.fragmentShader
+      .replace('#include <common>', `#include <common>
+        varying vec3 vP; varying vec3 vNo; uniform float uBase; uniform float uBright; uniform float uFade; uniform vec3 uPaper; uniform vec3 uAtmo; uniform float uRim;
+        vec3 s2l(vec3 c) { return pow(c, vec3(2.2)); }
+        float cpx(float v) { return abs(fract(v) - 0.5) / max(fwidth(v), 0.0001); }`)
+      .replace('#include <color_fragment>', `#include <color_fragment>
+        vec3 up = normalize(vP); vec3 nn = normalize(vNo);
+        float r = length(vP); float h = clamp((r - uBase) / 0.3, -1.0, 1.0);
+        float slope = 1.0 - clamp(dot(nn, up), 0.0, 1.0);
+        vec3 col = mix(s2l(vec3(0.42, 0.41, 0.392)), s2l(vec3(0.74, 0.728, 0.70)), smoothstep(-0.85, 0.85, h));
+        col = mix(col, s2l(vec3(0.29, 0.286, 0.275)), smoothstep(0.18, 0.55, slope));
+        float rings = r / 0.045; float major = 1.0 - min(cpx(rings / 5.0) * 0.7, 1.0);
+        float ink = clamp((1.0 - min(cpx(rings), 1.0)) * 0.42 + major * 0.3, 0.0, 0.7);
+        col = mix(col, s2l(vec3(0.231, 0.227, 0.216)), ink);
+        col = mix(col, uPaper, uFade);
+        diffuseColor.rgb = col * uBright;`)
+      .replace('#include <opaque_fragment>', `float limb = 1.0 - abs(dot(normal, normalize(vViewPosition)));
+        outgoingLight = mix(outgoingLight, uAtmo, uRim * pow(limb, 2.6) * (1.0 - uFade));
+        #include <opaque_fragment>`)
+  }
+  return m
+}
+const dotTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 32; const x = c.getContext('2d'), g = x.createRadialGradient(16, 16, 0, 16, 16, 16); g.addColorStop(0, '#fff'); g.addColorStop(.6, '#fff'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, 32, 32); return new THREE.CanvasTexture(c) })()
+function instWorld(spec) {
+  const base = spec.radius * SIZE
+  const g = new THREE.Group(); g.position.set(...spec.pos)
+  const body = new THREE.Group(); g.add(body)
+  const mat = planetMaterial(base)
+  const wire = new THREE.Mesh(new THREE.IcosahedronGeometry(base, 1), new THREE.MeshBasicMaterial({ color: '#8a887f', wireframe: true }))
+  const ghost = new THREE.LineSegments(new THREE.WireframeGeometry(new THREE.IcosahedronGeometry(base, 3)), new THREE.LineBasicMaterial({ color: '#3b3a37', transparent: true, opacity: 0, depthWrite: false }))
+  const marks = new THREE.Group()
+  body.add(wire, ghost, marks)
+  const w = { spec, g, body, mat, wire, ghost, marks, solid: null, atmo: null, mm: {}, look: { fade: 0, bright: 1, focus: 0, atmo: 0 } }
+  const buildMarks = () => {
+    marks.clear()
+    const m = marksFor(spec), P = (arr, color, size) => { const geo = new THREE.BufferGeometry().setFromPoints(arr); const mt = new THREE.PointsMaterial({ color, size, map: dotTex, alphaTest: .04, sizeAttenuation: false, transparent: true, depthWrite: false }); const pts = new THREE.Points(geo, mt); pts.frustumCulled = false; marks.add(pts); return pts }
+    w.mm.plants = P(m.plants, '#3f9a58', 4.6)
+    w.mm.res = P(m.res, '#e0b070', 10)
+    w.mm.rob = P(m.rob, '#c98a2b', 7)
+    const lines = new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(m.ant.flat()), new THREE.LineBasicMaterial({ color: '#3b3a37', transparent: true })); lines.frustumCulled = false; marks.add(lines); w.mm.ant = lines
+    w.mm.tip = P(m.ant.map((a) => a[1]), '#c98a2b', 5.5)
+  }
+  w.sync = () => {
+    if (spec.visited && !w.solid) { w.solid = new THREE.Mesh(geomFor(spec), mat); body.add(w.solid); buildMarks() }
+    if (spec.active && !w.atmo) { w.atmo = atmoPoints(spec); body.add(w.atmo) }
+    if (!spec.active && w.atmo) { body.remove(w.atmo); w.atmo = null }
+    wire.visible = !spec.visited
+    if (w.solid) w.solid.visible = spec.visited
+  }
+  w.apply = (t) => {
+    const l = w.look, u = mat.userData.u
+    u.uFade.value = l.fade; u.uBright.value = l.bright
+    wire.material.color.set(l.bright > 1 ? '#3a3b36' : '#8a887f').lerp(PAPER_C, l.fade)
+    ghost.material.opacity = .17 * l.focus * (spec.visited ? 1 : 0); ghost.visible = ghost.material.opacity > .004
+    marks.visible = spec.visited && l.focus > .02
+    if (marks.visible) {
+      w.mm.plants.material.opacity = l.focus; w.mm.ant.material.opacity = .8 * l.focus; w.mm.tip.material.opacity = l.focus
+      w.mm.res.material.opacity = .65 * l.focus; w.mm.res.material.size = 9 + 2.5 * Math.sin(t * 2)
+      w.mm.rob.material.opacity = l.focus * (.55 + .45 * Math.abs(Math.sin(t * 3)))
+    }
+    if (w.atmo) { w.atmo.material.opacity = .5 * l.atmo; w.atmo.visible = l.atmo > .01 }
+  }
+  w.visit = () => { Object.assign(spec, { visited: true, remaining: 1, residents: 2, plants: 0, antennas: 0, robots: 0, bite: null }); w.sync() }
+  w.pickTarget = () => (spec.visited ? w.solid : w.wire)
+  w.sync()
+  return w
+}
+function lights(scene) { scene.add(new THREE.HemisphereLight('#ffffff', '#b8b5ae', 1.4)); const d = new THREE.DirectionalLight('#ffffff', 2); d.position.set(4, 6, 5); scene.add(d) }
+function makeDust(spread = 1) { const r = rng(5), pos = []; for (let i = 0; i < 650; i++) pos.push((r() - .5) * 130 * spread, (r() - .5) * 70 * spread, (r() - .5) * 130); const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); return new THREE.Points(geo, new THREE.PointsMaterial({ color: '#8c8a84', size: 1.6, sizeAttenuation: false, transparent: true, opacity: .55 })) }
+
+// ---------- shared renderer, helpers ----------
+const R = new THREE.WebGLRenderer({ antialias: true })
+R.setPixelRatio(1); R.setSize(1280, 720, false)
+const ray = new THREE.Raycaster()
+function ndcOf(e, cv) { const r = cv.getBoundingClientRect(); return new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1) }
+function pickWorld(worlds, cam, ndc) { ray.setFromCamera(ndc, cam); const hit = ray.intersectObjects(worlds.map((w) => w.pickTarget()).filter(Boolean), false)[0]; return hit ? worlds.find((w) => w.pickTarget() === hit.object) : null }
+function toScreen(v, cam, cv) { const p = v.clone().project(cam), r = cv.getBoundingClientRect(); return { x: (p.x * .5 + .5) * r.width, y: (-p.y * .5 + .5) * r.height, behind: p.z > 1 } }
+function screenRadius(w, cam, cv) { const c = w.g.getWorldPosition(new V()), up = new V().setFromMatrixColumn(cam.matrixWorld, 1).multiplyScalar(w.spec.radius * SIZE * w.body.scale.x); return Math.abs(toScreen(c.clone().add(up), cam, cv).y - toScreen(c, cam, cv).y) }
+function holdButton(el, ms, onDone) {
+  const prog = $('.prog', el); let raf = 0, t0 = 0, held = false
+  const set = (p) => { prog.style.strokeDashoffset = String(88 * (1 - p)) }
+  const stop = () => { held = false; cancelAnimationFrame(raf); set(0) }
+  const step = (now) => { if (!held) return; const p = Math.min(1, (now - t0) / ms); set(p); if (p >= 1) { held = false; onDone() } else raf = requestAnimationFrame(step) }
+  const down = (e) => { e.preventDefault(); held = true; t0 = performance.now(); raf = requestAnimationFrame(step) }
+  el.addEventListener('pointerdown', down); ;['pointerup', 'pointerleave', 'pointercancel'].forEach((n) => el.addEventListener(n, stop))
+  el.addEventListener('keydown', (e) => { if ((e.key === ' ' || e.key === 'Enter') && !held && !e.repeat) { held = true; t0 = performance.now(); raf = requestAnimationFrame(step) } })
+  el.addEventListener('keyup', stop)
+  return { stop }
+}
+function showToast(el, text) { el.textContent = text; el.classList.add('on'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('on'), 3200) }
+function tween(ms, fn, done) { const t0 = performance.now(); const step = (now) => { const t = Math.min(1, (now - t0) / (reduce ? 1 : ms)); fn(t); if (t < 1) requestAnimationFrame(step); else done && done() }; requestAnimationFrame(step) }
+
+const stages = {}
+
+// =============== A: pull back ===============
+function stageA(root) {
+  const ac = new AbortController(), sig = { signal: ac.signal }
+  const cv = $('canvas', root), ctx = cv.getContext('2d'), dyn = $('.dyn', root), veil = $('.veil', root), cap = $('.cap', root), hold = (() => { const h = $('.hold', root), c = h.cloneNode(true); h.replaceWith(c); return c })(), slider = $('input[type=range]', root), toast = $('.toast', root), toggle = $('[data-act=toggle]', root)
+  dyn.innerHTML = ''
+  const worlds = cloneSpecs().map(instWorld), by = Object.fromEntries(worlds.map((w) => [w.spec.id, w]))
+  const scene = new THREE.Scene(); scene.background = new THREE.Color(PAPER); lights(scene); scene.add(makeDust()); worlds.forEach((w) => scene.add(w.g))
+  const cam = new THREE.PerspectiveCamera(40, 16 / 9, .1, 500)
+  const S = { dist: 8, userDist: 8, goal: null, az: .55, pol: 1.15, target: new V(...by.k506.spec.pos), focus: null, hover: null, show: 0, phase: 'idle' }
+  const arcs = worlds.filter((w) => w.spec.parent).map((w, i) => {
+    const a = new V(...by[w.spec.parent].spec.pos), b = new V(...w.spec.pos), mid = a.clone().add(b).multiplyScalar(.5).add(new V(0, 2.2, 0))
+    const curve = new THREE.QuadraticBezierCurve3(a, mid, b), pts = curve.getPoints(80)
+    const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineDashedMaterial({ color: '#454641', dashSize: .22, gapSize: .2, transparent: true, opacity: 0 })); line.computeLineDistances(); scene.add(line)
+    const dot = new THREE.Mesh(new THREE.SphereGeometry(.09, 10, 8), new THREE.MeshBasicMaterial({ color: '#c98a2b', transparent: true, opacity: 0 })); scene.add(dot)
+    return { curve, line, dot, n: pts.length, off: i * .31 }
+  })
+  const tags = worlds.map((w) => { const el = document.createElement('div'); el.className = 'tag'; el.innerHTML = `<b>${w.spec.name}</b><i></i><small>${w.spec.traits}</small>`; dyn.appendChild(el); return el })
+  const setCap = (t) => { if (cap.textContent !== t) cap.textContent = t }
+
+  const arrive = (w) => {
+    const old = worlds.find((x) => x.spec.active); old.spec.active = false; old.sync()
+    w.spec.active = true; if (!w.spec.visited) w.visit(); w.sync()
+    S.focus = null; S.userDist = 8; S.dist = 8; S.show = 0; S.target.set(...w.spec.pos); S.phase = 'idle'
+    tags.forEach((el, i) => { $('i', el).textContent = worlds[i].spec.active ? 'YOU ARE HERE' : '' })
+    veil.classList.add('fade'); veil.style.opacity = 0
+    showToast(toast, `Arrived at ${w.spec.name}${old ? ' · ' + old.spec.name + ' pauses until you return' : ''}`)
+  }
+  const travel = (id) => {
+    if (S.phase !== 'idle' || !id) return
+    S.phase = 'dive'; const w = by[id], d0 = S.dist; veil.classList.remove('fade')
+    tween(1300, (t) => { const e = ease(t); S.dist = lerp(d0, w.spec.radius * SIZE * SCALE * 1.8, e); veil.style.opacity = smooth(.55, 1, t) }, () => arrive(w))
+  }
+  holdButton(hold, 900, () => travel(S.focus))
+  tags.forEach((el, i) => { $('i', el).textContent = worlds[i].spec.active ? 'YOU ARE HERE' : '' })
+
+  let drag = null
+  cv.addEventListener('pointerdown', (e) => { cv.setPointerCapture(e.pointerId); drag = { x: e.clientX, y: e.clientY, moved: 0 }; root.focus({ preventScroll: true }) }, sig)
+  cv.addEventListener('pointermove', (e) => {
+    if (drag && (e.buttons & 1)) { const dx = e.clientX - drag.x, dy = e.clientY - drag.y; drag.moved += Math.abs(dx) + Math.abs(dy); drag.x = e.clientX; drag.y = e.clientY; S.az -= dx * .006; S.pol = Math.max(.35, Math.min(2.6, S.pol + dy * .006)); return }
+    if (S.show < .5 || S.phase !== 'idle') { S.hover = null; return }
+    const w = pickWorld(worlds, cam, ndcOf(e, cv)); S.hover = w ? w.spec.id : null; cv.style.cursor = w ? 'pointer' : 'grab'
+  }, sig)
+  cv.addEventListener('pointerleave', () => { if (!drag) S.hover = null }, sig)
+  cv.addEventListener('pointerup', (e) => {
+    if (drag && drag.moved < 5 && S.show > .5 && S.phase === 'idle') { const w = pickWorld(worlds, cam, ndcOf(e, cv)); S.focus = w && !w.spec.active ? (S.focus === w.spec.id ? null : w.spec.id) : null }
+    drag = null
+  }, sig)
+  root.addEventListener('wheel', (e) => { if (document.activeElement !== root || S.phase !== 'idle') return; e.preventDefault(); S.goal = null; S.userDist = Math.max(8, Math.min(26, S.userDist * (1 + Math.sign(e.deltaY) * .07))); if (e.deltaY > 0 && S.focus) S.focus = null }, { passive: false, signal: ac.signal })
+  root.addEventListener('keydown', (e) => { if (e.key === 'Escape') S.focus = null }, sig)
+  slider.addEventListener('input', () => { S.goal = null; S.userDist = 8 + slider.value / 100 * 18; S.focus = null }, sig)
+  toggle.addEventListener('click', () => { S.focus = null; S.goal = S.userDist > 14 ? 8 : 21 }, sig)
+  $('[data-act=reset]', root).addEventListener('click', () => { ac.abort(); stages.A = stageA(root); registerStage('A') }, sig)
+
+  return {
+    root, scene, cam, ctx, visible: true, dispose() { ac.abort(); hold.style.display = 'none' },
+    update(dt, t) {
+      const k = 1 - Math.pow(.002, dt)
+      const act = worlds.find((w) => w.spec.active), foc = S.focus && by[S.focus]
+      if (S.goal != null) { S.userDist = lerp(S.userDist, S.goal, k * .7); if (Math.abs(S.userDist - S.goal) < .05) { S.userDist = S.goal; S.goal = null } }
+      if (S.phase !== 'dive') { S.target.lerp((foc || act).g.position, k); S.dist = lerp(S.dist, foc ? 9.5 : S.userDist, k); S.show = lerp(S.show, foc ? 1 : smooth(9, 18, S.userDist), k) }
+      cam.position.set(S.target.x + S.dist * Math.sin(S.pol) * Math.sin(S.az), S.target.y + S.dist * Math.cos(S.pol), S.target.z + S.dist * Math.sin(S.pol) * Math.cos(S.az)); cam.lookAt(S.target)
+      worlds.forEach((w) => {
+        const a = w.spec.active, hov = S.hover === w.spec.id || S.focus === w.spec.id
+        w.body.scale.setScalar(a ? lerp(1, SCALE, S.show) : SCALE * (.85 + .15 * S.show))
+        w.look.fade = a ? 0 : 1 - smooth(.25, .85, S.show)
+        w.look.bright = 1 + (hov ? .12 : 0)
+        w.look.focus = smooth(.35, .9, S.show) * (hov ? 1 : .7)
+        w.look.atmo = a ? 1 - smooth(0, .45, S.show) : 0
+        if (!a) w.body.rotation.y += dt * .04
+        w.g.visible = a || w.look.fade < .985
+        w.apply(t)
+      })
+      const p = smooth(.35, .9, S.show)
+      arcs.forEach(({ curve, line, dot, n, off }) => { line.geometry.setDrawRange(0, Math.floor(p * n)); line.material.opacity = .55 * p; dot.material.opacity = p * .9; dot.position.copy(curve.getPoint(((t * .09 + off) % 1) * Math.max(.02, p))) })
+      worlds.forEach((w, i) => {
+        const el = tags[i], pos = toScreen(w.g.getWorldPosition(new V()), cam, cv), sr = screenRadius(w, cam, cv)
+        el.style.left = pos.x + 'px'; el.style.top = (pos.y - sr - 8) + 'px'
+        const on = S.hover === w.spec.id || S.focus === w.spec.id
+        el.classList.toggle('on', on)
+        el.style.opacity = String(smooth(.55, .95, S.show) * (S.focus && !on && !w.spec.active ? .5 : 1))
+      })
+      const fw = foc && !foc.spec.active && S.phase === 'idle' ? foc : null
+      if (fw) { const pos = toScreen(fw.g.getWorldPosition(new V()), cam, cv), sr = screenRadius(fw, cam, cv); hold.style.display = 'inline-flex'; hold.style.left = pos.x + 'px'; hold.style.top = (pos.y + sr + 16) + 'px' } else hold.style.display = 'none'
+      const hw = by[S.hover] || foc
+      setCap(hw ? `${hw.spec.name} — ${describe(hw.spec)}` : S.show < .5 ? 'Click the view, then scroll to pull back and see every known world' : 'Hover a world to read it · click to focus · Esc to let go')
+      toggle.textContent = S.userDist > 14 ? 'Return to orbit' : 'Pull back'
+      if (document.activeElement !== slider) slider.value = String(Math.round((S.userDist - 8) / 18 * 100))
+    },
+  }
+}
+
+// =============== C: drift ===============
+function stageC(root) {
+  const ac = new AbortController(), sig = { signal: ac.signal }
+  const cv = $('canvas', root), ctx = cv.getContext('2d'), dyn = $('.dyn', root), veil = $('.veil', root), cap = $('.cap', root), hold = (() => { const h = $('.hold', root), c = h.cloneNode(true); h.replaceWith(c); return c })(), toast = $('.toast', root)
+  dyn.innerHTML = ''
+  const worlds = cloneSpecs().map(instWorld), SP = 8.2, Z = [-1.2, 0, -3.4, -2]
+  const scene = new THREE.Scene(); scene.background = new THREE.Color(PAPER); lights(scene); scene.add(makeDust(1.5))
+  worlds.forEach((w, i) => { w.g.position.set(i * SP, 0, Z[i]); scene.add(w.g) })
+  const cam = new THREE.PerspectiveCamera(36, 16 / 9, .1, 500)
+  const S = { camX: SP, camTarget: SP, idx: 1, vel: 0, phase: 'idle', dive: 0, zoom: 0 }
+  const info = document.createElement('div'); info.className = 'cap'; info.style.cssText = 'bottom:70px;font-size:15px;color:var(--ink)'; dyn.appendChild(info)
+  let shownIdx = -1
+  const renderInfo = () => {
+    const w = worlds[S.idx], s = w.spec
+    info.innerHTML = `<div style="font:400 24px var(--f-title)">${s.name}${s.active ? ' <span style="font:500 11px var(--f-mono);letter-spacing:.12em;color:var(--amber);vertical-align:middle">YOU ARE HERE</span>' : ''}</div>
+      <div style="color:var(--soft);margin-top:2px">${s.traits}</div>
+      <div style="margin-top:6px;font-size:13px;color:var(--soft)">${s.visited ? `<span style="color:var(--green)">●</span> ${s.plants} plants &nbsp; <span style="color:#3b3a37">╿</span> ${s.antennas} antennas &nbsp; <span style="color:#e0b070">●</span> ${s.residents} residents &nbsp; · ${Math.round(s.remaining * 100)}% of the original rock (dashed shell)` : 'Answered a signal · wireframe shows its real size'}</div>`
+    shownIdx = S.idx
+  }
+  const arrive = (w) => {
+    const old = worlds.find((x) => x.spec.active); old.spec.active = false; old.sync()
+    w.spec.active = true; if (!w.spec.visited) w.visit(); w.sync()
+    S.phase = 'idle'; S.zoom = 0; shownIdx = -1
+    veil.classList.add('fade'); veil.style.opacity = 0
+    showToast(toast, `Arrived at ${w.spec.name} · ${old.spec.name} pauses until you return`)
+  }
+  const travel = () => {
+    if (S.phase !== 'idle') return; const w = worlds[S.idx]; if (w.spec.active) return
+    S.phase = 'dive'; veil.classList.remove('fade'); hold.style.display = 'none'
+    tween(1300, (t) => { S.zoom = ease(t); veil.style.opacity = smooth(.55, 1, t) }, () => arrive(w))
+  }
+  holdButton(hold, 900, travel)
+  const go = (i) => { S.idx = Math.max(0, Math.min(worlds.length - 1, i)); S.camTarget = S.idx * SP }
+  let drag = null
+  const upx = () => (2 * 15.5 * Math.tan(THREE.MathUtils.degToRad(18)) * (16 / 9)) / cv.getBoundingClientRect().width
+  cv.addEventListener('pointerdown', (e) => { cv.setPointerCapture(e.pointerId); drag = { x: e.clientX, moved: 0, v: 0 }; root.focus({ preventScroll: true }) }, sig)
+  cv.addEventListener('pointermove', (e) => { if (!drag || !(e.buttons & 1)) return; const dx = e.clientX - drag.x; drag.x = e.clientX; drag.moved += Math.abs(dx); drag.v = dx; S.camTarget -= dx * upx() * 1.1; S.camTarget = Math.max(-.4 * SP, Math.min((worlds.length - 1 + .4) * SP, S.camTarget)) }, sig)
+  cv.addEventListener('pointerup', (e) => {
+    if (!drag) return
+    if (drag.moved < 5) { const w = pickWorld(worlds, cam, ndcOf(e, cv)); if (w) go(worlds.indexOf(w)) } else go(Math.round((S.camTarget - drag.v * upx() * 6) / SP))
+    drag = null
+  }, sig)
+  root.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') go(S.idx + 1); if (e.key === 'ArrowLeft') go(S.idx - 1) }, sig)
+  let wheelAt = 0
+  root.addEventListener('wheel', (e) => { if (document.activeElement !== root) return; e.preventDefault(); const now = performance.now(); if (now - wheelAt < 380) return; wheelAt = now; go(S.idx + Math.sign(Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY)) }, { passive: false, signal: ac.signal })
+  $('[data-act=prev]', root).addEventListener('click', () => go(S.idx - 1), sig)
+  $('[data-act=next]', root).addEventListener('click', () => go(S.idx + 1), sig)
+  $('[data-act=reset]', root).addEventListener('click', () => { ac.abort(); stages.C = stageC(root); registerStage('C') }, sig)
+
+  return {
+    root, scene, cam, ctx, visible: true, dispose() { ac.abort(); hold.style.display = 'none' },
+    update(dt, t) {
+      const k = 1 - Math.pow(.004, dt)
+      S.camX = lerp(S.camX, S.camTarget, k)
+      if (drag === null) S.idx = Math.max(0, Math.min(worlds.length - 1, Math.round(S.camTarget / SP)))
+      if (S.idx !== shownIdx) renderInfo()
+      cam.position.set(S.camX, 1.1, 15.5 - 6 * S.zoom); cam.lookAt(S.camX, -.85, 0)
+      worlds.forEach((w, i) => {
+        const fa = 1 - smooth(.12, .75, Math.abs(i * SP - S.camX) / SP), a = w.spec.active
+        const diving = S.phase === 'dive' && i === S.idx
+        w.body.scale.setScalar(SCALE * (.75 + .8 * fa) * (diving ? 1 + 1.6 * S.zoom : 1))
+        w.g.position.y = Math.sin(t * .4 + i * 1.7) * .18 - .5 * (1 - fa)
+        w.look.fade = Math.min(.9, (1 - fa) * .55 + (S.phase === 'dive' && !diving ? S.zoom : 0))
+        w.look.bright = 1 + .06 * fa
+        w.look.focus = fa
+        w.look.atmo = a ? .35 + .65 * fa : 0
+        if (!a) w.body.rotation.y += dt * (.05 + .1 * fa)
+        w.apply(t)
+      })
+      info.style.opacity = String(S.phase === 'dive' ? 1 - S.zoom : Math.max(0, 1 - Math.abs(S.camX - S.idx * SP) / 2.4))
+      const sel = worlds[S.idx], settled = Math.abs(S.camX - S.idx * SP) < .25 && S.phase === 'idle' && !drag
+      if (settled && !sel.spec.active) { hold.style.display = 'inline-flex'; hold.style.left = '50%'; hold.style.top = 'calc(100% - 56px)' } else hold.style.display = 'none'
+      cap.textContent = ''
+    },
+  }
+}
+
+// =============== B: signal chart ===============
+function stageB(root) {
+  const ac = new AbortController(), sig = { signal: ac.signal }
+  const cv = $('canvas', root), ctx = cv.getContext('2d'), svg = $('svg.over', root), veil = $('.veil', root), toast = $('.toast', root)
+  const PX = 52, W = 1280, H = 720
+  const LAY = { home: { c: [240, 350], side: 'below' }, k506: { c: [610, 170], side: 'right' }, k687: { c: [620, 520], side: 'right' }, k868: { c: [1090, 340], side: 'below' } }
+  const CTRL = { k506: [335, 165], k687: [335, 540], k868: [720, 292] }
+  const worlds = cloneSpecs().map(instWorld), by = Object.fromEntries(worlds.map((w) => [w.spec.id, w]))
+  const scene = new THREE.Scene(); scene.background = new THREE.Color(PAPER); lights(scene)
+  const cam = new THREE.OrthographicCamera(-W / 2 / PX, W / 2 / PX, H / 2 / PX, -H / 2 / PX, .1, 100); cam.position.set(0, 0, 40)
+  worlds.forEach((w) => { const [cx, cy] = LAY[w.spec.id].c; w.g.position.set((cx - W / 2) / PX, (H / 2 - cy) / PX, 0); scene.add(w.g) })
+  const rad = (w) => w.spec.radius * SIZE * PX
+  const anchor = (id) => [LAY[id].c[0], LAY[id].c[1] - rad(by[id]) - 20]
+  const edge = (from, toward, r) => { const d = [toward[0] - from[0], toward[1] - from[1]], l = Math.hypot(...d); return [from[0] + d[0] / l * r, from[1] + d[1] / l * r] }
+  const arcPath = (id) => { const w = by[id], pc = LAY.home.c, cc = LAY[id].c, ct = CTRL[id]; const a = edge(pc, ct, rad(by.home) + 14), b = edge(cc, ct, rad(w) + 14); return `M${a[0]},${a[1]} Q${ct[0]},${ct[1]} ${b[0]},${b[1]}` }
+  const kids = ['k506', 'k687', 'k868']
+  svg.innerHTML = `<g>${[200, 380, 560, 740].map((r) => `<circle class="ring-bg" cx="${LAY.home.c[0]}" cy="${LAY.home.c[1]}" r="${r}"/>`).join('')}</g>
+    <text x="${LAY.home.c[0] + 202}" y="${LAY.home.c[1] - 8}" class="pin-label" fill-opacity=".6" style="fill:#7b7c74">SIGNAL RANGE</text>
+    <g>${kids.map((id) => `<path class="arc" id="arc-${id}" d="${arcPath(id)}"/>`).join('')}</g>
+    <circle class="pulse-ring" id="pr" cx="${LAY.home.c[0]}" cy="${LAY.home.c[1]}" r="130"/>
+    ${kids.map((id) => `<circle id="pd-${id}" r="4.5" fill="#c98a2b" opacity="0"/>`).join('')}
+    <g class="plates">${worlds.map((w) => `<g class="plate" id="pl-${w.spec.id}"></g>`).join('')}</g>
+    <g id="ripples"></g>
+    <g id="pin"><circle class="pin-dot" r="7" fill="#c98a2b"/><circle r="12" fill="none" stroke="#c98a2b" stroke-opacity=".5"/><text class="pin-label" x="16" y="-8">YOU ARE HERE</text></g>`
+  const arcEl = Object.fromEntries(kids.map((id) => [id, $('#arc-' + id, svg)]))
+  const plate = (w) => {
+    const s = w.spec, [cx, cy] = LAY[s.id].c, r = rad(w), g = r + 15, C = 2 * Math.PI * g
+    const below = LAY[s.id].side === 'below', lx = below ? cx : cx + r + 28, ly = below ? cy + r + 36 : cy - 8, anc = below ? 'middle' : 'start'
+    const gauge = s.visited ? `<circle class="gauge-track" cx="${cx}" cy="${cy}" r="${g}"/><circle class="gauge" cx="${cx}" cy="${cy}" r="${g}" stroke-dasharray="${C * s.remaining} ${C}" transform="rotate(-90 ${cx} ${cy})"/>` : `<circle class="gauge-track" cx="${cx}" cy="${cy}" r="${g}"/>`
+    const dt = s.visited
+      ? [`${Math.round(s.remaining * 100)}% of the original rock`, `${s.plants} plants · ${s.antennas} antennas · ${s.residents} residents`, s.active ? (s.robots ? `${s.robots} robots at work` : 'Crew idle') : (s.robots ? 'Crew paused until you return' : 'Quiet')]
+      : ['Answered a signal', 'Not visited yet · real size shown']
+    $('#pl-' + s.id, svg).className.baseVal = 'plate' + (s.active ? ' act' : '')
+    $('#pl-' + s.id, svg).innerHTML = `${gauge}<circle class="hit" data-id="${s.id}" cx="${cx}" cy="${cy}" r="${g + 6}"/>
+      <text x="${lx}" y="${ly}" text-anchor="${anc}"><tspan class="plate-name">${s.name}</tspan></text>
+      <text x="${lx}" y="${ly + 22}" text-anchor="${anc}" class="plate-tr">${s.traits}</text>
+      ${dt.map((l, i) => `<text x="${lx}" y="${ly + 44 + i * 19}" text-anchor="${anc}" class="plate-dt">${l}</text>`).join('')}`
+    const hit = $('.hit', $('#pl-' + s.id, svg)); hit.addEventListener('pointerenter', () => hov(s.id)); hit.addEventListener('pointerleave', () => hov(null)); hit.addEventListener('click', () => go(s.id))
+  }
+  const place = () => { const a = anchor(worlds.find((w) => w.spec.active).spec.id); $('#pin', svg).setAttribute('transform', `translate(${a[0]} ${a[1]})`) }
+  let hovered = null, busy = false
+  const hov = (id) => { hovered = id; svg.classList.toggle('has-hov', !!id); worlds.forEach((w) => $('#pl-' + w.spec.id, svg).classList.toggle('hov', w.spec.id === id)) }
+  const segPts = (a, b) => { const child = by[a].spec.parent === b ? a : b, p = arcEl[child], L = p.getTotalLength(), pts = []; for (let i = 0; i <= 40; i++) { const q = p.getPointAtLength(L * i / 40); pts.push([q.x, q.y]) } return child === b ? pts : pts.reverse() }
+  const go = (id) => {
+    const from = worlds.find((w) => w.spec.active).spec.id
+    if (busy || id === from) return
+    busy = true
+    const route = from === 'home' || id === 'home' ? [from, id] : [from, 'home', id]
+    let pts = [anchor(from)]; for (let i = 0; i < route.length - 1; i++) pts = pts.concat(segPts(route[i], route[i + 1])); pts.push(anchor(id))
+    const lens = [0]; for (let i = 1; i < pts.length; i++) lens.push(lens[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]))
+    const total = lens[lens.length - 1], pin = $('#pin', svg)
+    tween(700 + route.length * 650, (t) => {
+      const d = ease(t) * total; let i = 1; while (i < lens.length - 1 && lens[i] < d) i++
+      const f = (d - lens[i - 1]) / Math.max(1e-6, lens[i] - lens[i - 1]), x = lerp(pts[i - 1][0], pts[i][0], f), y = lerp(pts[i - 1][1], pts[i][1], f)
+      pin.setAttribute('transform', `translate(${x} ${y})`)
+    }, () => {
+      const old = by[from], nw = by[id]; old.spec.active = false; old.sync(); nw.spec.active = true
+      const first = !nw.spec.visited; if (first) { nw.visit(); nw.look.fade = 1 }
+      nw.sync(); plate(old); plate(nw); place()
+      const [cx, cy] = LAY[id].c; $('#ripples', svg).insertAdjacentHTML('beforeend', `<circle class="ripple" cx="${cx}" cy="${cy}" r="${rad(nw) + 20}"/>`); setTimeout(() => { const r = $('#ripples', svg); if (r) r.innerHTML = '' }, 1300)
+      showToast(toast, `Arrived at ${nw.spec.name}${first ? ' · first visit' : ''} · ${old.spec.name} pauses until you return`); busy = false
+    })
+  }
+  worlds.forEach(plate); place()
+  $('[data-act=reset]', root).addEventListener('click', () => { ac.abort(); stages.B = stageB(root); registerStage('B') }, sig)
+
+  return {
+    root, scene, cam, ctx, visible: true, dispose() { ac.abort() },
+    update(dt, t) {
+      worlds.forEach((w) => {
+        w.look.fade = Math.max(0, w.look.fade - dt * 1.1); w.look.bright = 1 + (hovered === w.spec.id ? .14 : 0)
+        w.look.focus = 1; w.look.atmo = w.spec.active ? 1 : 0
+        w.body.rotation.y += dt * (w.spec.active ? .03 : .1); w.apply(t)
+      })
+      const tc = t % 8, pr = $('#pr', svg)
+      if (tc < 3.6) { pr.setAttribute('r', 130 + tc * 170); pr.style.opacity = String(.55 * (1 - tc / 3.6)) } else pr.style.opacity = '0'
+      kids.forEach((id, i) => {
+        const dot = $('#pd-' + id, svg), p = arcEl[id], L = p.getTotalLength(), q = (tc - .7 - i * .25) / 3.4
+        if (q > 0 && q < 1) { const pt = p.getPointAtLength(L * ease(q)); dot.setAttribute('cx', pt.x); dot.setAttribute('cy', pt.y); dot.setAttribute('opacity', String(Math.sin(q * Math.PI))) } else dot.setAttribute('opacity', '0')
+      })
+    },
+  }
+}
+
+// ---------- manager ----------
+const ctors = { A: stageA, B: stageB, C: stageC }
+function registerStage(k) {
+  const s = stages[k]; const io = registerStage.io || (registerStage.io = new IntersectionObserver((es) => es.forEach((e) => { const st = Object.values(stages).find((x) => x.root === e.target); if (st) st.visible = e.isIntersecting }), { rootMargin: '120px' }))
+  io.observe(s.root)
+}
+let renderer = true
+try { for (const k of Object.keys(ctors)) { stages[k] = ctors[k]($('#stage' + k)); registerStage(k) } } catch (e) { renderer = false; console.error(e) }
+let last = 0
+function frame(now) {
+  requestAnimationFrame(frame)
+  if (!renderer || now - last < 33) return
+  const dt = Math.min(.1, (now - last) / 1000); last = now
+  const t = window.__T ?? (reduce ? 1.5 : now / 1000)
+  for (const s of Object.values(stages)) {
+    if (!s.visible) continue
+    s.update(dt, t); R.render(s.scene, s.cam); s.ctx.drawImage(R.domElement, 0, 0)
+  }
+}
+requestAnimationFrame(frame)
+
+// shared hold demo
+{ const el = $('#holdDemo'); holdButton(el, 900, () => { el.classList.add('done'); $('span', el).textContent = 'Departed ✓'; setTimeout(() => { el.classList.remove('done'); $('span', el).textContent = 'Hold to travel' }, 1500) }) }
+</script>
+</body></html>
