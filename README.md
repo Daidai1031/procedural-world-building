@@ -138,7 +138,7 @@ Use the shared deployment command instead of the old guidebook-only deploy comma
 
 </details>
 
-### Week 5 — Shader studies and Terraforming Contractor #1380
+### Week 5: Shader studies and a material lab (September 21–27, 2026)
 
 <details>
 <summary>View weekly details</summary>
@@ -153,27 +153,67 @@ The water study computes trapped rainwater from Ground's height function using a
 
 Added a composite shader lab where height colours can be combined with rock, snow, water, scan, Fresnel, MatCap, and ripple layers. The panel exposes layer controls and colours, terrain shape and resolution, named presets, and JSON import/export. Configurations persist locally and are included in account saves. Added an "Apply to Final Project" star on lesson steps and in the outline, simplified lesson titles, and extended Firebase sync to load on sign-in and auto-save after a two-second pause in changes, with save status in the Account drawer.
 
-#### Game: a planet to edit and inspect
+- **Key files:** [Shader lesson](worldbuilding-guidebook/content/lessons/04-shaders/), [shader demos](worldbuilding-guidebook/src/scene/demos/shaders/), [CompositeLabPanel.jsx](worldbuilding-guidebook/src/components/CompositeLabPanel.jsx), [compositeLabStore.js](worldbuilding-guidebook/src/store/compositeLabStore.js), [configSync.js](worldbuilding-guidebook/src/firebase/configSync.js), [shader study notes](docs/exercise/06-shader-studies.md)
+- **Keywords:** GLSL, coordinate spaces, shader composition, MatCap, Fresnel, data textures, presets, automatic configuration sync
 
-Created `terraforming-1380/` as an independent Vite, React, and TypeScript app, with a game design document archive, current design and technical specifications, an M0–M7 roadmap, tuning notes, and decision records. M0 established the app, seeded run state, debug overlay, and planet placeholder.
+</details>
 
-![Week 5 game M0](docs/media/week5_M0.jpg)
+### Week 6: Distributions and the first game prototype (September 28–October 4, 2026)
 
-M1 replaces the placeholder with a seeded sphere-plus-noise density field, extracted with Marching Cubes in chunks. It reuses copies of the guidebook's noise and voxel modules. Right-drag orbits a stationary planet; Dig, Add Terrain, and Flatten edit the density field and rebuild affected chunks. Brush size is adjustable. Flatten supports a local plane perpendicular to the planet radius or a global horizontal plane, with a matching preview. A remaining-volume estimate tracks terrain removal and addition, and a gray material with triplanar grain establishes the first visual treatment.
+<details>
+<summary>View weekly details</summary>
 
-![Week 5 game M1](docs/media/week5_M1.jpg)
+#### Guidebook: Lesson 05, Distributions
 
-![Week 5 game M1 additional view](docs/media/week5_M1.png)
+Completed the eight-step distributions lesson. It begins with instanced rocks and separates candidate count, asset scale, and seeded placement so a layout can be reproduced. Noise masks turn uniform placement into patches, while a lattice and terrain maps place farmland above water and within a chosen moisture band. Later steps align assets to surface normals, filter them by slope, and combine five independent layers: rocks, trees, farmland, antennas, and a four-building base.
 
-The M1.5 Detector scans a local patch, showing nearby terrain wireframe and distance-faded Mineral, Life, and Memory signals with distinct marker shapes. These targets are seeded proxies. Terrain edits that expose a target's center trigger basic collection, an animated transfer to the HUD, and category counts. Full deposits, resource economics, tool costs, first-person movement, and the story/endings remain later milestones; the prototype still needs human playtesting for tool feel and performance.
+The final population keeps a separate seed and rule set for each layer. It places the base at the flattest suitable anchor, reserves an exclusion zone around it, applies minimum spacing to antennas, and drives tree and field variation from moisture. Candidate, rejection, height, slope, and moisture overlays make each rule inspectable. All eight steps include a live scene, source excerpt, fill practice, and automated coverage; the final guidebook test run passed 88 tests with one intentionally skipped Tutor test.
+
+#### Game: initial editable planet, added September 30
+
+Created `terraforming-1380/` as an independent Vite, React, and TypeScript app with design, specification, roadmap, tuning, and decision documents. The prototype uses a seeded sphere-plus-noise density field and extracts its surface with chunked Marching Cubes. Right-drag orbits the planet. Dig, Add Terrain, and Flatten edit the density field and rebuild affected chunks; Flatten supports both a local radial plane and a global horizontal plane. A remaining-volume estimate tracks terrain added or removed.
+
+![Week 6 game prototype](docs/media/week5_game.gif)
+
+The Detector scans a local patch and shows nearby terrain wireframe plus distance-faded Mineral, Life, and Memory signals. Each signal has its own marker shape. Exposing a target's centre collects it, animates the transfer to the HUD, and updates the category count. At this point, deposits are seeded proxies; resource economics, tool costs, surface movement, and endings were still planned.
+
+![Week 6 game M0](docs/media/week5_M0.jpg)
+
+![Week 6 game M1](docs/media/week5_M1.jpg)
 
 #### Shared site and repository maintenance
 
-Added a project homepage with an interactive low-resolution Marching Cubes planet and a static fallback. The shared build assembles the homepage at `/`, guidebook at `/guidebook/`, and game at `/game/`. Firebase routing supports deep links and redirects old lesson URLs. Both GitHub deployment workflows now install the two apps, run game tests, and build the combined site through `deployment/`. Added a Hosting verification script for routes and assets, alongside game tests for seeded generation, terrain edits, detector behavior, and chunk borders.
+Added the combined Firebase Hosting build. The homepage is served at `/`, the guidebook at `/guidebook/`, and the game at `/game/`, with deep-link rewrites and redirects for old lesson URLs. The deployment workflows install both apps, run the game tests, build the combined site, and verify its routes and assets.
 
-Updated exercise notes and content audit artifacts, adjusted shader-specific lint settings, added Obsidian workspace configuration, and removed the old root planning backlog, analysis placeholder, and unused exercise image. Exercise 06 records the earlier shader observations, but some pending labels still need to catch up with the newer implementation. Guidebook GIFs will be added separately.
+- **Key files:** [Lesson 05](worldbuilding-guidebook/content/lessons/05-distributions/), [distribution demos](worldbuilding-guidebook/src/scene/demos/distributions/), [Exercise 07](docs/exercise/07-scattering-system.md), [game source](terraforming-1380/src/), [game design](terraforming-1380/docs/design.md), [game tests](terraforming-1380/tests/planet.test.ts), [deployment build](deployment/build.mjs)
+- **Keywords:** instancing, deterministic seeds, noise masks, terrain maps, surface normals, slope filtering, layered populations, seeded planet, Marching Cubes, terrain editing, detector, Firebase Hosting
 
-- **Key files:** [Shader lesson](worldbuilding-guidebook/content/lessons/04-shaders/), [shader demos](worldbuilding-guidebook/src/scene/demos/shaders/), [CompositeLabPanel.jsx](worldbuilding-guidebook/src/components/CompositeLabPanel.jsx), [compositeLabStore.js](worldbuilding-guidebook/src/store/compositeLabStore.js), [configSync.js](worldbuilding-guidebook/src/firebase/configSync.js), [game source](terraforming-1380/src/), [game roadmap](terraforming-1380/docs/roadmap.md), [game tests](terraforming-1380/tests/planet.test.ts), [deployment instructions](deployment/README.md), [shader study notes](docs/exercise/06-shader-studies.md)
-- **Keywords:** GLSL, coordinate spaces, shader composition, MatCap, Fresnel, data textures, presets, automatic configuration sync, seeded planets, terrain editing, local scanning, resource collection, shared Firebase Hosting
+</details>
+
+### Week 7: Paths, particles, and game terrain LOD (October 5–11, 2026)
+
+<details>
+<summary>View weekly details</summary>
+
+#### Guidebook: Lesson 06, Paths
+
+Completed six pathfinding and spline scenes around one resident travelling from a cave entrance to shelter. The lesson moves from ordered waypoints to a centripetal Catmull-Rom curve, then compares parameter-based movement with distance-based movement. It projects samples onto a height field, checks body clearance and ground support across each segment, and revalidates the route after a local terrain edit.
+
+The final scene generates bounded route candidates for two shelters, rejects blocked, unsupported, or overly steep paths before ranking the valid ones by normalized distance and disturbance, and leaves the resident waiting when both routes fail. These are guidebook teaching scenes. They do not add resident migration or a cave solver to the game.
+
+#### Guidebook: Lesson 07, Particles
+
+Completed eight particle-system scenes using one typed-array state model. The lesson covers emission, lifetime, capacity, frame-rate-independent movement, forces, velocity and acceleration fields, and additive breeze, vortex, and gust layers. Later steps compare dots, puffs, and trails, show the stray-line bug caused by retaining trail history after recycling, and map speed and age to colour and opacity.
+
+The final recipe scene includes Dust, Mist, Rain, and Spores presets. Each preset controls its emitter, rate, lifetime, representation, wind, gravity, fade, ground rule, and boundary rule. Tests keep live counts within capacity, verify that the default ground rule removes particles below the terrain, and check that motion stays consistent across different frame intervals. The particle effects remain guidebook demonstrations rather than game effects.
+
+#### Game: distance-based terrain LOD, added October 7
+
+Added three terrain detail levels while keeping the full `64³` density grid as the editable source of truth. Nearby chunk columns use full sampling; distant columns use half or quarter sampling. Fine boundary vertices and normals snap to the neighboring coarse surface to reduce mixed-detail cracks. Mesh preparation is spread across frames, all meshes for a change switch together, terrain edits invalidate cached levels, and the debug overlay reports the visible chunk count at each level.
+
+The same day's site update refreshed the project homepage, navigation, and favicons without coupling the two applications. The game and guidebook still build independently before the deployment project combines them.
+
+- **Key files:** [Lesson 06](worldbuilding-guidebook/content/lessons/06-paths/), [path demos](worldbuilding-guidebook/src/scene/demos/paths/), [Exercise 08](docs/exercise/08-spline-layer.md), [Lesson 07](worldbuilding-guidebook/content/lessons/07-particles/), [particle demos](worldbuilding-guidebook/src/scene/demos/particles/), [Exercise 09](docs/exercise/09-particle-system.md), [game LOD](terraforming-1380/src/world/lodChunks.js), [planet generation](terraforming-1380/src/world/planet.ts)
+- **Keywords:** waypoints, Catmull-Rom splines, arc-length movement, terrain projection, clearance, route validation, particle lifecycle, vector fields, trails, atmospheric presets, chunk LOD, seam snapping
 
 </details>
