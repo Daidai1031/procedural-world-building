@@ -1,10 +1,10 @@
-# System view redesign — implementation brief (D-044)
+# System view redesign — implementation brief (D-049)
 
 | | |
 | --- | --- |
 | **Audience** | Claude Code (or any developer) implementing the change in `terraforming-1380/` |
 | **Status** | Design decided by the project owner on 2026-10-21. **Not implemented.** |
-| **Decision record** | [`decisions.md` D-044](decisions.md) |
+| **Decision record** | [`decisions.md` D-049](decisions.md) |
 | **Requirements** | [`spec.md` §4.19 SYS-05 – SYS-14](spec.md) and tests SYS-T2 – SYS-T7 |
 | **Visual reference** | [`system-view-concepts.html`](system-view-concepts.html) — open in a browser. **Concept A** is the structure to build; B's arcs and C's on-planet readouts are folded into it. It is a throwaway prototype with fake data: read it for look and feel, do not copy its code wholesale. |
 
@@ -250,7 +250,7 @@ Add to `config/palette.ts`:
 system: { arc: '#454641', ghost: '#3b3a37', wire: '#8a887f', wireHover: '#3a3b36', residentGlow: '#e0b070' },
 ```
 
-Add to `config/tuning.ts` (and mirror in `docs/tuning.md` under a new "System view (D-044)" heading; all values are `guess` until playtested):
+Add to `config/tuning.ts` (and mirror in `docs/tuning.md` under a new "System view (D-049)" heading; all values are `guess` until playtested):
 
 ```ts
 system: {
@@ -269,7 +269,7 @@ Reuse `signal.pulseSeconds` for the broadcast pulse.
 ## 6. Documentation to update in the same change set
 
 * `spec.md` §4.19: SYS-01 wording ("shown in the main scene by pulling the camera back"), mark SYS-05 – SYS-14 `done` as they land; add the SYS-T tests to the test table.
-* `decisions.md`: set D-044 `implemented` and add the measured values. Note in D-040 that its "overview is a dialog" part is superseded; the persistence rules are not.
+* `decisions.md`: set D-049 `implemented` and add the measured values. Note in D-040 that its "overview is a dialog" part is superseded; the persistence rules are not.
 * `design.md` §10 (one sentence) and `tuning.md` (the block above).
 * `ui/README.md`: remove `SystemOverview`, add the new files.
 
