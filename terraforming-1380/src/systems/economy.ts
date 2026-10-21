@@ -6,6 +6,7 @@ const active = (phase: string) => !['idle', 'paused', 'stopped'].includes(phase)
 export function powerDemand(state: RunState) {
   return state.robots.filter(r => active(r.phase)).length * tuning.economy.power.miner
     + state.gardeners.filter(r => active(r.phase)).length * tuning.economy.power.gardener
+    + state.riggers.filter(r => active(r.phase)).length * tuning.economy.power.rigger
     + state.builders.filter(r => active(r.phase)).length * tuning.economy.power.builder
 }
 

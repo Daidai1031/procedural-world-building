@@ -8,10 +8,11 @@ import { tuning } from '../config/tuning'
 
 type Store = ReturnType<typeof createRunStore>
 
-const names: Record<CrewKind, string> = { miner: 'Miner', gardener: 'Gardener', builder: 'Builder' }
+const names: Record<CrewKind, string> = { miner: 'Miner', gardener: 'Gardener', rigger: 'Rigger', builder: 'Builder' }
 const jobs: Record<CrewKind, string> = {
   miner: 'Digs ore and sells it',
-  gardener: 'Plants and raises antennas',
+  gardener: 'Plants on the flattest ground',
+  rigger: 'Raises antennas on high ground',
   builder: 'Repairs holes and trims obstructions',
 }
 const phaseText: Record<string, string> = {
@@ -43,7 +44,7 @@ function CrewRow({ useRunStore, kind }: { useRunStore: Store; kind: CrewKind }) 
 
 // D-043: choose the crew, then hand the whole planet over. Starts from either Auto or Manual.
 export function AutopilotSetup({ useRunStore, onStart }: { useRunStore: Store; onStart: () => void }) {
-  const total = useRunStore(s => s.autopilot.counts.miner + s.autopilot.counts.gardener + s.autopilot.counts.builder)
+  const total = useRunStore(s => crewKinds.reduce((sum, kind) => sum + s.autopilot.counts[kind], 0))
   return <>
     <p className="kicker">Autopilot · whole planet</p>
     <p className="autopilot-intro">Hand the planet to the crew. Every robot works the entire surface by itself, sweeping it sector by sector. You can take over again at any time.</p>
@@ -53,13 +54,13 @@ export function AutopilotSetup({ useRunStore, onStart }: { useRunStore: Store; o
     <BroadcastToggle useRunStore={useRunStore} />
     <button type="button" className="btn btn-primary" disabled={total === 0}
       onClick={event => { onStart(); event.currentTarget.blur() }}>Hand over to autopilot</button>
-    <p className="autopilot-note">Electricity is billed as usual. If funds fall below ₡{tuning.autopilot.holdBelow}, Gardeners and Builders wait while the Miners earn.</p>
+    <p className="autopilot-note">Electricity is billed as usual. If funds fall below ₡{tuning.autopilot.holdBelow}, Gardeners, Riggers and Builders wait while the Miners earn.</p>
   </>
 }
 
 // What the crew is doing right now, and the one button that returns control to the player.
 export function AutopilotRunning({ useRunStore, onCancel }: { useRunStore: Store; onCancel: () => void }) {
-  const roster = useRunStore(s => crewKinds.map(kind => (kind === 'miner' ? s.robots : kind === 'gardener' ? s.gardeners : s.builders)
+  const roster = useRunStore(s => crewKinds.map(kind => (kind === 'miner' ? s.robots : kind === 'gardener' ? s.gardeners : kind === 'rigger' ? s.riggers : s.builders)
     .map(robot => `${kind}|${robot.id}|${robot.phase}`).join(';')).filter(Boolean).join(';'))
   const holding = useRunStore(s => s.autopilot.holding)
   const mined = useRunStore(s => s.robots.reduce((sum, robot) => sum + robot.collectedMinerals, 0))

@@ -59,7 +59,7 @@ function describe(state: RunState) {
     residents: state.residents.length,
     residentsSearching: state.residents.filter(r => r.state === 'moving' || r.state === 'searching').length,
     robotsRunning: state.robots.filter(r => active(r.phase)).length + state.gardeners.filter(r => active(r.phase)).length
-      + state.builders.filter(r => active(r.phase)).length,
+      + state.riggers.filter(r => active(r.phase)).length + state.builders.filter(r => active(r.phase)).length,
   }
 }
 

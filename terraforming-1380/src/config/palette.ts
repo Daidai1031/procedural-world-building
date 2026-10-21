@@ -21,7 +21,7 @@ export const palette = {
     charcoal: '#2c2c2b',
     debris: '#77746f',
     soil: '#8f8a80',
-    band: { miner: '#3b3a37', gardener: '#6b8160', builder: '#8c7a5c' },
+    band: { miner: '#3b3a37', gardener: '#6b8160', builder: '#8c7a5c', rigger: '#6f8794' },
   },
   // Residents stay mineral and tactile, but each family now has a recognisable hue instead of sharing one pale neutral.
   resident: {

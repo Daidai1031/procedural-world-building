@@ -10,7 +10,7 @@ import { unit } from '../src/systems/geometry'
 import { PlanetWorld } from '../src/world/planet'
 
 type Store = ReturnType<typeof createRunStore>
-const crew = { miner: 2, gardener: 2, builder: 1 }
+const crew = { miner: 2, gardener: 2, rigger: 0, builder: 1 }
 
 function setup(seed = '1380', counts = crew) {
   const world = new PlanetWorld(seed)
@@ -39,9 +39,9 @@ test('AUTO-01: starting deploys the chosen crew, switches to Auto and starts eve
 test('AUTO-02: an empty crew cannot start, and counts are clamped to the maximum', () => {
   const world = new PlanetWorld('1380')
   const store = createRunStore('1380')
-  assert.equal(startAutopilot(store, world, { miner: 0, gardener: 0, builder: 0 }), false)
+  assert.equal(startAutopilot(store, world, { miner: 0, gardener: 0, rigger: 0, builder: 0 }), false)
   assert.equal(store.getState().autopilot.enabled, false)
-  startAutopilot(store, world, { miner: 99, gardener: 0, builder: 0 })
+  startAutopilot(store, world, { miner: 99, gardener: 0, rigger: 0, builder: 0 })
   assert.equal(store.getState().robots.length, tuning.autopilot.maxPerKind)
   assert.equal(store.getState().gardeners.length, 0)
 })
@@ -64,7 +64,7 @@ test('AUTO-03: sectors cover the whole planet', () => {
 })
 
 test('AUTO-04: the crew works unattended — minerals are mined and sold, ground is shaped', () => {
-  const { world, store } = setup('1380', { miner: 2, gardener: 1, builder: 1 })
+  const { world, store } = setup('1380', { miner: 2, gardener: 1, rigger: 0, builder: 1 })
   run(world, store, 12000, () => store.getState().economy.mineralsSold >= 3)
   const state = store.getState()
   assert.ok(state.economy.mineralsSold >= 3, `sold ${state.economy.mineralsSold}`)
@@ -74,7 +74,7 @@ test('AUTO-04: the crew works unattended — minerals are mined and sold, ground
 })
 
 test('AUTO-05: a stopped robot moves on to the next sector, and rests after a fruitless lap', () => {
-  const { world, store } = setup('1380', { miner: 1, gardener: 0, builder: 0 })
+  const { world, store } = setup('1380', { miner: 1, gardener: 0, rigger: 0, builder: 0 })
   // Take every mineral off the planet: the Miner has nothing to find anywhere.
   store.setState(s => ({ collectedIds: s.resourceClusters.map(c => c.id) }))
   store.setState(s => ({ robots: s.robots.map(r => ({ ...r, phase: 'stopped', stopReason: 'no-targets' })) }))
@@ -110,7 +110,7 @@ test('AUTO-06: Gardeners and Builders wait while funds are low and resume when t
 })
 
 test('AUTO-07: broadcasts go out by themselves once an antenna stands, spaced apart, until every planet answered', () => {
-  const { world, store } = setup('1380', { miner: 1, gardener: 0, builder: 0 })
+  const { world, store } = setup('1380', { miner: 1, gardener: 0, rigger: 0, builder: 0 })
   run(world, store, 5)
   assert.equal(store.getState().signal.broadcastCount, 0, 'no antenna, no signal')
   const anchor = groundPoint(world, [0, 0, 1])
@@ -150,12 +150,12 @@ test('AUTO-08: cancelling returns to Auto with one paused robot of each kind and
 })
 
 test('AUTO-09: cancelling works with an empty kind, and the crew sizes are remembered for next time', () => {
-  const { store } = setup('1380', { miner: 1, gardener: 0, builder: 0 })
+  const { store } = setup('1380', { miner: 1, gardener: 0, rigger: 0, builder: 0 })
   assert.equal(store.getState().gardeners.length, 0)
   cancelAutopilot(store)
   assert.equal(store.getState().gardeners.length, 1)
   assert.equal(store.getState().gardeners[0].id, 'gardener-0')
-  assert.deepEqual(store.getState().autopilot.counts, { miner: 1, gardener: 0, builder: 0 })
+  assert.deepEqual(store.getState().autopilot.counts, { miner: 1, gardener: 0, rigger: 0, builder: 0 })
 })
 
 test('AUTO-10: Auto-mode robots keep their old spawn positions', () => {
@@ -165,7 +165,7 @@ test('AUTO-10: Auto-mode robots keep their old spawn positions', () => {
 })
 
 test('AUTO-11: Builders share one pass over the planet, take different sectors, and retire when none are left', () => {
-  const { world, store } = setup('1380', { miner: 0, gardener: 0, builder: 2 })
+  const { world, store } = setup('1380', { miner: 0, gardener: 0, rigger: 0, builder: 2 })
   // No Miner means no income, so give the Builders enough funds to finish without the low-funds hold.
   store.setState(s => ({ metrics: { ...s.metrics, capital: 1000 } }))
   const { sectors } = tuning.autopilot.builder
@@ -182,4 +182,15 @@ test('AUTO-11: Builders share one pass over the planet, take different sectors, 
   run(world, store, 3000)
   assert.equal(store.getState().builders.reduce((sum, b) => sum + b.done, 0), jobs, 'retired Builders stay put')
   assert.equal(commsMessages(store.getState()).some(m => m.id === 'autopilot-resting'), true)
+})
+
+test('D-057: Gardeners and Riggers sweep the planet on their own, one planting and the other raising antennas', () => {
+  const { world, store } = setup('1380', { miner: 0, gardener: 1, rigger: 1, builder: 0 })
+  assert.equal(store.getState().riggers[0].phase, 'scanning')
+  run(world, store, 6000, () => store.getState().structures.some(s => s.kind === 'antenna') && store.getState().structures.some(s => s.kind === 'plant'))
+  const { structures, gardeners, riggers } = store.getState()
+  assert.ok(structures.some(s => s.kind === 'plant') && structures.some(s => s.kind === 'antenna'))
+  assert.ok(gardeners[0].placed > 0 && riggers[0].placed > 0)
+  cancelAutopilot(store)
+  assert.equal(store.getState().riggers[0].phase, 'paused')
 })

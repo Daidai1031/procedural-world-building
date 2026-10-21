@@ -93,7 +93,7 @@ function sample<T>(items: T[], cap: number): T[] {
 
 // SYS-09: what is drawn on a world instead of a list. Planet-local coordinates, taken straight from the state and capped.
 export function planetMarks(state: RunState, caps: { plants: number; antennas: number; residents: number; robots: number } = tuning.system.marks): PlanetMarks {
-  const crew = [...state.robots, ...state.gardeners, ...state.builders].map(({ position, phase }) => ({ position, phase: phase as string }))
+  const crew = [...state.robots, ...state.gardeners, ...state.riggers, ...state.builders].map(({ position, phase }) => ({ position, phase: phase as string }))
   return {
     plants: sample(state.structures.filter(({ kind }) => kind === 'plant').map(({ position }) => position), caps.plants),
     antennas: sample(state.structures.filter(({ kind }) => kind === 'antenna').map(({ position, normal }): [Vec3, Vec3] => [position, normal]), caps.antennas),

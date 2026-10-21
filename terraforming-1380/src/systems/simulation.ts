@@ -4,6 +4,7 @@ import type { PlanetWorld } from '../world/planet'
 import { stepAutopilot } from './autopilot'
 import { stepBuilders } from './builder'
 import { stepGardeners } from './gardener'
+import { stepRiggers } from './rigger'
 import { stepMiners } from './miner'
 import { stepStructures } from './structures'
 import { stepResidents } from './residents'
@@ -15,6 +16,7 @@ export function stepSimulation(world: PlanetWorld, store: ReturnType<typeof crea
   billElectricity(store)
   const collected = stepMiners(world, store)
   stepGardeners(world, store)
+  stepRiggers(world, store)
   stepBuilders(world, store)
   stepStructures(world, store)
   stepResidents(world, store)

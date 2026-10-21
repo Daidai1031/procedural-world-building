@@ -422,8 +422,8 @@ Electricity was later raised from 0.25 to 0.4, then to 0.55 credits per kW-minut
 ## D-038 — Separate signal infrastructure from gardening
 
 - **Date:** 2026-10-20
-- **Status:** proposed
-- **Context:** The crit discussion calls for clearer roles; the Gardener currently alternates plants and antennas (D-025).
+- **Status:** accepted for the owner question by D-057 (a separate Rigger raises antennas); the broader signal-controls question stays open
+- **Context:** The crit discussion calls for clearer roles; the Gardener alternated plants and antennas (D-025).
 - **Proposal:** Keep cultivation and planet discovery causally distinct; choose a separate placement/construction path for antennas.
 - **Why:** A player should understand why planting differs from discovering a planet.
 - **Boundary:** No implementation owner or interaction is chosen. Do not remove current antenna placement or mark this accepted.
@@ -580,6 +580,14 @@ Electricity was later raised from 0.25 to 0.4, then to 0.55 credits per kW-minut
 - **Decision:** A planet found by a signal is a sphere (40%), a cube (30%) or a tetrahedron (30%), chosen from its seed. Radius now ranges from 0.17 to 0.38 of the world, so the smallest planet is about a quarter the width of the largest. Only spheres have relief; a quarter of them are exactly smooth, and the cube and tetrahedron are bare geometry with no noise. The home planet stays the noisy sphere it was. Signal outlines in the system view match the solid.
 - **Why:** the author wanted planets to look unlike one another at a glance — tiny, triangular, cubic, with no folds.
 - **Affects:** `world/planet.ts` (`planetConfig`, `shapeDistance`), `config/tuning.ts` (`planets`), `views/SystemWorlds.tsx`, PLN-02.
+
+## D-057 — A separate Rigger raises antennas
+
+- **Date:** 2026-10-21
+- **Status:** accepted; implemented; automated checks added
+- **Decision:** Antennas leave the Gardener. The Gardener now only plants, on the flattest suitable ground. A new fourth robot, the Rigger, only raises antennas, on the highest suitable ground; it keeps the Gardener's survey, fly and work cycle, and has its own work area (default 2.0, since antennas stand far apart), controls, model (a mast with a turning dish), Autopilot count and power draw (3 kW, like the Gardener). Each stops with `no-sites` when its structure cap is reached or nothing fits, and a Builder edit wakes a waiting one. Both are built from one shared module, `systems/placer.ts`.
+- **Why:** the author wanted antennas, which discover planets, to be a different job from planting, so a player can tell cultivation from signalling (D-038).
+- **Affects:** `systems/placer.ts`, `gardener.ts`, `rigger.ts`, `autopilot.ts`, `comms.ts`, `workSites.ts`, `economy.ts`, the Auto and Autopilot panels, `render/models/robots.ts`, `config/tuning.ts` (`rigger`), AUT-15.
 
 ## D-058 — Donut, bitten apple and nail planets
 

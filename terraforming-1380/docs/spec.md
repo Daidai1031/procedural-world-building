@@ -180,7 +180,7 @@ Conceptual responsibilities, not final TypeScript names:
 | AUT-12 | Bound terrain edits per step and reuse dirty-chunk remeshing. Measure responsiveness on the user's laptop; do not claim performance before measuring it. | MVP | wip |
 | AUT-13 | Multiple Miners reserve distinct targets, release reservations on pause/reassignment/completion, and redistribute work. | Stretch | todo |
 | AUT-14 | Introduce one second procedural behavior: Builder reshaping or Gardener growth. Gardener chosen (D-025). | Stretch | done |
-| AUT-15 | The Gardener alternates plant, plant, antenna inside its area. Plants take the flattest suitable surveyed ground, antennas the highest; suitability is solid ground, air above, slope limit and spacing. Stops with `no-sites` when nothing fits. | Stretch | done |
+| AUT-15 | The Gardener plants and the Rigger raises antennas, each inside its own area. Plants take the flattest suitable surveyed ground, antennas the highest; suitability is solid ground, air above, slope limit and spacing. Each stops with `no-sites` when its cap is reached or nothing fits. | Stretch | done (D-057) |
 | AUT-17 | The Builder levels its area toward the mean ground height measured at Start, alternating cut-only Flatten on high ground and Add on low ground. Fills spend a shared soil stock filled by Miner digging (and the Builder's own cuts). It skips ground near plants, antennas and live Miner tunnels, and stops with `level` or `no-soil`. | Stretch | done |
 | AUT-16 | Plants grow through stages and spread onto suitable neighbouring ground up to a cap. Any terrain edit removes structures whose ground is dug away or buried. | Stretch | done |
 
@@ -471,7 +471,7 @@ The Detector is a separate, close-range inspection tool. The later Scanner retai
 | OPS-02 | Explain material/funding restrictions and critical warnings with cause and available action. Do not hide current bankruptcy while it can terminate play. | MVP | todo |
 | OPS-03 | Do not change charges, bankruptcy, sale policy or fund ownership as an incidental UI edit. A revised hard-ending policy needs a new decision. | MVP | todo |
 
-**Role clarification:** AUT-15 currently includes antenna placement. D-038 is proposed only; no removal or reassignment is authorized by these requirements.
+**Role clarification:** antenna placement moved from the Gardener to the Rigger (D-057, which carries out D-038's owner question).
 
 ## 5. Algorithms and rules
 

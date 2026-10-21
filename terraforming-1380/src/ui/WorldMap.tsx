@@ -9,7 +9,7 @@ import { tuning } from '../config/tuning'
 
 // Every robot on the planet; kinds with more than one are numbered (Autopilot fields several).
 function crewPositions(state: ReturnType<ReturnType<typeof createRunStore>['getState']>) {
-  return ([['Miner', state.robots], ['Gardener', state.gardeners], ['Builder', state.builders]] as const).flatMap(([name, list]) =>
+  return ([['Miner', state.robots], ['Gardener', state.gardeners], ['Rigger', state.riggers], ['Builder', state.builders]] as const).flatMap(([name, list]) =>
     list.map((robot, i) => ({ position: robot.position as Vec3, label: list.length > 1 ? `${name} ${i + 1}` : name })))
 }
 

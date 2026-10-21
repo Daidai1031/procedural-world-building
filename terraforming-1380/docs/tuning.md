@@ -25,7 +25,7 @@ Source: [src/config/tuning.ts](../src/config/tuning.ts), checked against current
 | economy.mineralPrice | 40 | Credits per sold mineral |
 | economy.electricityRate | 0.55 | Credits per kW-minute |
 | economy.manualTerrainRate | 0.02 | Credits per changed terrain sample |
-| economy.power.miner / gardener / builder | 6 / 3 / 8 | kW while working |
+| economy.power.miner / gardener / rigger / builder | 6 / 3 / 3 / 8 | kW while working |
 | signal.planetsAfter / maxPlanets | 3 / 5 | First reveal broadcast count / maximum entries |
 | signal.pulseSeconds / planetFadeSeconds | 3.2 / 4 | Visual seconds |
 
@@ -205,7 +205,7 @@ Per-archetype ranges live in `src/content/classifications.json`, not here. This 
 
 ## Gardener and structure tuning (D-025)
 
-Values live in `src/config/tuning.ts` (`gardener`, `structures`). All are `guess`.
+Values live in `src/config/tuning.ts` (`gardener`, `rigger`, `structures`). All are `guess`. The Rigger (D-057) copies the Gardener's values except `workTicks` 36 and a default work area of 2.0.
 
 | Parameter | Purpose | Current value |
 | --- | --- | --- |
@@ -309,7 +309,7 @@ Record every session, even a five-minute one. The point is to change the design 
 
 ## Autopilot (D-043)
 
-Runtime values in `tuning.autopilot`: up to 4 robots per kind (defaults 2/1/1); Miner and Gardener 6 sectors of radius 2.4, Builder 12 of 1.4; rest 900 ticks doubling to 16×; Builder 15 jobs per sector; funds hold at ₡−20, resume at ₡−10; signal every 600 ticks (20 s).
+Runtime values in `tuning.autopilot`: up to 4 robots per kind (defaults 2/1/1/1 for Miner, Gardener, Rigger, Builder); Miner, Gardener and Rigger 6 sectors of radius 2.4, Builder 12 of 1.4; rest 900 ticks doubling to 16×; Builder 15 jobs per sector; funds hold at ₡−20, resume at ₡−10; signal every 600 ticks (20 s).
 
 Observed headless, 54 000 ticks (30 simulated minutes), seeds 1380, mars, abc with crews 2/1/1, 4/4/4 and 1/2/2: all 14 minerals sold within 5 minutes, plants and antennas at their caps, 7 signals sent, no bankruptcy, funds steady at about ₡290–520, Builders retired by 10 minutes with 178–180 jobs, planet remaining 92–94%. Not a person's playtest; the browser check covered start, cancel and the panels only.
 

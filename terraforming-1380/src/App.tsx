@@ -35,6 +35,7 @@ import { detectedClusters, scanWithDetector } from './tools/detector'
 import { collectExposedResources } from './tools/collector'
 import { placeRobot } from './systems/miner'
 import { placeGardener } from './systems/gardener'
+import { placeRigger } from './systems/rigger'
 import { placeBuilder } from './systems/builder'
 import { pruneStructures } from './systems/structures'
 import type { ResourceCategory, ResourceCluster } from './world/resourceClusters'
@@ -49,7 +50,7 @@ import { PlanetView } from './views/PlanetView'
 import { DetectorView } from './views/DetectorView'
 import { MinerRunner } from './views/MinerRunner'
 import { MinerView } from './views/MinerView'
-import { GardenerView } from './views/GardenerView'
+import { PlacerView } from './views/PlacerView'
 import { BuilderView } from './views/BuilderView'
 import { StructuresView } from './views/StructuresView'
 import { ResidentRunner, ResidentsView } from './views/ResidentsView'
@@ -82,11 +83,13 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
   const detector = useRunStore((state) => state.detector)
   const autoRobot = useRunStore((state) => state.loadout.autoRobot)
   const areaRadius = useRunStore((state) => (state.loadout.autoRobot === 'gardener' ? state.gardeners[0]?.area?.radius
+    : state.loadout.autoRobot === 'rigger' ? state.riggers[0]?.area?.radius
     : state.loadout.autoRobot === 'builder' ? state.builders[0]?.area?.radius : state.robots[0]?.area?.radius) ?? tuning.miner.area.default)
   const autopilotOn = useRunStore((state) => state.autopilot.enabled)
   // Ids are joined into one string so the selector stays stable while robots only change phase.
   const minerIds = useRunStore((state) => state.robots.map(({ id }) => id).join())
   const gardenerIds = useRunStore((state) => state.gardeners.map(({ id }) => id).join())
+  const riggerIds = useRunStore((state) => state.riggers.map(({ id }) => id).join())
   const builderIds = useRunStore((state) => state.builders.map(({ id }) => id).join())
   const world = useMemo(() => registry.world(seed), [registry, seed])
   useEffect(() => { if (debug) Object.assign(window, { __world: world, __registry: registry, __travel: (to: string) => travelTo(useRunStore, to) }) }, [debug, world, registry, useRunStore])
@@ -236,6 +239,10 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
         const robot = state.gardeners[0]
         placeGardener(useRunStore, world, robot.id, center, robot.area?.radius ?? tuning.gardener.area.default)
         setMessage('Gardener placed. Press Start.')
+      } else if (state.loadout.autoRobot === 'rigger') {
+        const robot = state.riggers[0]
+        placeRigger(useRunStore, world, robot.id, center, robot.area?.radius ?? tuning.rigger.area.default)
+        setMessage('Rigger placed. Press Start.')
       } else {
         const robot = state.robots[0]
         placeRobot(useRunStore, world, robot.id, center, robot.area?.radius ?? tuning.miner.area.default)
@@ -269,7 +276,7 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
     : autopilotOn
     ? [['Right drag', 'orbit'], ['A', 'auto'], ['M', 'manual']]
     : mode === 'auto'
-    ? [['Click', `place ${autoRobot === 'gardener' ? 'Gardener' : autoRobot === 'builder' ? 'Builder' : 'Miner'}`], ['Right drag', 'orbit'], ['M', 'manual']]
+    ? [['Click', `place ${autoRobot === 'gardener' ? 'Gardener' : autoRobot === 'rigger' ? 'Rigger' : autoRobot === 'builder' ? 'Builder' : 'Miner'}`], ['Right drag', 'orbit'], ['M', 'manual']]
     : [['Click', manualTool === 'detector' ? 'scan' : terrainMode === 'dig' ? 'dig' : terrainMode === 'add' ? 'add' : 'flatten'],
       ['Right drag', 'orbit'], ['D / T', 'detector / terrain'], ['F', 'cycle mode'], ['Wheel', 'brush'], ['A', 'auto']]
 
@@ -308,7 +315,8 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
           active={!surfaceSite && activeTool === 'detector'} meshRevision={meshRevision} />
         {/* Only the first robot of each kind has a work area to show; the rest belong to Autopilot. */}
         {minerIds.split(',').filter(Boolean).map((id, index) => <MinerView key={id} robotId={id} world={world} store={useRunStore} active={mode === 'auto' || !!surfaceSite} selected={index === 0 && !autopilotOn && !surfaceSite && autoRobot === 'miner'} />)}
-        {gardenerIds.split(',').filter(Boolean).map((id, index) => <GardenerView key={id} robotId={id} world={world} store={useRunStore} active={mode === 'auto' || !!surfaceSite} selected={index === 0 && !autopilotOn && !surfaceSite && autoRobot === 'gardener'} />)}
+        {gardenerIds.split(',').filter(Boolean).map((id, index) => <PlacerView key={id} role="gardener" robotId={id} store={useRunStore} active={mode === 'auto' || !!surfaceSite} selected={index === 0 && !autopilotOn && !surfaceSite && autoRobot === 'gardener'} />)}
+        {riggerIds.split(',').filter(Boolean).map((id, index) => <PlacerView key={id} role="rigger" robotId={id} store={useRunStore} active={mode === 'auto' || !!surfaceSite} selected={index === 0 && !autopilotOn && !surfaceSite && autoRobot === 'rigger'} />)}
         {builderIds.split(',').filter(Boolean).map((id, index) => <BuilderView key={id} robotId={id} store={useRunStore} active={mode === 'auto' || !!surfaceSite} selected={index === 0 && !autopilotOn && !surfaceSite && autoRobot === 'builder'} />)}
         <StructuresView store={useRunStore} />
         <ResidentsView world={world} store={useRunStore} />

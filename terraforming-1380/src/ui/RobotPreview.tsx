@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import type { Group } from 'three'
-import { createMiner, createGardener, createBuilder, type RobotRole } from '../render/models/robots'
+import { createRobot, type RobotRole } from '../render/models/robots'
 
 function Model({ role, reducedMotion }: { role: RobotRole; reducedMotion: boolean }) {
   const turntable = useRef<Group>(null)
   const elapsed = useRef(0)
-  const model = useMemo(() => ({ miner: createMiner, gardener: createGardener, builder: createBuilder })[role](), [role])
+  const model = useMemo(() => createRobot[role](), [role])
   useEffect(() => () => model.dispose(), [model])
   useFrame((_, delta) => {
     if (reducedMotion || !turntable.current) return

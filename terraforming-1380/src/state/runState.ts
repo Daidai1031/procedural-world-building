@@ -4,6 +4,7 @@ import { generateResourceClusters, type ResourceCluster } from '../world/resourc
 import type { FlattenOrientation } from '../world/flattenPlane'
 import { spawnRobot, type MiningRobotState } from '../systems/miner'
 import { spawnGardener, type GardenerState } from '../systems/gardener'
+import { spawnRigger, type RiggerState } from '../systems/rigger'
 import type { Structure } from '../systems/structures'
 import { spawnBuilder, type BuilderState } from '../systems/builder'
 import { spawnResidents, type HabitatState } from '../systems/residents'
@@ -11,7 +12,7 @@ import type { AutopilotState } from '../systems/autopilot'
 import type { Vec3 } from '../systems/geometry'
 
 export type ToolId = 'terrain' | 'detector' | 'scanner' | 'deepScanner' | 'wideDrill' | 'bioSeeder' | 'stabilizer' | 'auto'
-export type AutoRobot = 'miner' | 'gardener' | 'builder'
+export type AutoRobot = 'miner' | 'gardener' | 'rigger' | 'builder'
 export type ModuleId = 'deepScanner' | 'wideDrill' | 'bioSeeder' | 'stabilizer'
 export type TerrainMode = 'dig' | 'add' | 'flatten'
 
@@ -87,6 +88,7 @@ export interface RunState {
   // AUT-01–12: robots live in the run state; simTick counts fixed simulation steps.
   robots: MiningRobotState[]
   gardeners: GardenerState[]
+  riggers: RiggerState[]
   builders: BuilderState[]
   // D-043: the crew sizes and the hand-over to full automation. Kept per planet, so a frozen planet resumes as it was left.
   autopilot: AutopilotState
@@ -135,6 +137,7 @@ export function createInitialRunState(seed: string): RunState {
     detector: { center: null, radius: tuning.detector.radius },
     robots: [spawnRobot(seed)],
     gardeners: [spawnGardener(seed)],
+    riggers: [spawnRigger(seed)],
     builders: [spawnBuilder(seed)],
     autopilot: { enabled: false, counts: { ...tuning.autopilot.defaults }, autoBroadcast: true, holding: false, level: null, claimed: 0, lastBroadcastTick: null, crew: {} },
     economy: { mineralStock: 0, mineralsSold: 0, revenue: 0, electricitySpent: 0, terrainSpent: 0, bankrupt: false, preparedSamples: 0 },

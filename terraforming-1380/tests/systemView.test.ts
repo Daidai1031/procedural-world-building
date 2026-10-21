@@ -104,7 +104,7 @@ test('holdProgress is linear and clamped to 0..1', () => {
 // SYS-T4
 test('planetMarks respects the caps, is deterministic, uses only state positions and is empty for an empty state', () => {
   const state = createRunStore('marks').getState()
-  const empty = planetMarks({ ...state, structures: [], residents: [], robots: [], gardeners: [], builders: [] })
+  const empty = planetMarks({ ...state, structures: [], residents: [], robots: [], gardeners: [], riggers: [], builders: [] })
   assert.deepEqual(empty, { plants: [], antennas: [], residents: [], robots: [] })
 
   const structures = Array.from({ length: 150 }, (_, i) => ({ id: 's' + i, kind: (i % 3 === 0 ? 'antenna' : 'plant') as 'antenna' | 'plant',
@@ -119,5 +119,5 @@ test('planetMarks respects the caps, is deterministic, uses only state positions
   assert.deepEqual(planetMarks(crowded), marks)
   const known = new Set(structures.map(({ position }) => position[0]))
   assert.ok(marks.plants.every(([x]) => known.has(x)))
-  assert.deepEqual(marks.robots.map(({ position }) => position), [state.robots[0], state.gardeners[0], state.builders[0]].map(({ position }) => position))
+  assert.deepEqual(marks.robots.map(({ position }) => position), [state.robots[0], state.gardeners[0], state.riggers[0], state.builders[0]].map(({ position }) => position))
 })

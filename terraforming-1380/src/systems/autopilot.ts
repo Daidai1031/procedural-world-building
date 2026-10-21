@@ -4,15 +4,17 @@ import type { PlanetWorld } from '../world/planet'
 import { scale, surfaceRadius, type Vec3 } from './geometry'
 import { VOXEL_WORLD_SIZE } from '../world/voxels/voxelMath.js'
 import { pauseRobot, setWorkArea, spawnRobot, startRobot, type WorkArea } from './miner'
-import { nextJob, pauseGardener, setGardenerArea, spawnGardener, startGardener } from './gardener'
+import { pauseGardener, setGardenerArea, spawnGardener, startGardener } from './gardener'
+import { pauseRigger, setRiggerArea, spawnRigger, startRigger } from './rigger'
+import { placerFull } from './placer'
 import { measureLevel, pauseBuilder, setBuilderArea, spawnBuilder, startBuilder } from './builder'
 import { antennaCount, broadcast, visiblePlanetCount } from './signal'
 
 type RunStore = ReturnType<typeof createRunStore>
 const rules = tuning.autopilot
 
-export type CrewKind = 'miner' | 'gardener' | 'builder'
-export const crewKinds: CrewKind[] = ['miner', 'gardener', 'builder']
+export type CrewKind = 'miner' | 'gardener' | 'rigger' | 'builder'
+export const crewKinds: CrewKind[] = ['miner', 'gardener', 'rigger', 'builder']
 
 // What the controller remembers about one robot between ticks.
 export interface CrewProgress {
@@ -34,7 +36,7 @@ export interface AutopilotState {
   enabled: boolean
   counts: Record<CrewKind, number>
   autoBroadcast: boolean
-  // Funds are low: Gardeners and Builders wait while the Miners earn.
+  // Funds are low: Gardeners, Riggers and Builders wait while the Miners earn.
   holding: boolean
   // Stable Builder reference height measured when Autopilot starts.
   level: number | null
@@ -71,6 +73,11 @@ const crews = {
     setArea: setGardenerArea, start: startGardener, pause: pauseGardener,
     holdable: true,
   },
+  rigger: {
+    list: (state: ReturnType<RunStore['getState']>) => state.riggers,
+    setArea: setRiggerArea, start: startRigger, pause: pauseRigger,
+    holdable: true,
+  },
   builder: {
     list: (state: ReturnType<RunStore['getState']>) => state.builders,
     setArea: setBuilderArea, start: startBuilder, pause: pauseBuilder,
@@ -81,7 +88,7 @@ const crews = {
 type Robot = { id: string; phase: string; stopReason: string | null; collectedMinerals?: number; placed?: number; done?: number }
 const working = (phase: string) => !['idle', 'paused', 'stopped'].includes(phase)
 // What each kind has produced so far: minerals mined, structures placed, terrain jobs done.
-const progressOf = (kind: CrewKind, robot: Robot) => (kind === 'miner' ? robot.collectedMinerals : kind === 'gardener' ? robot.placed : robot.done) as number
+const progressOf = (kind: CrewKind, robot: Robot) => (kind === 'miner' ? robot.collectedMinerals : kind === 'builder' ? robot.done : robot.placed) as number
 
 const fresh = (cursor: number, progress: number): CrewProgress => ({ cursor, laps: 0, misses: 0, progress, restUntil: 0, sectorStart: progress, retired: false })
 
@@ -97,13 +104,14 @@ function send(store: RunStore, world: PlanetWorld, kind: CrewKind, id: string, c
 
 // D-043: give every robot its sector and start it. Existing robots keep their state; extras are built at their seeded spots.
 export function startAutopilot(store: RunStore, world: PlanetWorld, requested: Record<CrewKind, number>) {
-  const counts = { miner: clampCount(requested.miner), gardener: clampCount(requested.gardener), builder: clampCount(requested.builder) }
-  if (counts.miner + counts.gardener + counts.builder === 0) return false
+  const counts = { miner: clampCount(requested.miner), gardener: clampCount(requested.gardener), rigger: clampCount(requested.rigger), builder: clampCount(requested.builder) }
+  if (crewKinds.every(kind => counts[kind] === 0)) return false
   const { seed } = store.getState()
   const fit = <T,>(list: T[], count: number, make: (index: number) => T) => Array.from({ length: count }, (_, index) => list[index] ?? make(index))
   store.setState((state) => ({
     robots: fit(state.robots, counts.miner, (index) => spawnRobot(seed, index)),
     gardeners: fit(state.gardeners, counts.gardener, (index) => spawnGardener(seed, index)),
+    riggers: fit(state.riggers, counts.rigger, (index) => spawnRigger(seed, index)),
     builders: fit(state.builders, counts.builder, (index) => spawnBuilder(seed, index)),
     loadout: { ...state.loadout, activeTool: 'auto' },
     autopilot: { ...state.autopilot, enabled: true, counts, holding: false, lastBroadcastTick: null, crew: {},
@@ -130,12 +138,13 @@ export function cancelAutopilot(store: RunStore) {
   store.setState((state) => ({
     robots: [state.robots[0] ?? spawnRobot(seed, 0)],
     gardeners: [state.gardeners[0] ?? spawnGardener(seed, 0)],
+    riggers: [state.riggers[0] ?? spawnRigger(seed, 0)],
     builders: [state.builders[0] ?? spawnBuilder(seed, 0)],
     loadout: { ...state.loadout, activeTool: 'auto' },
     autopilot: { ...state.autopilot, enabled: false, holding: false, crew: {} },
   }))
   const state = store.getState()
-  const defaults = { miner: tuning.miner.area.default, gardener: tuning.gardener.area.default, builder: tuning.builder.area.default }
+  const defaults = { miner: tuning.miner.area.default, gardener: tuning.gardener.area.default, rigger: tuning.rigger.area.default, builder: tuning.builder.area.default }
   for (const kind of crewKinds) {
     const [robot] = crews[kind].list(state)
     crews[kind].pause(store, robot.id)
@@ -200,11 +209,9 @@ export function stepAutopilot(world: PlanetWorld, store: RunStore) {
         return
       }
       if (robot.phase !== 'stopped' || tick < mine.restUntil) return
-      // A Gardener with both caps reached has nothing left to do anywhere.
-      if (kind === 'gardener') {
-        const plants = first.structures.filter(({ kind: structure }) => structure === 'plant').length
-        if (nextJob((robot as unknown as { placed: number }).placed, plants, antennaCount(first)) === null) return
-      }
+      // A Gardener or Rigger whose structure cap is reached has nothing left to do anywhere.
+      if (kind === 'gardener' && placerFull(first, 'plant')) return
+      if (kind === 'rigger' && placerFull(first, 'antenna')) return
       // A Miner on a planet with no mineral left has nothing to look for.
       if (kind === 'miner' && !first.resourceClusters.some(({ category, id }) => category === 'mineral' && !first.collectedIds.includes(id))) return
       mine.misses += 1

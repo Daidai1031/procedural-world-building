@@ -2,16 +2,15 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { BufferAttribute, BufferGeometry, Line, LineBasicMaterial, Quaternion, Vector3, type Group } from 'three'
 import type { createRunStore } from '../state/runState'
-import type { PlanetWorld } from '../world/planet'
-import type { GardenerState } from '../systems/gardener'
+import type { PlacerState } from '../systems/placer'
 import { palette } from '../config/palette'
-import { createGardener, type RobotLight } from '../render/models/robots'
+import { createRobot, type RobotLight } from '../render/models/robots'
 import { showWorkArea } from '../render/terrainMaterial'
 
 const up = new Vector3(0, 1, 0)
 const normal = new Vector3()
 
-function light(robot: GardenerState): RobotLight {
+function light(robot: PlacerState): RobotLight {
   if (robot.phase === 'scanning') return 'scan'
   if (robot.phase === 'moving') return 'move'
   if (robot.phase === 'working') return robot.site?.kind === 'plant' ? 'plant' : 'work'
@@ -19,25 +18,26 @@ function light(robot: GardenerState): RobotLight {
   return 'idle'
 }
 
-// D-025: the Gardener, a line down to the ground it chose, and its work area while it is being set up.
-export function GardenerView({ store, robotId, active, selected }: {
-  world: PlanetWorld; store: ReturnType<typeof createRunStore>; robotId: string; active: boolean; selected: boolean
+// D-025, D-057: a Gardener or Rigger, a line down to the ground it chose, and its work area while it is being set up.
+export function PlacerView({ store, role, robotId, active, selected }: {
+  store: ReturnType<typeof createRunStore>; role: 'gardener' | 'rigger'; robotId: string; active: boolean; selected: boolean
 }) {
+  const list = role === 'gardener' ? 'gardeners' : 'riggers'
   const body = useRef<Group>(null)
-  const model = useMemo(() => createGardener(), [])
+  const model = useMemo(() => createRobot[role](), [role])
   useEffect(() => () => model.dispose(), [model])
   const path = useMemo(() => {
     const geometry = new BufferGeometry()
     geometry.setAttribute('position', new BufferAttribute(new Float32Array(6), 3))
-    const line = new Line(geometry, new LineBasicMaterial({ color: palette.robot.band.gardener, transparent: true, opacity: 0.75, depthTest: false }))
+    const line = new Line(geometry, new LineBasicMaterial({ color: palette.robot.band[role], transparent: true, opacity: 0.75, depthTest: false }))
     line.frustumCulled = false
     line.renderOrder = 2
     return line
-  }, [])
+  }, [role])
   useEffect(() => () => { path.geometry.dispose(); (path.material as LineBasicMaterial).dispose() }, [path])
 
   useFrame((frame) => {
-    const robot = store.getState().gardeners.find(({ id }) => id === robotId)
+    const robot = store.getState()[list].find(({ id }) => id === robotId)
     if (body.current) body.current.visible = active && !!robot
     if (!active || !robot) {
       path.visible = false

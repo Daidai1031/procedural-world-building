@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import { RobotPreview } from './RobotPreview'
 import { RobotHelp } from './RobotHelp'
 import type { AutoRobot, createRunStore } from '../state/runState'
-import { GardenerPanel } from './GardenerPanel'
+import { PlacerPanel } from './PlacerPanel'
 import { BuilderPanel } from './BuilderPanel'
 import { pauseRobot, setWorkArea, startRobot, type RobotPhase, type StopReason } from '../systems/miner'
 import { tuning } from '../config/tuning'
@@ -17,7 +17,7 @@ const track: { phase: RobotPhase; label: string }[] = [
   { phase: 'digging', label: 'Dig' }, { phase: 'collecting', label: 'Collect' },
 ]
 const running = ['scanning', 'moving', 'digging', 'collecting']
-const names: Record<AutoRobot, string> = { miner: 'Miner', gardener: 'Gardener', builder: 'Builder' }
+const names: Record<AutoRobot, string> = { miner: 'Miner', gardener: 'Gardener', rigger: 'Rigger', builder: 'Builder' }
 
 // D-025: Auto mode holds one panel per robot; the selected robot is the one a planet click places.
 // D-043 updated: Autopilot is now a sub-mode within Auto, not a separate top-level mode.
@@ -58,7 +58,7 @@ export function AutoPanel({ useRunStore, onMessage, onStartAutopilot, onCancelAu
 
   return <>
     <div className="autopilot-header">
-      <p className="kicker">Auto · crew stations / 03</p>
+      <p className="kicker">Auto · crew stations / 04</p>
       <button type="button" className="btn-autopilot"
         onClick={() => {
           setShowAutopilot(true)
@@ -68,7 +68,7 @@ export function AutoPanel({ useRunStore, onMessage, onStartAutopilot, onCancelAu
       </button>
     </div>
     <div className="crew-stations">
-      {(['miner', 'gardener', 'builder'] as const).map((robot) => <section className="crew-station" data-selected={selected === robot} key={robot} aria-label={names[robot] + ' controls'} tabIndex={0}
+      {(['miner', 'gardener', 'rigger', 'builder'] as const).map((robot) => <section className="crew-station" data-selected={selected === robot} key={robot} aria-label={names[robot] + ' controls'} tabIndex={0}
         onClick={(event) => {
           if (event.target instanceof Element && event.target.closest('button, input, label, select, textarea, a, .robot-help')) return
           choose(robot)
@@ -84,7 +84,7 @@ export function AutoPanel({ useRunStore, onMessage, onStartAutopilot, onCancelAu
           <RobotPreview role={robot} />
         </button>
         <div className="crew-controls">
-          {robot === 'gardener' ? <GardenerPanel useRunStore={useRunStore} onMessage={onMessage} />
+          {robot === 'gardener' || robot === 'rigger' ? <PlacerPanel role={robot} useRunStore={useRunStore} onMessage={onMessage} />
             : robot === 'builder' ? <BuilderPanel useRunStore={useRunStore} onMessage={onMessage} />
             : <MinerPanel useRunStore={useRunStore} onMessage={onMessage} />}
         </div>

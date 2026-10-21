@@ -42,7 +42,7 @@ test('every robot and surface model is colored only from the palette', () => {
   const allowed = paletteColors()
   const check = (name: string, color: string) =>
     assert.ok(allowed.has(new Color(color).getHexString()), `${name} uses ${color}, which is not in the palette`)
-  for (const role of ['miner', 'gardener', 'builder'] as RobotRole[]) {
+  for (const role of ['miner', 'gardener', 'rigger', 'builder'] as RobotRole[]) {
     for (const color of meshColors(createRobot[role]().object)) check(role, `#${color}`)
   }
   for (const { color } of [...lichenGeometries('1380'), ...branchGeometries('1380')]) check('plant', color)
@@ -50,7 +50,7 @@ test('every robot and surface model is colored only from the palette', () => {
 })
 
 test('robots keep their agreed silhouettes cheap to draw and their lights follow state', () => {
-  for (const role of ['miner', 'gardener', 'builder'] as RobotRole[]) {
+  for (const role of ['miner', 'gardener', 'rigger', 'builder'] as RobotRole[]) {
     const robot = createRobot[role]()
     let meshes = 0
     robot.object.traverse((child) => { if (child instanceof Mesh) meshes += 1 })

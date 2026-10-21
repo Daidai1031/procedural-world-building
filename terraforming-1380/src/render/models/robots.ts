@@ -2,7 +2,7 @@ import { Group, type MeshStandardMaterial } from 'three'
 import { palette, type RobotStateColor } from '../../config/palette'
 import { disposeModel, lampMaterial, modelMaterial, orbShell, VoxelBuilder } from './voxel'
 
-export type RobotRole = 'miner' | 'gardener' | 'builder'
+export type RobotRole = 'miner' | 'gardener' | 'rigger' | 'builder'
 
 // AUT-10: one status light. `idle` is a dim steady scan-white light for waiting, paused or unstarted robots.
 export type RobotLight = RobotStateColor | 'idle'
@@ -109,6 +109,26 @@ export function createGardener() {
   })
 }
 
+// D-057 Rigger: the same orb on a graphite skid with a mast and a small dish on top that turns while it works.
+export function createRigger() {
+  return robot('rigger', 0.16, 0.13, (object, lamp) => {
+    const graphite = modelMaterial(palette.robot.graphite)
+    const body = orbShell(new VoxelBuilder(CELL), modelMaterial(palette.robot.band.rigger), lamp)
+    for (const x of [-2, 2]) for (const z of [-4, 4]) body.cube(x, -4.3, z, graphite)
+    body.cube(0, -4.3, 0, graphite).build(object)
+    const mast = new VoxelBuilder(CELL)
+    for (let y = 4; y <= 8; y += 1) mast.cube(0, y, 0, graphite, y === 8 ? 0.7 : 1)
+    mast.build(object)
+    const head = new Group()
+    head.position.y = 9 * CELL
+    new VoxelBuilder(CELL).cube(0, 0, 0, modelMaterial(palette.antenna.lamp), 0.7)
+      .cube(1, 0.4, 0, modelMaterial(palette.robot.body)).cube(1.7, 0.8, 0, modelMaterial(palette.robot.body), 0.8)
+      .cube(-1, 0.4, 0, modelMaterial(palette.robot.body)).cube(-1.7, 0.8, 0, modelMaterial(palette.robot.body), 0.8).build(head)
+    object.add(head)
+    return (seconds, state) => { head.rotation.y = state === 'work' ? seconds * 2.4 : state === 'move' ? seconds * 0.6 : head.rotation.y }
+  })
+}
+
 // D-027 Builder B1: the same orb on two ochre brackets carrying a voxel roller that turns while moving or flattening.
 export function createBuilder() {
   return robot('builder', 0.17, 0.12, (object, lamp) => {
@@ -135,5 +155,6 @@ export function createBuilder() {
 export const createRobot: Record<RobotRole, () => RobotModel> = {
   miner: createMiner,
   gardener: createGardener,
+  rigger: createRigger,
   builder: createBuilder,
 }

@@ -2,7 +2,7 @@
 export const tuning = {
   // Prototype balance; credits, kW, and credits per kW-minute.
   economy: { startingCapital: 0, bankruptcyLimit: -50, mineralPrice: 40, electricityRate: 0.55, manualTerrainRate: 0.02,
-    power: { miner: 6, gardener: 3, builder: 8 } },
+    power: { miner: 6, gardener: 3, rigger: 3, builder: 8 } },
   ecology: { baseline: 60, plantValue: 0.6, terrainLoss: 60, preparedSamples: 10000 },
   grid: { resolution: 64 },
   chunk: { size: 16 },
@@ -56,13 +56,19 @@ export const tuning = {
     blockedTicks: 45, maxMoveTicks: 900, maxDigTicks: 600,
     area: { min: 0.6, default: 1.6, max: 2.4, step: 0.1 },
   },
-  // AUT-14–16: the Gardener places plants and antennas on terrain it judges suitable; plants grow and spread.
+  // AUT-14–16, D-057: the Gardener plants on the flattest ground; plants grow and spread. The Rigger (below) raises antennas.
   gardener: {
     scanTicks: 12, workTicks: 24, hoverHeight: 0.4, travelSpeed: 0.03, arriveDistance: 0.06, maxMoveTicks: 900,
     candidates: 30, blockedScans: 3,
-    pattern: ['plant', 'plant', 'antenna'],
     plantMaxSlope: 0.35, antennaMaxSlope: 0.6,
     area: { min: 0.6, default: 1.6, max: 2.4, step: 0.1 },
+  },
+  // D-057: the Rigger raises antennas on the highest suitable ground; antennas are far apart, so it works a wider area.
+  rigger: {
+    scanTicks: 12, workTicks: 36, hoverHeight: 0.4, travelSpeed: 0.03, arriveDistance: 0.06, maxMoveTicks: 900,
+    candidates: 40, blockedScans: 3,
+    plantMaxSlope: 0.35, antennaMaxSlope: 0.6,
+    area: { min: 0.6, default: 2.0, max: 2.4, step: 0.1 },
   },
   // D-050: the Builder repairs local holes first, then trims isolated bumps.
   builder: {
@@ -117,8 +123,8 @@ export const tuning = {
   // instead share one queue of sectors, leave each after `builderJobsPerSector` jobs and retire when the queue is empty. Gardeners and Builders wait while funds sit below `holdBelow`
   // and resume above `resumeAbove`. Signals go out every `broadcastEvery` ticks while antennas stand.
   autopilot: {
-    maxPerKind: 4, defaults: { miner: 2, gardener: 1, builder: 1 },
-    miner: { sectors: 6, radius: 2.4 }, gardener: { sectors: 6, radius: 2.4 }, builder: { sectors: 12, radius: 1.4 },
+    maxPerKind: 4, defaults: { miner: 2, gardener: 1, rigger: 1, builder: 1 },
+    miner: { sectors: 6, radius: 2.4 }, gardener: { sectors: 6, radius: 2.4 }, rigger: { sectors: 6, radius: 2.4 }, builder: { sectors: 12, radius: 1.4 },
     restTicks: 900, maxRestFactor: 16, builderJobsPerSector: 15, holdBelow: -20, resumeAbove: -10, broadcastEvery: 600,
   },
   structures: {
