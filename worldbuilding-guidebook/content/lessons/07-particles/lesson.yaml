@@ -1,7 +1,7 @@
 slug: particles
 number: "07"
 title: Particles
-subtitle: Vector Fields & Motion
-summary: Build a particle lifecycle, update motion over time, and make spatial flow visible.
+subtitle: Dust, Wind & Motion
+summary: Make the air of a planet visible. Raise dust where a robot digs, then let wind carry it toward a resident's cave.
 shape: flat
-estimatedMinutes: 40
+estimatedMinutes: 45

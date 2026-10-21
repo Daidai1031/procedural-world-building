@@ -7,14 +7,44 @@ keywords:
   - lifetime
   - live count
   - capacity
+scene:
+  demo: particle-lifecycle
+  unlock: [particleRate, particleLifetime]
+  legend:
+    title: Dust key
+    items:
+      - swatch: ink
+        shape: dot
+        label: Live speck
+        note: Appears when born, vanishes at the end of its lifetime.
+      - swatch: ink-dim
+        shape: grid
+        label: Dig pit
+      - label: Level bar
+        note: The fill is the live count. The red tick is rate × lifetime. The right end is the capacity.
+code:
+  file: src/scene/demos/particles/particleSystem.js
+  fn: ageParticles
+practice:
+  kind: fill
+  prompt: Add this update's share of new specks to the tap, so the count born per second stays the same on any screen.
+  from:
+    file: src/scene/demos/particles/particleSystem.js
+    region: emission-accumulator
+  blanks:
+    - line: 1
+      answer: "rate * dt"
+      options: ["rate * dt", "rate", "rate / dt"]
+      explanation: Specks per second times the seconds in this update gives the specks owed for this update. Adding the whole rate every update would tie births to the frame rate.
+      hint: Births per second times seconds gives births.
 ---
 
-An **emitter** creates particles over time. Each particle's age grows until it reaches its **lifetime**; then the system removes it or reuses its slot. This lifecycle keeps a system busy without keeping every particle forever.
+Dust cannot be made forever, or the screen would fill up and the computer would slow down. Every speck needs a birth and an end.
 
-With constant emission and a fixed lifetime, the long-run **live count** is about **emission rate × lifetime**, as long as there is no capacity limit, early death, or other removal rule. Starting from an empty system, the count rises before it settles near that level.
+An **emitter** is the tap that makes new specks. Each speck then gets older until it reaches its **lifetime**, and then it disappears.
 
-Doubling the lifetime keeps particles alive longer, so more are alive at once. Doubling the rate instead creates more per second. The two can give similar counts, but they are different lifecycle settings.
+Picture a shop. If 4 people walk in every minute and each stays 5 minutes, about 20 people are inside at any moment. Dust works the same way: the number alive settles near **emission rate × lifetime**. Right after you start, the count climbs first, like a shop opening in the morning.
 
-Emission has to carry fractional births from one update to the next, so the number of particles born per second does not depend on the frame rate.
+Every system also has a **capacity**, the most specks it will hold. It is the room's fire limit.
 
-*The interactive scene and practice for this step are planned but not built yet.*
+Change **Rate** and **Lifetime** and watch the level bar reach the red tick. Doubling either one doubles the crowd, but the dust looks different: a short life with a high rate is a fast fizz, and a long life with a low rate is a slow haze. Press **Burst** for a sudden puff.

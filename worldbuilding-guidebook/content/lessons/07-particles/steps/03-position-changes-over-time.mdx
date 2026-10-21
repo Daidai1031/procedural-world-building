@@ -7,12 +7,47 @@ keywords:
   - displacement
   - frame rate
   - fixed step
+scene:
+  demo: particle-time
+  unlock: [particleScreen]
+  legend:
+    title: Race key
+    items:
+      - swatch: water-deep
+        shape: dot
+        label: Speed × dt runner
+        note: Moves 1 m/s × the length of each frame.
+      - swatch: clay-deep
+        shape: dot
+        label: Fixed-step runner
+        note: Moves the same step every frame, sized for 60 frames per second.
+      - swatch: ink
+        shape: block
+        label: Start and finish
+        note: 5 metres apart. Each footprint is one update.
+code:
+  file: src/scene/demos/particles/simulations.js
+  fn: advanceRunners
+practice:
+  kind: fill
+  prompt: Move the speck by its velocity over the length of this update.
+  from:
+    file: src/scene/demos/particles/particleSystem.js
+    region: position-update
+  blanks:
+    - line: 1
+      answer: "dt"
+      options: ["dt", "1 / age", "age"]
+      explanation: Velocity is metres per second; multiplying by the seconds in this update gives metres. Age is how long the speck has lived, not how long this update lasts.
+      hint: Metres per second times seconds gives metres.
 ---
 
-**Velocity** describes both a direction and a speed. To move a particle, multiply its velocity by the simulation's **time step** and add that displacement to its current position.
+Now the specks need to move. **Velocity** is a speed plus a direction, such as "2 metres per second to the right".
 
-Here velocity is measured in world units per second and the time step, `dt`, in seconds. A particle moving at 2 units per second travels 1 unit in half a second. Moving a fixed amount on every rendered frame would instead tie the particle's speed to the frame rate.
+Each update, a speck moves by **velocity × dt**. Here **dt** is the number of seconds that this update lasts. Move 2 m/s for half a second and you travel 1 metre.
 
-Fixed simulation steps make runs easier to compare. Multiplying by `dt` alone does not guarantee identical numerical results for every complex simulation.
+Why not just move a fixed amount each frame? Because screens differ. A slow laptop draws 30 frames a second and a fast monitor draws 144. A speck told "take one step per frame" would crawl on one and race on the other. Using dt keeps the speed the same on both.
 
-*The interactive scene and practice for this step are planned but not built yet.*
+Two runners start together. The blue one uses dt; the pink one takes a fixed step per frame. Press **Play**, then switch **Screen speed** between 30 and 144 frames per second and race again. Only the blue runner finishes in 5 seconds both times.
+
+Press **Step forward** to advance one update and count the footprints.

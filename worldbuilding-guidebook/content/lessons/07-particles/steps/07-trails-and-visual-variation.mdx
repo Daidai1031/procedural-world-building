@@ -7,12 +7,57 @@ keywords:
   - colour mapping
   - opacity
   - representation
+scene:
+  demo: particle-trails
+  unlock: [particleView, particleHistory, particleSpeedColour, particleFade, particleClearTrail]
+  legend:
+    title: Trail key
+    items:
+      - swatch: clay-deep
+        shape: dot
+        label: Dust speck
+        when: { particleSpeedColour: false }
+      - swatch: clay-deep
+        shape: grid
+        label: Trail
+        note: Where the speck has been, fading towards the oldest point.
+        when: { particleSpeedColour: false, particleView: Trails }
+      - swatch: water-deep
+        shape: dot
+        label: Slow air
+        when: { particleSpeedColour: true }
+      - swatch: clay-deep
+        shape: dot
+        label: Fast air
+        when: { particleSpeedColour: true }
+      - swatch: moss-deep
+        shape: block
+        label: Resident's cave
+code:
+  file: src/scene/demos/particles/trails.js
+  fn: recordHistory
+practice:
+  kind: fill
+  prompt: Make a speck solid when it is born and invisible when it dies.
+  from:
+    file: src/scene/demos/particles/trails.js
+    region: fade-with-age
+  blanks:
+    - line: 1
+      answer: "1 - age / lifetime"
+      options: ["1 - age / lifetime", "age / lifetime", "speed"]
+      explanation: Age divided by lifetime runs from 0 at birth to 1 at death, so one minus it runs from 1 to 0. The other age mapping fades in instead of out, and speed says nothing about how far through its life a speck is.
+      hint: At age 0 the result should be 1; at the end of the life it should be 0.
 ---
 
-A **trail** stores a particle's recent positions and draws lines between them. The particle shows where it is now; the trail shows where it has been. Capping the stored history keeps the trail's length and memory cost under control. When a particle is recycled, its history must be cleared, or a line jumps across to the spot where it respawns.
+Wind is invisible. A tiny moving dot barely shows it, but a **trail** does. A trail remembers each speck's last few positions and draws a line through them, like the wake behind a boat. The dot shows where it is, the trail shows where it has been.
 
-Appearance can also show state. Mapping speed to colour reveals fast and slow regions. Mapping normalised age, age divided by lifetime, to opacity can fade a particle out over its life. These mappings change what the motion communicates, not the field that causes it.
+Keep the memory short. A fixed number of recent positions is enough, and it stops the memory from growing without limit.
 
-A small moving dot can be hard to read; a trail makes direction and curvature visible at a glance. Recording history at fixed simulation intervals keeps trails consistent across frame rates.
+You can also let the look carry information. Colour by **speed** to show fast and slow air. Fade by **age**, which is age divided by lifetime, so a speck is solid when born and gone when it dies.
 
-*The interactive scene and practice for this step are planned but not built yet.*
+These are only costumes, as in Step 1. They never change how the speck moves.
+
+Switch **Look** between Dots, Puffs and Trails, then turn on the colour and fade options.
+
+Try turning off **Clear trail on respawn**. When a speck is reused, a long stray line jumps across the scene to where it restarted. That is why recycled specks must forget their history.

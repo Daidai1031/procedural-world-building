@@ -7,14 +7,45 @@ keywords:
   - acceleration field
   - sampling
   - arrows
+scene:
+  demo: particle-field
+  resetCamera: true
+  unlock: [particleFieldShape, particleFlow, particleArrowMeans]
+  legend:
+    title: Wind map key
+    items:
+      - swatch: ink-dim
+        shape: grid
+        label: Wind arrow
+        note: Direction of the air at that spot. Longer means stronger.
+      - swatch: summit-deep
+        shape: dot
+        label: Leaf
+        note: Reads the arrow under itself.
+      - swatch: moss-deep
+        shape: block
+        label: Resident's cave
+code:
+  file: src/scene/demos/particles/fields.js
+  fn: varyingField
+practice:
+  kind: fill
+  prompt: Read the wind arrow that applies to this speck.
+  from:
+    file: src/scene/demos/particles/particleSystem.js
+    region: read-under-speck
+  blanks:
+    - line: 1
+      answer: "x, z"
+      options: ["x, z", "emitterX, emitterZ", "0, 0"]
+      explanation: The map is read where the speck is now. Reading it at the emitter or at one fixed spot would give every speck the same arrow, wherever it has drifted.
+      hint: The arrow that matters is the one under the speck right now.
 ---
 
-A **vector field** gives every position in a region its own vector. Drawn as arrows, direction shows where each vector points and length shows its strength. The field can be stored on a grid or calculated by a function whenever it is asked.
+Wind blows differently in different places. To describe that, you do not write a rule for every speck. You draw a **wind map**: at every spot on the ground, one arrow. The arrow points where the wind goes, and a longer arrow means stronger wind. Mathematicians call this map a **vector field**.
 
-In a **velocity field**, the vector read at a particle's position moves it directly: position changes by `field(position) × dt`. Different particles move differently because they read different places in the same field.
+A speck uses the map by looking at the arrow **under itself**, right now, and moving that way. Two specks in different places read different arrows, so they drift apart.
 
-An **acceleration field** means something else: its vector changes velocity first, and velocity then moves the particle. The arrows alone do not say which meaning is in use, so the field's type has to be stated. On a grid, blending between neighbouring cells avoids sudden jumps at cell boundaries.
+The arrows can mean two things. In a **velocity field** the arrow is the speed itself, like a river current carrying a leaf. In an **acceleration field** the arrow is a push that changes the speed, like a tilted floor under a ball. The picture looks the same, so the map must always say which kind it is.
 
-A field is a motion rule. It does not, by itself, stop particles at the ground or conserve anything like a real fluid.
-
-*The interactive scene and practice for this step are planned but not built yet.*
+Click the ground or press **Drop leaves**, then switch **Field** and **Arrow means** to compare. Notice that leaves can drift straight through the ground: the map moves them, but it does not know where the ground is.

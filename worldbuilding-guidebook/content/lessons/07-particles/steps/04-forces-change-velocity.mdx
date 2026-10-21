@@ -7,12 +7,47 @@ keywords:
   - gravity
   - semi-implicit Euler
   - update order
+scene:
+  demo: particle-forces
+  unlock: [particleGravity, particleSideways]
+  legend:
+    title: Rubble key
+    items:
+      - swatch: ink
+        shape: dot
+        label: Rubble
+        note: Removed when it lands. Step 8 explains that rule.
+      - swatch: water-deep
+        shape: grid
+        label: Ringed piece
+        note: Its speed is shown below the scene.
+      - swatch: ink-faint
+        shape: dot
+        label: Path dots
+        note: Left behind as the rubble flies.
+code:
+  file: src/scene/demos/particles/simulations.js
+  region: forces-step
+practice:
+  kind: fill
+  prompt: Let the push change the speed during this update, before the speed moves the speck.
+  from:
+    file: src/scene/demos/particles/particleSystem.js
+    region: velocity-update
+  blanks:
+    - line: 1
+      answer: "dt"
+      options: ["dt", "lifetime", "position[at + axis]"]
+      explanation: Acceleration is change of speed per second, so it is multiplied by the seconds in this update. The speed changes first; the new speed then moves the speck.
+      hint: Use the same interval that measures this update.
 ---
 
-A force changes motion through **acceleration**. For a particle with mass, acceleration is force divided by mass. This lesson sets acceleration directly, so the effect is clear without a mass model.
+Think of a skateboard. A push does not teleport you. It makes you **faster**, and then your new speed carries you along. A force works the same way: it changes the velocity, not the position.
 
-Each update first changes velocity by acceleration over the time step, then changes position by the new velocity. This order is called **semi-implicit Euler**. Gravity is a downward acceleration; a simple sideways acceleration pushes particles across. A fuller wind model would depend on the difference between the air's velocity and the particle's, which this first experiment leaves out.
+This change in velocity per second is called **acceleration**. Gravity is a steady downward acceleration. A breeze can be a small sideways one.
 
-A particle with constant velocity travels in a straight line. Acceleration changes its velocity, so the path bends and the speed can grow over time. Switching every acceleration off does not stop a particle: its existing velocity still carries it.
+Each update follows two moves in a fixed order. First the push changes the speed. Then the new speed moves the speck. Programmers call this order semi-implicit Euler, but you only need to remember: speed first, position second.
 
-*The interactive scene and practice for this step are planned but not built yet.*
+A dig throws rubble out of the pit. Try **Gravity** and **Sideways push**, and press **Burst** for more. The dots left behind show the path bending.
+
+Now press **Forces off** mid-flight. The rubble does not stop. It keeps its current speed and flies in a straight line, because nothing has taken that speed away.

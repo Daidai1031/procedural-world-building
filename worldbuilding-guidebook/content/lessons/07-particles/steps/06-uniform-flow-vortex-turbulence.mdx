@@ -7,14 +7,50 @@ keywords:
   - turbulence
   - perturbation
   - vector addition
+scene:
+  demo: particle-layers
+  unlock: [particleBreeze, particleWhirlpool, particleGusts]
+  legend:
+    title: Wind layers key
+    items:
+      - swatch: ink-dim
+        shape: grid
+        label: Wind arrow
+        note: The three layers added together.
+      - swatch: water-deep
+        shape: dot
+        label: Whirlpool centre
+        note: Drag it, or use the centre sliders.
+      - swatch: water-deep
+        shape: grid
+        label: Whirlpool radius
+        note: Where the swirl is strongest.
+      - swatch: summit-deep
+        shape: dot
+        label: Leaf
+code:
+  file: src/scene/demos/particles/fields.js
+  fn: vortexField
+practice:
+  kind: fill
+  prompt: Combine the three layers into one arrow at this spot.
+  from:
+    file: src/scene/demos/particles/fields.js
+    region: add-layers
+  blanks:
+    - line: 1
+      answer: "breezeArrow[0] + whirlArrow[0] + gustArrow[0]"
+      options: ["breezeArrow[0] + whirlArrow[0] + gustArrow[0]", "Math.max(breezeArrow[0], whirlArrow[0], gustArrow[0])", "breezeArrow[0] * whirlArrow[0] * gustArrow[0]"]
+      explanation: Layers add. Arrows pointing the same way make a stronger arrow, and opposite arrows cancel. Taking the largest would hide the weaker layers; multiplying would make one calm layer silence the others.
+      hint: Arrows that agree should grow stronger, and opposite ones should cancel.
 ---
 
-A **uniform** field points the same way everywhere. A **vortex** turns around a chosen centre. A noise-driven **perturbation** varies direction or strength across space and makes the flow irregular. In this lesson, "turbulence" names that artistic perturbation, not a solved physical turbulence model.
+Real wind is a mix. You can build a believable wind map from three simple layers and add them together.
 
-Fields combine by adding their vectors at each position. Added to a uniform flow, a vortex bends nearby arrows into a local swirl while the overall drift continues. Combined vectors can strengthen, weaken, or cancel each other; opposing contributions do not automatically blend into a smooth, realistic transition.
+- **Breeze** is the same arrow everywhere, a steady drift in one direction.
+- **Whirlpool** (a vortex) makes arrows circle around a chosen centre, like water going down a drain. A dust devil is a small one.
+- **Gusts** are small, smooth changes in strength and direction from noise, the same idea as the noise maps in Lesson 02. Here "turbulence" means this artistic wobble, not real fluid physics.
 
-For a flat vortex around `(cx, cz)`, an unnormalised direction turning around the centre is `(-(z - cz), 0, x - cx)`. Its strength needs a safe profile near the centre, so the field never divides by zero or grows out of control.
+At every spot, the arrows from the layers add up. A breeze plus a whirlpool gives a swirl near the centre while everything still drifts one way. Arrows pointing in opposite directions can cancel and leave a calm patch.
 
-A three-dimensional field extends the same query into a volume. A fluid solver adds further physical rules and is a later exploration.
-
-*The interactive scene and practice for this step are planned but not built yet.*
+Switch each layer on and off, and drag the whirlpool's blue centre. Watch the arrows redraw and the stream of leaves follow them.

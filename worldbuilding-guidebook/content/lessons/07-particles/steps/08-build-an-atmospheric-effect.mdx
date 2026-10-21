@@ -7,14 +7,59 @@ keywords:
   - protocol
   - recycling
   - assignment
+scene:
+  demo: particle-recipe
+  unlock: [particlePreset, particleEmitter, particleGround, particleEdge]
+  legend:
+    title: Effect key
+    items:
+      - swatch: clay-deep
+        shape: dot
+        label: Dust
+        when: { particlePreset: Dust }
+      - swatch: ink-faint
+        shape: dot
+        label: Mist
+        when: { particlePreset: Mist }
+      - swatch: water-deep
+        shape: dot
+        label: Rain
+        when: { particlePreset: Rain }
+      - swatch: summit-deep
+        shape: dot
+        label: Spores
+        when: { particlePreset: Spores }
+      - swatch: moss-deep
+        shape: block
+        label: Resident's cave
+      - label: Recipe card
+        note: Filled in from your current settings, below the scene.
+code:
+  file: src/scene/demos/particles/simulations.js
+  region: recipe-step
+practice:
+  kind: fill
+  prompt: Remove a speck once it has sunk into the terrain.
+  from:
+    file: src/scene/demos/particles/particleSystem.js
+    region: ground-rule
+  blanks:
+    - line: 1
+      answer: "position[at + 1] < groundHeight(x, z)"
+      options: ["position[at + 1] < groundHeight(x, z)", "position[at + 1] > groundHeight(x, z)", "position[at + 1] < 0"]
+      explanation: The test compares the speck's height with the ground right under it. Comparing with zero ignores hills and the pit, and the other direction would remove every speck above the ground.
+      hint: Compare the speck's height with the height of the ground directly below it.
 ---
 
-Choose one phenomenon without a fixed solid shape: drifting dust, mist, rain, or another atmospheric effect. State where particles are emitted, how long they live, what moves them, and how they are drawn. Those four decisions are the system's protocol.
+Now put the pieces together. Choose something with no fixed shape: dust, mist, rain, or spores. Then answer four questions. Together they are your effect's **recipe**.
 
-For drifting dust, start with a bounded emitter above the terrain, a gentle velocity field, and particles that fade with age. Add a local vortex only if it serves the effect. The clearest representation for studying the flow, often trails, may differ from the one used in the final scene.
+1. **Where are specks born?** For dust, a small area above a dig site.
+2. **How long do they live?** Long enough to drift, short enough to vanish.
+3. **What moves them?** For example a gentle breeze with a small whirlpool.
+4. **How are they drawn?** Trails help you study the flow; soft puffs may suit the final look.
 
-Decide what happens at the terrain and at the edges of the region. A height-field check can remove particles that sink below the surface; bouncing or sliding needs collision rules of its own. A vector field alone will not keep particles out of the ground. Keep a capacity limit and recycle particles so the effect can run indefinitely.
+Then decide what happens at the ground. A wind map does not stop specks from sinking into the terrain, so remove any speck that falls below the surface. Keep a capacity limit and reuse specks so the effect can run all day.
 
-This step gathers the lesson's assignment. A creative, abstract phenomenon is just as valid when its rules and visual intent are clear.
+Dust is only a picture. In the game, a separate "disturbance" number tells the resident how noisy the work is, and the dust just shows it.
 
-*The interactive scene and practice for this step are planned but not built yet.*
+Start from a **Preset**, adjust it, and read your recipe on the card. An abstract effect is fine if its rules and intent are clear.
