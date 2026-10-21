@@ -2,15 +2,31 @@
 
 > “We’re here to put a dent in the universe.”
 
-M1/M1.5: a seeded Marching Cubes planet you can dig, add to, flatten, and inspect locally in orbit view.
+A browser-based procedural sandbox where players freely reshape different planets, using manual tools and autonomous robots.
 
 ## Design direction and next step
 
-Lead robots that reshape a seeded planet through rules. The next prototype is **one autonomous Miner**: local scan → choose discovered mineral → hover to a surface entry → progressively dig → collect → choose again. Select an area, Start/Pause, and adjust; repeated manual dig clicks are not required.
+**Planet starting conditions → player choices and robot work → environmental change → resident responses → different planetary outcomes.**
 
-**Implemented (D-023):** one Miner. Switch to **Auto** mode (key `A`), click the planet to place the Miner and a spherical work area, set its size, and press Start. **Manual** mode (key `M`) holds the Terrain and Detector tools described below. The Miner flies to the area, scans, hovers over the nearest Mineral, digs a radial tunnel and collects it, then repeats until nothing is left (it reports *no minerals* or *blocked*). A line shows its path and small debris shows where it digs. Speeds and feel are untested by a human; see `docs/tuning.md`. **Gardener (D-025):** in Auto mode choose *Gardener*, place it the same way and press Start. It alternates planting and raising antennas: plants go on the flattest ground it finds, antennas on the highest. Plants grow and slowly spread; any digging (the Miner's or yours) destroys what stands on the dug ground. **Builder (D-026):** choose *Builder* in Auto mode, place it and press Start. It measures the average ground height of its area and works toward it, alternating: cut the highest bump (Flatten) and fill the lowest pit (Add). Fill uses soil the Miner has dug out (shown as *Soil in stock*). It leaves plants, antennas and a Miner's live tunnel alone. Next: multiple Miners with target reservation.
+Players can pursue resource extraction, ecological flourishing, or strange planetary forms. There is no single ideal planet. The next development focus is a readable connection between terrain edits, habitat conditions, and residents choosing where to live.
 
-Purchases, deployment slots, electricity expenses and near-bankruptcy departure are retained later ideas. First person, backpack, complex management and narrative endings are deferred while automation is validated. See [design](docs/design.md), [AUT requirements](docs/spec.md), and [R1–R3 roadmap](docs/roadmap.md).
+### Current implementation
+
+- **Manual tools:** Dig, Add Terrain, Flatten, and a bounded Detector.
+- **Miner:** assign a spherical area and Start; it scans, chooses a mineral, hovers to an entry, excavates and collects, then repeats.
+- **Gardener:** surveys suitable ground, grows spreading plants, and currently also places antennas. Separating antenna construction from gardening is a proposal, not an implemented change.
+- **Builder:** cuts high ground and fills low ground toward a target level, using the shared soil stock. Prepared sites can wake a waiting Gardener.
+- **Operations:** mineral storage/sales, soil stock, electricity billing, debt warning and bankruptcy; communicator messages explain operating problems.
+- **Exploration:** returnable outer-surface walking, landing sites and an updating 2D atlas.
+- **Discovery/travel:** explicit broadcasts reveal distant planet entries. Travel currently creates a fresh planet state and carries funds only; old sites are not preserved for return.
+
+### Planned next
+
+One cave-dwelling, quiet-sensitive rock resident species; persistent planet records and return travel; a live 3D overview showing the actual edited shapes of discovered planets. These are design targets, not features shipped by this documentation update.
+
+The desired money interface is compact: detailed accounting may remain internal, while operating restrictions and critical warnings remain understandable. The current debt/game-over rule is retained until a replacement is explicitly decided.
+
+See [design](docs/design.md), [requirements](docs/spec.md), and [roadmap](docs/roadmap.md).
 
 ## Run locally
 
@@ -86,10 +102,7 @@ The field stays inside the copied volume's bounds, centered at (0, 3, 0);
 the view offsets it to the origin. Grid: 64 samples per axis, 16-sample chunks,
 two-sample borders, 64 allocated chunks (empty chunks are not drawn).
 
-RunState metrics are placeholders, not computed scores. Both budgets remain
-until OQ-01 is resolved; resource point proxies are generated now, while full
-clusters remain M3 work. See
-[decisions](docs/decisions.md) and [roadmap](docs/roadmap.md).
+Some older RunState fields are legacy placeholders. Operating funds and site indicators have since been implemented (D-028–033); site indicators are estimates, not validated ecological or structural simulations. Resource markers remain proxies for fuller deposits. See [decisions](docs/decisions.md) and [roadmap](docs/roadmap.md).
 
 ### Surface exploration and world map
 

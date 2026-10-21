@@ -4,8 +4,8 @@
 
 | | |
 | --- | --- |
-| **Status** | Concept v0.6 — procedural robot terraforming (D-022) |
-| **Last updated** | 2026-10-14 |
+| **Status** | Concept v0.7 — multi-planet procedural sandbox (D-034) |
+| **Last updated** | 2026-10-20 |
 | **Answers the question** | *What is this game, why does it exist, and how should it feel?* |
 | **Not in this file** | Exact rules, numbers, data formats → [`spec.md`](spec.md). Tunable values → [`tuning.md`](tuning.md). Player-facing text → [`content.md`](content.md). |
 
@@ -15,24 +15,26 @@
 
 ## 1. Pitch
 
-*Terraforming Contractor #1380* is a browser-based procedural terraforming experience. You lead robots reshaping Ares-9, a planet the company insists is empty.
+*Terraforming Contractor #1380* is a browser-based procedural sandbox where players freely reshape different planets, using manual tools and autonomous robots.
 
-Select a robot, define a work area and goal, and start it. The robot scans, chooses a target, travels to a work site, excavates real terrain, collects the resource, and chooses again. You observe the changing planet and adjust the task. The same rules produce different excavation patterns on different seeded planets.
+**Planet starting conditions → player choices and robot work → environmental change → resident responses → different planetary outcomes.**
 
-The immediate prototype is one autonomous mining robot. Automation and readable terrain change come before economy, inventory, first-person traversal, or a large strategy interface.
+A seed establishes a planet's initial terrain, resources and, in the planned system, its size and residents. The player decides where and how to intervene. Robots repeat rule-based work; changes to terrain and disturbance affect habitats; residents respond by hiding, gathering or moving. The resulting planet records these choices.
 
-The company satire, buried life and memory, absurd planetary audit, and “We heard you, 1380.” ending remain the longer-term narrative direction. They are not prerequisites for testing the robot.
+Players may pursue resources, ecological flourishing, unusual planetary forms, or combinations of these. Resident departure is feedback, not an automatic failure condition. Free choice still has consistent, visible consequences.
+
+**Implemented foundation:** editable terrain, three robot roles, operating feedback, surface exploration, an atlas and broadcast-triggered travel. **Next target:** one resident species responding to habitat change. Persistent revisitable planets and the live 3D system overview are planned. Documentation does not implement them.
 
 | | |
 | --- | --- |
 | Platform | Desktop web browser |
-| Player role | Contractor #1380, directing a robot crew |
-| Main view | Orbital observation and task assignment |
-| Immediate goal | One robot that keeps mining after the player stops clicking |
-| Setting | Ares-9, 21 October 2079 |
+| Player role | Contractor #1380, shaping worlds and directing a robot crew |
+| Main view | Orbital observation, manual intervention and task assignment |
+| Next playable goal | Observe a cave resident react to work and choose a new home |
+| First planet / setting | Ares-9, 21 October 2079 |
 | Subtitle | We’re here to put a dent in the universe. |
 
-The subtitle is the Steve Jobs line selected by the user. It connects technological ambition with the literal dents left on the planet; it is not a corporate slogan invented by the game.
+The subtitle is the Steve Jobs line selected by the user. Company satire, buried history and cosmic contact remain a narrative layer; they do not require a single prescribed sandbox outcome.
 
 ---
 
@@ -46,13 +48,15 @@ One instruction starts an ongoing process. Robots choose their next action from 
 ### 2.1 The planet remembers everything
 Deformation is never just a visual effect. Every decision stays on the planet as geometry: tunnels, hollowed-out mines, terraces, exposed underground ecosystems, antennas, monuments, voids, broken fragments. The final result is the physical sum of what the player did, not a score invented by the system.
 
-### 2.2 Every kind of "progress" has a cost
-No run should max every metric.
+### 2.2 Freedom with legible consequences
 
-- Making money lowers the planet's remaining mass, ecology, and stability.
-- Raising future development potential can erase irregular landforms and buried history.
-- Protecting life takes up space the company wants to build on.
-- Broadcasting brings instant wealth and fame, and an irreversible cosmic risk.
+A player may mine, cultivate, reshape, pause or explore. The same world rules apply regardless of intent. Excavation can remove a home and create a new cavity; work can make a suitable home temporarily too noisy. Habitat quality is species-specific, not equivalent to flatness or money.
+
+Residents “vote with their feet.” Their hiding, return and migration make environmental consequences visible. Do not label all extraction bad or all planting good, and do not treat every resident departure as failure.
+
+### 2.2a Different beginnings, different outcomes
+
+Planet size, terrain and resource abundance should vary independently within feasible limits. Shared rules interact with different starting conditions and choices. Preserve outcomes so players can revisit and compare them; a different seed alone is not yet a persistent multi-planet system.
 
 ### 2.3 Funny first, then frightening
 The final result is never "good planet / evil planet". It is an object the player can picture immediately. The player laughs at their green pineapple or corporate meatball, and only then realizes that something else in the universe has finished auditing the planet too.
@@ -67,11 +71,11 @@ The opening tech-billionaire may recall real space entrepreneurs, but stays a fi
 
 ## 3. Player experience
 
-At first, the player watches a small robot inspect and carve a gray planet. Its state and current target explain what it is doing. Changing the work area changes where it searches and digs. Pausing stops its work.
+The player encounters a gray, tactile planet with its own terrain and resource pattern. They experiment with Dig/Add/Flatten or assign bounded robot work. Visible targets, movement and edits explain what the robots are doing.
 
-The immediate pleasure is watching a rule turn into a visible process: scans become targets, targets become tunnels, and tunnels reveal resources. The planet stores the cumulative changes.
+In the next slice, small rock residents inhabit snug cavities. Brief vibration makes them retreat; sustained disturbance may make them relocate. After work ends, a newly created suitable cavity may attract residents. Small groups and repeated peeking make the changing settlement readable without a large dashboard.
 
-Later discoveries can reveal life and history beneath the company’s “empty” planet. The player will direct the crew’s response. This narrative layer follows the automation prototype; it must not turn the first test into a complex management game.
+Later, the player discovers planets with different starting conditions, returns to previous sites, and compares their edited shapes and resident distributions in a 3D system view. Residents and that persistent system view are planned, not implemented.
 
 ---
 
@@ -128,22 +132,25 @@ The player can trust the warning, ignore it, or exploit the repaired equipment.
 
 ## 5. Structure of a run
 
-For the next prototype: inspect a seeded planet → assign a local work area → start the robot → watch repeated scan/move/dig/collect cycles → pause or change the area → compare the resulting terrain.
+Inspect a planet → choose an intervention → work manually or assign robots → observe environmental change → observe resident responses → adjust, continue or pause.
 
-The later narrative run retains arrival, buried life and memory, the #1379 warning, voluntary broadcasting, departure, and planetary audit. Sequence and duration will be revisited after autonomous work is tested. The previous fixed-cycle/energy ending is no longer the chosen design direction.
+Across the planned system: discover → visit → develop → leave → revisit and compare. Discovery, visiting and continued simulation are separate concerns. Background simulation and reload persistence remain open; state must at least survive switching between planets in one session.
+
+The current prototype includes bankruptcy and reset-style travel. Those are existing rules, not proof that a persistent sandbox or revised economy has shipped. Narrative audits and contact endings remain later work.
 
 ---
 
 ## 6. Core loop
 
-1. Inspect the planet from orbit.
-2. Select a robot and define a bounded work area and goal.
-3. Start autonomous scanning and target selection.
-4. Watch the robot travel to an entry point and progressively excavate toward a discovered mineral.
-5. Collect an exposed resource, then reassess the current terrain and choose the next target.
-6. Adjust the area, pause, or restart the task.
+1. Inspect starting terrain, resources and, once implemented, resident settlements.
+2. Choose where to mine, reshape or cultivate; manual and robot work are both valid.
+3. Assign a work area and Start/Pause, or use a manual terrain tool.
+4. Terrain and resources change; planned habitat and vibration systems read those changes.
+5. Residents hide, return, gather or move according to their preferences.
+6. Observe the result and choose the next intervention.
+7. Later, discover another planet, preserve the current site, and return to compare outcomes.
 
-No repeated dig clicks are needed. No targets or no valid progress produces a visible stop reason. Manual terrain tools remain useful for experimenting and intervention, but are not the primary loop.
+Robots act without repeated dig clicks. Residents choose automatically from current environmental conditions rather than following scripted outcomes. Their responses can change the player's next choice, but never require optimizing a universal happiness score.
 
 ---
 
@@ -544,6 +551,9 @@ Tracked in detail in [`decisions.md`](decisions.md#open-questions). Design-level
 ---
 
 ## Change log
+
+- **2026-10-20 / D-034:** Reframed the project as a freely directed multi-planet procedural sandbox; added the action–environment–resident consequence chain and distinguished implemented foundations from planned features.
+
 
 | Date | Version | Change |
 | --- | --- | --- |

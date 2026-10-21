@@ -6,11 +6,15 @@ This repository has two connected parts:
 Learn procedural world-building techniques through interactive lessons.
 
 ### Terraforming Contractor #1380
-Apply selected techniques to a destructible procedural planet.
+A procedural sandbox where players freely reshape different planets, by hand or through autonomous robots.
 
 > “We’re here to put a dent in the universe.”
 
-**Next game direction:** lead robots that automatically scan, choose targets and excavate the planet. The next slice is one autonomous Miner; then multiple Miners and one second procedural behavior. This is planned work, not an implemented feature. See the [updated game design](terraforming-1380/docs/design.md) and [active roadmap](terraforming-1380/docs/roadmap.md).
+**Design direction:** planet starting conditions → player choices and robot work → environmental change → resident responses → different planetary outcomes.
+
+Players may pursue resources, flourishing habitats, or unusual planetary forms. Residents “vote with their feet”; their movement makes consequences visible without imposing one ideal outcome.
+
+**Current prototype:** manual terrain editing, Miner/Gardener/Builder automation, operating feedback, surface exploration, a world map, and broadcast-triggered travel are implemented. Persistent revisitable planets, responsive residents, and a live 3D system overview are planned, not implemented. See the [game design](terraforming-1380/docs/design.md) and [roadmap](terraforming-1380/docs/roadmap.md).
 
 ```text
 Guidebook ─────── ★ selected techniques ───────▶ Game

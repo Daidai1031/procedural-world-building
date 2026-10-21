@@ -3,7 +3,7 @@
 | | |
 | --- | --- |
 | **Purpose** | The memory of the project. Every time the design or spec changes, the *reason* goes here, so we can tell later whether a change was a good idea. |
-| **Last updated** | 2026-10-14 |
+| **Last updated** | 2026-10-20 |
 
 ## How to use this file
 
@@ -378,3 +378,14 @@ Robot stop messages, the Builder's soil shortage and the low-funds warning no lo
 
 Electricity was later raised from 0.25 to 0.4, then to 0.55 credits per kW-minute (a Miner now costs 3.30 per minute); the per-mineral price of 40 is unchanged.
 
+
+## D-034 — Free terraforming with consistent procedural consequences
+
+- **Date:** 2026-10-20
+- **Status:** accepted
+- **Context:** The 20 October crit discussion and subsequent user decision call for a clearer project definition and causal chain. Existing docs still describe a one-Miner next step even though D-025–033 record later features.
+- **Decision:** Define the project as a procedural sandbox where players freely reshape different planets. Use the chain: planet starting conditions → player choices and robot work → environmental change → resident responses → different planetary outcomes.
+- **Why:** Preserve playful freedom while making consequences legible. Resource extraction, ecological flourishing and unusual shapes are valid intentions; migration is feedback, not an automatic failure.
+- **Implementation boundary:** This is a documentation decision. Residents, persistent planet records and a live 3D system overview are not implemented by it. Keep existing implemented behavior identified separately from future intent.
+- **Affects:** root and game READMEs; design §1–3/5–6; subsequent spec and roadmap updates.
+- **Relationship:** Extends D-022's emphasis on procedural automation; supersedes its one-Miner-only description of the current design scope, not its implementation history.
