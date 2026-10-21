@@ -1,37 +1,54 @@
 ---
-title: Animate Growth · 让它生长
-goal: 区分结构生成与生长动画，比较两种显现方式。
+title: Animate growth
+goal: Separate building a structure from animating it, and compare two ways of revealing it.
 keywords:
   - growth animation
   - topology
   - timeline
   - parent connection
+scene:
+  demo: branching-growth
+  resetCamera: true
+  cameraPose: asset
+  unlock: [branchingGrowthMode]
+  legend:
+    title: Growth key
+    items:
+      - swatch: paper-3
+        shape: block
+        label: Grown so far
+        when: { branchingLook: Solid }
+      - swatch: ink
+        shape: block
+        label: Grown so far
+        when: { branchingLook: Skeleton }
+      - swatch: line
+        shape: block
+        label: Not grown yet
+        note: The full skeleton, as a hint. Switch it off to see only what has grown.
+code:
+  file: src/scene/demos/branching/growth.js
+  fn: growthProgress
+practice:
+  kind: fill
+  prompt: Finish the line that says when a piece starts growing in From the base. A piece must wait until the piece it hangs from is done.
+  from:
+    file: src/scene/demos/branching/growth.js
+    region: start-after-parent
+  blanks:
+    - line: 1
+      answer: "finishAt[segment.parentId]"
+      options: ["finishAt[segment.parentId]", "startAt[segment.parentId]", "segment.depth * duration"]
+      explanation: A piece starts at the moment its parent finishes. Using the parent's start would let it grow while the parent is still growing, and using depth would ignore which piece it really hangs from.
+      hint: Look up the time the parent piece finishes.
 ---
 
-点击生成，完整资产就出现了。如果让它慢慢展开，会不会更有生命感？
+Press generate and the finished asset simply appears. Would it feel more alive if it unfolded?
 
-### 结构先存在，再随时间显现
+Here the whole structure is built first, and time only decides how much of it you see. Nothing is regrown and nothing is random, so dragging the timeline back and forth always shows the same picture for the same time.
 
-这里先生成完整骨架，再用时间控制各段什么时候出现、伸长到什么程度。
+Compare two ways of showing it. In **Together**, every piece grows at once. In **From the base**, a piece starts when the piece it hangs from has finished, so the trunk comes first and the side branches follow. That needs to know what each piece is attached to. Branch depth alone is not enough, because pieces within one level also follow one another.
 
-可以让所有线段一起伸长，也可以从基部出发，沿连接关系逐段展开：先出现通向分叉点的部分，再长出接在那里的侧枝。
+This is a growth animation: it reveals a structure that already exists. It does not simulate food, injury or obstacles.
 
-后一种方式需要知道“这一段接在哪一段后面”。**只有分支深度还不够**，因为同一层里，也有先后相连的线段。
-
-这是一种**生长动画**。它展示已有结构随时间显现，还没有模拟吸收养分、受伤或绕过障碍的过程。
-
-### 看画面 · 计划中的演示
-
-使用同一个资产、同一组参数和 seed，对比 **Together（一起伸长）** 与 **From the Base（从基部展开）**。
-
-淡淡的完整骨架提示尚未显现的结构。拖动时间轴，可以停在任何时刻；关闭辅助骨架，则能欣赏最终效果。
-
-### 试试看 · 计划中的练习
-
-把时间轴停在一半。两种方式分别出现了哪些部分？**哪一种更像从基部长出来，为什么？** 播放结束时，两边应该得到同一个完整资产。
-
-### 带回 Terraforming Contractor
-
-挖开洞穴后，附着生物缓慢展开，可以成为环境变化的反馈。这是可选设计方向；先验证动画的表现力，再决定是否加入游戏。
-
-*本步教学文字已写好；交互场景、控件和练习尚未实现。*
+Pause at 0.5 in each mode. What has appeared? At the end, do both give the same asset?

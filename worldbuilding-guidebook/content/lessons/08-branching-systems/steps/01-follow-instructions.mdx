@@ -1,39 +1,66 @@
 ---
-title: Follow Instructions · 跟着指令画
-goal: 看懂前进与转向如何一步步变成线条。
+title: Follow instructions
+goal: See how forward and turn instructions become lines, one step at a time.
 keywords:
   - turtle graphics
   - drawing instructions
   - position
   - heading
+scene:
+  demo: branching-turtle
+  resetCamera: true
+  cameraPose: front
+  unlock: [branchingAngle]
+  legend:
+    title: Drawing key
+    items:
+      - swatch: ink
+        shape: block
+        label: Lines drawn so far
+      - swatch: clay-deep
+        shape: block
+        label: Line from this instruction
+        note: Only F adds one.
+      - swatch: water-deep
+        shape: block
+        label: The pen
+        note: The tip points the way it is facing.
+      - swatch: clay
+        shape: block
+        label: Turn just made
+        note: A turn changes the heading, not the position.
+      - swatch: ink-dim
+        shape: dot
+        label: Start
+code:
+  file: src/scene/demos/branching/turtle.js
+  fn: interpret
+practice:
+  kind: fill
+  prompt: Finish the rule for +. It should turn the pen to the left and change nothing else.
+  from:
+    file: src/scene/demos/branching/turtle.js
+    region: turn-left
+  blanks:
+    - line: 1
+      answer: "heading: state.heading + turn"
+      options: ["heading: state.heading + turn", "x: state.x + length", "segmentCount: state.segmentCount + 1"]
+      explanation: A turn changes only the heading. The pen stays where it is and no segment is added, so the next F simply leaves in the new direction.
+      hint: Turning changes which way the pen faces, not where it stands.
 ---
 
-一棵树有很多枝条。如果每根都手动画出来，会很累。这一课，我们试试给电脑几条简单规则，让它从一条线开始，长出复杂的形态。最后，再把“分支”的思路用于世界的发展。
+A tree has thousands of branches. Drawing each one by hand would take forever, so this lesson gives the computer a few simple rules and lets it grow the rest. We start with the smallest piece: telling a pen how to draw.
 
-### 一支会听指令的笔
+Picture a pen that knows where it stands and which way it faces. It understands three instructions.
 
-想象有一支笔，知道自己在哪里，也知道自己朝哪个方向。先教它三种指令：
-
-| 符号 | 笔要做什么 |
+| Symbol | The pen does this |
 | --- | --- |
-| `F` | 向前走一段，并画出线条 |
-| `+` | 向左转一个设定的角度 |
-| `-` | 向右转一个设定的角度 |
+| `F` | Move forward and draw a line |
+| `+` | Turn left, draw nothing |
+| `-` | Turn right, draw nothing |
 
-例如，`F + F` 表示：**先画一段，转一下，再画一段。** 空格只为方便阅读。
+So `F + F - F` means: draw, turn left, draw, turn right, draw. The spaces are only for reading.
 
-转向只改变笔的朝向，不会画出新线条。只有执行 `F` 时，线才会变长。
+Press **Next Instruction** and follow the highlighted symbol. Then change the angle to 90° and play it again. The same three instructions now draw a different shape.
 
-### 看画面 · 计划中的演示
-
-点击 **Next Instruction（下一条指令）**，跟着高亮符号看笔如何移动。小箭头表示朝向，圆弧表示刚刚转过的角度。
-
-### 试试看 · 计划中的练习
-
-保持 `F + F - F` 不变，把角度从 30° 改为 90°。先猜形状，再逐条播放。**相同指令，为什么能画出不同结果？**
-
-### 带回 Terraforming Contractor
-
-先生成线条骨架，再给骨架添加实体外观。这样可以先检查形态的规则，不用一开始就处理复杂模型。
-
-*本步教学文字已写好；交互场景、控件和练习尚未实现。*
+Before you move on, ask yourself: did a `+` ever add a line?

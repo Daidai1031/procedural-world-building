@@ -1,40 +1,49 @@
 ---
-title: Detail at a Distance · 按距离简化
-goal: 用同一资产的远近版本理解 LOD、轮廓保持与几何成本。
+title: Detail at a distance
+goal: Use near and far versions of one asset to understand LOD, silhouette preservation and geometry cost.
 keywords:
   - LOD
   - level of detail
   - triangles
   - camera distance
   - popping
+scene:
+  demo: branching-lod
+  resetCamera: true
+  cameraPose: asset
+  unlock: [branchingLodView, branchingNearDistance]
+  legend:
+    title: Detail key
+    items:
+      - swatch: paper-3
+        shape: block
+        label: The asset
+        note: Side by side, from left to right, LOD 0, 1 and 2. In By distance, only the level for the current distance.
+      - swatch: summit
+        shape: block
+        label: Current level in the table
+        note: Shown in By distance. The triangle count is what that level actually draws.
+code:
+  file: src/scene/demos/branching/lod.js
+  fn: buildLodSet
+practice:
+  kind: fill
+  prompt: Finish the rule that picks a level once the distance is past the near edge. It should use LOD 1 up to the far edge and LOD 2 beyond it.
+  from:
+    file: src/scene/demos/branching/lod.js
+    region: pick-level
+  blanks:
+    - line: 2
+      answer: "distance < farEdge ? 1 : 2"
+      options: ["distance < farEdge ? 1 : 2", "distance < farEdge ? 2 : 1", "distance < near ? 1 : 2"]
+      explanation: Between the near edge and the far edge the middle level is used, and past the far edge the coarsest one. Swapping the two numbers would draw the coarse version close up and the detailed one far away.
+      hint: The middle level belongs to the middle band of distances.
 ---
 
-靠近一株生物，你能看见细小枝条。离远后，你主要看见整体轮廓。远处真的需要画出每个小细节吗？
+Up close you can see a creature's small twigs. From far away you mostly see its outline. Does something far off need every detail drawn?
 
-### 同一个资产，不同细节
+**LOD** (level of detail) keeps several versions of one asset. LOD 0 has every branch and 8 sides on each tube. LOD 1 drops the finest branches and uses 4 sides. LOD 2 keeps the trunk and the first side branches with 3 sides. All three are cut from one seeded asset, so nothing is regenerated and the root and main outline stay put. It is not growth, age or a different individual.
 
-**LOD（Level of Detail，细节层级）** 为同一资产准备不同复杂度的版本：
+The table counts the triangles each level really draws. Fewer triangles means less geometry, but materials and shadows cost time too, so it is not a frame rate.
 
-| 版本 | 本课计划保留的内容 |
-| --- | --- |
-| LOD 0 | 主体、侧枝和较细的末端 |
-| LOD 1 | 主要侧枝，减少细枝与管状截面的面数 |
-| LOD 2 | 简化体块，保留主要轮廓 |
-
-相机拉远时，系统切换到更简单的版本。位置、大小和主要轮廓应尽量一致。**它不是让成熟资产变回幼苗，也不是换成另一个随机个体。**
-
-模型表面由小面片组成，常用三角形数量表示几何规模。数量减少，通常意味着需要处理的几何更少；但材质、阴影等也影响性能，所以三角形数量不能单独代表帧率。
-
-### 看画面 · 计划中的演示
-
-先并排比较三个版本，再拉远相机，观察当前 LOD 和三角形数。若切换时形状突然跳变，这种现象叫作 **popping**。
-
-### 试试看 · 计划中的练习
-
-先把切换距离设得很近，观察跳变，再把切换点移远。**找到一个不容易察觉变化的位置，并解释你保留了哪些重要轮廓。**
-
-### 带回 Terraforming Contractor
-
-重复出现的外星资产可以使用 LOD。太阳系总览则可以进一步思考：哪些整体特征足以让玩家看出星球的变化？本步先验证单个资产的远近切换。
-
-*本步教学文字已写好；交互场景、控件和练习尚未实现。*
+Compare the three side by side, then switch **View** to By distance and zoom out. A sudden change of shape is called **popping**. Set the switch distance very close to see it, then move it out until it is hard to notice. Which outlines did you keep?

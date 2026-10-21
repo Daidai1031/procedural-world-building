@@ -1,40 +1,70 @@
 ---
-title: Create Branches · 生成分叉
-goal: 用保存与返回理解侧枝如何连接到主干。
+title: Create branches
+goal: Use save and return to see how a side branch attaches to the trunk.
 keywords:
   - branching
   - turtle stack
   - saved position
   - saved heading
+scene:
+  demo: branching-brackets
+  resetCamera: true
+  cameraPose: front
+  unlock: [branchingRule]
+  legend:
+    title: Drawing key
+    items:
+      - swatch: ink
+        shape: block
+        label: Lines drawn so far
+      - swatch: clay-deep
+        shape: block
+        label: Line from this instruction
+      - swatch: water-deep
+        shape: block
+        label: The pen
+      - swatch: summit-deep
+        shape: grid
+        label: Saved spot
+        note: The ring marks the position. The tick shows the saved heading.
+      - swatch: moss-deep
+        shape: block
+        label: Move back
+        note: Dashed. It draws nothing.
+      - swatch: clay
+        shape: block
+        label: Turn just made
+      - swatch: ink-dim
+        shape: dot
+        label: Start
+code:
+  file: src/scene/demos/branching/turtle.js
+  fn: save
+practice:
+  kind: fill
+  prompt: Finish the line that sends the pen back. It must stand where it saved, face the way it saved, and forget that save.
+  from:
+    file: src/scene/demos/branching/turtle.js
+    region: restore-saved
+  blanks:
+    - line: 1
+      answer: "...saved"
+      options: ["...saved", "x: saved.x, y: saved.y", "heading: saved.heading"]
+      explanation: The saved record holds position, heading, depth and parent together. Restoring only the position would leave the pen facing the side branch, and restoring only the heading would leave it at the branch tip.
+      hint: Take everything the record holds, not just part of it.
 ---
 
-目前，这支笔一直沿着一条路线前进。要画出分叉，它需要暂时离开，再回来。
+So far the pen has followed one route. To draw a fork, it has to step away and then come back. Two new symbols make that possible.
 
-### 先记住这里
-
-增加两个符号：
-
-| 符号 | 笔要做什么 |
+| Symbol | The pen does this |
 | --- | --- |
-| `[` | 记住当前位置和朝向 |
-| `]` | 回到最近一次还没返回的记录，恢复位置和朝向 |
+| `[` | Remember the current position and heading |
+| `]` | Go back to the latest saved spot not yet returned to, and restore its position and heading |
 
-看看 `F[+F]F`：先画一段主干，记住位置，向左转并画一条侧枝，然后回到分叉点，沿原来的朝向继续画主干。
+Take `F[+F]F`: draw a piece of trunk, remember the spot, turn left and draw a side branch, then go back and carry on along the trunk's original heading.
 
-**返回时不会画线，也不会擦掉已经画好的侧枝。** 方括号要成对出现。如果一条侧枝里又有侧枝，就先返回里面那一层，再返回外面那一层。
+**Returning draws no line and does not erase the side branch.** Brackets come in pairs, and a branch inside a branch returns first.
 
-### 看画面 · 计划中的演示
+Press **Next Instruction** and watch the ring. It marks the saved position, and its tick shows the saved heading. The dashed line is the move back, not part of the drawing.
 
-先逐条播放 `F[+F]F`。保存的位置会留下空心标记；返回时用虚线提示移动，虚线不属于生成的骨架。
-
-看懂后，再尝试规则 `F → F[+F]F[-F]F`：让它替换几轮，侧枝也能继续分叉。
-
-### 试试看 · 计划中的练习
-
-切换单侧和双侧分叉预设，保持角度、长度和代数不变。**多出来的侧枝从哪里出发？画完它之后，笔回到哪里？**
-
-### 带回 Terraforming Contractor
-
-这套骨架可以像根系、岩壁上的附着生物或树状矿物。先探索轮廓，不急着把它定义成普通的树。
-
-*本步教学文字已写好；交互场景、控件和练习尚未实现。*
+Then switch **Branching rule** to One side or Both sides. The rule rewrites every `F` into a fork, so side branches can fork again. Compare the two at the same angle: where does the extra side branch start, and where is the pen after it?

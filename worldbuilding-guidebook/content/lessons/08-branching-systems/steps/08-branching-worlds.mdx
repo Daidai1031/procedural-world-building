@@ -1,46 +1,78 @@
 ---
-title: Branching Worlds · 世界的不同走向
-goal: 从相同初始条件出发，通过一个行为变化解释不同的环境与居民结果。
+title: Branching worlds
+goal: Start from identical conditions and explain different environment and resident outcomes through one change in behaviour.
 keywords:
   - procedural world building
   - alternative outcomes
   - environmental feedback
   - resident response
   - Microscope
+scene:
+  demo: branching-worlds
+  resetCamera: true
+  cameraPose: overview
+  unlock: [branchingWorkB, branchingShelter]
+  legend:
+    title: World key
+    items:
+      - swatch: ink
+        shape: grid
+        label: World A
+        note: The robot always works at the far end.
+      - swatch: water-deep
+        shape: grid
+        label: World B
+        note: You choose where its robot works.
+      - swatch: summit
+        shape: block
+        label: Robot at work
+      - swatch: moss
+        shape: block
+        label: Quiet pocket
+        note: One resident fits in each cell.
+      - swatch: clay-deep
+        shape: block
+        label: Noise
+        note: Stronger colour means louder. It is a distance estimate, not real sound.
+        when: { branchingNoiseOverlay: true }
+      - swatch: ink
+        shape: dot
+        label: Resident, calm
+      - swatch: clay-deep
+        shape: dot
+        label: Resident, bothered
+      - swatch: water-deep
+        shape: dot
+        label: Resident, walking
+      - swatch: summit-deep
+        shape: dot
+        label: Resident, staying put
+      - swatch: moss-deep
+        shape: dot
+        label: Resident, in a pocket
+code:
+  file: src/scene/demos/branching/worldExperiment.js
+  fn: chooseShelter
+practice:
+  kind: fill
+  prompt: Finish the test that stops a resident leaving at the first loud moment. It should wait through a short disturbance, then be allowed to move once the cooldown is over.
+  from:
+    file: src/scene/demos/branching/worldExperiment.js
+    region: sustained-exposure
+  blanks:
+    - line: 1
+      answer: "resident.exposure >= EXPOSURE_DELAY"
+      options: ["resident.exposure >= EXPOSURE_DELAY", "here > NOISE_THRESHOLD", "resident.exposure > 0"]
+      explanation: Exposure counts the seconds a resident has been bothered, and the delay is how long it must put up with it. Checking only that it is loud now, or that exposure is above zero, would send it off at the first moment.
+      hint: Compare how long it has been bothered with how long it is willing to wait.
 ---
 
-前面，我们用规则决定枝条怎样展开。现在换一个尺度：规则能不能决定一个世界怎样变化？
+Until now, rules decided how a branch unfolds. Now let rules decide how a world changes.
 
-### 同一个起点，不同的行动
+Two small planets start exactly the same: one cave, three residents who like quiet, and four quiet pockets. A robot works on each. In world A it works far away. In world B you choose where. The chain you can watch is **work spot → noise → a resident picks a quiet pocket it can reach → where the residents end up**.
 
-想象两颗初始条件完全相同的星球，都有一处洞穴，以及喜欢安静洞穴的居民。
+A resident that stays above the noise threshold for 3 seconds looks for a pocket that has room, is quiet itself, and can be walked to. If there is none, it stays put, and that is a valid result. Nothing is scripted, and the same start always repeats the same run.
 
-第一颗星球上，机器人靠近洞穴作业；第二颗上，机器人在更远处作业。如果居民会避开噪声，它们的分布就可能逐渐不同。
+Press **Play** with B's robot near the residents. Then use **Sync Reset** and try Middle and Far end. Read the log and the overlay: who moved, and who did not? Then set Quiet pockets to None.
 
-我们不必提前写好每位居民的故事。先定义一个能观察的小系统：
-
-**作业位置 → 噪声分布 → 居民选择可到达的安静位置 → 居民分布变化。**
-
-居民不能穿过岩石，也不一定总能找到更好的位置。不同结果需要来自实际规则，不能只靠切换预先准备好的画面。
-
-### 看画面 · 计划中的演示
-
-并排放置同一起点的两份简化场景。只移动第二份的作业位置，再同步运行。
-
-打开 **Noise Overlay（噪声覆盖层）** 看原因，关闭它看居民行为。变化记录用短句解释发生了什么，例如“入口附近噪声上升，两位居民移向较安静的位置”。
-
-### 试试看 · 计划中的练习
-
-两边初始条件与规则保持一致，只改变作业位置。**居民是否移动？如果没有，是噪声没达到阈值，还是没有可到达的替代位置？** 不必为了产生差异而强行改变结果。
-
-### 带回 Terraforming Contractor
-
-这一步对应你的核心链条：**初始条件 → 玩家与机器人作业 → 环境变化 → 居民响应 → 星球发展。**
-
-这里的“分支”是不同的发展可能性，不是前面画线的 L-system。手写分支剧情与环境模拟也不同：前者预先安排节点，后者让结果随状态与规则产生。本步只做一个小型规则实验，不实现完整居民系统或多星球存档。
-
-### 可选：让别人参与世界构建
-
-课堂推荐与同学玩一次 **Microscope** 世界构建练习。它是高度鼓励的可选活动。记录别人带来的一个新设定，以及它如何改变你的构想；没有参与时，不写成已经完成的经历。
-
-*本步教学文字已写好；交互场景、控件和练习尚未实现。*
+Optional: in class, play one round of Microscope with classmates, and write down only what really happened.

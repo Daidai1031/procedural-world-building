@@ -1,40 +1,59 @@
 ---
-title: Design an Alien Asset · 设计外星资产
-goal: 用可控变化生成同一物种的不同个体，并从骨架过渡到实体。
+title: Design an alien asset
+goal: Use controlled variation to make different individuals of one species, and move from skeleton to solid.
 keywords:
   - procedural asset
   - seed
   - bounded variation
   - silhouette
   - three-dimensional branching
+scene:
+  demo: branching-asset
+  resetCamera: true
+  cameraPose: asset
+  unlock: [branchingLook, branchingSpread]
+  legend:
+    title: Asset key
+    items:
+      - swatch: paper-3
+        shape: block
+        label: Solid asset
+        note: Tubes wrapped around the same branch lines.
+        when: { branchingLook: Solid }
+      - swatch: ink-dim
+        shape: block
+        label: Skeleton
+        note: The branch lines themselves.
+        when: { branchingLook: Skeleton }
+      - swatch: terrain-grid
+        shape: grid
+        label: Floor grid
+        note: A helper. Preview hides it.
+      - label: Three small copies
+        note: Seeds 1, 2 and 3 at one shared scale. Everything else is the same.
+code:
+  file: src/scene/demos/branching/asset.js
+  fn: generateAsset
+practice:
+  kind: fill
+  prompt: Finish the line that turns a random number into a small change around 1. The change should be as large as the Variation setting allows, and zero Variation must change nothing.
+  from:
+    file: src/scene/demos/branching/asset.js
+    region: seeded-jitter
+  blanks:
+    - line: 1
+      answer: "(random() * 2 - 1) * variation"
+      options: ["(random() * 2 - 1) * variation", "random() * variation", "random() * 2 - 1"]
+      explanation: random() runs from 0 to 1, so doubling it and subtracting 1 gives a number from -1 to 1, and multiplying by variation sets how far it can reach. Without the centring every branch would only grow, and without the multiplication Variation could never be zero.
+      hint: Centre the random number on zero first, then scale it by the setting.
 ---
 
-一个物种有共同特征，但每个个体不必完全一样。
+A species shares common traits, but its individuals do not have to be identical. Choose the character first, then add a little variation.
 
-### 先定性格，再加变化
+Pick a **Design**: Cave Fan forks wide and bushy, Stone Coral is short and compact, Whisper Root is tall and sparse. They are form experiments, not species decided for the game, and all three come from the same generator.
 
-你可以规定：这个物种低矮、粗短、向外展开。再让枝条的角度和长度出现一点变化。
+Switch **Look** between Skeleton and Solid. Wrapping tubes around the lines makes a solid, but a flat skeleton stays flat. **Spatial spread** lets branches leave the flat plane.
 
-变化太少，每株都像复制品；变化太大，又可能看不出它们属于同一个物种。**先确定主要轮廓，再添加少量随机变化。**
+**Variation** nudges every angle and length by a small random amount. The **seed** is the number of that set of nudges: the same settings and seed always make the same asset.
 
-**Seed（随机种子）** 可以理解为这组随机变化的编号。保持生成方法、规则、参数和 seed 相同，就能重新得到同一个结果。调参数时先锁住 seed，才容易知道变化来自哪里。
-
-### 从线条变成实体
-
-给线段套上有粗细的管状外壳，就能从骨架变成实体。但加粗不会自动让平面骨架变成立体骨架；还需要允许分支离开原来的平面。
-
-### 看画面 · 计划中的演示
-
-先切换 **Skeleton / Solid（骨架／实体）**，再探索空间展开程度。主画面显示一个资产，下方并排显示三个 seed 的同类个体。
-
-三个设计起点是：低矮扇形的 **Cave Fan**、短粗紧凑的 **Stone Coral**、细长稀疏的 **Whisper Root**。这些是形态实验，不是已经确定的游戏物种。
-
-### 试试看 · 计划中的练习
-
-固定 seed，只改分叉角度，做出“紧凑”和“舒展”两个轮廓。再换 seed，检查它们是否仍保留各自特征。
-
-### 带回 Terraforming Contractor
-
-未来可以建立 Asset Lab，保存规则、参数和 seed。资产生成器决定“长什么样”，Lesson 05 的分布系统决定“放在哪里”。本课先做好单个资产。
-
-*本步教学文字已写好；交互场景、控件和练习尚未实现。*
+Lock the seed and change the angle to make a compact and an open version. Then change the seed. Which setting made the main difference, and did variation hide it?
