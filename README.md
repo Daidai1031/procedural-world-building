@@ -169,6 +169,8 @@ Completed the eight-step distributions lesson. It begins with instanced rocks an
 
 The final population keeps a separate seed and rule set for each layer. It places the base at the flattest suitable anchor, reserves an exclusion zone around it, applies minimum spacing to antennas, and drives tree and field variation from moisture. Candidate, rejection, height, slope, and moisture overlays make each rule inspectable. All eight steps include a live scene, source excerpt, fill practice, and automated coverage; the final guidebook test run passed 88 tests with one intentionally skipped Tutor test.
 
+![Week 6 distribution lesson population](worldbuilding-guidebook/artifacts/lesson05/step08-population.png)
+
 #### Game: initial editable planet, added September 30
 
 Created `terraforming-1380/` as an independent Vite, React, and TypeScript app with design, specification, roadmap, tuning, and decision documents. The prototype uses a seeded sphere-plus-noise density field and extracts its surface with chunked Marching Cubes. Right-drag orbits the planet. Dig, Add Terrain, and Flatten edit the density field and rebuild affected chunks; Flatten supports both a local radial plane and a global horizontal plane. A remaining-volume estimate tracks terrain added or removed.
@@ -181,16 +183,22 @@ The Detector scans a local patch and shows nearby terrain wireframe plus distanc
 
 ![Week 6 game M1](docs/media/week5_M1.jpg)
 
+#### Game: component board
+
+Before building any robots, a component board compared visual options for every on-planet element over five rounds, each option a 3D model at game scale. The chosen set uses voxel-orb robots that differ by silhouette, contour-line terrain shaded by height and slope, and a point-cloud atmosphere.
+
+![Week 6 game component board](docs/media/week6_design_decision.jpg)
+
 #### Shared site and repository maintenance
 
 Added the combined Firebase Hosting build. The homepage is served at `/`, the guidebook at `/guidebook/`, and the game at `/game/`, with deep-link rewrites and redirects for old lesson URLs. The deployment workflows install both apps, run the game tests, build the combined site, and verify its routes and assets.
 
-- **Key files:** [Lesson 05](worldbuilding-guidebook/content/lessons/05-distributions/), [distribution demos](worldbuilding-guidebook/src/scene/demos/distributions/), [Exercise 07](docs/exercise/07-scattering-system.md), [game source](terraforming-1380/src/), [game design](terraforming-1380/docs/design.md), [game tests](terraforming-1380/tests/planet.test.ts), [deployment build](deployment/build.mjs)
-- **Keywords:** instancing, deterministic seeds, noise masks, terrain maps, surface normals, slope filtering, layered populations, seeded planet, Marching Cubes, terrain editing, detector, Firebase Hosting
+- **Key files:** [Lesson 05](worldbuilding-guidebook/content/lessons/05-distributions/), [distribution demos](worldbuilding-guidebook/src/scene/demos/distributions/), [Exercise 07](docs/exercise/07-scattering-system.md), [game source](terraforming-1380/src/), [game design](terraforming-1380/docs/design.md), [game tests](terraforming-1380/tests/planet.test.ts), [component board](terraforming-1380/docs/component-board.html), [deployment build](deployment/build.mjs)
+- **Keywords:** instancing, deterministic seeds, noise masks, terrain maps, surface normals, slope filtering, layered populations, seeded planet, Marching Cubes, terrain editing, detector, component board, Firebase Hosting
 
 </details>
 
-### Week 7: Paths, particles, and game terrain LOD (October 5–11, 2026)
+### Week 7: Paths, particles, terrain LOD, and the robot crew (October 5–11, 2026)
 
 <details>
 <summary>View weekly details</summary>
@@ -201,11 +209,15 @@ Completed six pathfinding and spline scenes around one resident travelling from 
 
 The final scene generates bounded route candidates for two shelters, rejects blocked, unsupported, or overly steep paths before ranking the valid ones by normalized distance and disturbance, and leaves the resident waiting when both routes fail. These are guidebook teaching scenes. They do not add resident migration or a cave solver to the game.
 
+![Week 7 path selection lesson](worldbuilding-guidebook/artifacts/lesson06/step06.png)
+
 #### Guidebook: Lesson 07, Particles
 
 Completed eight particle-system scenes using one typed-array state model. The lesson covers emission, lifetime, capacity, frame-rate-independent movement, forces, velocity and acceleration fields, and additive breeze, vortex, and gust layers. Later steps compare dots, puffs, and trails, show the stray-line bug caused by retaining trail history after recycling, and map speed and age to colour and opacity.
 
 The final recipe scene includes Dust, Mist, Rain, and Spores presets. Each preset controls its emitter, rate, lifetime, representation, wind, gravity, fade, ground rule, and boundary rule. Tests keep live counts within capacity, verify that the default ground rule removes particles below the terrain, and check that motion stays consistent across different frame intervals. The particle effects remain guidebook demonstrations rather than game effects.
+
+![Week 7 particle lesson rain preset](worldbuilding-guidebook/artifacts/lesson07/step08-rain.png)
 
 #### Game: distance-based terrain LOD, added October 7
 
@@ -213,7 +225,57 @@ Added three terrain detail levels while keeping the full `64³` density grid as 
 
 The same day's site update refreshed the project homepage, navigation, and favicons without coupling the two applications. The game and guidebook still build independently before the deployment project combines them.
 
-- **Key files:** [Lesson 06](worldbuilding-guidebook/content/lessons/06-paths/), [path demos](worldbuilding-guidebook/src/scene/demos/paths/), [Exercise 08](docs/exercise/08-spline-layer.md), [Lesson 07](worldbuilding-guidebook/content/lessons/07-particles/), [particle demos](worldbuilding-guidebook/src/scene/demos/particles/), [Exercise 09](docs/exercise/09-particle-system.md), [game LOD](terraforming-1380/src/world/lodChunks.js), [planet generation](terraforming-1380/src/world/planet.ts)
-- **Keywords:** waypoints, Catmull-Rom splines, arc-length movement, terrain projection, clearance, route validation, particle lifecycle, vector fields, trails, atmospheric presets, chunk LOD, seam snapping
+#### Game: robots that terraform by rules
+
+Teacher feedback asked what would happen if the game played itself, so the game shifted from manual digging to robots that change the planet by visible rules. The player places each robot and sizes its spherical work area; the robot then works on its own.
+
+- **Miner** scans for nearby minerals, flies along a hover shell to the entry point above each one, and carves a radial tunnel one dig step at a time.
+- **Gardener** samples ground points in its area. It plants on the flattest suitable ground and raises antennas on the highest. Mature plants spread to nearby ground, and digging removes any plant or antenna whose ground is lost.
+- **Builder** measures the mean ground height of its area, cuts high ground down to that level, and fills low ground using soil the Miner has dug out.
+
+The interface now splits into **Auto** (place and run the crew) and **Manual** (the earlier terrain and Detector tools). Manual mode pauses the simulation, so robots never dig unseen.
+
+The robots, terrain, and atmosphere use the look chosen on last week's component board. All colors come from one palette file, and a test fails if a model uses a color outside it.
+
+Around the crew, the run gained a site economy: minerals sell for credits, running robots draw billed electricity, and the run ends in bankruptcy at −₡50. The game also gained surface exploration with a 2D world map. Once antennas stand, the player can broadcast a signal; after the third broadcast, distant planets appear that the crew can travel to. Robot stop reasons and low-funds warnings arrive in a communicator with a button that leads to the fix.
+
+![Week 7 robot crew at work](docs/media/week7_world.gif)
+
+- **Key files:** [Lesson 06](worldbuilding-guidebook/content/lessons/06-paths/), [path demos](worldbuilding-guidebook/src/scene/demos/paths/), [Exercise 08](docs/exercise/08-spline-layer.md), [Lesson 07](worldbuilding-guidebook/content/lessons/07-particles/), [particle demos](worldbuilding-guidebook/src/scene/demos/particles/), [Exercise 09](docs/exercise/09-particle-system.md), [game LOD](terraforming-1380/src/world/lodChunks.js), [planet generation](terraforming-1380/src/world/planet.ts), [Miner](terraforming-1380/src/systems/miner.ts), [Gardener](terraforming-1380/src/systems/gardener.ts), [Builder](terraforming-1380/src/systems/builder.ts), [game decisions D-022 to D-033](terraforming-1380/docs/decisions.md)
+- **Keywords:** waypoints, Catmull-Rom splines, arc-length movement, terrain projection, clearance, route validation, particle lifecycle, vector fields, trails, atmospheric presets, chunk LOD, seam snapping, autonomous robots, rule-based placement, cut and fill, site economy, broadcast signal
+
+</details>
+
+### Week 8: Branching systems (October 12-21, 2026)
+
+<details>
+<summary>View weekly details</summary>
+
+#### Guidebook: Lesson 08, Branching Systems
+
+Built an eight-step lesson that starts with turtle drawing instructions and parallel string rewriting, then adds bracket stacks, branch depth, seeded variation, solid geometry, growth animation, and three levels of detail. The asset lab uses one generator to produce Cave Fan, Stone Coral, and Whisper Root forms while keeping each seed reproducible.
+
+![Week 8 alien asset design](worldbuilding-guidebook/artifacts/lesson08/step05-cave-fan.png)
+
+The final experiment starts two small worlds from identical conditions and changes only where one robot works. Residents respond to a distance-based disturbance field, wait through short disruptions, and move along walkable routes when a quieter pocket is available. The side-by-side view and event log make the different outcomes traceable to that single change.
+
+![Week 8 branching worlds experiment](worldbuilding-guidebook/artifacts/lesson08/step08-near-end.png)
+
+#### Game: autopilot crew, signal planets, and residents
+
+Autopilot hands the whole planet to the crew: Miners, Gardeners, Builders, and the new Rigger, which takes over antenna building, each sweep the surface sector by sector. Minerals now sell automatically on delivery, and manual terrain edits cost credits. Planets that answer a broadcast become persistent sites with their own seeds and shapes, and the run's funds are shared among them.
+
+![Week 8 autopilot mode](docs/media/week8_autopilot_mode.jpg)
+
+A system overview shows the home site and the answering planets together; clicking a world focuses it.
+
+![Week 8 system overview](docs/media/week8_system.jpg)
+
+Residents are small rock creatures that shelter underground, peek out, and tremble near robot work. A design board compared nine procedurally generated body directions before one species per planet went into the game.
+
+![Week 8 resident designs](docs/media/week8_resident_design.jpg)
+
+- **Key files:** [Lesson 08](worldbuilding-guidebook/content/lessons/08-branching-systems/), [branching demos](worldbuilding-guidebook/src/scene/demos/branching/), [Exercise 10](docs/exercise/10-branching-systems.md), [browser tests](worldbuilding-guidebook/tests/lesson08.spec.js), [game systems](terraforming-1380/src/systems/), [game decisions](terraforming-1380/docs/decisions.md)
+- **Keywords:** L-systems, turtle graphics, parallel rewriting, bracket stacks, seeded variation, procedural assets, growth animation, asset LOD, branching outcomes, resident response, autopilot, signal planets, system overview
 
 </details>
