@@ -46,7 +46,21 @@ Implemented 2026-10-21 (D-041, D-045, D-046). Values live in `src/config/tuning.
 | `residents.minSoilDepth / maxSlopeDeg` | 0.45 / 25° | D-045 surface-home support and slope limits |
 | `residents.headroom / minHomeSpacing` | 0.18 / 0.5 | Clear space above a home and separation between homes |
 | `residents.peekLift / hideDepth` | 0.015 / 0.075 | Simulation poses for a surface home (the view draws its own, below) |
-| `residents.look` | lurk −0.72, hide −0.8, peek +0.3 body radii; a peek every 6–12 s, 2.8 s out; tremble 0.2 radius at 11 Hz | D-055 presentation: crown-only lurking, periodic look-around, trembling near work |
+| `residents.look` | model drawn at 0.2 world units per model unit; lurk shows 30% of the height (hiding 20%) with eye rims ≥0.05 under; peek clears the eyes by 0.14; a peek every 6–12 s, 2.8 s out; tremble 0.2 body radius at 11 Hz | D-055/D-059 presentation: crown-only lurking, periodic look-around, trembling near work |
+| `residents.speciesJitter / solidRelief` | 1.5 profile steps / cube 2, tetra 3, nail 3 | D-059 choice of a signal planet's species from its size, relief and minerals |
+| `residents.temperament` | per species; multipliers on the shared values below | D-059 characters, summarised in the next table |
+
+| Species | speed | stroll interval | noise to hide | wait to return | noise endured | company | other | peeks |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Facet Pebble | ×1 | ×1 | ×1 | ×1 | ×1 | ×1 | | 6–12 s, 2.8 s, snap |
+| Moss Cap | ×0.7 | ×2.5 | ×1.3 | ×1.4 | ×1.6 | ×1.3 | plant effect ×2 | 10–18 s, 5 s, slow sweep |
+| Tall Slab | ×0.8 | ×3 | ×1.6 | ×2 | ×1.8 | ×1.5 | population ×0.8, crown 40% | 12–20 s, 4.5 s, slow sweep |
+| Crystal Crown | ×1.1 | ×2 | ×0.65 | ×1.8 | ×0.7 | ×1 | tremble ×1.4 | 9–16 s, 1.8 s, dart |
+| Cyclops Sentinel | ×0.9 | ×1.5 | ×1.4 | ×0.6 | ×1.3 | ×0.6 | population ×0.7 | 4–7 s, 4.5 s, wide sweep |
+| Hermit Shell | ×0.6 | ×4 | ×0.7 | ×2.2 | ×1.2 | ×−1.5 | burrow ×1.6, population ×0.6, crown 45% | 14–24 s, 2 s, dart |
+| Cairn | ×0.85 | ×0.8 | ×0.9 | ×1 | ×1 | ×3 | population ×1.4 | 5–10 s, 3 s, snap |
+| Periscope | ×0.75 | ×2 | ×1 | ×0.8 | ×1.2 | ×1 | burrow ×1.4, crown 50%, stalk-only peeks | 3–6 s, 3.5 s, sweep |
+| Shard | ×1.5 | ×0.35 | ×0.8 | ×0.6 | ×0.6 | ×0.5 | stepping ×1.4 | 4–8 s, 1.5 s, fast dart |
 | `residents.disturbance` | radius 0.9, manual 1.4, robot 0.3, cap 3, ×0.97/tick | HAB-02 |
 | retreat / quiet | 0.5 / 0.15; quiet for 75 ticks (2.5 s) | RES-03 |
 | flee | 60 ticks (2 s) of disturbance, then leave the work | RES-04, D-054 |

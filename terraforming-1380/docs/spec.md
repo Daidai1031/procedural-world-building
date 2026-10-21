@@ -431,7 +431,8 @@ The Detector is a separate, close-range inspection tool. The later Scanner retai
 | RES-05 | Re-evaluate seeded and recently edited surface candidates from current density. | MVP | done (D-045) |
 | RES-06 | Resolve equal candidates stably and prevent conflicting occupancy. TUNE | MVP | done (D-045) |
 | RES-07 | If no home is available, keep a visible `searching` state with six bounded retries. A terrain change resets the retry budget. | MVP | done (D-045/D-046) |
-| RES-08 | Make peeking, retreat and relocation distinguishable from the normal play camera: calm residents lurk with the crown showing and periodically surface to look around, and nearby disturbance makes them tremble; final body design remains open. | MVP | done (D-042/D-055) |
+| RES-08 | Make peeking, retreat and relocation distinguishable from the normal play camera: calm residents lurk with the crown showing and periodically surface to look around, and nearby disturbance makes them tremble. Bodies are the nine seeded designs from `docs/ares9-residents.html`. | MVP | done (D-042/D-055/D-059) |
+| RES-09 | Each planet has one native species: the Facet Pebble at home, and on a signal planet the species whose authored native planet best matches its size, relief and minerals, never repeated among planets found by one signal or by their finder. Each species has its own temperament (speed, bravery, patience, sociability, restlessness, population, peek rhythm and gaze). | MVP | done (D-059) |
 
 ### 4.18 Planet identity and persistence (PLN) — planned
 

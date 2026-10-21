@@ -2,7 +2,7 @@
   "doc": "planet-natives",
   "project": "Terraforming Contractor #1380",
   "date": "2026-10-21",
-  "status": "D-044 through D-046 and D-048 are implemented; D-047 remains proposed",
+  "status": "D-044 through D-048 are implemented; D-047 is implemented procedurally by D-059",
   "sourceOfTruth": {
     "speciesAndPlanetAssignments": "../src/content/residents.ts",
     "visualTokens": "../src/config/palette.ts#resident",
@@ -14,6 +14,7 @@
     "D-045": "Residents sink into valid surface homes, hide after nearby noise, return after brief noise, and relocate to the nearest free valid home after sustained noise.",
     "D-046": "Before a terrain edit reaches a sunk resident, push it onto the resulting surface. Added terrain above a hidden resident makes it rise to the new surface. A valid home requires enough soil depth.",
     "D-047": "Author one native species per planet across nine planets. The first playable authored slice is Ares-9 with the Facet Pebble.",
+    "D-059": "Each signal planet gets the species whose native planet best matches its size, relief and minerals; planets found by one signal never share a species. Each species has its own temperament in tuning.residents.temperament.",
     "D-048": "Keep the mineral seed namespace exactly `${seed}:resource:mineral` and preserve the generator's random-call order so existing mineral positions do not move."
   },
   "scales": {

@@ -522,7 +522,7 @@ Electricity was later raised from 0.25 to 0.4, then to 0.55 credits per kW-minut
 ## D-047 — One authored native species per planet
 
 - **Date:** 2026-10-21
-- **Status:** proposed; data added, runtime assignment incomplete
+- **Status:** accepted; implemented procedurally by D-059
 - **Proposal:** Define one authored native species for each planet, beginning with Ares-9 and the Facet Pebble.
 
 ## D-048 — Preserve mineral positions across the resource migration
@@ -597,3 +597,13 @@ Electricity was later raised from 0.25 to 0.4, then to 0.55 credits per kW-minut
 - **Why:** the author felt planets still looked too alike and asked for stranger silhouettes.
 - **Known limits:** the game treats "up" as away from the planet's center and reads ground along rays from it, so ground a ray cannot see first is not walkable: the inside of the donut's hole, the underside of the nail's head and the nail's thin upper shaft. Burrows and mineral deposits skip directions with no rock (the hole, the shaft), so donuts and especially nails have fewer burrows and residents (a nail starts with one to four).
 - **Affects:** `world/planet.ts` (`shapeDistance`, burrow guard), `world/resourceClusters.ts` (re-roll over air), `config/tuning.ts` (`planets`), `views/SystemWorlds.tsx`, PLN-02.
+
+## D-059 — Every planet has its own native species and character
+
+- **Date:** 2026-10-21
+- **Status:** accepted; implemented; automated checks added, checked by screenshots, not yet in a person's playtest
+- **Decision:** The nine bodies the author tuned in `docs/ares9-residents.html` are now the game's residents, built from a seed per individual and coloured from `palette.resident`. The home planet keeps the Facet Pebble. A signal planet gets the species whose authored native planet (`content/residents.ts`, `planetNatives`) is closest to it in size, relief and mineral abundance on 1–3 scales, plus up to 1.5 steps of seeded randomness. Cubes count as rolling and tetrahedra and nails as steep, since solids have no noise relief. Planets found by the same signal never share a species with one another or with the planet that found them. The species appears in the planet's trait line in the system view.
+- **Character:** each species bends the shared rules through `tuning.residents.temperament`: walking speed, how often it strolls, how much noise makes it hide, how long it waits before coming back out, how long it endures noise before leaving, how much it seeks or avoids company, how much it prefers burrows and how many start on the surface. It also sets how often and how long it peeks, how it looks around (snap, sweep or dart), how hard it trembles and its stepping rate. In short: Moss Cap is a slow homebody that basks and loves plants; Tall Slab is stoic and slow to return; Crystal Crown is skittish; Cyclops Sentinel is a brave lookout; Hermit Shell is a shy loner that shuts a door stone; Cairn lives in crowds and slumps into a pile; Periscope keeps its body buried and raises only its eye stalk; Shard is restless and darts about. The Facet Pebble is the baseline.
+- **Presentation:** a calm resident lurks with 30% of its height above ground (more for the Slab, Hermit and Periscope), always deep enough to keep its eye rims buried except the Periscope's stalk eye. A peek raises it until its eyes clear the ground; hiding shuts its eyes, performs its species' hiding gesture and shows less crown. Peek cycles always keep a second below ground. Moving residents walk on their legs; searching ones stand and look around.
+- **Why:** the author wanted different planets to have different creatures, with the designs they had tuned, and each with its own personality and habits.
+- **Affects:** `render/models/residents.ts` (new), `views/ResidentsView.tsx`, `systems/residents.ts` (`planetSpecies`, `temperament`), `systems/system.ts` (`planetTraits`), `content/residents.ts`, `config/tuning.ts` (`residents.look`, `speciesJitter`, `solidRelief`, `temperament`), RES-01/08/09.
