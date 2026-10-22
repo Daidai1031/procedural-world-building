@@ -16,7 +16,7 @@
   --night-line: #46463f;
   --night-ink: #ece7da;
   --night-soft: #a8a59b;
-  --font-ui: 'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-ui: 'Outfit Variable', ui-sans-serif, system-ui, sans-serif;
   --font-title: 'Audiowide', 'Outfit Variable', ui-sans-serif, sans-serif;
   --font-display: 'Outfit Variable', ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, Consolas, monospace;
@@ -42,9 +42,10 @@ h1, h2, h3, p { margin: 0; }
 /* Header */
 .site-header { position: fixed; inset: 0 0 auto; z-index: 10; height: var(--header); transition: background-color 300ms var(--ease), box-shadow 300ms var(--ease); }
 .site-header.is-scrolled { background: rgb(243 241 235 / 88%); backdrop-filter: blur(10px); box-shadow: 0 1px 0 var(--line); }
-.header-inner { height: 100%; display: flex; align-items: center; gap: 32px; }
-.brand { display: flex; align-items: center; gap: 10px; font: 400 15px var(--font-title); letter-spacing: 0.02em; }
-.brand-mark { width: 36px; height: 36px; border-radius: 8px; }
+.header-inner { height: 100%; display: flex; align-items: center; gap: 20px 32px; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; font: 600 12px/1.2 var(--font-display); letter-spacing: 0.06em; color: var(--ink-soft); }
+.brand-mark { width: 36px; height: 36px; flex-shrink: 0; border-radius: 8px; }
+.brand span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .app-nav { display: flex; gap: 6px; margin-left: auto; }
 .app-nav a { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px; border-radius: 999px; font-size: 14px; color: var(--ink-soft); transition: color 200ms, background-color 200ms; }
 .app-nav a:hover { color: var(--ink); background: rgb(53 54 50 / 6%); }
@@ -53,7 +54,7 @@ h1, h2, h3, p { margin: 0; }
 
 /* Section rail: a minimal dot nav docked to the right edge, independent of the header. */
 .rail-nav { position: fixed; z-index: 6; right: 28px; top: 50%; translate: 0 -50%; display: flex; flex-direction: column; align-items: flex-end; gap: 18px; }
-.rail-nav a { display: flex; align-items: center; gap: 10px; min-height: 28px; color: var(--ink-soft); }
+.rail-nav a { display: flex; flex-direction: row-reverse; align-items: center; gap: 10px; min-height: 28px; color: var(--ink-soft); }
 .rail-dot { width: 7px; height: 7px; flex-shrink: 0; border-radius: 50%; background: currentColor; opacity: 0.35; transition: opacity 250ms var(--ease), transform 250ms var(--ease); }
 .rail-label { max-width: 0; overflow: hidden; white-space: nowrap; font-size: 12px; font-weight: 600; letter-spacing: 0.03em; opacity: 0; transition: max-width 320ms var(--ease), opacity 200ms var(--ease); }
 .rail-nav a:hover .rail-label, .rail-nav a:focus-visible .rail-label, .rail-nav a[aria-current] .rail-label { max-width: 160px; opacity: 1; }
@@ -96,13 +97,24 @@ main > section { position: relative; padding: 120px 0; }
 .hero { min-height: 100svh; padding: var(--header) 0 0 !important; display: flex; flex-direction: column; background: radial-gradient(60% 70% at 72% 50%, #fbfaf6 0%, var(--paper) 70%); }
 .hero-inner { flex: 1; display: grid; grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr); align-items: center; gap: 16px; }
 .hero-copy { min-width: 0; }
-.hero .eyebrow { flex-wrap: wrap; text-transform: none; }
-.hero .eyebrow-contract { text-transform: uppercase; }
-.hero .eyebrow > span:last-child { flex: 1 1 0; min-width: 0; white-space: normal; overflow-wrap: break-word; }
-.hero h1.hero-title-editorial { display: flex; flex-direction: column; font-family: var(--font-title); font-weight: 400; letter-spacing: 0; }
-.hero-title-action { font-size: clamp(50px, 4.9vw, 70px); line-height: 0.94; letter-spacing: -0.035em; }
-.hero-title-action-accent { color: var(--mustard); }
-.hero .hero-course { max-width: none; margin: 26px 0 34px; font: 600 13px/1.4 var(--font-ui); letter-spacing: 0.08em; color: var(--ink-soft); }
+/* The game's title face with enlarged initials; hero-title.js redraws it as sand and hides the text. */
+/* The bottom padding leaves room for the S, which dips as "Shape it." leans. */
+.hero h1.hero-title-editorial { display: flex; flex-direction: column; padding-bottom: 0.3em; font: 400 clamp(44px, 5.4vw, 82px) var(--font-title); letter-spacing: -0.02em; }
+.hero-title-action { line-height: 0.92; white-space: nowrap; }
+.hero-title-action + .hero-title-action { margin-top: 0.04em; }
+.hero-title-cap { font-size: 1.72em; line-height: 0.8; letter-spacing: -0.04em; }
+.hero-title-action-accent { color: #c56a3a; }
+.hero-title-editorial.is-dust { user-select: none; -webkit-user-select: none; }
+.hero-title-editorial.is-dust .hero-title-action { color: transparent; animation: none; }
+.hero-dust { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; pointer-events: none; }
+@media (hover: hover) and (pointer: fine) {
+  .hero-title-editorial.is-dust { cursor: crosshair; }
+}
+.hero-meta { display: grid; gap: 8px; margin: 26px 0 34px; }
+.hero .hero-course { max-width: none; margin: 0; font: 600 13px/1.4 var(--font-display); letter-spacing: 0.08em; color: var(--ink-soft); }
+.hero-author { margin: 0; font: 600 13px/1.4 var(--font-display); letter-spacing: 0.08em; color: var(--ink-soft); }
+.hero-author a { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; }
+.hero-author a:hover { color: var(--ink); }
 .planet-stage { --hero-planet-start-x: -34%; position: relative; margin: 0; aspect-ratio: 1; width: 100%; max-height: calc(100svh - var(--header) - 8px); justify-self: center; cursor: grab; touch-action: pan-y; animation: hero-planet-arrive 1400ms cubic-bezier(0.65, 0, 0.2, 1) 100ms both; }
 .planet-stage.is-dragging { cursor: grabbing; }
 .planet-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; outline: none; transition: opacity 600ms var(--ease); }
@@ -118,14 +130,12 @@ main > section { position: relative; padding: 120px 0; }
 
 /* Hero entrance: the planet establishes the scene, then the copy resolves from largest to smallest. */
 .hero-title-action,
-.hero .hero-course,
-.hero .eyebrow,
+.hero-meta,
 .hero-copy > .actions,
 .hero .scroll-cue { animation: hero-copy-arrive 460ms cubic-bezier(0.32, 0.72, 0, 1) both; }
 .hero-title-action:first-child { animation-delay: 540ms; }
 .hero-title-action:nth-child(2) { animation-delay: 650ms; }
-.hero .hero-course { animation-delay: 790ms; }
-.hero .eyebrow { animation-delay: 900ms; }
+.hero-meta { animation-delay: 790ms; }
 .hero-copy > .actions { animation-delay: 1010ms; }
 .hero .scroll-cue { animation-delay: 1160ms; }
 @keyframes hero-planet-arrive {
@@ -270,6 +280,7 @@ main > section { position: relative; padding: 120px 0; }
   main > section { padding: 88px 0; }
   .hero-inner { grid-template-columns: 1fr; padding-top: 16px; gap: 8px; }
   .planet-stage { --hero-planet-start-x: 0%; order: -1; width: min(100%, 520px); }
+  .hero h1.hero-title-editorial { font-size: clamp(40px, 14vw, 76px); }
   .section-head { grid-template-columns: 1fr; }
   .way-grid { grid-template-columns: 1fr; }
   .crew-portrait { aspect-ratio: 1.45; }
@@ -287,8 +298,6 @@ main > section { position: relative; padding: 120px 0; }
   .footer-meta { grid-column: 1 / -1; grid-row: auto; padding-top: 14px; border-top: 1px solid var(--night-line); }
 }
 @media (max-width: 600px) {
-  .hero .eyebrow { display: grid; grid-template-columns: auto auto; justify-content: start; gap: 4px 8px; }
-  .hero .eyebrow > span:last-child { grid-column: 1 / -1; }
   .hero .hero-course { max-width: 30ch; letter-spacing: 0.06em; }
   .crew-grid { grid-template-columns: 1fr; }
   .crew-card { display: grid; grid-template-columns: minmax(128px, 0.8fr) minmax(0, 1.2fr); align-items: center; min-height: 210px; padding: 0; }
@@ -302,8 +311,10 @@ main > section { position: relative; padding: 120px 0; }
   .footer-meta { grid-column: 1; }
   .site-footer .button { padding-inline: 12px; }
 }
-@media (max-width: 480px) {
+@media (max-width: 720px) {
   .brand span { display: none; }
+}
+@media (max-width: 480px) {
   .app-nav a { padding: 0 10px; }
   .footer-inner > .actions { gap: 8px; }
   .site-footer .button { justify-content: center; gap: 7px; padding-inline: 8px; font-size: 12px; }
