@@ -18,6 +18,7 @@ import { useSystemPlanets } from './state/useSystemPlanets'
 import { clearFocus, escapeSystem, openSystem, resetSystem, toggleSystem, useSystemView } from './state/systemView'
 import { showWorkArea } from './render/terrainMaterial'
 import { WorldMap } from './ui/WorldMap'
+import { PixelIcon } from './ui/PixelIcon'
 import { SurfaceCamera } from './views/SurfaceCamera'
 import { LandingMarkers } from './views/LandingMarkers'
 import { findLandingSites, landingQuality, type LandingSite } from './systems/exploration'
@@ -344,9 +345,9 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
       <div className="right-sidebar">
         <div className="sidebar-controls">
           <div className="exploration-toolbar">
-            <button onClick={() => { movement.current.clear(); setMapOpen(true) }}>World map & landing ↗</button>
-            {canPull && <button onClick={() => openSystem()}>System overview ↗</button>}
-            {surfaceSite && <button onClick={returnToOrbit}>Return to orbit ↑</button>}
+            <button onClick={() => { movement.current.clear(); setMapOpen(true) }}><PixelIcon glyph="map" />World map & landing</button>
+            {canPull && <button onClick={() => openSystem()}><PixelIcon glyph="system" />System overview</button>}
+            {surfaceSite && <button onClick={returnToOrbit}><PixelIcon glyph="orbit" />Return to orbit</button>}
           </div>
         </div>
         <div className="site-reports" role="region" aria-label="Site reports">
