@@ -6,12 +6,27 @@
 | /guidebook/ | Worldbuilding Guidebook | worldbuilding-guidebook |
 | /game/ | Terraforming Contractor #1380 | terraforming-1380 |
 
-The home page uses HTML/CSS with a Three.js low-resolution Marching Cubes planet illustration.
-The scene source is in `home-scene/`; the shared build bundles it into
-`home/scene/` using the game's installed Three.js and Vite dependencies.
-It reuses the game surface extraction code, renders on resize or interaction,
-and falls back to a static preview when
-WebGL is unavailable. Each Vite application builds independently.
+The home page is HTML/CSS (`home/index.html`, `home/home-v6.css`) plus one script bundle.
+The script source is in `home-scene/`; the shared build bundles it into
+`home/scene/home.js` using the game's installed Three.js and Vite dependencies, and copies
+the game's fonts (Audiowide, Outfit, Bricolage Grotesque) into `home/scene/fonts/`.
+
+- `planet.js`: the hero loop. It imports the game's own `PlanetWorld`, terrain material,
+  atmosphere, robots, surface models and residents. Each 32-second loop (sol 0 to 1380)
+  the Miner, Builder and Gardener dig mineral deposits, level pads, raise antennas and plant
+  lichen, while the planet's native species peeks out of its burrows; the next loop moves to
+  another seed (`SEEDS`). As in the game the planet stays still and the camera orbits.
+  Loading the next planet blocks for roughly 0.2-0.4 s while the canvas is faded out.
+  `?t=<seconds>` renders a fast-forwarded still and `?seed=<seed>` pins one planet, for
+  screenshots; reduced motion shows a still at 70% of a loop.
+- `residents.js`: resident profile cards built from `src/content/residents.ts`, with one
+  shared renderer drawing every visible portrait. Each species reacts to hover in character.
+- `page.js`: fade-in of sections as they enter the viewport and the current-section marker.
+
+`home/images/planet-still.png` is the fallback when WebGL is unavailable. `home/favicon.svg`
+(also the header logo) is the game's default Facet Pebble resident, rendered once with the
+game's own renderer and lights, smoothly cropped and downsized (no pixelation) onto a dark
+circle; the game keeps its own shovel favicon. Each Vite application builds independently.
 `build.mjs` assembles all three into the generated `deployment/public/` directory.
 Guidebook uses Vite base and BrowserRouter basename `/guidebook/`; Game uses
 `/game/`. Old `/lesson/:lesson` and `/lesson/:lesson/:step` links redirect to

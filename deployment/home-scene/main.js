@@ -1,0 +1,4 @@
+import './page.js'
+import './planet.js'
+import './robots.js'
+import './residents.js'

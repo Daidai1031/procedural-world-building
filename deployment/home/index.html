@@ -3,56 +3,186 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Learn how procedural worlds are built, then shape a planet yourself in Terraforming Contractor #1380.">
+  <meta name="description" content="DESIGN 4197/6197 · Procedural World Building">
   <meta name="theme-color" content="#f3f1eb">
   <title>Worldbuilding - Learn it. Shape it.</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/home-v5.css">
+  <link rel="preload" href="/scene/fonts/audiowide-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/scene/fonts/outfit-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/home-v6.css">
 </head>
 <body>
   <a class="skip" href="#main">Skip to main content</a>
   <header class="site-header">
     <div class="header-inner wrap">
-    <a class="brand" href="/" aria-label="Worldbuilding home"><img class="brand-mark" src="/favicon.svg" alt="" width="43" height="43"><span>WORLD<wbr>BUILDING<span class="brand-sub">A PROCEDURAL WORLD PROJECT</span></span></a>
-    <nav aria-label="Main navigation"><a href="/guidebook/">Guidebook <span aria-hidden="true">&#8599;</span></a><a href="/game/">Game <span aria-hidden="true">&#8599;</span></a></nav>
+      <a class="brand" href="/" aria-label="Worldbuilding home"><img class="brand-mark" src="/favicon.svg" alt="" width="36" height="36"><span>Worldbuilding</span></a>
+      <nav class="app-nav" aria-label="Applications"><a href="/guidebook/">Guidebook <span aria-hidden="true">&#8599;</span></a><a class="nav-play" href="/game/">Play <span aria-hidden="true">&#8599;</span></a></nav>
     </div>
   </header>
-  <main id="main" class="wrap">
-    <section class="intro" aria-labelledby="intro-title">
-      <div><p class="eyebrow"><span class="status-dot"></span> LEARN IT. SHAPE IT.</p><h1 id="intro-title">One planet.<br>Learn it. Shape it.</h1></div>
-      <div class="intro-note"><span class="index">FIELD NOTES / 001</span><p>From a noise function to a planet you can reshape.<br>Explore the ideas in interactive lessons, then put them to work in the game.</p><a class="text-link" href="#mapping">Explore the connections <span aria-hidden="true">&#8595;</span></a></div>
+  <nav class="rail-nav" aria-label="Sections">
+    <a href="#contract"><span class="rail-dot" aria-hidden="true"></span><span class="rail-label">Contract</span></a>
+    <a href="#crew"><span class="rail-dot" aria-hidden="true"></span><span class="rail-label">Field crew</span></a>
+    <a href="#residents"><span class="rail-dot" aria-hidden="true"></span><span class="rail-label">Residents</span></a>
+    <a href="#surface"><span class="rail-dot" aria-hidden="true"></span><span class="rail-label">Under the surface</span></a>
+    <a href="#method"><span class="rail-dot" aria-hidden="true"></span><span class="rail-label">Method</span></a>
+  </nav>
+
+  <main id="main">
+    <section id="contract" class="hero" aria-labelledby="hero-title">
+      <div class="hero-inner wrap">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="eyebrow-contract">Contract #1380 <span aria-hidden="true">·</span></span><span>multi-planet procedural sandbox</span></p>
+          <h1 id="hero-title" class="hero-title-editorial">
+            <span class="hero-title-action">Learn it.</span>
+            <span class="hero-title-action hero-title-action-accent">Shape it.</span>
+          </h1>
+          <p class="lead hero-course">DESIGN 4197/6197 · Procedural World Building</p>
+          <div class="actions">
+            <a class="button primary" href="/game/">Play the game <span aria-hidden="true">&#8599;</span></a>
+            <a class="button secondary" href="/guidebook/">Open the Guidebook <span aria-hidden="true">&#8599;</span></a>
+          </div>
+        </div>
+        <figure class="planet-stage" aria-label="Robots terraforming a planet from the game, sped up and looping">
+          <img class="planet-fallback" src="/images/planet-still.png" alt="A gray voxel planet with small robots, craters, an antenna and lichen patches." width="1200" height="1200">
+          <span class="drag-hint" aria-hidden="true">Drag to turn</span>
+        </figure>
+      </div>
+      <a class="scroll-cue" href="#start" aria-label="Scroll to the two ways in"><span></span></a>
     </section>
-    <section class="entry-grid" aria-label="Choose where to begin">
-      <article class="entry game-entry">
-        <div class="entry-top"><span class="eyebrow">01 / PLAY</span><span class="tag">PLAYABLE PROTOTYPE &middot; M1 / M1.5</span></div>
-        <div class="planet-art"><img class="planet-fallback" src="/images/marching-planet.png" alt="A low-resolution gray planet made of triangular Marching Cubes facets, with a small yellow mineral patch." width="1238" height="540"><span class="planet-hint" hidden>DRAG TO ROTATE</span></div>
-        <div class="entry-copy"><p class="project-name">TERRAFORMING CONTRACTOR #1380</p><h2>Welcome to the game</h2><p>Take on a procedural planet. Dig, add terrain, and flatten its surface.<br class="desktop-break">Use the detector to uncover signals beneath the ground.</p><a class="button primary" href="/game/">Play the game <span aria-hidden="true">&#8599;</span></a></div>
-      </article>
-      <article class="entry learn-entry">
-        <div class="entry-top"><span class="eyebrow">02 / LEARN</span><span class="tag">INTERACTIVE GUIDEBOOK</span></div>
-        <div class="lesson-preview" aria-hidden="true"><div class="preview-header"><span>THE WORLDBUILDING GUIDEBOOK</span><span>INDEX</span></div><div><span>01</span><strong>Scene anatomy</strong><small>Scenes &amp; coordinates</small></div><div><span>02</span><strong>Terrain</strong><small>Noise &amp; erosion</small></div><div class="selected"><span>03</span><strong>Voxels</strong><small>Density &amp; meshes</small></div><div><span>04</span><strong>Shader</strong><small>Materials &amp; light</small></div></div>
-        <div class="entry-copy"><p class="project-name">WORLDBUILDING GUIDEBOOK</p><h2>Start learning</h2><p>Read the principles, adjust parameters, and watch the world change.<br class="desktop-break">Explore the logic behind terrain, voxels, and shaders.</p><a class="button secondary" href="/guidebook/">Open the Guidebook <span aria-hidden="true">&#8599;</span></a></div>
-      </article>
+
+    <section id="start" class="ways" aria-labelledby="ways-title">
+      <div class="wrap">
+        <div class="section-head" data-reveal>
+          <p class="eyebrow">01 · Two ways in</p>
+          <h2 id="ways-title">Play first, or learn first.</h2>
+        </div>
+        <div class="way-grid">
+          <a class="way way-game" href="/game/" data-reveal style="--i:0">
+            <span class="way-tag">Playable prototype</span>
+            <h3>Terraforming Contractor <span class="num">#1380</span></h3>
+            <p class="way-line">Take on a system of procedural planets and send in the crew.</p>
+            <ul class="way-more">
+              <li><b>Dig, add, flatten</b> any patch of a voxel planet.</li>
+              <li><b>Autopilot</b> miners, builders and gardeners.</li>
+              <li><b>Travel</b> to signal planets, each with its own natives.</li>
+            </ul>
+            <span class="way-go">Play <span aria-hidden="true">&#8599;</span></span>
+          </a>
+          <a class="way way-learn" href="/guidebook/" data-reveal style="--i:1">
+            <span class="way-tag">Interactive guidebook</span>
+            <h3>The Worldbuilding Guidebook</h3>
+            <p class="way-line">Eight lessons. Change one parameter, watch the world change.</p>
+            <ol class="way-more lesson-list">
+              <li>Scene basics</li><li>Terrain</li><li>Voxels</li><li>Shader</li>
+              <li>Distributions</li><li>Paths</li><li>Particles</li><li>Branching</li>
+            </ol>
+            <span class="way-go">Start learning <span aria-hidden="true">&#8599;</span></span>
+          </a>
+        </div>
+      </div>
     </section>
-    <section id="mapping" class="mapping" aria-labelledby="mapping-title">
-      <div class="section-heading"><div><p class="eyebrow">UNDER THE SURFACE</p><h2 id="mapping-title">Guidebook <span class="mapping-arrow">&#8594;</span> Game</h2></div><p>Ideas from the lessons become tools in the game.<br>Follow the path from principle to implementation.</p></div>
-      <div class="mapping-labels" aria-hidden="true"><span>GUIDEBOOK / PRINCIPLE</span><span>IMPLEMENTATION / CONNECTION</span><span>GAME / EXPERIENCE</span></div>
-      <article class="mapping-row"><a href="/guidebook/lesson/procedural-maps"><span class="row-number">01</span><div><small>CHAPTER 02 &middot; TERRAIN</small><h3>Noise</h3><p>Build repeatable terrain variation.</p></div><span class="row-link" aria-hidden="true">&#8599;</span></a><div class="connection"><code>fractalNoise3D</code><span>Seed &#8594; 3D noise &#8594; uneven surface</span></div><div class="result"><h3>Irregular planet surface</h3><p>Each seed creates a reproducible planet silhouette.</p><code>planet.ts &#8594; createPlanetField()</code></div></article>
-      <article class="mapping-row"><a href="/guidebook/lesson/voxels"><span class="row-number">02</span><div><small>CHAPTER 03 &middot; VOXELS</small><h3>Density field</h3><p>Describe solid and empty space with volume samples.</p></div><span class="row-link" aria-hidden="true">&#8599;</span></a><div class="connection"><code>densityAt</code><span>Samples throughout the planet &#8594; editable volume</span></div><div class="result"><h3>Volumetric editable planet</h3><p>Terrain has an interior that tools can reshape.</p><code>planet.ts &#8594; PlanetWorld</code></div></article>
-      <article class="mapping-row"><a href="/guidebook/lesson/voxels"><span class="row-number">03</span><div><small>CHAPTER 03 &middot; VOXELS</small><h3>CSG &amp; density editing</h3><p>Combine or change fields to reshape a volume.</p></div><span class="row-link" aria-hidden="true">&#8599;</span></a><div class="connection"><code>brush edits</code><span>Change local density &#8594; update the surface</span></div><div class="result"><h3>Dig / Add / Flatten</h3><p>Remove terrain, build it up, or make a level patch.</p><code>planet.ts &#8594; PlanetWorld.edit()</code></div></article>
-      <article class="mapping-row"><a href="/guidebook/lesson/voxels"><span class="row-number">04</span><div><small>CHAPTER 03 &middot; VOXELS</small><h3>Marching Cubes</h3><p>Extract a triangle surface from a density field.</p></div><span class="row-link" aria-hidden="true">&#8599;</span></a><div class="connection"><code>marchingCubes.js</code><span>Density samples &#8594; isosurface &#8594; mesh</span></div><div class="result"><h3>Visible terrain from voxels</h3><p>The planet's volume becomes a surface you can see and edit.</p><code>marchingCubes.js &#8594; PlanetView.tsx</code></div></article>
-      <article class="mapping-row"><a href="/guidebook/lesson/voxels"><span class="row-number">05</span><div><small>CHAPTER 03 &middot; VOXELS</small><h3>Chunking</h3><p>Split a large volume into local regions.</p></div><span class="row-link" aria-hidden="true">&#8599;</span></a><div class="connection"><code>dirty chunks</code><span>Brush edit &#8594; affected chunks &#8594; remesh</span></div><div class="result"><h3>Rebuild only edited regions</h3><p>Unchanged terrain stays in place while you shape a patch.</p><code>chunks.js &#8594; RemeshScheduler.tsx</code></div></article>
-      <article class="mapping-row"><a href="/guidebook/lesson/voxels"><span class="row-number">06</span><div><small>CHAPTER 03 &middot; VOXELS</small><h3>Wireframe</h3><p>Expose the edges of a generated mesh.</p></div><span class="row-link" aria-hidden="true">&#8599;</span></a><div class="connection"><code>localWireframe</code><span>Nearby terrain mesh &#8594; scan overlay</span></div><div class="result"><h3>Scanner / exposed terrain</h3><p>The detector reveals a local terrain wireframe and buried signals.</p><code>DetectorView.tsx</code></div></article>
-      <article class="mapping-row"><a href="/guidebook/lesson/shaders"><span class="row-number">07</span><div><small>CHAPTER 04 &middot; SHADER</small><h3>Shader layers</h3><p>Combine surface treatment with spatial effects.</p></div><span class="row-link" aria-hidden="true">&#8599;</span></a><div class="connection"><code>triplanar grain + distance fade</code><span>World position &#8594; texture and signal glow</span></div><div class="result"><h3>Surface &amp; scanning effects</h3><p>Stable terrain grain and distance-faded resource signals.</p><code>terrainMaterial.ts &#8594; distanceSignalMaterial.ts</code></div></article>
-      <article class="mapping-row"><a href="/guidebook/lesson/voxels"><span class="row-number">08</span><div><small>CHAPTER 03 &middot; VOXELS</small><h3>Level of detail</h3><p>Use fewer mesh samples farther from the camera.</p></div><span class="row-link" aria-hidden="true">&#8599;</span></a><div class="connection"><code>LOD 0 / 1 / 2</code><span>Camera distance &#8594; chunk detail &#8594; snapped seams</span></div><div class="result"><h3>Detail where it matters</h3><p>Nearby terrain stays detailed; distant chunks use lighter meshes.</p><code>lodChunks.js &#8594; RemeshScheduler.tsx</code></div></article>
-      <div class="mapping-note"><span aria-hidden="true">&#8627;</span><p>These connections reflect the current game build. Terrain degradation effects, resource economics, and energy costs are planned for later development.</p></div>
+
+    <section id="crew" class="crew" aria-labelledby="crew-title">
+      <div class="wrap">
+        <div class="section-head" data-reveal>
+          <p class="eyebrow">02 · The field crew</p>
+          <h2 id="crew-title">Four robots. Four ways to change a world.</h2>
+          <p class="section-note">Set a work area and let each specialist read the terrain, choose a task and leave a different mark behind.</p>
+        </div>
+        <ol class="crew-grid" data-crew data-reveal aria-label="Terraforming robot roles">
+          <li class="crew-card crew-miner" tabindex="0" style="--i:0" data-robot="miner">
+            <div class="crew-portrait"><canvas width="560" height="440" aria-hidden="true"></canvas><span class="crew-fallback" aria-hidden="true">M</span></div>
+            <div class="crew-copy"><span class="crew-index">01 · Extract</span><h3>Miner</h3><p>Scans for minerals, drills a radial tunnel and carries each find back into storage.</p><span class="crew-process">scan → tunnel → collect</span></div>
+          </li>
+          <li class="crew-card crew-gardener" tabindex="0" style="--i:1" data-robot="gardener">
+            <div class="crew-portrait"><canvas width="560" height="440" aria-hidden="true"></canvas><span class="crew-fallback" aria-hidden="true">G</span></div>
+            <div class="crew-copy"><span class="crew-index">02 · Cultivate</span><h3>Gardener</h3><p>Surveys flatter ground and grows vegetation where the surface can support it.</p><span class="crew-process">survey → plant → spread</span></div>
+          </li>
+          <li class="crew-card crew-rigger" tabindex="0" style="--i:2" data-robot="rigger">
+            <div class="crew-portrait"><canvas width="560" height="440" aria-hidden="true"></canvas><span class="crew-fallback" aria-hidden="true">R</span></div>
+            <div class="crew-copy"><span class="crew-index">03 · Connect</span><h3>Rigger</h3><p>Searches the high ground and raises antennas that extend the system’s reach.</p><span class="crew-process">survey → raise → signal</span></div>
+          </li>
+          <li class="crew-card crew-builder" tabindex="0" style="--i:3" data-robot="builder">
+            <div class="crew-portrait"><canvas width="560" height="440" aria-hidden="true"></canvas><span class="crew-fallback" aria-hidden="true">B</span></div>
+            <div class="crew-copy"><span class="crew-index">04 · Shape</span><h3>Builder</h3><p>Cuts obstructions and fills damaged ground with soil recovered by the crew.</p><span class="crew-process">cut → fill → level</span></div>
+          </li>
+        </ol>
+      </div>
     </section>
-    <section id="workflow" class="workflow" aria-labelledby="workflow-title">
-      <div class="section-heading"><div><p class="eyebrow">HOW IT IS MADE</p><h2 id="workflow-title">From class notes to a lesson</h2></div><p>Every lesson follows the same loop,<br>from class to review.</p></div>
-      <ol class="workflow-steps"><li><span class="row-number">01</span><div><h3>Class notes</h3><p>Start from the lecture notes and slides.</p></div></li><li><span class="row-number">02</span><div><h3>Clarify in chat</h3><p>Talk through anything unclear with an LLM in one chat session.</p></div></li><li><span class="row-number">03</span><div><h3>Exercise document</h3><p>The LLM drafts the write-up from the assignment, keeping plans apart from observed results.</p></div></li><li><span class="row-number">04</span><div><h3>A plan of ~10 steps</h3><p>Each step states one conclusion.</p></div></li><li><span class="row-number">05</span><div><h3>Build one step at a time</h3><p>Build and check each step before starting the next.</p></div></li><li><span class="row-number">06</span><div><h3>One parameter per visual</h3><p>The canvas on the right shows a single parameter at a time, not a lab with every control.</p></div></li><li><span class="row-number">07</span><div><h3>Read the code</h3><p>Source is explained to be understood, not to be written from scratch.</p></div></li><li><span class="row-number">08</span><div><h3>Practice question</h3><p>A short same-idea, new-case question closes the step for review.</p></div></li></ol>
+
+    <section id="residents" class="residents" aria-labelledby="residents-title">
+      <div class="wrap">
+        <div class="section-head" data-reveal>
+          <p class="eyebrow">03 · The residents</p>
+          <h2 id="residents-title">Meet the locals.</h2>
+          <p class="section-note">Every planet has one native species. Hover or tap one to see how it reacts.</p>
+        </div>
+        <ul class="resident-list" data-residents data-reveal aria-label="Resident species"></ul>
+      </div>
+    </section>
+
+    <section id="surface" class="surface" aria-labelledby="surface-title">
+      <div class="wrap">
+        <div class="section-head" data-reveal>
+          <p class="eyebrow">04 · Under the surface</p>
+          <h2 id="surface-title">Guidebook <span class="arrow" aria-hidden="true">&#8594;</span> Game</h2>
+          <p class="section-note">Each lesson idea is a working part of the game. Open a row to follow it into the code.</p>
+        </div>
+        <div class="map-list" data-reveal>
+          <details style="--i:0"><summary><span class="num">01</span><span class="from">Noise</span><span class="to">Irregular planet surface</span></summary>
+            <div class="map-body"><p><small>Lesson 02 · Terrain</small>Build repeatable terrain variation. Each seed creates a reproducible planet silhouette.</p><p><code>fractalNoise3D</code> Seed &#8594; 3D noise &#8594; uneven surface</p><p><code>planet.ts &#8594; createPlanetField()</code></p><a href="/guidebook/lesson/procedural-maps">Open the lesson &#8599;</a></div></details>
+          <details style="--i:1"><summary><span class="num">02</span><span class="from">Density field</span><span class="to">Volumetric, editable planet</span></summary>
+            <div class="map-body"><p><small>Lesson 03 · Voxels</small>Describe solid and empty space with volume samples, so terrain has an interior tools can reshape.</p><p><code>densityAt</code> Samples throughout the planet &#8594; editable volume</p><p><code>planet.ts &#8594; PlanetWorld</code></p><a href="/guidebook/lesson/voxels">Open the lesson &#8599;</a></div></details>
+          <details style="--i:2"><summary><span class="num">03</span><span class="from">CSG &amp; density editing</span><span class="to">Dig / Add / Flatten</span></summary>
+            <div class="map-body"><p><small>Lesson 03 · Voxels</small>Combine or change fields to reshape a volume: remove terrain, build it up, or make a level patch.</p><p><code>brush edits</code> Change local density &#8594; update the surface</p><p><code>planet.ts &#8594; PlanetWorld.edit()</code></p><a href="/guidebook/lesson/voxels">Open the lesson &#8599;</a></div></details>
+          <details style="--i:3"><summary><span class="num">04</span><span class="from">Marching Cubes</span><span class="to">Visible terrain from voxels</span></summary>
+            <div class="map-body"><p><small>Lesson 03 · Voxels</small>Extract a triangle surface from a density field. The planet above is meshed by the same code.</p><p><code>marchingCubes.js</code> Density samples &#8594; isosurface &#8594; mesh</p><p><code>marchingCubes.js &#8594; PlanetView.tsx</code></p><a href="/guidebook/lesson/voxels">Open the lesson &#8599;</a></div></details>
+          <details style="--i:4"><summary><span class="num">05</span><span class="from">Chunking</span><span class="to">Rebuild only edited regions</span></summary>
+            <div class="map-body"><p><small>Lesson 03 · Voxels</small>Split a large volume into local regions; unchanged terrain stays in place while you shape a patch.</p><p><code>dirty chunks</code> Brush edit &#8594; affected chunks &#8594; remesh</p><p><code>chunks.js &#8594; RemeshScheduler.tsx</code></p><a href="/guidebook/lesson/voxels">Open the lesson &#8599;</a></div></details>
+          <details style="--i:5"><summary><span class="num">06</span><span class="from">Wireframe</span><span class="to">Scanner and exposed terrain</span></summary>
+            <div class="map-body"><p><small>Lesson 03 · Voxels</small>Expose the edges of a generated mesh. The detector reveals a local terrain wireframe and buried signals.</p><p><code>localWireframe</code> Nearby terrain mesh &#8594; scan overlay</p><p><code>DetectorView.tsx</code></p><a href="/guidebook/lesson/voxels">Open the lesson &#8599;</a></div></details>
+          <details style="--i:6"><summary><span class="num">07</span><span class="from">Shader layers</span><span class="to">Surface and scanning effects</span></summary>
+            <div class="map-body"><p><small>Lesson 04 · Shader</small>Combine surface treatment with spatial effects: stable terrain grain and distance-faded resource signals.</p><p><code>triplanar grain + distance fade</code> World position &#8594; texture and signal glow</p><p><code>terrainMaterial.ts &#8594; distanceSignalMaterial.ts</code></p><a href="/guidebook/lesson/shaders">Open the lesson &#8599;</a></div></details>
+          <details style="--i:7"><summary><span class="num">08</span><span class="from">Level of detail</span><span class="to">Detail where it matters</span></summary>
+            <div class="map-body"><p><small>Lesson 03 · Voxels</small>Use fewer mesh samples farther from the camera; nearby terrain stays detailed.</p><p><code>LOD 0 / 1 / 2</code> Camera distance &#8594; chunk detail &#8594; snapped seams</p><p><code>lodChunks.js &#8594; RemeshScheduler.tsx</code></p><a href="/guidebook/lesson/voxels">Open the lesson &#8599;</a></div></details>
+          <details style="--i:8"><summary><span class="num">09</span><span class="from">L-systems</span><span class="to">The Gardener's plants</span></summary>
+            <div class="map-body"><p><small>Lesson 08 · Branching</small>Grow a plant by rewriting one branch into several. Young plants keep only the lower levels.</p><p><code>branchGeometries</code> Four levels, two or three children &#8594; one merged plant</p><p><code>surfaceModels.ts</code></p><a href="/guidebook/lesson/branching-systems">Open the lesson &#8599;</a></div></details>
+        </div>
+        <p class="footnote" data-reveal>Connections reflect the current game build. Terrain degradation, resource economics and energy costs come later.</p>
+      </div>
+    </section>
+
+    <section id="method" class="method" aria-labelledby="method-title">
+      <div class="wrap">
+        <div class="section-head" data-reveal>
+          <p class="eyebrow">05 · How it is made</p>
+          <h2 id="method-title">From class notes to a lesson.</h2>
+          <p class="section-note">Every lesson follows the same loop. Hover a step for detail.</p>
+        </div>
+        <ol class="steps" data-reveal>
+          <li tabindex="0" style="--i:0"><span class="num">01</span><h3>Class notes</h3><p>Start from the lecture notes and slides.</p></li>
+          <li tabindex="0" style="--i:1"><span class="num">02</span><h3>Clarify in chat</h3><p>Talk through anything unclear with an LLM in one chat session.</p></li>
+          <li tabindex="0" style="--i:2"><span class="num">03</span><h3>Exercise document</h3><p>The LLM drafts the write-up from the assignment, keeping plans apart from observed results.</p></li>
+          <li tabindex="0" style="--i:3"><span class="num">04</span><h3>~10-step plan</h3><p>Each step states one conclusion.</p></li>
+          <li tabindex="0" style="--i:4"><span class="num">05</span><h3>One step at a time</h3><p>Build and check each step before starting the next.</p></li>
+          <li tabindex="0" style="--i:5"><span class="num">06</span><h3>One parameter per visual</h3><p>The canvas shows a single parameter at a time, not a lab with every control.</p></li>
+          <li tabindex="0" style="--i:6"><span class="num">07</span><h3>Read the code</h3><p>Source is explained to be understood, not written from scratch.</p></li>
+          <li tabindex="0" style="--i:7"><span class="num">08</span><h3>Practice</h3><p>A short same-idea, new-case question closes the step.</p></li>
+        </ol>
+      </div>
     </section>
   </main>
-  <footer class="site-footer wrap"><span>WORLD<wbr>BUILDING <span class="footer-divider">/</span> From principles to a playable world</span><div><a href="/guidebook/">Start learning &#8599;</a><a href="/game/">Play the game &#8599;</a></div></footer>
-  <script type="module" src="/scene/marching-planet.js"></script>
+
+  <footer id="footer" class="site-footer">
+    <div class="wrap footer-inner">
+      <p class="footer-title">Planet by planet.<br>Learn it. Shape it.</p>
+      <div class="actions">
+        <a class="button primary" href="/game/">Play the game <span aria-hidden="true">&#8599;</span></a>
+        <a class="button secondary" href="/guidebook/">Open the Guidebook <span aria-hidden="true">&#8599;</span></a>
+      </div>
+      <p class="footer-meta">DESIGN 4197/6197 · Procedural World Building</p>
+    </div>
+  </footer>
+  <script type="module" src="/scene/home.js"></script>
 </body>
 </html>

@@ -23,6 +23,14 @@ const sceneBuild = spawnSync(process.execPath, [path.join(game, 'node_modules/vi
 if (sceneBuild.error) throw sceneBuild.error
 if (sceneBuild.status !== 0) process.exit(sceneBuild.status ?? 1)
 
+// The home page uses the game's fonts; copy the Latin subsets next to the scene bundle.
+const fonts = path.join(home, 'scene/fonts')
+for (const [pkg, file] of [
+  ['@fontsource/audiowide', 'audiowide-latin-400-normal.woff2'],
+  ['@fontsource-variable/outfit', 'outfit-latin-wght-normal.woff2'],
+  ['@fontsource-variable/bricolage-grotesque', 'bricolage-grotesque-latin-wght-normal.woff2'],
+]) await cp(path.join(game, 'node_modules', pkg, 'files', file), path.join(fonts, file))
+
 // Validate both outputs before replacing the previous assembled site.
 const gameHtml = await readFile(path.join(game, 'dist/index.html'), 'utf8')
 const guidebookHtml = await readFile(path.join(guidebook, 'dist/index.html'), 'utf8')
