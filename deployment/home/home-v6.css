@@ -94,9 +94,9 @@ main > section { position: relative; padding: 120px 0; }
 .method { background: linear-gradient(var(--paper), var(--card) 200px); }
 
 /* Hero */
-.hero { min-height: 100svh; padding: var(--header) 0 0 !important; display: flex; flex-direction: column; background: radial-gradient(60% 70% at 72% 50%, #fbfaf6 0%, var(--paper) 70%); }
+.hero { overflow-x: clip; min-height: 100svh; padding: var(--header) 0 0 !important; display: flex; flex-direction: column; background: radial-gradient(60% 70% at 72% 50%, #fbfaf6 0%, var(--paper) 70%); }
 .hero-inner { flex: 1; display: grid; grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr); align-items: center; gap: 16px; }
-.hero-copy { min-width: 0; }
+.hero-copy { min-width: 0; padding-top: 64px; }
 /* The game's title face with enlarged initials; hero-title.js redraws it as sand and hides the text. */
 /* The bottom padding leaves room for the S, which dips as "Shape it." leans. */
 .hero h1.hero-title-editorial { display: flex; flex-direction: column; padding-bottom: 0.3em; font: 400 clamp(44px, 5.4vw, 82px) var(--font-title); letter-spacing: -0.02em; }
@@ -120,12 +120,12 @@ main > section { position: relative; padding: 120px 0; }
   .hero-title-editorial.is-dust { cursor: crosshair; }
   .hero-title-editorial.is-dust .hero-title-action:first-child { cursor: text; }
 }
-.hero-meta { display: grid; gap: 8px; margin: 26px 0 34px; }
+.hero-meta { display: grid; gap: 8px; margin: 50px 0 0; }
 .hero .hero-course { max-width: none; margin: 0; font: 600 13px/1.4 var(--font-display); letter-spacing: 0.08em; color: var(--ink-soft); }
 .hero-author { margin: 0; font: 600 13px/1.4 var(--font-display); letter-spacing: 0.08em; color: var(--ink-soft); }
 .hero-author a { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; }
 .hero-author a:hover { color: var(--ink); }
-.planet-stage { --hero-planet-start-x: -34%; position: relative; margin: 0; aspect-ratio: 1; width: 100%; max-height: calc(100svh - var(--header) - 8px); justify-self: center; cursor: grab; touch-action: pan-y; animation: hero-planet-arrive 1400ms cubic-bezier(0.65, 0, 0.2, 1) 100ms both; }
+.planet-stage { --hero-planet-start-x: -34%; position: relative; margin: 0; aspect-ratio: 1; width: 112%; max-height: calc(100svh - var(--header) + 40px); justify-self: center; cursor: grab; touch-action: pan-y; animation: hero-planet-arrive 1400ms cubic-bezier(0.65, 0, 0.2, 1) 100ms both; }
 .planet-stage.is-dragging { cursor: grabbing; }
 .planet-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; outline: none; transition: opacity 600ms var(--ease); }
 .planet-stage.is-resetting canvas { opacity: 0; }
@@ -141,12 +141,10 @@ main > section { position: relative; padding: 120px 0; }
 /* Hero entrance: the planet establishes the scene, then the copy resolves from largest to smallest. */
 .hero-title-action,
 .hero-meta,
-.hero-copy > .actions,
 .hero .scroll-cue { animation: hero-copy-arrive 460ms cubic-bezier(0.32, 0.72, 0, 1) both; }
 .hero-title-action:first-child { animation-delay: 540ms; }
 .hero-title-action:nth-child(2) { animation-delay: 650ms; }
 .hero-meta { animation-delay: 790ms; }
-.hero-copy > .actions { animation-delay: 1010ms; }
 .hero .scroll-cue { animation-delay: 1160ms; }
 @keyframes hero-planet-arrive {
   0%, 18% { transform: translateX(var(--hero-planet-start-x)) scale(1.06); }
@@ -290,6 +288,7 @@ main > section { position: relative; padding: 120px 0; }
   main > section { padding: 88px 0; }
   .hero-inner { grid-template-columns: 1fr; padding-top: 16px; gap: 8px; }
   .planet-stage { --hero-planet-start-x: 0%; order: -1; width: min(100%, 520px); }
+  .hero-copy { padding-top: 0; }
   .hero h1.hero-title-editorial { font-size: clamp(40px, 14vw, 76px); }
   .section-head { grid-template-columns: 1fr; }
   .way-grid { grid-template-columns: 1fr; }
