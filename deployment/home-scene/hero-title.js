@@ -1,4 +1,4 @@
-// The hero title is drawn as sand: "Learn it." blows in from the planet, then a leaning "Shape it.".
+// The hero title: "Learn it." is typed out with a caret, then a leaning "Shape it." blows in from the planet as sand.
 // Hovering loosens the grains under the pointer; pressing digs them out, and the hole refills.
 // The h1 keeps its real text underneath for readers, search and a no-script fallback.
 
@@ -9,9 +9,10 @@ const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
 
 const ARRIVE = 0, REST = 1, FALL = 2, DUG = 3, RETURN = 4
 const START = 520 // after the planet has begun to settle
-const LINE_GAP = 1700 // "Shape it." starts once "Learn it." has mostly landed
+const LINE_GAP = 1700 // "Shape it." starts once "Learn it." has been typed
 const LOOSEN_R = 58, DIG_R = 24, REFILL_AFTER = 2600
 const TILT = -4 * Math.PI / 180
+const TYPE_MS = 95
 const COLORS = [
   '#2f302c', '#353632', '#3f403b', '#4b4c45', '#5a5a52', '#77746a',
   '#a9542b', '#b45d31', '#c56a3a', '#cd7444', '#d9875a', '#e3a576',
@@ -35,6 +36,31 @@ function start() {
   // Time runs from page load, so a late module joins the entrance instead of replaying it.
   const begin = Math.max(0, performance.now() - START)
   let grains = [], groups = [], lastDig = -1e9, visible = true
+
+  // "Learn it." stays real text, revealed one character at a time behind a blinking caret.
+  const learn = title.querySelector('.hero-title-action:not(.hero-title-action-accent)')
+  const caret = document.createElement('span')
+  caret.className = 'hero-caret'
+  caret.setAttribute('aria-hidden', 'true')
+  const chars = []
+  for (const part of learn.children) {
+    const text = part.textContent
+    part.textContent = ''
+    for (const c of text) {
+      const el = document.createElement('span')
+      el.className = 'hero-char'
+      el.textContent = c
+      part.append(el)
+      chars.push(el)
+    }
+  }
+  // Pauses after the initial and the first word, like a person who is thinking while typing.
+  const typeAt = []
+  chars.reduce((at, _, i) => (typeAt.push(at), at + TYPE_MS * rand(0.7, 1.4) + (i === 0 ? 220 : i === 4 ? 160 : 0)), START + 200)
+  let typed = reducedMotion ? chars.length : 0
+  const placeCaret = () => typed < chars.length ? chars[typed].before(caret) : chars[chars.length - 1].after(caret)
+  if (typed < chars.length) chars.forEach(c => c.classList.add('is-hidden'))
+  placeCaret()
 
   // Each span is redrawn on a scratch canvas at its laid-out position, then sampled into grains.
   function build() {
@@ -63,19 +89,16 @@ function start() {
     const pivotX = accentEnd.rect.right - box.left, pivotY = accentEnd.baseline
     const lean = Math.ceil((accentEnd.rect.right - accentLine.firstElementChild.getBoundingClientRect().left) * Math.sin(-TILT)) + 4
     grains = []
-    for (const span of title.querySelectorAll('.hero-title-action > span')) {
+    for (const span of accentLine.children) {
       const { style, rect, baseline } = measure(span)
-      const accent = span.closest('.hero-title-action-accent')
       sctx.clearRect(0, 0, w, h)
       const x0 = rect.left - box.left, top = rect.top - box.top
-      if (accent) {
-        sctx.translate(pivotX, pivotY)
-        sctx.rotate(TILT)
-        sctx.translate(-pivotX, -pivotY)
-      }
+      sctx.translate(pivotX, pivotY)
+      sctx.rotate(TILT)
+      sctx.translate(-pivotX, -pivotY)
       sctx.fillText(span.textContent, x0, baseline)
       sctx.setTransform(1, 0, 0, 1, 0, 0)
-      const pad = accent ? lean : 0
+      const pad = lean
       const left = Math.max(0, Math.floor(x0) - 4), right = Math.min(w, Math.ceil(rect.right - box.left) + 4)
       const upper = Math.max(0, Math.floor(top) - pad), lower = Math.min(h, Math.ceil(rect.bottom - box.top) + pad)
       const data = sctx.getImageData(0, 0, w, h).data
@@ -83,14 +106,13 @@ function start() {
       // Initials are coarse gravel, the rest is fine sand.
       const cap = span.classList.contains('hero-title-cap')
       const step = cap ? 2.6 : 1.7, grain = cap ? 2.5 : 1.7
-      const palette = accent ? 6 : 0
-      const lineDelay = START + (accent ? LINE_GAP : 0)
+      const lineDelay = START + LINE_GAP
       for (let y = upper; y <= lower; y += step) for (let x = left; x <= right; x += step) {
         if (alpha(x, y) < 140) continue
         const tx = x + rand(-0.5, 0.5) * step, ty = y + rand(-0.5, 0.5) * step
         grains.push({
           tx, ty, x: tx, y: ty, sx: 0, sy: 0, t0: 0, vx: 0, vy: 0,
-          color: palette + Math.min(5, Math.floor(Math.pow(Math.random(), 1.8) * 6)),
+          color: 6 + Math.min(5, Math.floor(Math.pow(Math.random(), 1.8) * 6)),
           size: grain * (Math.random() < 0.1 ? rand(1.5, 2) : rand(0.95, 1.4)),
           bottom: alpha(x, y + step * 2) < 60,
           state: reducedMotion ? REST : ARRIVE,
@@ -138,8 +160,16 @@ function start() {
 
   function frame(now) {
     requestAnimationFrame(frame)
-    if (!visible) return
     const t = now - begin
+    while (typed < chars.length && t >= typeAt[typed]) {
+      chars[typed].classList.remove('is-hidden')
+      typed++
+      // The caret sits after the last typed character, and stops blinking while keys are landing.
+      placeCaret()
+      caret.classList.add('is-typing-now')
+    }
+    if (typed === chars.length && t > typeAt[typed - 1] + 400) caret.classList.remove('is-typing-now')
+    if (!visible) return
     ctx.clearRect(0, 0, hero.clientWidth, hero.clientHeight)
     if (pointer.down) dig(now)
     if (!reducedMotion && t > START + LINE_GAP + 2400) {

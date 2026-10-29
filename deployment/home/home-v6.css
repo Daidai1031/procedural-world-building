@@ -102,13 +102,23 @@ main > section { position: relative; padding: 120px 0; }
 .hero h1.hero-title-editorial { display: flex; flex-direction: column; padding-bottom: 0.3em; font: 400 clamp(44px, 5.4vw, 82px) var(--font-title); letter-spacing: -0.02em; }
 .hero-title-action { line-height: 0.92; white-space: nowrap; }
 .hero-title-action + .hero-title-action { margin-top: 0.04em; }
-.hero-title-cap { font-size: 1.72em; line-height: 0.8; letter-spacing: -0.04em; }
+/* "Learn it." is the quieter line: smaller, with a plain initial. Only the S is enlarged. */
+.hero-title-action:not(.hero-title-action-accent) { font-size: 0.86em; }
+.hero-title-action-accent .hero-title-cap { font-size: 1.72em; line-height: 0.8; letter-spacing: -0.04em; }
 .hero-title-action-accent { color: #c56a3a; }
 .hero-title-editorial.is-dust { user-select: none; -webkit-user-select: none; }
-.hero-title-editorial.is-dust .hero-title-action { color: transparent; animation: none; }
+.hero-title-editorial.is-dust .hero-title-action { animation: none; }
+.hero-title-editorial.is-dust .hero-title-action-accent { color: transparent; }
+/* "Learn it." is typed: characters appear in turn behind a caret that takes no room in the line. */
+.hero-char.is-hidden { visibility: hidden; }
+.hero-caret { position: relative; display: inline-block; width: 0; }
+.hero-caret::after { content: ''; position: absolute; left: 0.06em; bottom: 0.02em; width: 0.1em; height: 0.78em; border-radius: 1px; background: #c56a3a; animation: hero-caret-blink 1s steps(1) infinite; }
+.hero-caret.is-typing-now::after { animation: none; }
+@keyframes hero-caret-blink { 50% { opacity: 0; } }
 .hero-dust { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; pointer-events: none; }
 @media (hover: hover) and (pointer: fine) {
   .hero-title-editorial.is-dust { cursor: crosshair; }
+  .hero-title-editorial.is-dust .hero-title-action:first-child { cursor: text; }
 }
 .hero-meta { display: grid; gap: 8px; margin: 26px 0 34px; }
 .hero .hero-course { max-width: none; margin: 0; font: 600 13px/1.4 var(--font-display); letter-spacing: 0.08em; color: var(--ink-soft); }
