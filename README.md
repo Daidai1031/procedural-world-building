@@ -1,70 +1,194 @@
-# Procedural World Building
+# Terraforming Contractor #1380
 
-This repository has two connected parts:
+**A procedural sandbox where you reshape small planets, by hand or through autonomous robots, and watch the residents decide whether they like what you did.**
 
-### Guidebook
-Learn procedural world-building techniques through interactive lessons.
-
-### Terraforming Contractor #1380
-A procedural sandbox where players freely reshape different planets, by hand or through autonomous robots.
+Final project for DESIGN 4197/6197, Procedural World Building (Cornell, Fall 2026).
 
 > “We’re here to put a dent in the universe.”
 
-**Design direction:** planet starting conditions → player choices and robot work → environmental change → resident responses → different planetary outcomes.
+![Autopilot mode: the robot crew works a seeded planet](docs/media/week8_autopilot_mode.jpg)
 
-Players may pursue resources, flourishing habitats, or unusual planetary forms. Residents “vote with their feet”; their movement makes consequences visible without imposing one ideal outcome.
+**Play and read:** the project site is served at `/`, the game at `/game/`, and the course [guidebook](worldbuilding-guidebook/) at `/guidebook/`. To run it locally, see [Run it locally](#run-it-locally).
 
-**Current prototype:** manual terrain editing, Miner/Gardener/Builder automation, operating feedback, surface exploration, a world map, and broadcast-triggered travel are implemented. Persistent revisitable planets, responsive residents, and a live 3D system overview are planned, not implemented. See the [game design](terraforming-1380/docs/design.md) and [roadmap](terraforming-1380/docs/roadmap.md).
+## The idea
+
+Every planet starts from a seed: a shape, a mineral budget, a species of residents. You place robots, size their work areas, and let them carve, plant, and build. The planet changes; the residents react. They shelter underground, peek out, tremble near robot work, and move toward quieter ground. They “vote with their feet,” so the consequences of your work are visible without the game declaring one ideal outcome.
 
 ```text
-Guidebook ─────── ★ selected techniques ───────▶ Game
-     │                                              │
-     └──────────── one shared website ──────────────┘
+planet starting conditions → player choices and robot work → environmental change
+        → resident responses → different planetary outcomes
 ```
 
-Coursework for DESIGN 4197/6197: Procedural World Building. The guidebook develops terrain and shader techniques that feed into the game.
+You may chase resources, grow flourishing habitats, or pursue strange planetary forms. Planets that answer your broadcasts become new, persistent sites to visit, so each run grows into a small system of different worlds.
 
-## Repository structure
+## References
+
+The look and the premise come from two places: a game that proved planets can be soft, editable toys, and a book that proved a planet can be small enough to care for.
+
+### Astroneer
+
+*Astroneer* (System Era Softworks, 2016) is the closest relative. Its planets are volumetric: a terrain tool digs, raises, and flattens a density field, and the chunked surface re-meshes under your hands. Its colour language (saturated, faceted, friendly) shows that an editable planet can still read as a toy. We borrow the premise of small, distinct, fully editable worlds, and the idea of travelling between them.
+
+<p>
+  <img src="terraforming-1380/docs/reference/Astroneer_1.png" alt="Astroneer: a base on a faceted, colourful planet" width="49%">
+  <img src="terraforming-1380/docs/reference/Astroneer_2.jpg" alt="Astroneer: a planet seen from orbit with a base and launch trails" width="49%">
+</p>
+
+*Images: Astroneer promotional art, © System Era Softworks. Used for reference only.*
+
+Where we diverge: in Astroneer the player does the digging. In #1380 the player’s main verb is *delegating*. Robots follow visible rules, and the interesting part is the planet’s response.
+
+### *The Little Prince*
+
+Saint-Exupéry’s prince lives on a planet small enough to tend every day: weeding baobabs, sweeping volcanoes, watching one flower. That scale is the emotional target. A planet should be small enough that one change is visible from space and that its inhabitants can be known individually.
+
+<p>
+  <img src="terraforming-1380/docs/reference/the little prince.jpeg" alt="The Little Prince standing on his small cratered planet" width="49%">
+  <img src="terraforming-1380/docs/reference/planet.jpg" alt="A small, cratered, rocky planet" width="49%">
+</p>
+
+*Left: The Little Prince, Starcatcher edition, property of Succession de Antoine de Saint-Exupéry (POMASE), licensed through LPP612 and Medialink, 2024. Right: stock image of a cratered rock planet. Both used for reference only.*
+
+The planet in the game is a pale, cratered body in the same spirit: a single rock you can hold in your head.
+
+### Rock creatures and stones
+
+The residents are small rock creatures, and the planet’s surface language is flat-shaded stone. A character sheet of mossy, crystalline, and sleepy rock beings set the tone for their personalities and silhouettes. A sheet of flat-shaded stones set the faceted look of the terrain and boulders.
+
+<p>
+  <img src="terraforming-1380/docs/reference/character.jpg" alt="A sheet of small rock creatures with moss, crystals, and seedlings" width="49%">
+  <img src="terraforming-1380/docs/reference/stone.jpg" alt="A sheet of flat-shaded grey stones" width="49%">
+</p>
+
+*Left: rock-creature character sheet signed “KEDO.” Right: stock illustration of stones. Both used for reference only.*
+
+These references fed the component board and the resident design board shown below.
+
+## How it plays
+
+- **Auto and Autopilot.** Place a Miner, Gardener, Builder, or Rigger, size its spherical work area, and it works by itself. Autopilot hands the whole planet to the crew, which sweeps the surface sector by sector.
+- **Manual.** Dig, Add Terrain, Flatten, and a Detector that scans for Mineral, Life, and Memory signals. Manual mode pauses the simulation, so robots never dig unseen.
+- **Economy.** Minerals sell on delivery, running robots draw billed electricity, manual edits cost credits, and a run ends in bankruptcy at −₡50.
+- **Signal planets.** Once antennas stand, the player can broadcast. After the third broadcast, answering planets appear. Each is a persistent site with its own seed and shape, and the run’s funds are shared among them.
+- **System overview.** A 3D view shows the home site and the answering planets together; clicking a world focuses it.
+- **Residents.** One species per planet, nine procedurally generated body directions compared on a design board.
+
+![The system overview shows the home planet and the planets that answered](docs/media/week8_system.jpg)
+
+## How it is made
+
+The planet is a **density field** with one sign rule (negative inside). A seeded sphere-plus-noise function builds it, edits add or subtract from it, and **chunked Marching Cubes** turns it into a mesh. Only chunks an edit touches are rebuilt, and a three-level distance-based LOD with seam snapping keeps far terrain cheap while the full-resolution field stays the source of truth.
+
+Everything else is rules over that field:
+
+| Part | What it does | Technique |
+| --- | --- | --- |
+| Planet | Seeded shape, mineral deposits, per-planet variation | density field, noise, seeded RNG |
+| Terrain editing | Dig, add, flatten; affected chunks re-mesh | CSG on a density field, dirty-chunk remesh |
+| Miner | Finds minerals, flies a hover shell, carves tunnels | path following, density subtraction |
+| Gardener | Plants on flat ground, raises antennas on high ground, plants spread | distributions, slope filtering |
+| Builder | Cuts high ground and fills low ground with mined soil | cut and fill |
+| Residents | Shelter, peek, tremble, relocate | disturbance fields, walkable routes |
+| Look | Voxel-orb robots, contour-line terrain, point-cloud atmosphere, one palette file | shaders, particles |
+
+The techniques come from the course lessons in the [guidebook](worldbuilding-guidebook/): noise and erosion, voxels, shaders, distributions, paths, particles, and branching systems. The game does not share code with the guidebook; it ports the ideas.
+
+### Design decisions
+
+The look was chosen before any robot was built. A component board compared visual options for every on-planet element over five rounds, each option a 3D model at game scale. The chosen set uses voxel-orb robots that differ by silhouette, contour-line terrain shaded by height and slope, and a point-cloud atmosphere.
+
+![Component board: five rounds of visual options at game scale](docs/media/week6_design_decision.jpg)
+
+The residents followed the same method: nine body directions generated procedurally, then one species per planet.
+
+![Resident design board](docs/media/week8_resident_design.jpg)
+
+The full record is in the game docs:
+
+- [Design](terraforming-1380/docs/design.md): what the game is and why
+- [Specification](terraforming-1380/docs/spec.md) and [procedural system](terraforming-1380/docs/procedural-system.md)
+- [Decisions](terraforming-1380/docs/decisions.md): numbered and dated
+- [Roadmap](terraforming-1380/docs/roadmap.md): what is built and what is not
+- [Tuning](terraforming-1380/docs/tuning.md) and [content](terraforming-1380/docs/content.md)
+
+## Current state
+
+Implemented: manual terrain editing, Miner / Gardener / Builder / Rigger automation, Autopilot, the site economy, surface exploration with a 2D world map, broadcast-triggered travel to persistent signal planets, a system overview, and resident species with shelter-and-tremble behaviour.
+
+Not implemented, and marked as such in the [roadmap](terraforming-1380/docs/roadmap.md): the end-of-run audit, planet classifications and the Silent / Heard / Erased endings (M5), cosmic ending visuals, and ending audio. Bankruptcy is the only way a run ends today.
+
+## Development log
+
+| Week | Game milestone |
+| --- | --- |
+| 6 (Sep 28) | `terraforming-1380/` created: seeded sphere-plus-noise planet, chunked Marching Cubes, Dig / Add / Flatten, Detector |
+| 6 | Component board decides the visual language |
+| 7 (Oct 7) | Three-level distance-based terrain LOD |
+| 7 | Teacher feedback (“what if the game played itself?”) turns the game toward robots; Miner, Gardener, Builder; Auto and Manual modes; economy; world map; broadcasts |
+| 8 | Autopilot, Rigger, persistent signal planets, system overview, resident species |
+
+### Week 6: the first prototype
+
+The prototype uses a seeded sphere-plus-noise density field and extracts its surface with chunked Marching Cubes. Right-drag orbits the planet. Dig, Add Terrain, and Flatten edit the density field and rebuild affected chunks; Flatten supports both a local radial plane and a global horizontal plane. A remaining-volume estimate tracks terrain added or removed. The Detector scans a local patch and shows nearby terrain wireframe plus distance-faded Mineral, Life, and Memory signals, each with its own marker shape. Exposing a target’s centre collects it and updates the category count.
+
+![Week 6 game prototype](docs/media/week5_game.gif)
+
+<p>
+  <img src="docs/media/week5_M0.jpg" alt="Milestone M0" width="49%">
+  <img src="docs/media/week5_M1.jpg" alt="Milestone M1" width="49%">
+</p>
+
+### Week 7: robots that terraform by rules
+
+Teacher feedback asked what would happen if the game played itself, so the game shifted from manual digging to robots that change the planet by visible rules. The player places each robot and sizes its spherical work area; the robot then works on its own.
+
+- **Miner** scans for nearby minerals, flies along a hover shell to the entry point above each one, and carves a radial tunnel one dig step at a time.
+- **Gardener** samples ground points in its area. It plants on the flattest suitable ground and raises antennas on the highest. Mature plants spread to nearby ground, and digging removes any plant or antenna whose ground is lost.
+- **Builder** measures the mean ground height of its area, cuts high ground down to that level, and fills low ground using soil the Miner has dug out.
+
+The robots, terrain, and atmosphere use the look chosen on the component board. All colours come from one palette file, and a test fails if a model uses a colour outside it. Around the crew, the run gained a site economy and surface exploration with a 2D world map. Robot stop reasons and low-funds warnings arrive in a communicator with a button that leads to the fix.
+
+![Week 7 robot crew at work](docs/media/week7_world.gif)
+
+Key files: [planet generation](terraforming-1380/src/world/planet.ts), [LOD](terraforming-1380/src/world/lodChunks.js), [Miner](terraforming-1380/src/systems/miner.ts), [Gardener](terraforming-1380/src/systems/gardener.ts), [Builder](terraforming-1380/src/systems/builder.ts), [decisions D-022 to D-033](terraforming-1380/docs/decisions.md).
+
+### Week 8: autopilot, signal planets, and residents
+
+Autopilot hands the whole planet to the crew: Miners, Gardeners, Builders, and the new Rigger, which takes over antenna building, each sweep the surface sector by sector. Minerals now sell automatically on delivery, and manual terrain edits cost credits. Planets that answer a broadcast become persistent sites with their own seeds and shapes. Residents are small rock creatures that shelter underground, peek out, and tremble near robot work.
+
+Key files: [game systems](terraforming-1380/src/systems/), [decisions](terraforming-1380/docs/decisions.md).
+
+## Course work behind the game
+
+The [guidebook](worldbuilding-guidebook/) is where each technique was learned and tested before it reached the game. Its week-by-week record, with demos and exercise write-ups, is in the **[guidebook log](worldbuilding-guidebook/LOG.md)**.
+
+| Lesson | Technique | Used in the game for |
+| --- | --- | --- |
+| 02 Procedural maps | noise, erosion | planet shape |
+| 03 Voxels | density fields, Marching Cubes, chunks, LOD | terrain and editing |
+| 04 Shaders | height, slope, Fresnel, MatCap | planet look |
+| 05 Distributions | seeded placement, slope filtering | Gardener planting rules |
+| 06 Paths | splines, route validation | robot and resident movement |
+| 07 Particles | emitters, forces | atmosphere |
+| 08 Branching systems | L-systems, response experiments | plants, resident response |
+
+Exercise write-ups are indexed in [docs/exercise/](docs/exercise/README.md); setup tutorials are in [docs/tutorials/](docs/tutorials/README.md).
+
+## Repository
 
 ```text
 Repository
-├── worldbuilding-guidebook/   interactive lessons and 3D demos
-├── terraforming-1380/         game prototype
-├── docs/                      Course Documentation
-│   ├── tutorials/             reference & setup
-│   ├── exercise/              weekly assignment documentation
-│   └── media/                 GIFs & screenshots
+├── terraforming-1380/         the game (start at docs/README.md)
+├── worldbuilding-guidebook/   interactive lessons and 3D demos (LOG.md has the weekly record)
+├── docs/                      exercise notes, tutorials, weekly media
 └── deployment/                homepage, combined build, Hosting routes
 ```
 
-The two applications are independent. `deployment/` combines their builds with the project homepage for one Firebase Hosting site.
+Each app has its own dependencies, tests, and build. `deployment/` combines both with the project homepage for one Firebase Hosting site.
 
-| Area | What you will find | Start here |
-| --- | --- | --- |
-| [Guidebook](worldbuilding-guidebook/) | Interactive lessons and their 3D demos | [Setup and commands](worldbuilding-guidebook/README.md) |
-| [Terraforming Contractor #1380](terraforming-1380/) | Playable planet-editing prototype | [Controls and setup](terraforming-1380/README.md) |
-| [Deployment](deployment/) | Homepage, combined build, and Hosting routes | [Build and preview](deployment/README.md) |
-| [Course Documentation](docs/) | Tutorials, weekly exercise write-ups, and GIFs/screenshots | [Exercise index](docs/exercise/README.md) |
+## Run it locally
 
-For a specific change, use this map:
-
-| Looking for... | Location |
-| --- | --- |
-| Lesson text and step definitions | [`worldbuilding-guidebook/content/lessons/`](worldbuilding-guidebook/content/lessons/) |
-| Guidebook scenes and shader experiments | [`worldbuilding-guidebook/src/scene/demos/`](worldbuilding-guidebook/src/scene/demos/) |
-| Guidebook layout, controls, progress, and account sync | [`src/app/`](worldbuilding-guidebook/src/app/), [`src/components/`](worldbuilding-guidebook/src/components/), [`src/store/`](worldbuilding-guidebook/src/store/), [`src/firebase/`](worldbuilding-guidebook/src/firebase/) in the guidebook |
-| Game planet generation and editing | [`terraforming-1380/src/world/`](terraforming-1380/src/world/) and [`src/tools/`](terraforming-1380/src/tools/) |
-| Game camera, detector display, and run state | [`src/views/`](terraforming-1380/src/views/) and [`src/state/`](terraforming-1380/src/state/) in the game |
-| Game design decisions and milestones | [`terraforming-1380/docs/`](terraforming-1380/docs/) |
-| Homepage and Firebase routes | [`deployment/home/`](deployment/home/) and [`deployment/firebase.json`](deployment/firebase.json) |
-| Course experiments and screenshots | [`docs/exercise/`](docs/exercise/) and [`docs/media/`](docs/media/) |
-| Deployment automation | [`.github/workflows/`](.github/workflows/) |
-
-Each app has its own dependencies, tests, and build. Generated folders such as `node_modules/`, `dist/`, and `deployment/public/` are build output rather than source.
-
-## Preview the homepage locally
-
-From the repository root (`E:\Cornell\26fall\procedural world building\dd699`):
+From the repository root:
 
 ```powershell
 npm.cmd ci --prefix worldbuilding-guidebook   # first time only
@@ -73,209 +197,4 @@ npm.cmd --prefix deployment run build         # rebuild after every change
 npm.cmd --prefix deployment run preview       # starts the Firebase Hosting emulator
 ```
 
-Then open <http://127.0.0.1:5002/>. The homepage is `/`, the guidebook is `/guidebook/`, and the game is `/game/`. Stop the server with `Ctrl+C`. The preview serves the built copy in `deployment/public/`, so edits to `deployment/home/` or to either app show up only after running the build again. Details are in the [deployment README](deployment/README.md#build-and-preview).
-
-To work on just the guidebook with live reload, see [Run the website](worldbuilding-guidebook/README.md#run-the-website) (it is served at <http://localhost:5173/guidebook/>).
-
-## Shared website deployment
-
-The project home runs at `/`, the guidebook at `/guidebook/`, and Terraforming Contractor #1380 at `/game/`.
-Each app builds independently; `deployment/` combines their outputs for the
-same Firebase Hosting site. See [build, preview and deploy instructions](deployment/README.md).
-Use the shared deployment command instead of the old guidebook-only deploy command.
-
-## Log
-
-### Week 1 — Repository initialization (August 26–30, 2026)
-
-<details>
-<summary>View weekly details</summary>
-
-- **Progress:** Initialized the repository, established the documentation structure, and created an initial feature backlog (later replaced by the project-specific plans).
-- **Key files:** `README.md`, `docs/tutorials/README.md`, `docs/exercise/README.md`
-- **Keywords:** repository setup, project planning, documentation structure, feature backlog
-
-</details>
-
-### Week 2 — React Three Fiber fundamentals (August 31–September 6, 2026)
-
-<details>
-<summary>View weekly details</summary>
-
-![Week 2 demo](docs/media/week2.gif)
-
-- **Progress:** Built an interactive React Three Fiber practice scene with geometry, materials, lighting, shadows, a world grid, and orbit camera controls. Added a reusable learning UI that connects DOM entity selection with the 3D scene, then documented both the prerequisite concepts and hands-on observations.
-- **Key files:** `worldbuilding-guidebook/src/App.jsx`, `worldbuilding-guidebook/src/App.css`, `worldbuilding-guidebook/src/index.css`, `docs/tutorials/react-basics.md`, `docs/tutorials/threejs-react-scene.md`, `docs/exercise/01-r3f-baseline-scene.md`, `docs/exercise/02-scene-learning-ui.md`
-- **Keywords:** React, JSX, CSS, Three.js, React Three Fiber, Drei, geometry, materials, lighting, shadows, camera, OrbitControls, DOM overlay, shared state, reusable UI
-
-</details>
-
-### Week 3 — Procedural maps: noise terrain and simulation-driven erosion (September 7–13, 2026)
-
-<details>
-<summary>View weekly details</summary>
-
-![Week 3 demo](docs/media/week3-compressed.gif)
-
-- **Progress:** Built a function-based procedural map pipeline (grid → noise stack → 2D map → height field → 3D terrain) with White, Value, Perlin, and Cellular/Worley noise, plus adjustable frequency, octaves, persistence, and shaping controls, where the 2D map and 3D mesh read the same sampled values. Extended this into a simulation-driven map: a simplified hydraulic-erosion simulation that stores height, water, and sediment per cell, updates through double-buffered grids so every cell shares one definition of a timestep, and exposes Start/Pause/Step/Reset controls, a height-based material, and a wireframe toggle. Calibrated simulation resolution, terrain mesh resolution, world size, and height amplitude together to produce believable topography.
-- **Key files:** `worldbuilding-guidebook/content/lessons/02-procedural-maps/`, `worldbuilding-guidebook/src/scene/demos/proceduralMaps/noiseMath.js`, `worldbuilding-guidebook/src/scene/demos/proceduralMaps/NoiseMapPreview.jsx`, `worldbuilding-guidebook/src/scene/demos/proceduralMaps/TerrainPreview.jsx`, `worldbuilding-guidebook/src/scene/demos/proceduralMaps/simulationMath.js`, `worldbuilding-guidebook/src/scene/demos/proceduralMaps/SimulationMapPreview.jsx`, `worldbuilding-guidebook/src/scene/demos/proceduralMaps/SimulationTerrainPreview.jsx`, `docs/exercise/03-interactive-terrain-playground.md`, `docs/exercise/04-simulation-driven-maps.md`
-- **Keywords:** procedural maps, noise functions, Perlin noise, Worley/cellular noise, octave stack, height field, vertex displacement, hydraulic erosion simulation, double-buffered grid state, calibration, wireframe toggle
-
-</details>
-
-### Week 4 — Voxel terrain: density fields, meshing, chunking, and level of detail (September 14–20, 2026)
-
-<details>
-<summary>View weekly details</summary>
-
-![Week 4 voxel terrain demo](docs/media/week4_voxel-compressed.gif)
-
-![Week 4 account sign-in demo](docs/media/week4_account_sign_in.gif)
-
-- **Progress:** Built Lesson 03, twelve steps of volumetric terrain, and recorded the results in Exercise 05. Terrain became a 3D density field with one sign rule (negative inside); shapes are combined with CSG (union, subtraction, intersection), and the order of the operations changes the result (11,994 versus 11,378 solid samples for the same three fields). Extracted the surface with Marching Cubes, whose case table is generated by the same rule the one-cell step draws, and compared it with Surface Nets: about the same number of faces, but roughly one Marching Cubes triangle in ten is a thin sliver against two to three in a hundred. Cut the volume into chunks and found that without a two-sample border a chunk cannot read the corners of its last row of cells, so 3 to 26 percent of the triangles go missing; with it, the chunks make exactly the triangles of the whole volume. Rebuilt only the chunks an edit reaches (about a quarter of the time for a dent in 4 × 4 × 4 chunks), added greedy meshing (30 to 43 percent of the faces of culled meshing), and gave chunks a camera-based level of detail, snapping the seams between levels together (largest height gap 0.36 → 0.01 world units). Web Workers, Dual Contouring and exact seam stitching are named and not built. The lesson is delivered through the course site built alongside it: content-driven steps, one shared canvas, code extracted from the real source, and practice tasks. Around the lesson: step legends, a per-step sticky note, a Grayscale view, an olive low-ground palette, rain and a water surface on the erosion terrain, a Chunk outlines toggle, and the course tutor shelved until every lesson is written. Wrote a Firebase tutorial and, on request, brought accounts forward from the roadmap's "after every lesson" plan: Authentication (email/password) and Firestore (one configuration document per user), plus Hosting, which is now the deployed production target in place of Vercel. Storage was deliberately left out — it now requires the paid Blaze plan, so the save/load feature stays Firestore-only (the latest save, no backup history) and the project stays on the free Spark plan. An Account drawer in the outline rail saves and loads a learner's scene params, view toggles, and progress. The spec's non-goal and roadmap entry for this were updated in place to record the exception, dated and reasoned, rather than left to disagree with the code.
-- **Key files:** `worldbuilding-guidebook/content/lessons/03-voxels/`, `worldbuilding-guidebook/src/scene/demos/voxels/voxelMath.js`, `worldbuilding-guidebook/src/scene/demos/voxels/marchingCubes.js`, `worldbuilding-guidebook/src/scene/demos/voxels/surfaceNets.js`, `worldbuilding-guidebook/src/scene/demos/voxels/chunks.js`, `worldbuilding-guidebook/src/scene/demos/voxels/greedyMeshing.js`, `worldbuilding-guidebook/src/scene/demos/voxels/lodChunks.js`, `docs/exercise/05-voxel-terrain.md`, `docs/tutorials/firebase-setup.md`, `worldbuilding-guidebook/src/firebase/client.js`, `worldbuilding-guidebook/src/firebase/configSync.js`, `worldbuilding-guidebook/src/store/authStore.js`, `worldbuilding-guidebook/src/components/AccountDrawer.jsx`, `worldbuilding-guidebook/firestore.rules`, `worldbuilding-guidebook/firebase.json`
-- **Keywords:** voxels, density field, signed distance field, CSG, Marching Cubes, Surface Nets, chunking, dirty-chunk remesh, greedy meshing, level of detail, seam snapping, Firebase, Authentication, Firestore, Hosting, cross-device configuration sync
-
-</details>
-
-### Week 5: Shader studies and a material lab (September 21–27, 2026)
-
-<details>
-<summary>View weekly details</summary>
-
-<!-- Week 5 guidebook demo GIFs will be added here. -->
-
-#### Guidebook: shaders and a material lab
-
-Expanded Lesson 04 into ten steps with interactive comparisons, source-linked GLSL examples, legends, and practice questions. The studies cover flat colour, height gradients and snow lines, slope-based rock, distance masks, Fresnel rims, MatCap shading, standing-water diagnostics, and animated vertex displacement. A separate coordinate-space demo compares local and world-space stripes across neighboring meshes. The MatCap legend previews the texture used by the material, and shader controls use ranges chosen to produce visible changes on the demo terrain.
-
-The water study computes trapped rainwater from Ground's height function using a flood fill, then uploads the depths as a data texture. This is a static terrain diagnostic; live erosion and sediment data are not connected yet. The same Ground water map is used when switching to Caves or Floating islands, a limitation explained in the lesson. Vertex ripples change the rendered surface without editing the underlying density field.
-
-Added a composite shader lab where height colours can be combined with rock, snow, water, scan, Fresnel, MatCap, and ripple layers. The panel exposes layer controls and colours, terrain shape and resolution, named presets, and JSON import/export. Configurations persist locally and are included in account saves. Added an "Apply to Final Project" star on lesson steps and in the outline, simplified lesson titles, and extended Firebase sync to load on sign-in and auto-save after a two-second pause in changes, with save status in the Account drawer.
-
-- **Key files:** [Shader lesson](worldbuilding-guidebook/content/lessons/04-shaders/), [shader demos](worldbuilding-guidebook/src/scene/demos/shaders/), [CompositeLabPanel.jsx](worldbuilding-guidebook/src/components/CompositeLabPanel.jsx), [compositeLabStore.js](worldbuilding-guidebook/src/store/compositeLabStore.js), [configSync.js](worldbuilding-guidebook/src/firebase/configSync.js), [shader study notes](docs/exercise/06-shader-studies.md)
-- **Keywords:** GLSL, coordinate spaces, shader composition, MatCap, Fresnel, data textures, presets, automatic configuration sync
-
-</details>
-
-### Week 6: Distributions and the first game prototype (September 28–October 4, 2026)
-
-<details>
-<summary>View weekly details</summary>
-
-#### Guidebook: Lesson 05, Distributions
-
-Completed the eight-step distributions lesson. It begins with instanced rocks and separates candidate count, asset scale, and seeded placement so a layout can be reproduced. Noise masks turn uniform placement into patches, while a lattice and terrain maps place farmland above water and within a chosen moisture band. Later steps align assets to surface normals, filter them by slope, and combine five independent layers: rocks, trees, farmland, antennas, and a four-building base.
-
-The final population keeps a separate seed and rule set for each layer. It places the base at the flattest suitable anchor, reserves an exclusion zone around it, applies minimum spacing to antennas, and drives tree and field variation from moisture. Candidate, rejection, height, slope, and moisture overlays make each rule inspectable. All eight steps include a live scene, source excerpt, fill practice, and automated coverage; the final guidebook test run passed 88 tests with one intentionally skipped Tutor test.
-
-![Week 6 distribution lesson population](worldbuilding-guidebook/artifacts/lesson05/step08-population.png)
-
-#### Game: initial editable planet, added September 30
-
-Created `terraforming-1380/` as an independent Vite, React, and TypeScript app with design, specification, roadmap, tuning, and decision documents. The prototype uses a seeded sphere-plus-noise density field and extracts its surface with chunked Marching Cubes. Right-drag orbits the planet. Dig, Add Terrain, and Flatten edit the density field and rebuild affected chunks; Flatten supports both a local radial plane and a global horizontal plane. A remaining-volume estimate tracks terrain added or removed.
-
-![Week 6 game prototype](docs/media/week5_game.gif)
-
-The Detector scans a local patch and shows nearby terrain wireframe plus distance-faded Mineral, Life, and Memory signals. Each signal has its own marker shape. Exposing a target's centre collects it, animates the transfer to the HUD, and updates the category count. At this point, deposits are seeded proxies; resource economics, tool costs, surface movement, and endings were still planned.
-
-![Week 6 game M0](docs/media/week5_M0.jpg)
-
-![Week 6 game M1](docs/media/week5_M1.jpg)
-
-#### Game: component board
-
-Before building any robots, a component board compared visual options for every on-planet element over five rounds, each option a 3D model at game scale. The chosen set uses voxel-orb robots that differ by silhouette, contour-line terrain shaded by height and slope, and a point-cloud atmosphere.
-
-![Week 6 game component board](docs/media/week6_design_decision.jpg)
-
-#### Shared site and repository maintenance
-
-Added the combined Firebase Hosting build. The homepage is served at `/`, the guidebook at `/guidebook/`, and the game at `/game/`, with deep-link rewrites and redirects for old lesson URLs. The deployment workflows install both apps, run the game tests, build the combined site, and verify its routes and assets.
-
-- **Key files:** [Lesson 05](worldbuilding-guidebook/content/lessons/05-distributions/), [distribution demos](worldbuilding-guidebook/src/scene/demos/distributions/), [Exercise 07](docs/exercise/07-scattering-system.md), [game source](terraforming-1380/src/), [game design](terraforming-1380/docs/design.md), [game tests](terraforming-1380/tests/planet.test.ts), [component board](terraforming-1380/docs/component-board.html), [deployment build](deployment/build.mjs)
-- **Keywords:** instancing, deterministic seeds, noise masks, terrain maps, surface normals, slope filtering, layered populations, seeded planet, Marching Cubes, terrain editing, detector, component board, Firebase Hosting
-
-</details>
-
-### Week 7: Paths, particles, terrain LOD, and the robot crew (October 5–11, 2026)
-
-<details>
-<summary>View weekly details</summary>
-
-#### Guidebook: Lesson 06, Paths
-
-Completed six pathfinding and spline scenes around one resident travelling from a cave entrance to shelter. The lesson moves from ordered waypoints to a centripetal Catmull-Rom curve, then compares parameter-based movement with distance-based movement. It projects samples onto a height field, checks body clearance and ground support across each segment, and revalidates the route after a local terrain edit.
-
-The final scene generates bounded route candidates for two shelters, rejects blocked, unsupported, or overly steep paths before ranking the valid ones by normalized distance and disturbance, and leaves the resident waiting when both routes fail. These are guidebook teaching scenes. They do not add resident migration or a cave solver to the game.
-
-![Week 7 path selection lesson](worldbuilding-guidebook/artifacts/lesson06/step06.png)
-
-#### Guidebook: Lesson 07, Particles
-
-Completed eight particle-system scenes using one typed-array state model. The lesson covers emission, lifetime, capacity, frame-rate-independent movement, forces, velocity and acceleration fields, and additive breeze, vortex, and gust layers. Later steps compare dots, puffs, and trails, show the stray-line bug caused by retaining trail history after recycling, and map speed and age to colour and opacity.
-
-The final recipe scene includes Dust, Mist, Rain, and Spores presets. Each preset controls its emitter, rate, lifetime, representation, wind, gravity, fade, ground rule, and boundary rule. Tests keep live counts within capacity, verify that the default ground rule removes particles below the terrain, and check that motion stays consistent across different frame intervals. The particle effects remain guidebook demonstrations rather than game effects.
-
-![Week 7 particle lesson rain preset](worldbuilding-guidebook/artifacts/lesson07/step08-rain.png)
-
-#### Game: distance-based terrain LOD, added October 7
-
-Added three terrain detail levels while keeping the full `64³` density grid as the editable source of truth. Nearby chunk columns use full sampling; distant columns use half or quarter sampling. Fine boundary vertices and normals snap to the neighboring coarse surface to reduce mixed-detail cracks. Mesh preparation is spread across frames, all meshes for a change switch together, terrain edits invalidate cached levels, and the debug overlay reports the visible chunk count at each level.
-
-The same day's site update refreshed the project homepage, navigation, and favicons without coupling the two applications. The game and guidebook still build independently before the deployment project combines them.
-
-#### Game: robots that terraform by rules
-
-Teacher feedback asked what would happen if the game played itself, so the game shifted from manual digging to robots that change the planet by visible rules. The player places each robot and sizes its spherical work area; the robot then works on its own.
-
-- **Miner** scans for nearby minerals, flies along a hover shell to the entry point above each one, and carves a radial tunnel one dig step at a time.
-- **Gardener** samples ground points in its area. It plants on the flattest suitable ground and raises antennas on the highest. Mature plants spread to nearby ground, and digging removes any plant or antenna whose ground is lost.
-- **Builder** measures the mean ground height of its area, cuts high ground down to that level, and fills low ground using soil the Miner has dug out.
-
-The interface now splits into **Auto** (place and run the crew) and **Manual** (the earlier terrain and Detector tools). Manual mode pauses the simulation, so robots never dig unseen.
-
-The robots, terrain, and atmosphere use the look chosen on last week's component board. All colors come from one palette file, and a test fails if a model uses a color outside it.
-
-Around the crew, the run gained a site economy: minerals sell for credits, running robots draw billed electricity, and the run ends in bankruptcy at −₡50. The game also gained surface exploration with a 2D world map. Once antennas stand, the player can broadcast a signal; after the third broadcast, distant planets appear that the crew can travel to. Robot stop reasons and low-funds warnings arrive in a communicator with a button that leads to the fix.
-
-![Week 7 robot crew at work](docs/media/week7_world.gif)
-
-- **Key files:** [Lesson 06](worldbuilding-guidebook/content/lessons/06-paths/), [path demos](worldbuilding-guidebook/src/scene/demos/paths/), [Exercise 08](docs/exercise/08-spline-layer.md), [Lesson 07](worldbuilding-guidebook/content/lessons/07-particles/), [particle demos](worldbuilding-guidebook/src/scene/demos/particles/), [Exercise 09](docs/exercise/09-particle-system.md), [game LOD](terraforming-1380/src/world/lodChunks.js), [planet generation](terraforming-1380/src/world/planet.ts), [Miner](terraforming-1380/src/systems/miner.ts), [Gardener](terraforming-1380/src/systems/gardener.ts), [Builder](terraforming-1380/src/systems/builder.ts), [game decisions D-022 to D-033](terraforming-1380/docs/decisions.md)
-- **Keywords:** waypoints, Catmull-Rom splines, arc-length movement, terrain projection, clearance, route validation, particle lifecycle, vector fields, trails, atmospheric presets, chunk LOD, seam snapping, autonomous robots, rule-based placement, cut and fill, site economy, broadcast signal
-
-</details>
-
-### Week 8: Branching systems (October 12-21, 2026)
-
-<details>
-<summary>View weekly details</summary>
-
-#### Guidebook: Lesson 08, Branching Systems
-
-Built an eight-step lesson that starts with turtle drawing instructions and parallel string rewriting, then adds bracket stacks, branch depth, seeded variation, solid geometry, growth animation, and three levels of detail. The asset lab uses one generator to produce Cave Fan, Stone Coral, and Whisper Root forms while keeping each seed reproducible.
-
-![Week 8 alien asset design](worldbuilding-guidebook/artifacts/lesson08/step05-cave-fan.png)
-
-The final experiment starts two small worlds from identical conditions and changes only where one robot works. Residents respond to a distance-based disturbance field, wait through short disruptions, and move along walkable routes when a quieter pocket is available. The side-by-side view and event log make the different outcomes traceable to that single change.
-
-![Week 8 branching worlds experiment](worldbuilding-guidebook/artifacts/lesson08/step08-near-end.png)
-
-#### Game: autopilot crew, signal planets, and residents
-
-Autopilot hands the whole planet to the crew: Miners, Gardeners, Builders, and the new Rigger, which takes over antenna building, each sweep the surface sector by sector. Minerals now sell automatically on delivery, and manual terrain edits cost credits. Planets that answer a broadcast become persistent sites with their own seeds and shapes, and the run's funds are shared among them.
-
-![Week 8 autopilot mode](docs/media/week8_autopilot_mode.jpg)
-
-A system overview shows the home site and the answering planets together; clicking a world focuses it.
-
-![Week 8 system overview](docs/media/week8_system.jpg)
-
-Residents are small rock creatures that shelter underground, peek out, and tremble near robot work. A design board compared nine procedurally generated body directions before one species per planet went into the game.
-
-![Week 8 resident designs](docs/media/week8_resident_design.jpg)
-
-- **Key files:** [Lesson 08](worldbuilding-guidebook/content/lessons/08-branching-systems/), [branching demos](worldbuilding-guidebook/src/scene/demos/branching/), [Exercise 10](docs/exercise/10-branching-systems.md), [browser tests](worldbuilding-guidebook/tests/lesson08.spec.js), [game systems](terraforming-1380/src/systems/), [game decisions](terraforming-1380/docs/decisions.md)
-- **Keywords:** L-systems, turtle graphics, parallel rewriting, bracket stacks, seeded variation, procedural assets, growth animation, asset LOD, branching outcomes, resident response, autopilot, signal planets, system overview
-
-</details>
+Open <http://127.0.0.1:5002/>. The homepage is `/`, the guidebook `/guidebook/`, and the game `/game/`. The preview serves the built copy in `deployment/public/`, so edits show up only after rebuilding. See the [game README](terraforming-1380/README.md) for controls and the [deployment README](deployment/README.md) for build and deploy details.
