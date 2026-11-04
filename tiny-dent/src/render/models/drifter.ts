@@ -25,7 +25,7 @@ type V3 = [number, number, number]
  *  Drifter's own left, on +X. `lift` moves the hips; `blink` 0 is open, 1 shut; `gaze` shifts both eyes (x, y). */
 export interface DrifterPose { joints: Record<DrifterJoint, V3>; lift: V3; blink: number; gaze: [number, number] }
 
-export const drifterClipNames = ['idle', 'walk', 'look', 'wave', 'kneel', 'sit', 'drift'] as const
+export const drifterClipNames = ['idle', 'walk', 'look', 'wave', 'kneel', 'sit', 'jump', 'drift'] as const
 export type DrifterClip = typeof drifterClipNames[number]
 
 // ─── proportions, read off the front and side views (heads) ───
@@ -342,6 +342,7 @@ export const drifterClipInfo: Record<DrifterClip, ClipInfo> = {
   wave: { label: 'Wave', duration: 2, fade: 0.3, note: 'Right arm up, forearm waves twice per loop.' },
   kneel: { label: 'Kneel', duration: 5, fade: 0.6, note: 'Right knee down, right hand to the soil, looking at the ground.' },
   sit: { label: 'Sit and watch', duration: 8, fade: 0.9, note: 'Legs out, leaning back on both hands, watching the sky.' },
+  jump: { label: 'Jump', duration: 0.7, fade: 0.12, note: 'A crouch, a hop clear of the ground, and a landing. Plays once.' },
   drift: { label: 'Drift', duration: 10, fade: 0.8, note: 'Weightless: floats, turns slowly, limbs loose.' },
 }
 
@@ -455,6 +456,26 @@ export function drifterPose(clip: DrifterClip, time: number, amount = 1): Drifte
       p.joints.spine = [-0.5 + 0.015 * breathe, 0, -0.03 * rock]
       p.joints.neck = [-0.2 + 0.03 * Math.sin(2 * w), 0.2 * dwell(w + 1), 0.05 * rock]
       p.gaze = [0.02 * dwell(w + 1), 0.07]
+      break
+    }
+    case 'jump': {
+      // air is 0 on the ground at both ends and 1 at the top; crouch gathers in the quarters between, so the loop seams.
+      const air = Math.sin(w / 2) ** 2
+      const crouch = Math.sin(w) ** 2 * (1 - air)
+      stance(p, 0)
+      const tuck = 0.85 * air
+      p.lift = [0.03 * crouch, -0.38 * crouch + 1.45 * air, 0]
+      p.joints.hips = [0.16 * crouch, 0, 0]
+      p.joints.spine = [0.1 * crouch - 0.06 * air, 0, 0]
+      p.joints.neck = [-0.1 * air, 0, 0]
+      for (const side of ['L', 'R'] as const) {
+        limb(p, side, 'hip', -0.32 * crouch + 0.42 * tuck, 0, 0.04)
+        limb(p, side, 'knee', 0.12 + 1.25 * crouch + 1.05 * tuck)
+        limb(p, side, 'ankle', -0.15 * crouch - 0.3 * tuck)
+        limb(p, side, 'shoulder', -0.85 * air, 0.04, 0.32 + 0.35 * air)
+        limb(p, side, 'elbow', -0.3 - 0.35 * air)
+      }
+      p.gaze = [0, 0.035 * air]
       break
     }
     case 'drift': {

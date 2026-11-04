@@ -4,7 +4,7 @@ import { Box3, Color, Mesh, type MeshStandardMaterial, type Object3D } from 'thr
 import { palette } from '../src/config/palette'
 import { tuning } from '../src/config/tuning'
 import { eyeHeight } from '../src/systems/exploration'
-import { restingMind, stepDrifterMind } from '../src/systems/drifter'
+import { restingMind, stepDrifterMind, uprightDirection } from '../src/systems/drifter'
 import {
   walkLeg, walkStride, bakeDrifterClips, createDrifter, drifterClipInfo, drifterClipNames, drifterJoints, drifterPose, type DrifterJoint,
 } from '../src/render/models/drifter'
@@ -34,9 +34,10 @@ test('the Drifter is 4.0 heads tall, stands on the origin and uses palette color
   })
   assert.ok(meshes <= 70, `draws ${meshes} meshes`)
   for (const name of drifterJoints) assert.ok(drifter.joints[name], `joint ${name}`)
-  // Scaled for the game, the eyes sit at the first-person eye height.
+  // Scaled for the game, he stands taller than the residents, so his eyes sit above the walker's eye line.
   const scale = tuning.drifter.height / drifter.height
-  assert.ok(Math.abs(drifter.eyeLine * scale - eyeHeight) < 0.004)
+  assert.ok(tuning.drifter.height > 0.34)
+  assert.ok(drifter.eyeLine * scale > eyeHeight)
   drifter.dispose()
 })
 
@@ -68,6 +69,12 @@ test('grounded clips keep the body on the ground; contact poses touch where they
   assert.ok(Math.abs(lowest(drifter.object.getObjectByName('torso')!)) < 0.03, 'sit: seat on the ground')
   at('drift', 0)
   assert.ok(lowest(drifter.object) > 0.4, 'drift: floats')
+  at('jump', 0)
+  assert.ok(Math.abs(lowest(drifter.object)) < 0.08, 'jump: starts on the ground')
+  at('jump', drifterClipInfo.jump.duration / 2)
+  assert.ok(lowest(drifter.object) > 0.45, 'jump: clears the ground')
+  at('jump', drifterClipInfo.jump.duration)
+  assert.ok(Math.abs(lowest(drifter.object)) < 0.08, 'jump: lands on the ground')
   drifter.dispose()
 })
 
@@ -127,6 +134,21 @@ test('on the surface the Drifter walks, idles, looks around, sits, and holds ges
   assert.equal(run(0.1, true), 'walk')
   ;({ mind } = stepDrifterMind(mind, false, 0.1, 'wave'))
   assert.equal(run(5), 'idle', 'a wave ends by itself')
+  ;({ mind } = stepDrifterMind(restingMind(), true, 0.1, 'jump'))
+  assert.equal(mind.gesture, 'jump')
+  assert.equal(stepDrifterMind(mind, true, 0.1).clip, 'jump', 'a jump keeps going while walking')
+  assert.equal(stepDrifterMind(mind, true, drifterClipInfo.jump.duration).clip, 'walk')
+})
+
+test('the body stands on the ground normal', () => {
+  const radial: [number, number, number] = [0, 1, 0]
+  const near = (value: readonly number[], expected: readonly number[]) =>
+    value.forEach((axis, index) => assert.ok(Math.abs(axis - expected[index]) < 1e-6, `${value} ~ ${expected}`))
+  const slope = uprightDirection(radial, [0.4, 1, 0])
+  near(slope, [0.4 / Math.hypot(0.4, 1), 1 / Math.hypot(0.4, 1), 0])
+  near(uprightDirection(radial, [0, 0, 0]), radial)
+  near(uprightDirection(radial, [0, -1, 0]), radial)
+  near(uprightDirection(radial, [1, 0.05, 0]), radial)
 })
 
 test('baked clips cover every joint for export', () => {
