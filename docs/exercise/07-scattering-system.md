@@ -311,7 +311,7 @@ Register the demo in `demoRegistry.js` and its params in `demoParams.js` (demo k
 
 **Minimum implementation.** Slope test in `scatter.js` inside a `#region`; a per-asset default limit table; rejected candidates drawn in a second colour; count readout (suggested: in the legend or a small `aria-live` label); the antenna mesh.
 
-**Game link.** The game's Development Readiness counts a surface sample as buildable when its slope is at most `slopeMax` ([`spec.md`](../../terraforming-1380/docs/spec.md) §5.1, BuildableArea). This step is the same test, applied to scattering. The game's value is its own `TUNE` number; do not copy these lesson limits into it.
+**Game link.** The game's Development Readiness counts a surface sample as buildable when its slope is at most `slopeMax` ([`spec.md`](../../tiny-dent/docs/spec.md) §5.1, BuildableArea). This step is the same test, applied to scattering. The game's value is its own `TUNE` number; do not copy these lesson limits into it.
 
 **Depends on.** Step 05 `normalAt`.
 
@@ -342,7 +342,7 @@ Register the demo in `demoRegistry.js` and its params in `demoParams.js` (demo k
 
 **Minimum implementation.** A layer description object (asset, seed, density, slope limit, mask, candidate source) and one `InstancedMesh` per layer; per-instance colour via `instanceColor`; `findBaseAnchor(candidates, normalAt)` (smallest slope among N candidates that are above water and away from the edge); fixed building offsets in the anchor's frame; layers evaluated in a fixed order with the base first; the fill region around the lerp line. Layer params need prefixed keys (`scatterTreeDensity` …).
 
-**Game link.** Silent Shore is the game's base hub ([`design.md`](../../terraforming-1380/docs/design.md) §4.3). The anchor search is a toy version of the game's buildable-area test; the game will use its own generator.
+**Game link.** Silent Shore is the game's base hub ([`design.md`](../../tiny-dent/docs/design.md) §4.3). The anchor search is a toy version of the game's buildable-area test; the game will use its own generator.
 
 **Depends on.** Steps 03, 04, 06.
 

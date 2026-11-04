@@ -11,9 +11,9 @@ Help one resident travel from a cave entrance to a reachable shelter. The lesson
 The game currently has robot travel and progressive mining. Residents and migration are planned. This lesson is a teaching demo, not a change to the game's approved movement algorithm.
 
 Sources:
-- [Game design](../../terraforming-1380/docs/design.md), sections 7.3 and 10.3: robots move through empty space; mining opens solid ground progressively.
-- [Procedural system](../../terraforming-1380/docs/procedural-system.md), sections 4–5: clearance, quiet shelters, and visible waiting when no route exists.
-- [Game requirements](../../terraforming-1380/docs/spec.md): AUT-04/05/07, HAB-03, RES-02/04/06/07. Residents cannot dig themselves a route or teleport through rock.
+- [Game design](../../tiny-dent/docs/design.md), sections 7.3 and 10.3: robots move through empty space; mining opens solid ground progressively.
+- [Procedural system](../../tiny-dent/docs/procedural-system.md), sections 4–5: clearance, quiet shelters, and visible waiting when no route exists.
+- [Game requirements](../../tiny-dent/docs/spec.md): AUT-04/05/07, HAB-03, RES-02/04/06/07. Residents cannot dig themselves a route or teleport through rock.
 
 ## Useful knowledge and skills
 

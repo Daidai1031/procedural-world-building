@@ -50,7 +50,7 @@ The first plan was correct but written for a reader who already knows the vocabu
 
 ## How the lesson connects to Terraforming Contractor
 
-The game docs ([`procedural-system.md`](../../terraforming-1380/docs/procedural-system.md) §8) give particles one job: *disturbance, debris and visual emphasis, separate from behaviour rules*. Checked 2026-10-21, the game has no dig dust or drifting-particle system yet. Its atmosphere ([`atmosphere.ts`](../../terraforming-1380/src/render/atmosphere.ts)) is about 4,200 seeded points that drift by the clock and ignore terrain edits. Resident behaviour (roadmap S1) is planned and not started.
+The game docs ([`procedural-system.md`](../../tiny-dent/docs/procedural-system.md) §8) give particles one job: *disturbance, debris and visual emphasis, separate from behaviour rules*. Checked 2026-10-21, the game has no dig dust or drifting-particle system yet. Its atmosphere ([`atmosphere.ts`](../../tiny-dent/src/render/atmosphere.ts)) is about 4,200 seeded points that drift by the clock and ignore terrain edits. Resident behaviour (roadmap S1) is planned and not started.
 
 | Lesson step | Game use it prepares (planned, not built) | Related requirement |
 | --- | --- | --- |
