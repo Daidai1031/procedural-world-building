@@ -3,8 +3,106 @@
 | | |
 | --- | --- |
 | **Purpose** | The order of work, and what "done" means for each step. |
-| **Last updated** | 2026-11-01 |
-| **Current focus** | Playtest S1–S6 and Autopilot (D-043) together; low-end frame rate (SUR-14); compact operations (OPS-01) |
+| **Last updated** | 2026-11-04 |
+| **Current focus** | Multi-planet ecosystem E1–E6 (D-065), in order; S1–S6 and Autopilot (D-043) still need a person's playtest |
+
+## Ecosystem roadmap — D-065 (active)
+
+Brief: [Tiny_Dent_Gameplay_Update_Spec.md](Tiny_Dent_Gameplay_Update_Spec.md). Six slices, built strictly in order; each ends with tests and `npm run build` green. A box is ticked only when the code and its test exist. "Playable" means the stated check passes in the game, not only in unit tests.
+
+Phase 0 of the brief (baseline and contracts) is this documentation pass plus the baseline test run recorded in the change log below.
+
+### E1 — Material economy (Phase 1, D-066)
+
+Built 2026-11-04. Baseline before the change: 135 tests passing; after: all passing with `tests/inventory.test.ts`, and `npm run build` green.
+
+**Playable when:** digging a planet raises its own material stock by exactly what was removed, the Builder spends it, and the stock is right after leaving and returning.
+
+- [x] Material data and a native material per surface — MAT-01.
+- [x] Per-planet `inventory`, replacing `soil` — MAT-02.
+- [x] Miner deposits, Builder withdraws and returns — MAT-03/04.
+- [x] Ore stays separate behind `autoSellOre` — MAT-05.
+- [x] Rock planet balance unchanged — MAT-06.
+- [~] Panels and overview show the stock — MAT-07. Built and type-checked; not yet looked at in a browser.
+- [x] Tests MAT-T1–T4.
+
+### E2 — Interplanetary trains (Phase 2, D-067)
+
+Built 2026-11-04 for cargo. Passengers wait for E3. Tests: `tests/logistics.test.ts`; panel and rail line checked by screenshot on a two-planet run (spaceports, route, a shipment at 0%); a long run of a train crossing is not yet watched.
+
+**Playable when:** a route joins two visited planets, a train carries cargo across a planet switch, and nothing is lost or duplicated.
+
+- [x] Graph core and the interplanetary graph — LOG-01/10.
+- [x] Route building with shared credits — LOG-02.
+- [x] Shipments, reserve at departure, deliver once, refund — LOG-03–06, 08.
+- [x] Run-level logistics clock — LOG-07.
+- [x] Creature passengers — done with E3 (MIG-01/03).
+- [x] Routes and trains in the system overview, with layer toggles — LOG-09.
+- [x] Tests LOG-T1–T4.
+
+### E3 — Passports and migration (Phase 3, D-068)
+
+Built 2026-11-04 for the existing species (Cairn and Cyclops Sentinel stand in for Duck and Drillhead, D-065; new bodies are D-072). Tests: `tests/migration.test.ts`. A visitor arriving and the panel line were seen on screen; settling and homesickness over a real session have not been watched, and all numbers are first guesses.
+
+**Playable when:** a Cairn and a Cyclops Sentinel travel, each with a history, judge their new ground, stay, ask or return, and two species share a planet.
+
+- [x] Unique creature IDs and the passport — MIG-01/02/03.
+- [x] Habitat scoring, trial, cooldown, hysteresis — MIG-04/05.
+- [x] Request or return when nothing suits — MIG-06.
+- [x] Mixed species and colonies — MIG-07.
+- [x] Creature card in the interface — MIG-08.
+- [x] In-place behaviour untouched; IDs survive switching — MIG-09/10.
+- [x] Tests MIG-T1–T3.
+
+### E4 — Habitat construction (Phase 4, D-069)
+
+Built 2026-11-04 except the suitability layer. Tests: `tests/patches.test.ts` (a Cairn shipped to metal with plastic settles after a Builder lays a patch). The patch blend into the terrain material was seen on screen on hand-placed patches (rock and metal planets); a Builder laying one in a live session has not been watched.
+
+**Playable when:** a Builder spends shipped plastic on a patch and a Cairn settles on it.
+
+- [x] Patch records, persistence, revisit — PAT-01/04/08.
+- [x] Builder patch job with stock reservation — PAT-02.
+- [x] Patch effect on scoring and on ground colour — PAT-03/06.
+- [ ] Suitability layer — PAT-07. Not built.
+- [x] Tests PAT-T1–T2.
+
+### E5 — Emergent roads (Phase 5, D-070)
+
+Built 2026-11-04. Tests: `tests/roads.test.ts` (graph, A*, heat and decay, road price, terrain cut and reroute, planet switch, and the whole target loop). Seen on screen: walkers wearing heat in Manual mode, hand-paved edges and the edge card. Not watched: a Builder paving a road in a live session, a cut in the browser, frame cost on a 900-node planet with many walkers.
+
+**Playable when:** the target scenario in the spec's multi-planet acceptance runs to the end.
+
+- [x] Navigation graph and bounded A* — RDS-01/02/08.
+- [x] Trips, heat and decay — RDS-03.
+- [x] Desire paths, road upgrade and cheaper edges — RDS-04/05.
+- [x] Terrain invalidation, reroute and blocked edges — RDS-06.
+- [x] Agent traversal classes — RDS-07.
+- [x] Debug layers and road card — RDS-09/10.
+- [x] Tests RDS-T1–T2.
+
+### E6 — Ecology expansion (Phase 6, D-071)
+
+Land half built 2026-11-04: Fur, Jelly, Ice and Rock species are rows in `content/species.ts`. Tests: `tests/species.test.ts`.
+
+- [x] Species roles and material rules for Fur, Jelly, Ice, Rock as data — ECO-01/02.
+- [x] Water planet: separate decision, brief and acceptance first — ECO-06 (D-073, [water-brief.md](water-brief.md)).
+- [ ] Per-material rules beyond species (for example plastic ground refusing plants) — needs a decision.
+
+### E7 — The Water planet (D-073)
+
+Built 2026-11-04. Tests: `tests/water.test.ts`. Seen on screen: an ocean planet from orbit, swimmers at 0.65–0.9 depth. Not watched: a Builder anchoring a mound in a live session, a land creature settling on a platform island, the overview with swimmers.
+
+**Playable when:** an ocean world has Glassfin swimming at several depths, a mound built in it washes away unless a platform anchors it, and a plant, a road and a land creature can live on an anchored island.
+
+- [x] Water radius, planet draw, depth — WAT-01/02.
+- [x] Water drawn over the seabed — WAT-03.
+- [x] Glassfin species and body — WAT-04.
+- [x] Swimming, depth need, noise — WAT-05/06/07.
+- [x] Shipping vetoes and no underwater homes — WAT-08/09.
+- [x] Mounds, erosion, platforms — WAT-10/11.
+- [x] Dry-ground rules for plants, antennas and the ground graph — WAT-12/13.
+- [x] Persistence and overview line — WAT-14/15.
+- [x] Tests WAT-T1–T9.
 
 ## Current roadmap — D-034–037
 
@@ -288,6 +386,12 @@ Frame rate while remeshing · confusion about the two views · getting trapped f
 
 ## Change log
 
+- **2026-11-04 / D-071, D-073:** E6 land half built; the Water slice scoped (E7) before any code, then built (E7). Tests 193.
+- **2026-11-04 / D-070:** E5 built (ground graph, A*, walkers, heat, desire paths, Builder roads, reroute on terrain cuts, layers and edge card).
+- **2026-11-04 / D-069:** E4 built (patches, Builder patch job, drawn skin); suitability layer left out.
+- **2026-11-04 / D-068:** E3 built. Manual mode now also steps trains and visitors; visitor routing fixed.
+- **2026-11-04 / D-067, D-072:** E2 built for cargo; D-072 records that Duck and Drillhead get new bodies after E3.
+- **2026-11-04 / D-065:** Added the ecosystem roadmap E1–E6 above. Nothing in it is complete yet.
 - **2026-10-20 / D-034–037:** Added S0–S5 resident/persistence/overview slices and compact-operations task. Preserved R1–R3 and M0–M7 history; no new gameplay task is marked complete.
 
 

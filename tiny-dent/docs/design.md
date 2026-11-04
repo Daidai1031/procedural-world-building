@@ -130,6 +130,18 @@ The current prototype includes bankruptcy and reset-style travel. Those are exis
 
 Robots act without repeated dig clicks. Residents choose automatically from current environmental conditions rather than following scripted outcomes. Their responses can change the player's next choice, but never require optimizing a universal happiness score.
 
+### 6.1 The multi-planet loop (D-065) — planned, built phase by phase
+
+Dig a planet and it gives you *its own* stuff: plastic from a plastic world, scrap from a metal one. That stuff is physical. It sits in that planet's store, it is counted, and the only ways it leaves are building with it or putting it on a train. A train carries cargo and, if they choose to come, creatures. A creature that lands somewhere strange looks around, and what it finds decides whether it settles, asks for help or goes home. Where creatures keep walking, the ground remembers: a faint path, then a worn one, then, if a Builder spends material on it, a road.
+
+**Discover → extract → stock → ship → arrive → judge the habitat → settle or leave → cluster into colonies → walk the same ways → desire path → road → terrain and roads change the next choice.**
+
+What the player can do is shape the ground and the supply lines. What the player cannot do is make a creature content or keep it somewhere. A planet may end up with two species and an imported strip of foreign material; another may stay empty. Neither is the right result.
+
+Each stage is designed so the player can *see why*: a stock count that matches what was dug, a manifest that matches what left, a creature whose card says why it stayed, a road whose card says how many trips made it. Dashboards are avoided; causes are shown where the effect is.
+
+Status: the material stock (Phase 1), trains (Phase 2), creature passports with migration (Phase 3), Builder habitat patches (Phase 4) and emergent roads (Phase 5) are built. The land half of ecology expansion (species as data) and the Water planet ([water-brief.md](water-brief.md), roadmap E7) are built; all six phases of D-065 now exist, none has had a long playtest.
+
 ---
 
 ## 7. Player toolkit (design intent)
@@ -166,6 +178,19 @@ Do not silently remove or soften the current debt threshold. Whether bankruptcy 
 
 ### 7.7 Residents and signals
 Resident responses can prompt a player decision. Keep broadcasting an explicit player choice rather than an automatic mining side effect.
+
+### 7.8 Materials, trains, passports, patches and roads (D-065–D-071) — planned
+
+| Piece | Player's part | What the player never does |
+| --- | --- | --- |
+| Native material (D-066) | Choose where robots dig; read the stock | Create material from nothing |
+| Space train (D-067) | Build a route between two spaceports; choose what rides | Make a train skip time or run without cost |
+| Passport (D-068) | Offer a creature a seat; supply what it asks for; let it leave | Force a creature to stay or be happy |
+| Patch (D-069) | Aim a Builder at a place and spend shipped stock | Turn open water into land with soil alone |
+| Road (D-070) | Dig, build and leave things where creatures walk | Draw a road; roads are made by use |
+| Ecology (D-071) | Visit planets of other materials | Expect Water before it has its own design |
+
+In this slice Plastic's traveller is the Cairn and Metal's is the Cyclops Sentinel; the brief's "Rubber Duck" and "Drillhead" are roles, not new bodies (D-065).
 
 ---
 

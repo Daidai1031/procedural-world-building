@@ -3,9 +3,11 @@
 | | |
 | --- | --- |
 | **Status** | Draft v0.6 — resident feedback and persistent planets (D-034–037) |
-| **Last updated** | 2026-10-21 |
+| **Last updated** | 2026-11-04 |
 | **Answers the question** | *What exactly must the game do, and how do we know it does?* |
 | **Sibling files** | Why: [`design.md`](design.md) · Values: [`tuning.md`](tuning.md) · Text: [`content.md`](content.md) · Order of work: [`roadmap.md`](roadmap.md) · Why we chose: [`decisions.md`](decisions.md) |
+
+**Ecosystem expansion (D-065, 2026-11-04):** materials, trains, passports, patches, roads and wider ecology are specified in §3.3 and §4.22–4.27. Status is per row; only rows marked done exist in the game.
 
 ## Current scope — D-034–037 (2026-10-20)
 
@@ -159,6 +161,31 @@ Conceptual responsibilities, not final TypeScript names:
 - Habitat candidates include current enclosure/clearance/access validity and occupancy; invalidation follows density edits.
 - Both local view and overview read the same planet record; derived display meshes may be cached by terrain revision.
 - Account scope, background ticking and reload serialization remain open. No automatic merging of funds or continuing off-screen billing is implied.
+
+### 3.3 Multi-planet ecosystem state (D-065–D-071)
+
+Phase 1 is implemented (2026-11-04); the rest is planned and the names are conceptual until built. Inventory is per planet and lives in `RunState`; everything that belongs to no single planet lives beside the planet registry.
+
+```ts
+// Implemented (Phase 1): src/state/runState.ts
+inventory: Record<MaterialId, number>   // whole units, per planet, replaces `soil`
+
+// Implemented (Phase 2): registry level (src/state/planets.ts, types in systems/logisticsState.ts), not in any RunState
+spaceport: boolean                      // per planet, in RunState
+interface LogisticsState {
+  tick: number
+  routes: Route[]            // id, ends, cost, capacity, travelTicks, status
+  shipments: Shipment[]      // cargo lines, passengers (whole Resident records), departTick, arriveTick, status
+}
+
+// Planned: per planet
+residents: Resident[]        // implemented (Phase 3): creatureId, species, origin, life, passport, comfort, belonging, bias, request
+patches: Patch[]             // implemented (Phase 4): { id, centre, radius, material }, in RunState
+colonies: Colony[]           // derived clusters of one species
+nav: NavState                 // implemented (Phase 5): heat, uses, roads, trips, reroute log; blocked edges are derived from terrain, not stored
+```
+
+Rules: a cargo unit or creature is in exactly one of a planet's state or a shipment; `travelTo` already copies the shared funds and loadout and must also leave logistics untouched.
 
 ## 4. Requirements
 
@@ -495,6 +522,122 @@ The design and table are in [surface-brief.md](surface-brief.md). Decisions: D-0
 | SUR-13 | Each material has a Web Audio digging voice, unlocked by the first gesture, with a persistent mute control. Satisfies AUD-01 for digging. | MVP | done (not listened to) |
 | SUR-14 | The system view draws materials without transmission. Fur sheds shells when frames run slow. Transmissive and fur planets are playtested for frame rate on a low-end laptop. | MVP | in progress (only an RTX 4060 laptop and a software renderer measured) |
 
+### 4.22 Material economy (MAT) — D-066
+
+Source: `content/materials.ts`, `systems/inventory.ts`. Phase 1 (E1).
+
+| ID | Requirement | Priority | Status |
+| --- | --- | --- | --- |
+| MAT-01 | A material is data: id, name, colour. Six exist: soil, scrap metal, plastic chips, fibre, gel, ice. Each surface profile names exactly one `material` its excavation yields. | MVP | done |
+| MAT-02 | Every planet's run state holds `inventory: Record<MaterialId, number>` of whole numbers. It is saved and restored with the planet (PLN-03) and starts empty. | MVP | done |
+| MAT-03 | A robot's dig deposits `removedSamples × tuning.materials.unitPerSample` of the planet's native material. No other source deposits stock. | MVP | done |
+| MAT-04 | The Builder's fill withdraws the samples it adds; its flatten deposits the samples it cuts. A withdrawal through `withdraw` is all or nothing. The Builder's terrain edit happens before its stock is settled, so `settle` clamps at zero and returns the shortfall; the job is still gated by `builder.fillCost` beforehand. | MVP | done |
+| MAT-05 | Saleable ore (`economy.mineralStock`) is separate from construction material. With `tuning.materials.autoSellOre` true (shipped behaviour) ore is sold on delivery exactly as before (D-039). | MVP | done |
+| MAT-06 | A rock planet's numbers (Builder balance, fill cost, stop reasons, stock after a given dig) equal those before this change. | MVP | done |
+| MAT-07 | The site panel and the Builder panel name the native material and its count; the Builder's out-of-stock message names it. The system overview line adds the stock. | MVP | done (not browser-checked) |
+| MAT-08 | Manual dig and add stay paid in credits and neither deposit nor withdraw stock. This is recorded as a deliberate gap. | MVP | done |
+
+### 4.23 Interplanetary logistics (LOG) — D-067
+
+State at registry level (`LogisticsState`), not in any planet's run state. Phase 2 (E2). Planned.
+
+| ID | Requirement | Priority | Status |
+| --- | --- | --- | --- |
+| LOG-01 | A route joins two distinct, known planets and needs a Spaceport at each end. Discovery arcs are not routes. | MVP | done |
+| LOG-02 | A route has id, endpoints, cost, capacity, travel ticks and status `open | closed` (building is immediate, so there is no `planned`). Building it charges shared credits once. | MVP | done |
+| LOG-03 | A shipment is a manifest of cargo lines (material, whole count) and creature IDs, with a departure tick and an arrival tick. `passengers` holds the creatures themselves (D-068). | MVP | done |
+| LOG-04 | Departure withdraws cargo from the origin inventory and the fee from shared credits in one step, or does nothing. Capacity is checked first. Each passenger leaves its planet in the same step. | MVP | done |
+| LOG-05 | Arrival deposits cargo and passengers at the destination exactly once, even when the player has switched planets in between. | MVP | done |
+| LOG-06 | Cancelling a shipment, closing a route or an invalid destination returns the manifest to the origin. | MVP | done |
+| LOG-07 | The logistics clock advances with the active planet's simulation; frozen planets are not stepped (D-040). Travel time is a tick count. | MVP | done |
+| LOG-08 | Total of each material across all planets plus all shipments is unchanged by any transfer. | MVP | done |
+| LOG-09 | The system overview draws open routes and moving trains. Layers `Rail Routes` and `Cargo Flow` toggle them (`state/railLayers.ts`); `shipmentPoint` is tested. | MVP | done (checked by screenshot) |
+| LOG-10 | An unvisited or unknown planet cannot be a route end. | MVP | done |
+
+### 4.24 Creatures, passports and migration (MIG) — D-068
+
+Phase 3 (E3). Planned.
+
+| ID | Requirement | Priority | Status |
+| --- | --- | --- | --- |
+| MIG-01 | Each resident has a stable globally unique `creatureId`; the id is `<planet seed>#resident-N`, and a visitor uses it as its local `id` on arrival. | MVP | done |
+| MIG-02 | A creature has species, origin planet, seeded preference offsets, `comfort`, `belonging`, a life state and an append-only `passport`. | MVP | done |
+| MIG-03 | A creature exists in exactly one place: a planet's population or a shipment manifest. | MVP | done |
+| MIG-04 | Hard needs (a species' required material or stable ground) veto a site; the rest of the score uses local material, stability, disturbance and same-species neighbours. | MVP | done |
+| MIG-05 | A trial period, a cooldown and a hysteresis margin bound how often a creature changes its mind. | MVP | done |
+| MIG-06 | With no suitable site after the trial, a creature raises a request (the material of its home surface) and, after a wait, books a free return seat if a route reaches home. | MVP | done |
+| MIG-07 | Two or more species can live on one planet; clustering of the same species forms a colony record. | MVP | done |
+| MIG-08 | The selected creature's card shows origin, preference, comfort, belonging, the reason for its state and its travel history. | MVP | done (card and panel; checked by screenshot of the panel) |
+| MIG-09 | The in-place sunk-home behaviour (RES) is unchanged for creatures at home. | MVP | done |
+| MIG-10 | Creature IDs and passports survive planet switches and returns. | MVP | done |
+
+### 4.25 Habitat patches (PAT) — D-069
+
+Phase 4 (E4). Planned.
+
+| ID | Requirement | Priority | Status |
+| --- | --- | --- | --- |
+| PAT-01 | A patch is `{ id, centre, radius, material }` stored per planet. The voxel field and base surface do not change. | MVP | done |
+| PAT-02 | A Builder patch job takes the stock, all or nothing, only when the patch is verified built; there is no earlier reservation, and a job that cannot be paid for or whose ground has moved costs nothing. | MVP | done |
+| PAT-03 | A patch changes habitat scoring for creatures near it and blends the ground colour, roughness and metalness there inside the terrain shader; it changes no physics. | MVP | done (painted by the terrain shader on the active planet) |
+| PAT-04 | Patches survive planet switches and are re-checked after terrain edits; a patch whose ground is gone is removed and its stock is not refunded. | MVP | done |
+| PAT-05 | Imported soil alone never gives a stable island on open water (applies from Phase 6). | MVP | deferred to Phase 6 |
+| PAT-06 | Plastic on metal makes a Plastic-role habitat; a patch on its own native ground does nothing new. | MVP | done |
+| PAT-07 | The `Habitat Suitability` layer shows the score for the selected creature's species. | MVP | todo (not built) |
+| PAT-08 | Legacy planets with no patches behave as before. | MVP | done |
+
+### 4.26 Emergent roads (RDS) — D-070
+
+Phase 5 (E5). Planned.
+
+| ID | Requirement | Priority | Status |
+| --- | --- | --- | --- |
+| RDS-01 | Each planet has a sampled navigation graph; nodes sit on the surface with slope and hazard, edges carry distance and cost. Built deterministically from the seed and updated locally. | MVP | done |
+| RDS-02 | A* with a node budget gives a route; it draws nothing and builds nothing. | MVP | done |
+| RDS-03 | Each trip adds heat along its edges; heat decays by a fixed factor per interval. | MVP | done |
+| RDS-04 | Heat above the first threshold shows a desire path; above the second the Builder may upgrade the edge to a road, withdrawing stock. | MVP | done |
+| RDS-05 | A road lowers its edge's cost by a fixed factor. | MVP | done |
+| RDS-06 | A terrain edit invalidates only edges within its reach (plus 1.5 node spacings); affected trips reroute within a bounded budget; a road across a cut is marked blocked. | MVP | done |
+| RDS-07 | Flying, underground and swimming agents have their own traversability and do not deposit road heat. | MVP | done (only ground walkers exist so far) |
+| RDS-08 | The same inputs produce the same graph, routes and heat. | MVP | done |
+| RDS-09 | Layers `Navigation Nodes`, `Traffic Heat`, `Desire Paths`, `Built Roads` and `Blocked Edges` toggle; node and segment counts are capped. | MVP | done (checked by screenshot) |
+| RDS-10 | A selected road shows trip count, heat against threshold, cost and, after a reroute, why. | MVP | done (card opens from a list, not by clicking in the scene) |
+
+### 4.27 Ecology expansion (ECO) — D-071
+
+Phase 6 (E6). Planned.
+
+| ID | Requirement | Priority | Status |
+| --- | --- | --- | --- |
+| ECO-01 | Fur, Jelly, Ice and Rock each get a species role and material rules as profile data, without new code paths. | Stretch | done (land half, D-071) |
+| ECO-02 | A new material or species is added by data and a test, not by editing the migration code. | Stretch | done (land half, D-071) |
+| ECO-03 | Water is a separate slice: continuous volume, swimmers with 3D navigation, a depth requirement. | Stretch | see §4.28 (D-073) |
+| ECO-04 | Aquatic species never use terrestrial roads. | Stretch | todo |
+| ECO-05 | Land structures on Water need an imported stable platform plus soil. | Stretch | todo |
+| ECO-06 | The Water planet gets its own decision, brief and acceptance before any code. | Stretch | done (D-073, water-brief.md, §4.28, written first) |
+
+### 4.28 Water planet (WAT) — D-073
+
+Brief: [water-brief.md](water-brief.md). Source: `world/planet.ts`, `systems/water.ts`.
+
+| ID | Requirement | Priority | Status |
+| --- | --- | --- | --- |
+| WAT-01 | A sphere-shaped signal planet is a Water planet when `${seed}:water` < 0.4; the home planet never is. Its core radius is capped at 0.30 and `waterRadius = radius × 6 + relief × 3 + 0.45`. No other seeded value moves. | Stretch | done |
+| WAT-02 | A point is in water when it is inside `waterRadius` and not in solid; depth is `waterRadius − |p|`. Dry planets have no water. | Stretch | done |
+| WAT-03 | The water is drawn as a translucent sphere over the real seabed on the planet and in the system overview; terrain edits show through. | Stretch | done (planet view; a flat ball in the overview; checked by screenshot) |
+| WAT-04 | Glassfin is a species row with a depth need (min 0.35, liked 0.5–1.4), is native to every Water planet and to no other, and has a body that builds from a seed. | Stretch | done |
+| WAT-05 | A swimmer's position is in 3 D, always in water, never inside solid or at the surface, drifting around its territory point. | Stretch | done |
+| WAT-06 | A swimmer's territory must have water at least 0.35 deep; a terrain edit that breaks it makes it move. | Stretch | done |
+| WAT-07 | Disturbance makes a swimmer dive; sustained disturbance makes it take a new territory away from the noise. | Stretch | done |
+| WAT-08 | A swimmer cannot be shipped to a dry planet; a land creature cannot be shipped to a Water planet without an anchored platform. The refusal says why. | Stretch | done |
+| WAT-09 | Ground under water is never a land creature's home. | Stretch | done |
+| WAT-10 | Terrain added on a Water planet is recorded as a mound; an unanchored mound is restored to the original seabed after 2 400 ticks, creating and refunding nothing. | Stretch | done |
+| WAT-11 | The Builder levels nothing on an ocean. A Builder anchors a mound with a platform: 30 structural material (scrap or plastic) and 12 soil, taken together once after a re-check; a job that cannot be paid for costs nothing. A platform is a patch of its material. | Stretch | done |
+| WAT-12 | A plant or an antenna can stand only on dry ground inside an anchored platform; the robots say why when the planet has none. | Stretch | done (the robots say why on an ocean) |
+| WAT-13 | The ground graph has nodes only on dry ground; swimmers leave no heat. | Stretch | done |
+| WAT-14 | Mounds, platforms and swimmers persist across planet switches. | Stretch | done |
+| WAT-15 | The overview names a Water planet and its depth. | Stretch | done |
+
 ## 5. Algorithms and rules
 
 ### 5.0a Planned resident update order
@@ -753,8 +896,47 @@ Current: cave detection/path strategy, resident body and tuning; account scope; 
 | SUR-T7 | Ice digging removes more than the brush and is reproducible; a parked robot melts ground and sinks. |
 | SUR-T8 | Excavation counters rise and never fall; every shader chunk a recipe patches exists in the class it patches. |
 
+### Multi-planet ecosystem acceptance (D-065–D-071)
+
+| ID | Check |
+| --- | --- |
+| MAT-T1 (automated, `tests/inventory.test.ts`) | On each of the six surfaces a Miner's dig raises exactly that surface's native material by the samples removed, and no other material. |
+| MAT-T2 (automated, `tests/inventory.test.ts`) | Repeated digs add up exactly; the Builder's fill lowers the stock by exactly the samples added and refuses when stock is short. |
+| MAT-T3 (automated, `tests/inventory.test.ts`) | A planet's inventory survives leaving and returning (PLN-03), and the other planet's inventory is untouched. |
+| MAT-T4 (automated, `tests/inventory.test.ts`) | Ore is sold on delivery as before; with `autoSellOre` false it stays in `mineralStock`. |
+| LOG-T1 (automated, `tests/logistics.test.ts`) | Cargo withdrawn at departure equals cargo deposited at arrival; the cross-planet total never changes. |
+| LOG-T2 (automated, `tests/logistics.test.ts`) | Arrival after a planet switch deposits once; a second step deposits nothing. |
+| LOG-T3 (automated, `tests/logistics.test.ts`) | Cancel, a closed route and an invalid target refund exactly. |
+| LOG-T4 (automated, `tests/logistics.test.ts`) | Frozen planets do not advance; the train clock does. Same inputs give the same arrival tick. |
+| MIG-T1 (automated, `tests/migration.test.ts`) | Creature IDs are unique across planets and shipments; no creature is ever in two places. |
+| MIG-T2 (automated) | A Cairn on a plastic planet becomes established; on bare metal it becomes homesick, asks for plastic and changes life at most a few times. Settling after a patch is checked under PAT-T1 when patches exist. |
+| MIG-T3 (automated) | Two species share a planet; a return trip restores the passport history. |
+| PAT-T1 (automated, `tests/patches.test.ts`) | A patch job consumes exactly its cost, only on success; a failed job leaves stock unchanged; a Cairn on bare metal that asked for plastic settles after the patch. |
+| PAT-T2 (automated) | A patch survives a revisit and does not alter the density field. |
+| RDS-T1 (automated, `tests/roads.test.ts`) | The same seed and trips give identical heat; heat decays; a road cheapens its edge. |
+| RDS-T2 (automated) | A cut across a road marks the edge blocked and a trip reroutes within the budget. |
+| ECO-T1 (automated, `tests/species.test.ts`) | Adding a species by data changes no migration code path. |
+
+**Target scenario (after Phase 5; run end to end by the last test in `tests/roads.test.ts`, with a Cairn, plastic, a metal planet, a patch, scrap for the road and a cut across it):** mine plastic on a Plastic planet → ship plastic and one Cairn to a Metal planet by train → the Cairn dislikes bare metal and asks for a habitat → a Builder spends the delivered plastic on a local patch → the Cairn stays and joins a small colony → trips between spaceport and colony wear a desire path → a Builder upgrades it to a road → the player digs across the road and trips reroute or the edge is marked blocked → passport, stock and colonies are right after switching planets.
+
+### Water acceptance (D-073)
+
+| ID | Check |
+| --- | --- |
+| WAT-T1 (automated, `tests/water.test.ts`) | The draw is stable; the home planet and non-spheres are never water; the radius cap and water radius follow the formula; no other config value of any planet changes; the pinned seeds are unaffected. |
+| WAT-T2 (automated) | A point is in water exactly inside the water radius and outside solid; the seabed is under at least 0.45 of water everywhere on an untouched planet. |
+| WAT-T3 (automated) | Digging the seabed deepens the water there; building it shallows it. |
+| WAT-T4 (automated) | Swimmers span a range of depths, are always in water, and a long run never puts one inside solid. |
+| WAT-T5 (automated) | A swimmer dives under disturbance and moves when its territory is built up too shallow. |
+| WAT-T6 (automated) | A Glassfin cannot be shipped to a dry planet and a land creature cannot be shipped to a bare Water planet; both can once the rules allow it. |
+| WAT-T7 (automated) | An unanchored mound is gone after its time, with the original seabed back and no stock change; an anchored one stays. |
+| WAT-T8 (automated) | A platform costs exactly 30 structural + 12 soil, only when verified; a plant and an antenna stand only on an anchored island; underwater nodes do not exist. |
+| WAT-T9 | The whole story in one run, including a planet switch. Covered in pieces: T6 (vetoes), T7 (erosion) and T8 (platform, dry ground, planet switch); no single run strings them together. |
+
 ## Change log
 
+- **2026-11-04 / D-071, D-073:** Species as data (ECO-01/02 done) and the Water planet (WAT-01–15, WAT-T1–T9), specified before code.
+- **2026-11-04 / D-065–D-071:** Added the multi-planet ecosystem: state §3.3, requirements MAT, LOG, MIG, PAT, RDS, ECO (§4.22–4.27) and their acceptance. MAT (Phase 1), LOG (Phase 2), MIG (Phase 3), PAT (Phase 4), RDS (Phase 5), ECO (land half) and WAT (Water) are built; the rest is planned.
 - **2026-10-30 / D-060–062:** Added planet surfaces (SUR-01–14, SUR-T1–T8) and the rename.
 - **2026-10-21 / D-049:** Recorded the system-view camera pull-back (SYS-05–14, SYS-T2–T7). Not implemented.
 - **2026-10-20 / D-034–038:** Reconciled current implementation and state schema; added planned habitat, resident, persistent-planet, overview and compact-feedback requirements and acceptance. No runtime implementation or tests were changed.

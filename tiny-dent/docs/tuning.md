@@ -31,6 +31,96 @@ Source: [src/config/tuning.ts](../src/config/tuning.ts), checked against current
 
 D-037 changes intended presentation only. Funds scope across persistent sites, revised bankruptcy and inactive-world billing remain open.
 
+## Materials (D-066)
+
+Source: `config/tuning.ts` `materials` and `content/surfaces.ts` `material`. Values are first guesses, not playtested.
+
+| Value | Now | Meaning |
+| --- | --- | --- |
+| `materials.unitPerSample` | 1 | Units of native material per density sample a robot removes. 1 keeps rock planets at their old Builder balance. |
+| `materials.autoSellOre` | true | true: ore is sold on delivery (D-039). false: it stays in `economy.mineralStock`. |
+| Native material | rock soil · metal scrap metal · plastic plastic chips · fur fibre · jelly gel · ice ice | One per surface. |
+
+## Space trains (D-067)
+
+Source: `config/tuning.ts` `logistics`. First guesses, not playtested. Credits are ₡; ticks are logistics ticks (one per simulation tick of the planet being played, 30 a second).
+
+| Value | Now | Meaning |
+| --- | --- | --- |
+| `spaceportCost` | 40 | One per planet. |
+| `routeBase`, `routePerUnit` | 30, 4 | Route cost = base + per unit × distance between the planets. |
+| `ticksPerUnit` | 90 | Travel ticks per world unit; two planets about 8 units apart take about 24 seconds. |
+| `capacity` | 60 | Units per shipment on one route (smallest leg for several). |
+| `feePerUnit` | 0.1 | Refunded on cancel or close. |
+| `lot` | 20 | Size of the shipment button. |
+
+## Water planet (D-073)
+
+Source: `config/tuning.ts` `water`. First guesses; nothing played.
+
+| Value | Now | Meaning |
+| --- | --- | --- |
+| `chance` | 0.4 | Of sphere-shaped signal planets; about 11.6% of all in a scan of 1 000. |
+| `maxRadius` | 0.30 | Core radius cap for an ocean, so the water fits in the 6-unit world. |
+| `margin` | 0.45 | Water over the highest seabed; with relief 0.2 the sea is 0.45–1.65 deep. |
+| `minDepth`, `bestDepth` | 0.35, [0.5, 1.4] | The Glassfin's hard need and the depth it likes. |
+| `surfaceGap`, `seabedGap` | 0.12, 0.1 | How near the surface and seabed a swimmer goes. |
+| `swimSpeed`, `drift` | 0.012, 0.35 | Per tick, and how far it drifts around its territory. |
+| `erodeAfter`, `erodeEvery` | 2 400, 60 ticks | An unanchored mound lasts 80 s, checked once a second or two. |
+| `platformCost`, `platformSoil` | 30, 12 | Structural material (plastic or scrap) and soil per platform. |
+| `dry` | 0.02 | How far above the water counts as dry ground. |
+
+## Species comfort (D-071)
+
+Source: `content/species.ts`. Each row has five weights (fit, stable, quiet, company, plants) that sum to 1, fits on other surfaces and a solitary flag. Defaults: fit 0.7, stable 0.1, quiet 0.1, company 0.1; `migration.foreignFit` 0.2 for a surface not listed. Characters: Moss Cap fit 0.55 + plants 0.15; Slab stable 0.2; Crystal Crown quiet 0.25; Sentinel quiet 0.05; Hermit company 0.2 and solitary; Periscope quiet 0.15; Shard stable 0.15. All first guesses; no playtest.
+
+## Walkers, heat and roads (D-070)
+
+Source: `config/tuning.ts` `traffic` and `roads`. First guesses; the loop was run end to end in tests and watched for about 30 seconds in the browser, nothing more.
+
+| Value | Now | Meaning |
+| --- | --- | --- |
+| `spacing`, `maxNodes`, `neighbours` | 0.32, 900, 6 | A node every 0.32 world units; the home planet (radius about 2) gets about 500. |
+| `maxSlope` | 1.1 | Rise over run above which an edge is a cliff. |
+| `slopeCost`, `hazardCost` | 1.5, 2 | Extra price per unit of slope and of nearby disturbance. |
+| `spawnEvery`, `maxTrips` | 90 ticks, 6 | A new errand every 3 s, at most 6 walking. |
+| `walkSpeed` | 0.02 | Price covered per tick; an edge of price 0.3 takes 15 ticks. |
+| `decayEvery`, `decay`, `heatFloor`, `heatCap` | 30, 0.9942, 0.05, 60 | Half-life about 3 600 ticks (two minutes). |
+| `pathAt`, `roadAt` | 3, 8 | Heat for a desire path and for a road to be allowed. In the 30-second browser run the busiest edge reached about 3.8. |
+| `expand` | 2 500 | Node budget for one search. |
+| `roads.cost` | 12 units | Of the planet's native material, per edge. |
+| `roads.factor` | rock 0.5, metal 0.45, plastic 0.5, fur 0.6, jelly 0.7, ice 0.65 | Multiplier on an edge's price. |
+
+## Patches (D-069)
+
+Source: `config/tuning.ts` `patches` and `migration.fitPull`. First guesses.
+
+| Value | Now | Meaning |
+| --- | --- | --- |
+| `patches.cost` | 24 | Units of the asked-for material spent per patch, close to `builder.fillCost` (28). |
+| `patches.radius` | 0.55 | World units; a patch covers about 1 square unit of ground. |
+| `patches.max` | 12 | Per planet; also the size of the shader's patch arrays. |
+| edge | starts at 0.55 of the radius, grain-roughened | Soft blend in `terrainMaterial.ts`; not a tuning value yet. |
+| `patches.tolerance` | 0.12 | How far the ground may move before a patch is gone, and how far it may have moved before a job spends anything. |
+| `migration.fitPull` | 1 | Bonus for a visitor choosing a home on ground that suits its species; larger than a companion (0.04) or a burrow (0.85). |
+
+## Visitors and migration (D-068)
+
+Source: `config/tuning.ts` `migration`. All first guesses; the one behaviour that was run is a Cairn on plastic (established) against bare metal (homesick, asks for plastic).
+
+| Value | Now | Meaning |
+| --- | --- | --- |
+| `trialTicks` | 900 | 30 s of looking around before the first verdict. |
+| `rate` | 0.05 | Belonging gained per check per unit of (comfort − 0.5); a check is every 15 ticks. |
+| `weights` | fit 0.7, stable 0.1, quiet 0.1, company 0.1 | Foreign bare ground alone scores about 0.34; native ground about 0.9. |
+| `foreignFit`, `bias` | 0.2, ±0.05 | Fit on a surface that is not the species' home; personal taste. |
+| `establishAt`, `keepAbove` | 0.85, 0.5 | Enter and leave "established". |
+| `homesickAt`, `recoverAt` | 0.15, 0.4 | Enter and leave "homesick". |
+| `cooldownTicks` | 300 | A change of life waits this long. |
+| `returnAfterTicks` | 1800 | Homesick this long before it asks for a seat home. |
+| `homelessGrace`, `seatFee` | 300, ₡2 | Time to find a home before comfort drops to 0; a passenger seat. |
+| `colonyRadius`, `colonyMin` | 1.2, 2 | Homes within this distance link into one colony of at least this many. |
+
 ## Planet surfaces (D-060, D-061)
 
 Rule multipliers live in `src/content/surfaces.ts`; thresholds in `tuning.surface`. Every number is a guess until playtested.

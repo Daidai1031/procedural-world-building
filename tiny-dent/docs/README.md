@@ -13,6 +13,8 @@ The project is a **procedural sandbox where players freely reshape different pla
 
 **Current implementation:** Autopilot mode (D-043), terrain tools, Miner/Gardener/Builder, plant/antenna behavior, operations with automatic mineral sales (D-039), surface exploration/atlas, planets retained across travel with a live 3D System overview (D-040), independently varied signal planets (D-041), cave residents that hide, return and relocate (D-042), planet materials that change how each world plays, with surface memory and digging sound (D-060–062), and the Quiet Drifter, the animated traveller who walks the surface (D-064).
 
+**In progress (D-065):** the multi-planet ecosystem, six phases in order (Phases 1–5, material inventories, trains, creature passports with migration, Builder habitat patches and emergent roads, the land half of Phase 6 (species as data) and the Water planet are built, D-066–D-073; the Water planet is described in [water-brief.md](water-brief.md)): material inventories, space trains, creature passports and migration, habitat patches, emergent roads, wider ecology. The brief is [Tiny_Dent_Gameplay_Update_Spec.md](Tiny_Dent_Gameplay_Update_Spec.md); progress is in [roadmap.md](roadmap.md) E1–E6.
+
 **Planned:** a person's playtest of S1–S6, low-end frame rate on fur, ice and jelly (SUR-14), the final resident body, compact accounting (OPS-01) and reload saves. Documentation changes do not implement these.
 
 ## The documents
@@ -29,6 +31,7 @@ The project is a **procedural sandbox where players freely reshape different pla
 | [reviews/2026-10-20-crit.md](reviews/2026-10-20-crit.md) | Paraphrased crit themes, subsequent decisions and evidence to collect |
 | [drifter/board.html](drifter/board.html) | D-064 character board: turnaround and every clip of the Quiet Drifter, built from the game's own model (`npm run board:drifter`); `drifter/the-quiet-drifter.glb` is the same model with baked clips (`npm run export:drifter`) |
 | [component-board.html](component-board.html) | Existing D-027 visual comparison board; resident body still undecided |
+| [water-brief.md](water-brief.md) | The Water planet (D-073): what is real about it, who can live there, how land is built in it, what is left out |
 | [system-view-brief.md](system-view-brief.md) | Implementation brief for the D-049 system-view redesign (built 2026-10-21); [system-view-concepts.html](system-view-concepts.html) is its interactive visual reference |
 | [surface-brief.md](surface-brief.md) | The D-060 planet materials: table, rule readings, surface memory and rendering recipes |
 | [archive/](archive/) | Historical GDD; not the active backlog |
