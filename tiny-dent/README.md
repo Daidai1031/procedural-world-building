@@ -18,7 +18,7 @@ Players can pursue resource extraction, ecological flourishing, or strange plane
 - **Builder:** repairs local holes first, then trims isolated obstructions, using the shared soil stock. Prepared sites can wake a waiting Gardener.
 - **Operations:** mineral storage/sales, soil stock, electricity billing, debt warning and bankruptcy; communicator messages explain operating problems.
 - **Resources:** Mineral is the only resource. Existing seed strings retain the same mineral positions (D-044, D-048).
-- **Exploration:** returnable outer-surface walking, landing sites and an updating 2D atlas.
+- **Exploration:** returnable outer-surface walking as the Quiet Drifter, in third or first person, landing sites and an updating 2D atlas. The Drifter's model, clips and board live in `docs/drifter/` (D-064).
 - **Planet materials:** rock, metal, plastic, fur, jelly and ice change digging, the crew and residents. Marks stay on the surface even where the ground heals (D-060, D-061).
 - **Sound:** each material has its own synthesized digging voice.
 - **Discovery/travel:** explicit broadcasts reveal distant planet entries. Travel currently creates a fresh planet state and carries funds only; old sites are not preserved for return.
@@ -106,4 +106,4 @@ Some older RunState fields are legacy placeholders. Operating funds and site ind
 
 ### Surface exploration and world map
 
-Open **World map & landing** to inspect terrain, resource distribution, development and landing sites. Select an available LZ and choose **Land here**, or click a landing beacon directly on the planet. Walk with WASD / arrow keys (or hold the on-screen movement buttons), and drag to look. Use **Return to orbit** or Escape to restore the orbital view. Steep edges block walking. The atlas displays your current location and refreshes while open.
+Open **World map & landing** to inspect terrain, resource distribution, development and landing sites. Select an available LZ and choose **Land here**, or click a landing beacon directly on the planet. Walk with WASD / arrow keys (or hold the on-screen movement buttons), and drag to look. You see the Quiet Drifter from behind; press V or **First-person view** to look through its eyes instead. Hold Shift to hurry. Keys 1–3 make it wave, kneel and sit; standing still, it looks around and later sits to watch the sky (D-064). Use **Return to orbit** or Escape to restore the orbital view. Steep edges block walking. The atlas displays your current location and refreshes while open.

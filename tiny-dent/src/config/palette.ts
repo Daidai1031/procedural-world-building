@@ -64,6 +64,20 @@ export const palette = {
     // What polished materials reflect: the paper page above, dark space below.
     space: { zenith: '#f3f1eb', nadir: '#1d2026', star: '#ffffff' },
   },
+  // D-064: the Quiet Drifter, from the turnaround sheet's material palette. `seam` and `roseDeep` are shades of the
+  // sheet's ivory and dusty red for the backpack seams and the brooch's spiral centre.
+  drifter: {
+    ivory: '#efe9dc',
+    seam: '#d8d0bf',
+    cuff: '#e0ad4c',
+    boot: '#a9a59d',
+    face: '#353331',
+    eye: '#fff8e9',
+    rose: '#c96a62',
+    roseDeep: '#a9504d',
+    leaf: '#93ab7d',
+    stem: '#7a9467',
+  },
   // One status light per robot (AUT-10).
   state: {
     scan: '#ece7da',

@@ -11,7 +11,7 @@ The project is a **procedural sandbox where players freely reshape different pla
 3. [roadmap.md](roadmap.md): what to implement next, starting with one resident response.
 4. [spec.md](spec.md): exact requirements and future acceptance checks.
 
-**Current implementation:** Autopilot mode (D-043), terrain tools, Miner/Gardener/Builder, plant/antenna behavior, operations with automatic mineral sales (D-039), surface exploration/atlas, planets retained across travel with a live 3D System overview (D-040), independently varied signal planets (D-041), cave residents that hide, return and relocate (D-042), and planet materials that change how each world plays, with surface memory and digging sound (D-060–062).
+**Current implementation:** Autopilot mode (D-043), terrain tools, Miner/Gardener/Builder, plant/antenna behavior, operations with automatic mineral sales (D-039), surface exploration/atlas, planets retained across travel with a live 3D System overview (D-040), independently varied signal planets (D-041), cave residents that hide, return and relocate (D-042), planet materials that change how each world plays, with surface memory and digging sound (D-060–062), and the Quiet Drifter, the animated traveller who walks the surface (D-064).
 
 **Planned:** a person's playtest of S1–S6, low-end frame rate on fur, ice and jelly (SUR-14), the final resident body, compact accounting (OPS-01) and reload saves. Documentation changes do not implement these.
 
@@ -27,6 +27,7 @@ The project is a **procedural sandbox where players freely reshape different pla
 | [roadmap.md](roadmap.md) | Active playable slices, then retained development history |
 | [decisions.md](decisions.md) | Accepted/proposed decisions and their reasons |
 | [reviews/2026-10-20-crit.md](reviews/2026-10-20-crit.md) | Paraphrased crit themes, subsequent decisions and evidence to collect |
+| [drifter/board.html](drifter/board.html) | D-064 character board: turnaround and every clip of the Quiet Drifter, built from the game's own model (`npm run board:drifter`); `drifter/the-quiet-drifter.glb` is the same model with baked clips (`npm run export:drifter`) |
 | [component-board.html](component-board.html) | Existing D-027 visual comparison board; resident body still undecided |
 | [system-view-brief.md](system-view-brief.md) | Implementation brief for the D-049 system-view redesign (built 2026-10-21); [system-view-concepts.html](system-view-concepts.html) is its interactive visual reference |
 | [surface-brief.md](surface-brief.md) | The D-060 planet materials: table, rule readings, surface memory and rendering recipes |

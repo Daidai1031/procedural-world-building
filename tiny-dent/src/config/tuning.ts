@@ -206,6 +206,17 @@ export const tuning = {
     maxPlants: 400, maxAntennas: 8,
     stages: 3, growTicks: 300, spreadTicks: 450, spreadRadius: 0.7, spreadAttempts: 6,
   },
+  // D-064: the Quiet Drifter. `height` is world units from boot sole to helmet top, chosen so the eyes sit at the
+  // first-person `eyeHeight` (0.16); stride and gait live with the model in render/models/drifter.ts. `walkSpeed` is
+  // the walk at full stride (about three steps a second); holding Shift hurries at `hurrySpeed`, the old surface
+  // speed. The follow
+  // camera sits `distance` behind and `rise` above the feet and aims `aim` above them. After `lookAfter` seconds
+  // without input the Drifter looks around; after `sitAfter` it sits down and watches the sky.
+  drifter: {
+    height: 0.184, walkSpeed: 0.17, hurrySpeed: 0.32, turnRate: 9, fade: 0.32,
+    camera: { distance: 0.5, rise: 0.17, aim: 0.12, clearance: 0.05, ease: 10 },
+    lookAfter: 5, sitAfter: 16,
+  },
   // Spec §3 initialization only; M0 implements no budget or canister rules.
   budget: { energyTotal: 1000, workCycles: 30 },
   canister: { capacity: 300 },
