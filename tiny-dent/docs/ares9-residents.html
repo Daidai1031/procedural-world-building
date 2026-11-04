@@ -1,0 +1,921 @@
+<meta charset="utf-8">
+<title>Ares-9 Residents</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Audiowide&family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Outfit:wght@400..700&display=swap">
+<style>
+/* Layout: a full-height WebGL specimen stage beside a field-notes panel; tokens reused from terraforming-1380/src/style.css */
+:root {
+  --paper: #F3F1EB;
+  --card: #FBFAF6;
+  --chip: #ebe8df;
+  --ink: #353632;
+  --ink-soft: #62635c;
+  --line: #d6d3ca;
+  --graphite: #454641;
+  --mustard: #cfa726;
+  --rust: #a4533a;
+  --tag-bg: rgba(251, 250, 246, 0.88);
+  --tag-on: #454641;
+  --shadow: rgba(53, 54, 50, 0.45);
+  --font-ui: 'Bricolage Grotesque', 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', ui-sans-serif, system-ui, sans-serif;
+  --font-title: 'Audiowide', 'Outfit', ui-sans-serif, sans-serif;
+  --font-display: 'Outfit', 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Consolas, monospace;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  color-scheme: light;
+}
+html, body { height: 100%; }
+body { background: var(--paper); color: var(--ink); font-family: var(--font-ui); -webkit-font-smoothing: antialiased; }
+* { box-sizing: border-box; }
+button { font: inherit; color: inherit; }
+button:focus-visible { outline: 2px solid var(--mustard); outline-offset: 2px; }
+
+.app {
+  height: 100%;
+  display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 14px;
+  padding-block: 18px 16px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.top { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.kicker { margin: 0 0 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-soft); }
+h1 { margin: 0; font-family: var(--font-title); font-weight: 400; font-size: clamp(24px, 3.2vw, 34px); line-height: 1.04; letter-spacing: -0.015em; text-wrap: balance; }
+.lede { margin: 8px 0 0; max-width: 62ch; font-family: var(--font-display); font-size: 14px; line-height: 1.5; color: var(--ink-soft); }
+.meta { display: flex; gap: 8px; flex-wrap: wrap; }
+.pill { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); font-size: 12.5px; font-weight: 600; cursor: pointer; transition: background 160ms var(--ease), color 160ms var(--ease), scale 120ms var(--ease); }
+.pill:active { scale: 0.97; }
+.pill[aria-pressed='true'] { background: var(--graphite); color: var(--paper); border-color: var(--graphite); }
+.pill .mono { font-family: var(--font-mono); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 348px; gap: 14px; min-height: 0; }
+.stage { position: relative; min-height: 0; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; background: var(--paper); box-shadow: 0 14px 34px -24px var(--shadow); }
+.stage canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.tags { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.tag { position: absolute; left: 0; top: 0; pointer-events: auto; display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px 3px 4px; border: 1px solid var(--line); border-radius: 999px; background: var(--tag-bg); font-size: 11.5px; font-weight: 600; white-space: nowrap; cursor: pointer; transition: background 160ms var(--ease), color 160ms var(--ease); }
+.tag b { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: var(--chip); font-family: var(--font-mono); font-size: 10px; }
+.tag[aria-pressed='true'] { background: var(--tag-on); color: var(--paper); border-color: var(--tag-on); }
+.tag[aria-pressed='true'] b { background: var(--mustard); color: var(--ink); }
+
+.hud { position: absolute; left: 12px; right: 12px; display: flex; gap: 8px; flex-wrap: wrap; pointer-events: none; }
+.hud > * { pointer-events: auto; }
+.hud-top { top: 12px; justify-content: space-between; }
+.hud-bottom { bottom: 12px; flex-direction: column; align-items: center; gap: 6px; }
+.seg { display: inline-grid; grid-auto-flow: column; gap: 3px; padding: 3px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 10px 24px -18px var(--shadow); }
+.seg button { min-height: 32px; padding: 0 12px; border: 0; border-radius: 9px; background: transparent; font-size: 12.5px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: background 160ms var(--ease), color 160ms var(--ease), scale 120ms var(--ease); }
+.seg button:active { scale: 0.97; }
+.seg button[aria-pressed='true'] { background: var(--graphite); color: var(--paper); }
+.seg kbd { margin-left: 5px; font-family: var(--font-mono); font-size: 10px; opacity: 0.55; }
+.tools { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.tools .pill { min-height: 32px; padding: 0 12px; font-size: 12px; box-shadow: 0 10px 24px -18px var(--shadow); }
+.caption { margin: 0; padding: 4px 12px; border-radius: 999px; background: var(--tag-bg); font-size: 12px; color: var(--ink-soft); text-align: center; }
+.states { max-width: 100%; overflow-x: auto; }
+
+.panel { min-height: 0; overflow: auto; display: grid; align-content: start; gap: 14px; padding: 18px; border: 1px solid var(--line); border-radius: 18px; background: var(--card); box-shadow: 0 14px 34px -24px var(--shadow); }
+.panel h2 { margin: 0; font-family: var(--font-display); font-size: 26px; font-weight: 600; line-height: 1.1; text-wrap: balance; }
+.panel .en { margin: 4px 0 0; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+.list { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.list button { width: 100%; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 8px; padding: 8px 10px 8px 8px; border: 1.5px solid var(--line); border-radius: 12px; background: transparent; text-align: left; cursor: pointer; transition: background 160ms var(--ease), border-color 160ms var(--ease), color 160ms var(--ease); }
+.list button:hover { border-color: var(--ink-soft); }
+.list button[aria-pressed='true'] { background: var(--graphite); border-color: var(--graphite); color: var(--paper); }
+.list .num { font-family: var(--font-mono); font-size: 11px; opacity: 0.7; font-variant-numeric: tabular-nums; }
+.list .nm { display: block; font-size: 13.5px; font-weight: 700; line-height: 1.2; }
+.list .sw { display: flex; gap: 3px; margin-top: 4px; }
+.list .sw i { width: 10px; height: 10px; border-radius: 3px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12); }
+.detail { display: grid; gap: 12px; padding-top: 14px; border-top: 1px solid var(--line); }
+.detail p { margin: 0; font-size: 13.5px; line-height: 1.6; }
+.detail .label { display: block; margin-bottom: 2px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); }
+.rates { display: grid; gap: 6px; margin: 0; }
+.rates div { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 12.5px; }
+.rates dt { color: var(--ink-soft); }
+.rates dd { margin: 0; display: flex; gap: 3px; }
+.rates dd i { width: 16px; height: 6px; border-radius: 3px; background: var(--chip); }
+.rates dd i.on { background: var(--graphite); }
+.note { font-size: 12px; line-height: 1.5; color: var(--ink-soft); }
+.note code { font-family: var(--font-mono); font-size: 11px; }
+
+@media (max-width: 900px) {
+  .app { height: auto; }
+  .main { grid-template-columns: minmax(0, 1fr); }
+  .stage { height: 78vh; min-height: 460px; }
+  .hud-top { flex-direction: column; align-items: stretch; }
+  .tools { justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .tools .pill { flex: none; }
+}
+@media (max-width: 460px) {
+  .list { grid-template-columns: 1fr; }
+  .seg kbd { display: none; }
+}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div>
+      <p class="kicker">Terraforming Contractor #1380 · S1 Resident Designs</p>
+      <h1>Ares-9 Residents</h1>
+      <p class="lede">Noise-averse, social rock residents that shelter in the ground. Nine design directions, each generated procedurally from a seed. Rotate to look around, switch behavior states, and reseed to see individual variation.</p>
+    </div>
+    <div class="meta">
+      <button class="pill" id="reseed" type="button" title="Shortcut R">Reseed <span class="mono" id="seedLabel">#1380</span></button>
+    </div>
+  </header>
+
+  <div class="main">
+    <section class="stage" id="stage" aria-label="Resident 3D preview">
+      <div class="tags" id="tags"></div>
+      <div class="hud hud-top">
+        <div class="seg" role="group" aria-label="View mode">
+          <button type="button" data-view="all" aria-pressed="true">All species</button>
+          <button type="button" data-view="pop" aria-pressed="false">One species × 6 seeds</button>
+        </div>
+        <div class="tools">
+          <button class="pill" type="button" id="silBtn" aria-pressed="false" title="Shortcut S">Silhouette test</button>
+          <button class="pill" type="button" id="groundBtn" aria-pressed="false">Ground color</button>
+          <button class="pill" type="button" id="minerBtn" aria-pressed="false">Miner scale</button>
+          <button class="pill" type="button" id="farBtn">Game camera</button>
+          <button class="pill" type="button" id="fitBtn">Overview</button>
+        </div>
+      </div>
+      <div class="hud hud-bottom">
+        <div class="seg states" role="group" aria-label="Behavior state">
+          <button type="button" data-state="idle" aria-pressed="true">Idle<kbd>1</kbd></button>
+          <button type="button" data-state="peek" aria-pressed="false">Peek<kbd>2</kbd></button>
+          <button type="button" data-state="startle" aria-pressed="false">Startle<kbd>3</kbd></button>
+          <button type="button" data-state="hide" aria-pressed="false">Hide as stone<kbd>4</kbd></button>
+          <button type="button" data-state="walk" aria-pressed="false">Relocate<kbd>5</kbd></button>
+        </div>
+        <p class="caption" id="stateCaption"></p>
+      </div>
+    </section>
+
+    <aside class="panel" aria-label="Design notes">
+      <ul class="list" id="list"></ul>
+      <div class="detail" id="detail"></div>
+      <p class="note">Scores are a first pass for comparing directions, not conclusions. Drag to rotate, scroll to zoom, click a resident to focus. Scale assumes a Miner about 0.15 game units across and residents about 0.06–0.13 tall; neither is settled in the game.</p>
+    </aside>
+  </div>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+
+// ───────────────────────── palette (matches src/config/palette.ts where it overlaps) ─────────────────────────
+const GRAPHITE = '#3b3a37', MINT = '#86d4ad';
+const PAL = {
+  gray:   ['#8e8c86', '#9d9a93', '#7f7d78', '#aeaba3', '#74726d'],
+  sand:   ['#d6c4a6', '#cbb493', '#e0d1b8', '#c2aa86'],
+  rose:   ['#d7b8ab', '#cba497', '#e0c6bb', '#c0968a'],
+  slate:  ['#7d8790', '#717a83', '#8b949b', '#646c74'],
+  basalt: ['#5a5955', '#4f4e4a', '#64625d', '#47463f'],
+  umber:  ['#8a8178', '#958b80', '#7d756d', '#9f968a'],
+  sage:   ['#a3ab9c', '#959e8f', '#b3b9aa', '#8a9384'],
+  moss:   ['#6b8160', '#7f8d6c', '#66805a', '#97a083'],
+};
+const STRATA = {
+  rose:  [['#d9bcb0', '#d4b5a8'], ['#c79e91', '#c2988b'], ['#e6d0c6', '#e1c9be'], ['#b98b80']],
+  sand:  [['#dcc9aa', '#d6c2a1'], ['#c6ad88', '#bfa57f'], ['#e8dcc6'], ['#b59c78']],
+  slate: [['#8d969d', '#879097'], ['#6f7880'], ['#a3abb0', '#9ca5ab'], ['#5f676e']],
+};
+
+// ───────────────────────── small utilities ─────────────────────────
+const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
+const lerp = (a, b, t) => a + (b - a) * t;
+const clamp01 = (t) => Math.max(0, Math.min(1, t));
+const smooth = (t) => { t = clamp01(t); return t * t * (3 - 2 * t); };
+
+function RNG(seed) {
+  let a = seed >>> 0;
+  const f = () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  return { f, range: (lo, hi) => lo + (hi - lo) * f(), int: (lo, hi) => lo + Math.floor(f() * (hi - lo + 1)), pick: (arr) => arr[Math.floor(f() * arr.length)], chance: (p) => f() < p };
+}
+function hashSeed(...parts) { let h = 2166136261; for (const p of parts) { h ^= p >>> 0; h = Math.imul(h, 16777619); h ^= h >>> 13; } return h >>> 0; }
+function shade(hex, dl) { const c = new THREE.Color(hex); c.offsetHSL(0, 0, dl); return '#' + c.getHexString(); }
+
+// ───────────────────────── materials ─────────────────────────
+const MAT = {
+  rock: new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.9 }),
+  rockDouble: new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.9, side: THREE.DoubleSide }),
+  limb: new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.7 }),
+  white: new THREE.MeshStandardMaterial({ color: '#f7f5ef', roughness: 0.4 }),
+  ink: new THREE.MeshStandardMaterial({ color: '#262421', roughness: 0.35 }),
+};
+const SIL = new THREE.MeshBasicMaterial({ color: '#2b2a27' });
+const matCache = new Map();
+function matOf(hex, soft = false) {
+  const k = hex + soft;
+  if (!matCache.has(k)) matCache.set(k, new THREE.MeshStandardMaterial({ color: hex, roughness: soft ? 0.55 : 0.8, flatShading: !soft }));
+  return matCache.get(k);
+}
+function mk(geo, mat) { const m = new THREE.Mesh(geo, mat); m.castShadow = true; m.receiveShadow = true; return m; }
+
+// ───────────────────────── procedural rock geometry ─────────────────────────
+// Displace every unique vertex once (keyed by position) so faceted rocks stay watertight.
+function roughen(g, rng, { radial = 0, offset = 0, transform = null } = {}) {
+  if (g.index) g = g.toNonIndexed();
+  if (g.attributes.uv) g.deleteAttribute('uv');
+  const pos = g.attributes.position, cache = new Map(), v = V();
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i);
+    const key = Math.round(v.x * 1000) + ',' + Math.round(v.y * 1000) + ',' + Math.round(v.z * 1000);
+    let d = cache.get(key);
+    if (!d) { d = { s: 1 + (rng.f() * 2 - 1) * radial, o: V(rng.f() * 2 - 1, rng.f() * 2 - 1, rng.f() * 2 - 1).multiplyScalar(offset) }; cache.set(key, d); }
+    v.multiplyScalar(d.s).add(d.o);
+    if (transform) transform(v);
+    pos.setXYZ(i, v.x, v.y, v.z);
+  }
+  g.computeVertexNormals();
+  return g;
+}
+// One color per triangle, chosen by a rule that sees the face centroid and normal (moss on top, strata by height…).
+function paint(g, rng, fn, jitter = 0.05) {
+  const pos = g.attributes.position, n = pos.count, col = new Float32Array(n * 3);
+  const a = V(), b = V(), c = V(), e1 = V(), e2 = V(), nr = V(), cen = V(), tc = new THREE.Color();
+  for (let i = 0; i < n; i += 3) {
+    a.fromBufferAttribute(pos, i); b.fromBufferAttribute(pos, i + 1); c.fromBufferAttribute(pos, i + 2);
+    nr.crossVectors(e1.subVectors(b, a), e2.subVectors(c, a)).normalize();
+    cen.copy(a).add(b).add(c).divideScalar(3);
+    tc.set(fn(cen, nr, rng)); tc.offsetHSL(0, 0, (rng.f() - 0.5) * jitter);
+    for (let k = 0; k < 3; k++) col.set([tc.r, tc.g, tc.b], (i + k) * 3);
+  }
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  return g;
+}
+const fromPal = (pal) => (c, n, r) => r.pick(pal);
+const mossy = (base, thr, pal = PAL.moss) => (c, n, r) => (n.y > thr + (r.f() - 0.5) * 0.3 ? r.pick(pal) : base(c, n, r));
+const banded = (bands, band, off) => (c, n, r) => { const i = Math.floor((c.y + off + (r.f() - 0.5) * band * 0.35) / band); return r.pick(bands[((i % bands.length) + bands.length) % bands.length]); };
+
+function rockGeo(r, { radius = 0.5, detail = 1, radial = 0.1, offset = 0.02, scale = [1, 1, 1], flat = -0.7, color, lean = 0 }) {
+  const fb = flat * radius * scale[1];
+  const g = roughen(new THREE.IcosahedronGeometry(radius, detail), r, {
+    radial, offset: offset * radius,
+    transform: (v) => { v.x *= scale[0]; v.y *= scale[1]; v.z *= scale[2]; if (v.y < fb) v.y = fb + (v.y - fb) * 0.12; v.x += v.y * lean; },
+  });
+  return paint(g, r, color);
+}
+const bboxOf = (mesh) => new THREE.Box3().setFromBufferAttribute(mesh.geometry.attributes.position);
+
+// ───────────────────────── parts: eyes, limbs ─────────────────────────
+const ray = new THREE.Raycaster();
+function hit(mesh, from, dir) {
+  mesh.updateMatrixWorld(true);
+  ray.set(from, dir.clone().normalize());
+  const h = ray.intersectObject(mesh, false)[0];
+  return h ? { p: h.point.clone(), n: h.face.normal.clone() } : null;
+}
+function disc(r, seg, mat, depth) { const g = new THREE.CylinderGeometry(r, r, depth, seg); g.rotateX(Math.PI / 2); return new THREE.Mesh(g, mat); }
+function makeEye(type, r) {
+  const eye = new THREE.Group(), lid = new THREE.Group(); eye.add(lid);
+  let pupil = null;
+  if (type === 'dot') {
+    const m = new THREE.Mesh(new THREE.SphereGeometry(r, 12, 8), MAT.ink); m.scale.set(1, 1.2, 0.6); lid.add(m);
+  } else if (type === 'disc') {
+    lid.add(disc(r, 18, MAT.white, 0.024));
+    pupil = disc(r * 0.56, 16, MAT.ink, 0.02); pupil.position.z = 0.012; lid.add(pupil);
+    const hl = disc(r * 0.17, 10, MAT.white, 0.01); hl.position.set(r * 0.18, r * 0.2, 0.012); pupil.add(hl);
+  } else if (type === 'octa') {
+    const ring = disc(r * 1.24, 8, MAT.ink, 0.02); ring.rotation.z = Math.PI / 8; lid.add(ring);
+    const w = disc(r, 8, MAT.white, 0.03); w.rotation.z = Math.PI / 8; w.position.z = 0.008; lid.add(w);
+    pupil = disc(r * 0.44, 4, MAT.ink, 0.02); pupil.position.z = 0.024; lid.add(pupil);
+  }
+  eye.userData = { lid, pupil, r };
+  return eye;
+}
+function placeOn(obj, mesh, x, y, push, bias = 0.4) {
+  const h = hit(mesh, V(x, y, 5), V(0, 0, -1));
+  if (!h) { obj.position.set(x, y, 0.3); mesh.add(obj); return obj; }
+  const n = h.n.clone().lerp(V(0, 0, 1), bias).normalize();
+  obj.position.copy(h.p).addScaledVector(n, push);
+  obj.quaternion.setFromUnitVectors(V(0, 0, 1), n);
+  mesh.add(obj);
+  return obj;
+}
+function addEyes(c, mesh, { type, r, spacing = 0, y, count = 2, push, bias }) {
+  const xs = count === 1 ? [0] : [-spacing / 2, spacing / 2];
+  for (const x of xs) c.eyes.push(placeOn(makeEye(type, r), mesh, x, y, push ?? (type === 'dot' ? 0 : 0.008), bias));
+}
+// A limb hangs along -Y from its pivot; vertex colors fade from `top` to `bot` (the mint tips in the cyclops reference).
+function limb(len, r, top, bot = top, { seg = 6, foot = null } = {}) {
+  const g = new THREE.CylinderGeometry(r * 0.85, r, len, seg, 3); g.translate(0, -len / 2, 0);
+  const pos = g.attributes.position, col = new Float32Array(pos.count * 3), A = new THREE.Color(top), B = new THREE.Color(bot), t = new THREE.Color();
+  for (let i = 0; i < pos.count; i++) { t.copy(A).lerp(B, smooth(-pos.getY(i) / len)); col.set([t.r, t.g, t.b], i * 3); }
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  const pivot = new THREE.Group(); pivot.add(mk(g, MAT.limb));
+  if (foot) { const f = mk(new THREE.SphereGeometry(r * 1.7, 8, 6), matOf(foot)); f.scale.set(1, 0.55, 1.5); f.position.set(0, -len, r * 0.8); pivot.add(f); }
+  return pivot;
+}
+function addLegs(c, mesh, { count = 2, len, r, top, bot = top, sx, sz = 0, foot = null }) {
+  const bb = bboxOf(mesh), hipY = bb.min.y + (bb.max.y - bb.min.y) * 0.14;
+  const spots = count === 2 ? [[-sx, 0, 0], [sx, 0, Math.PI]]
+    : count === 4 ? [[-sx, -sz, 0], [sx, -sz, Math.PI], [-sx, sz, Math.PI], [sx, sz, 0]]
+    : [[-sx, -sz, 0], [sx, -sz, Math.PI], [-sx * 1.1, 0, Math.PI], [sx * 1.1, 0, 0], [-sx, sz, 0], [sx, sz, Math.PI]];
+  for (const [x, z, ph] of spots) { const p = limb(len, r, top, bot, { foot }); p.position.set(x, hipY, z); c.torso.add(p); c.legs.push({ p, ph }); }
+  c.legLen = len; c.hipY = hipY; c.bodyMinY = bb.min.y;
+}
+function addArms(c, mesh, { len, r, color, y, angle = 0.5, z = 0 }) {
+  for (const side of [-1, 1]) {
+    const h = hit(mesh, V(side * 5, y, z), V(-side, 0, 0)); if (!h) continue;
+    const p = limb(len, r, color);
+    p.position.copy(h.p).addScaledVector(h.n, -0.012);
+    p.userData = { side, base: angle };
+    mesh.add(p); c.arms.push(p);
+  }
+}
+
+// ───────────────────────── the ten directions ─────────────────────────
+const SPECIES = [
+  {
+    id: 'facet', en: 'Facet Pebble', swatch: ['#9d9a93', '#3b3a37', '#f7f5ef'], rate: [3, 3, 2, 3],
+    concept: 'The most direct take on a stone come alive: a low-poly faceted body, two round eyes, matchstick limbs. Each facet faces a different way so it shades differently, and on a gray planet it is recognized by silhouette and eye whites.',
+    hide: 'Limbs pull into the body and the eyes close, leaving an ordinary lump of rock.',
+    ref: 'Stone Rock sheet: faceted body + thin limbs',
+    build(c, r) {
+      const R = r.range(0.46, 0.58), pal = r.pick([PAL.gray, PAL.gray, PAL.slate, PAL.sand]);
+      const body = mk(rockGeo(r, { radius: R, detail: 1, radial: r.range(0.07, 0.13), offset: 0.03, scale: [r.range(1.08, 1.25), r.range(0.85, 1), r.range(0.85, 0.98)], flat: -0.72, color: fromPal(pal) }), MAT.rock);
+      addEyes(c, body, { type: 'disc', r: R * r.range(0.13, 0.16), spacing: R * r.range(0.6, 0.8), y: R * r.range(-0.02, 0.16) });
+      addArms(c, body, { len: r.range(0.26, 0.34), r: 0.022, color: GRAPHITE, y: -R * 0.08, angle: 0.55 });
+      c.torso.add(body);
+      addLegs(c, body, { count: 2, len: r.range(0.3, 0.4), r: 0.026, top: GRAPHITE, sx: R * 0.32, foot: GRAPHITE });
+    },
+  },
+  {
+    id: 'moss', en: 'Moss Cap', swatch: ['#8a8178', '#6b8160', '#d690b6'], rate: [2, 3, 2, 3],
+    concept: 'A rounded old stone with moss on its upward faces, sometimes sprouting shoots and flowers. The amount of moss can show how long it has lived somewhere quiet.',
+    hide: 'Four short feet retract and the bead eyes close, leaving a mossy round stone; the sprouts fold in a little too.',
+    ref: 'Kedo stone folk: mossy top, bead eyes, short stout legs',
+    build(c, r) {
+      const R = r.range(0.42, 0.54), pal = r.pick([PAL.umber, PAL.sage, PAL.gray]);
+      const body = mk(rockGeo(r, { radius: R, detail: 2, radial: r.range(0.035, 0.07), offset: 0.02, scale: [1.05, r.range(0.92, 1.12), 0.95], flat: -0.6, color: mossy(fromPal(pal), r.range(0.38, 0.66)) }), MAT.rock);
+      addEyes(c, body, { type: 'dot', r: 0.03, spacing: R * r.range(0.42, 0.55), y: -R * r.range(0.05, 0.25) });
+      if (r.chance(0.8)) {
+        const top = hit(body, V(r.range(-0.15, 0.15) * R, 5, r.range(-0.15, 0.15) * R), V(0, -1, 0));
+        const sp = new THREE.Group(); sp.position.copy(top.p); body.add(sp);
+        const L = r.range(0.1, 0.18);
+        sp.add(mk(new THREE.CylinderGeometry(0.008, 0.012, L, 5).translate(0, L / 2, 0), matOf('#5d7a4c')));
+        for (const s of [-1, 1]) { const leaf = mk(new THREE.SphereGeometry(0.045, 6, 4), matOf(r.pick(['#6f9b58', '#7fa36b']))); leaf.scale.set(1.4, 0.35, 0.8); leaf.position.set(s * 0.05, L, 0); leaf.rotation.z = s * 0.4; sp.add(leaf); }
+        if (r.chance(0.35)) { const fl = mk(new THREE.OctahedronGeometry(0.035), matOf('#d690b6')); fl.position.y = L + 0.02; sp.add(fl); }
+        c.sprout = sp;
+      }
+      c.torso.add(body);
+      addLegs(c, body, { count: 4, len: 0.13, r: 0.06, top: shade(pal[0], -0.08), sx: R * 0.48, sz: R * 0.32 });
+      c.hook = (c, s, T) => { if (c.sprout) { c.sprout.rotation.z = Math.sin(T * 1.8) * 0.12 + s.shake * Math.sin(T * 40) * 0.2; c.sprout.scale.setScalar(1 - s.hide * 0.35); } };
+    },
+  },
+  {
+    id: 'slab', en: 'Tall Slab', swatch: ['#d9bcb0', '#c79e91', '#e6d0c6'], rate: [3, 2, 2, 3],
+    concept: 'An upright sedimentary slab whose color bands are its strata. The tall, thin outline is the easiest to spot in a crowd of round stones, which suits an elder or the one that leads the group.',
+    hide: 'With its feet tucked in it looks like a standing stone set in the ground; the tilted top keeps individual differences.',
+    ref: 'Kedo’s standing stones and pink slate',
+    build(c, r) {
+      const W = r.range(0.42, 0.54), H = r.range(0.95, 1.2), D = r.range(0.28, 0.36), slant = r.range(-0.25, 0.25), taper = r.range(0.05, 0.2);
+      const bands = r.pick([STRATA.rose, STRATA.sand, STRATA.slate]);
+      const g = roughen(new THREE.BoxGeometry(W, H, D, 2, 5, 2), r, { offset: 0.022, transform: (v) => { const k = (v.y + H / 2) / H; v.x *= 1 - taper * k; v.z *= 1 - taper * 0.5 * k; if (v.y > H / 2 - 0.06) v.y += v.x * slant; } });
+      paint(g, r, banded(bands, r.range(0.09, 0.14), r.f()));
+      const body = mk(g, MAT.rock), limbC = shade(bands[1][0], -0.12);
+      addEyes(c, body, { type: 'dot', r: 0.028, spacing: W * 0.36, y: H * r.range(0.12, 0.26) });
+      addArms(c, body, { len: 0.13, r: 0.04, color: limbC, y: -H * 0.08, angle: 0.35 });
+      c.torso.add(body);
+      addLegs(c, body, { count: 2, len: r.range(0.1, 0.15), r: 0.05, top: limbC, sx: W * 0.24 });
+    },
+  },
+  {
+    id: 'crystal', en: 'Crystal Crown', swatch: ['#717a83', '#e9cf6e', '#bfe0ea'], rate: [3, 2, 2, 2],
+    concept: 'Mineral crystals grow on its back, in colors that can match the game’s Mineral. It looks just like ore, which creates direct tension with the Miner’s mining.',
+    hide: 'Shrinks into a stone with a crystal cluster. The crystals glint when startled, which works as a state cue from far away.',
+    ref: 'Kedo’s ice crystal stone',
+    build(c, r) {
+      const R = r.range(0.4, 0.5), pal = r.pick([PAL.slate, PAL.basalt, PAL.gray]);
+      const body = mk(rockGeo(r, { radius: R, detail: 1, radial: 0.1, offset: 0.03, scale: [1.12, 0.75, 0.95], flat: -0.6, color: fromPal(pal) }), MAT.rock);
+      const tint = r.pick(['#e9cf6e', '#bfe0ea', '#e6b9d6', '#bfe6c6']);
+      const cm = new THREE.MeshStandardMaterial({ color: tint, emissive: tint, emissiveIntensity: 0.15, roughness: 0.2, metalness: 0.05, flatShading: true, transparent: true, opacity: 0.9 });
+      c.own.push(cm); c.glow = cm;
+      const n = r.int(4, 7);
+      for (let i = 0; i < n; i++) {
+        const a = r.f() * Math.PI * 2, d = r.f() * R * 0.55;
+        const h = hit(body, V(Math.cos(a) * d, 5, Math.sin(a) * d * 0.8 - R * 0.1), V(0, -1, 0)); if (!h) continue;
+        const len = r.range(0.22, 0.55) * (1 - (d / R) * 0.6), rad = r.range(0.045, 0.085);
+        const prism = new THREE.CylinderGeometry(rad, rad, len, 6).translate(0, len / 2, 0);
+        const tip = new THREE.CylinderGeometry(0, rad, rad * 1.8, 6).translate(0, len + rad * 0.9, 0);
+        const m = mk(mergeGeometries([prism, tip]), cm); prism.dispose(); tip.dispose();
+        m.position.copy(h.p).addScaledVector(h.n, -0.03);
+        const up = h.n.clone().multiplyScalar(0.8).add(V(r.range(-0.3, 0.3), 1, r.range(-0.3, 0.3))).normalize();
+        m.quaternion.setFromUnitVectors(V(0, 1, 0), up); m.rotateY(r.f() * Math.PI);
+        body.add(m);
+      }
+      addEyes(c, body, { type: 'dot', r: 0.032, spacing: R * 0.55, y: -R * 0.12 });
+      c.torso.add(body);
+      addLegs(c, body, { count: 4, len: 0.13, r: 0.05, top: shade(pal[0], -0.1), sx: R * 0.5, sz: R * 0.3 });
+      c.hook = (c, s, T) => { c.glow.emissiveIntensity = 0.12 + 0.08 * Math.sin(T * 2.2) + s.peek * 0.25 + s.shake * (0.5 + 0.5 * Math.sin(T * 18)); };
+    },
+  },
+  {
+    id: 'sentinel', en: 'Cyclops Sentinel', swatch: ['#5a5955', '#f7f5ef', '#86d4ad'], rate: [3, 2, 1, 3],
+    concept: 'An octagonal column body with one big eye, and mint-colored tendrils and toe tips. Easiest to recognize from afar and the most alien, but the least stone-like.',
+    hide: 'Tendrils retract and the eye closes to a line, leaving a short stone pillar.',
+    ref: 'The first reference image: one eye + diamond pupil + gradient tendrils',
+    build(c, r) {
+      const H = r.range(0.68, 0.9), Rr = r.range(0.36, 0.44), pal = r.pick([PAL.basalt, PAL.gray, PAL.umber]);
+      const base = new THREE.CylinderGeometry(Rr * 0.86, Rr, H, 8, 2); base.rotateY(Math.PI / 8);
+      const g = roughen(base, r, { offset: 0.018, transform: (v) => { v.z *= 0.78; } });
+      paint(g, r, fromPal(pal), 0.04);
+      const body = mk(g, MAT.rock);
+      addEyes(c, body, { type: 'octa', r: Rr * r.range(0.42, 0.52), count: 1, y: H * r.range(0, 0.12), push: 0.012, bias: 1 });
+      c.ant = [];
+      const k = r.int(2, 3);
+      for (let i = 0; i < k; i++) {
+        const ang = k === 2 ? (i ? 0.55 : -0.55) : (i - 1) * 0.6, L = r.range(0.3, 0.5);
+        const p = limb(L, 0.02, pal[0], MINT, { seg: 5 });
+        p.position.set(-Math.sin(ang) * Rr * 0.3, H / 2 - 0.02, 0);
+        p.userData.base = Math.PI + ang; p.rotation.z = p.userData.base;
+        body.add(p); c.ant.push(p);
+      }
+      c.torso.add(body);
+      addLegs(c, body, { count: 2, len: r.range(0.32, 0.42), r: 0.03, top: shade(pal[0], -0.05), bot: MINT, sx: Rr * 0.38 });
+      c.hook = (c, s, T) => {
+        c.ant.forEach((p, i) => {
+          p.rotation.z = p.userData.base + Math.sin(T * 2 + i * 1.7) * 0.08 + s.shake * Math.sin(T * 35 + i) * 0.15;
+          const kk = Math.max(0.001, 1 - s.hide); p.scale.set(1, kk, 1); p.visible = kk > 0.02;
+        });
+      };
+    },
+  },
+  {
+    id: 'hermit', en: 'Hermit Shell', swatch: ['#9d9a93', '#e8d3bd', '#3b3a37'], rate: [2, 3, 2, 1],
+    concept: 'A soft body lives in a hollow stone shell and peers out of the opening. Shelter-dwelling and noise-aversion are built into its anatomy.',
+    hide: 'Pulls entirely into the shell, then rolls a door stone over the opening (the optional door-stone animation mentioned in D-035).',
+    ref: 'Hermit crab + the stone feel of rock Pikmin',
+    build(c, r) {
+      const R = r.range(0.5, 0.6), pal = r.pick([PAL.gray, PAL.sand, PAL.slate]);
+      const g = roughen(new THREE.SphereGeometry(R, 10, 8, 0, Math.PI * 2, 0, Math.PI * 0.66), r, { radial: 0.08, offset: 0.02 * R });
+      g.rotateX(-0.5);
+      paint(g, r, mossy(fromPal(pal), 0.75));
+      const shell = mk(g, MAT.rockDouble);
+      const sb = new THREE.Box3().setFromBufferAttribute(g.attributes.position);
+      const softC = r.pick(['#e8d3bd', '#ecd9cf', '#dfd6c2']);
+      const sg = new THREE.SphereGeometry(R * 0.6, 16, 12); sg.scale(1, 0.72, 1.05);
+      const soft = mk(sg, matOf(softC, true));
+      addEyes(c, soft, { type: 'disc', r: 0.06, spacing: 0.17, y: R * 0.1 });
+      soft.position.set(0, sb.min.y + R * 0.22, R * 0.2);
+      c.soft = soft; c.softBase = soft.position.clone();
+      c.torso.add(shell, soft);
+      const softMin = soft.position.y - R * 0.6 * 0.72, hipY = softMin + 0.05, len = 0.17;
+      [[-0.17, 0.05], [0.17, 0.05], [-0.21, -0.12], [0.21, -0.12], [-0.15, 0.22], [0.15, 0.22]].forEach(([x, z], i) => {
+        const p = limb(len, 0.022, shade(softC, -0.1), shade(softC, -0.22));
+        p.position.set(x * R / 0.55, hipY, z * R / 0.55 + soft.position.z * 0.6); c.torso.add(p); c.legs.push({ p, ph: i % 2 ? Math.PI : 0 });
+      });
+      c.legLen = len; c.hipY = hipY; c.bodyMinY = Math.min(sb.min.y, softMin);
+      c.hideY = -sb.min.y - 0.02;
+      const door = mk(rockGeo(r, { radius: 0.15, detail: 0, radial: 0.1, scale: [1, 0.85, 0.7], flat: -0.8, color: fromPal(pal) }), MAT.rock);
+      c.root.add(door); c.door = door;
+      c.doorOpen = V(R + 0.35, 0.11, 0.25); c.doorShut = V(0, 0.12, R * 0.7);
+      c.hook = (c, s) => {
+        const h = s.hide;
+        c.soft.position.set(c.softBase.x, c.softBase.y + h * R * 0.38, c.softBase.z - h * R * 0.3);
+        c.soft.scale.setScalar(1 - h * 0.3);
+        const k = smooth((h - 0.4) / 0.6);
+        c.door.position.lerpVectors(c.doorOpen, c.doorShut, k);
+        c.door.rotation.set(0, k * 0.3, (1 - k) * -3);
+      };
+    },
+  },
+  {
+    id: 'cairn', en: 'Cairn', swatch: ['#8e8c86', '#d6c4a6', '#7d8790'], rate: [3, 3, 2, 2],
+    concept: 'Three stones stacked into one individual, matching their liking for company. The seed decides which rock each layer uses, so it is hard to find two alike in one group.',
+    hide: 'Under sustained disturbance it collapses into a small pile, eyes shut on top.',
+    ref: 'Roadside stone cairn',
+    build(c, r) {
+      const pool = [PAL.gray, PAL.sand, PAL.slate, PAL.rose, PAL.umber];
+      const pals = [0, 1, 2].map(() => pool.splice(Math.floor(r.f() * pool.length), 1)[0]);
+      const sizes = [r.range(0.4, 0.48), r.range(0.3, 0.36), r.range(0.21, 0.26)];
+      const stones = sizes.map((s, i) => mk(rockGeo(r, { radius: s, detail: 1, radial: 0.1, offset: 0.03, scale: [1.15, r.range(0.58, 0.7), 1], flat: -0.5, color: fromPal(pals[i]) }), MAT.rock));
+      const et = r.chance(0.5) ? 'dot' : 'disc';
+      addEyes(c, stones[2], { type: et, r: et === 'dot' ? 0.028 : 0.045, spacing: sizes[2] * 0.75, y: 0.0 });
+      addArms(c, stones[1], { len: 0.24, r: 0.02, color: GRAPHITE, y: 0, angle: 0.6 });
+      let top = 0, parentAbs = V();
+      stones.forEach((m, i) => {
+        const bb = bboxOf(m);
+        const abs = i === 0 ? V() : V(r.range(-0.06, 0.06), top - bb.min.y - 0.035, r.range(-0.04, 0.04));
+        m.position.copy(abs).sub(parentAbs);
+        if (i === 2) m.rotation.y = r.range(-0.25, 0.25);
+        m.userData.base = m.position.clone();
+        (i === 0 ? c.torso : stones[i - 1]).add(m);
+        top = abs.y + bb.max.y; parentAbs = abs;
+      });
+      c.stones = stones;
+      addLegs(c, stones[0], { count: 2, len: r.range(0.24, 0.3), r: 0.03, top: GRAPHITE, sx: sizes[0] * 0.35, foot: GRAPHITE });
+      c.hook = (c, s, T) => {
+        const step = T * 9;
+        c.stones.forEach((m, i) => {
+          if (!i) return;
+          const b = m.userData.base, dir = i === 1 ? 1 : -1;
+          m.position.x = b.x + s.hide * dir * 0.1;
+          m.position.y = b.y - s.hide * 0.05 * i;
+          m.rotation.z = s.hide * dir * -0.25 + s.walk * Math.sin(step - i * 0.8) * 0.08 + s.shake * Math.sin(T * 42 + i) * 0.05 + s.peek * Math.sin(T * 1.6) * 0.07;
+        });
+      };
+    },
+  },
+  {
+    id: 'periscope', en: 'Periscope', swatch: ['#5a5955', '#f7f5ef', '#7f8d6c'], rate: [2, 3, 2, 2],
+    concept: 'A flat stone half-buried in the ground with a retractable eye stalk on top. Peeking reads most clearly here: the body stays still while only the stalk rises and looks around, ideal for peeking out of a home.',
+    hide: 'The eye stalk retracts fully, leaving only a flat stone.',
+    ref: 'Periscope / snail eye stalk',
+    build(c, r) {
+      const R = r.range(0.5, 0.62), pal = r.pick([PAL.gray, PAL.basalt, PAL.umber]);
+      const body = mk(rockGeo(r, { radius: R, detail: 1, radial: 0.1, offset: 0.03, scale: [1.2, r.range(0.42, 0.52), 1], flat: -0.45, color: mossy(fromPal(pal), 0.82) }), MAT.rock);
+      c.stalks = [];
+      const n = r.chance(0.35) ? 2 : 1;
+      for (let i = 0; i < n; i++) {
+        const x = n === 1 ? r.range(-0.1, 0.1) * R : (i ? 0.26 : -0.26) * R;
+        const h = hit(body, V(x, 5, R * 0.15), V(0, -1, 0));
+        const base = new THREE.Group(); base.position.copy(h.p); base.position.y -= 0.02; body.add(base);
+        const L = r.range(0.32, 0.5) * (i ? 0.8 : 1);
+        const stalk = mk(new THREE.CylinderGeometry(0.026, 0.034, 1, 6).translate(0, 0.5, 0), matOf(shade(pal[0], 0.1))); base.add(stalk);
+        const eye = new THREE.Group(), lid = new THREE.Group(); eye.add(lid);
+        lid.add(mk(new THREE.SphereGeometry(0.1, 14, 10), MAT.white));
+        const pupil = disc(0.05, 14, MAT.ink, 0.02); pupil.position.z = 0.095; lid.add(pupil);
+        eye.userData = { lid, pupil, r: 0.1 }; base.add(eye); c.eyes.push(eye);
+        c.stalks.push({ stalk, eye, L, ph: r.f() * 6 });
+      }
+      c.torso.add(body);
+      addLegs(c, body, { count: 4, len: 0.08, r: 0.045, top: shade(pal[0], -0.1), sx: R * 0.55, sz: R * 0.3 });
+      c.hook = (c, s, T) => {
+        for (const st of c.stalks) {
+          const f = (lerp(0.55, 1.35, s.peek) + 0.06 * Math.sin(T * 1.3 + st.ph) + s.shake * 0.15) * (1 - s.hide);
+          const len = Math.max(0.001, st.L * f);
+          st.stalk.scale.y = len; st.stalk.visible = len > 0.01;
+          st.eye.position.y = len + 0.07;
+          st.eye.scale.setScalar(Math.max(0.001, clamp01(f * 2.5)));
+          st.eye.rotation.y = s.peek * Math.sin(T * 1.4 + st.ph) * 0.9 + (1 - s.peek) * Math.sin(T * 0.5 + st.ph) * 0.25;
+        }
+      };
+    },
+  },
+  {
+    id: 'shard', en: 'Shard', swatch: ['#a3ab9c', '#6b8160', '#3b3a37'], rate: [3, 2, 2, 3],
+    concept: 'A tilted five-sided spike of rock, with more moss the higher it goes. Its sharp outline contrasts with the round robots, and it could also serve as a sub-species of another resident.',
+    hide: 'With limbs tucked in and eyes closed it is a spike of rock slanting out of the ground.',
+    ref: 'Kedo’s green pointed stone',
+    build(c, r) {
+      const H = r.range(1.0, 1.3), Rb = r.range(0.32, 0.4), lean = r.range(-0.22, 0.22), pal = r.pick([PAL.sage, PAL.sand, PAL.gray]);
+      const cone = new THREE.ConeGeometry(Rb, H, 5, 3); cone.rotateY(Math.PI / 5);
+      const g = roughen(cone, r, { offset: 0.03, transform: (v) => { v.z *= 0.8; v.x += (v.y + H / 2) * lean; } });
+      paint(g, r, (cen, n, rr) => (cen.y > H * 0.05 && rr.f() < cen.y / H + 0.2 ? rr.pick(PAL.moss) : rr.pick(pal)));
+      const body = mk(g, MAT.rock);
+      addEyes(c, body, { type: 'dot', r: 0.03, spacing: Rb * 0.55, y: -H * 0.24 });
+      addArms(c, body, { len: 0.15, r: 0.02, color: GRAPHITE, y: -H * 0.3, angle: 0.7 });
+      c.torso.add(body);
+      addLegs(c, body, { count: 2, len: r.range(0.2, 0.28), r: 0.026, top: GRAPHITE, sx: Rb * 0.38, foot: GRAPHITE });
+    },
+  },
+];
+
+const RATE_LABELS = ['Silhouette', 'Hide readability', 'Fits current style', 'Easy to build'];
+const STATES = {
+  idle: { t: { hide: 0, peek: 0, shake: 0, walk: 0 }, cap: 'Calm: breathing, blinking, looking around' },
+  peek: { t: { hide: 0.45, peek: 1, shake: 0, walk: 0 }, cap: 'After a brief disturbance: crouches and peeks out, ready to return (RES-03)' },
+  startle: { t: { hide: 0.1, peek: 0, shake: 1, walk: 0 }, cap: 'Digging vibration nearby: trembling, eyes wide' },
+  hide: { t: { hide: 1, peek: 0, shake: 0, walk: 0 }, cap: 'Sustained disturbance: limbs in, eyes shut, it looks like a plain stone' },
+  walk: { t: { hide: 0, peek: 0, shake: 0, walk: 1 }, cap: 'Moving to a quieter home (RES-04)' },
+};
+
+// ───────────────────────── creature rig ─────────────────────────
+function createCreature(def, seed, index) {
+  const r = RNG(seed);
+  const c = { def, seed, index, rng: r, root: new THREE.Group(), torso: new THREE.Group(), eyes: [], legs: [], arms: [], own: [],
+    s: { hide: 0, peek: 0, shake: 0, walk: 0 }, phase: r.f() * 100, blinkAt: r.range(0.5, 3), blinkOn: -9, walkA: 0, legLen: 0, hipY: 0, bodyMinY: 0, home: V() };
+  c.root.add(c.torso);
+  def.build(c, r);
+  c.standY = c.standY ?? c.legLen - c.hipY;
+  c.hideY = c.hideY ?? -c.bodyMinY - 0.03;
+  c.eyes.forEach((e) => { if (e.userData.pupil) e.userData.p0 = e.userData.pupil.position.clone(); });
+  c.root.traverse((o) => { if (o.isMesh) o.userData.creature = c; });
+  c.torso.position.y = c.standY;
+  c.root.updateMatrixWorld(true);
+  c.height = new THREE.Box3().setFromObject(c.root).max.y;
+  return c;
+}
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function updateCreature(c, t, dt, target) {
+  const s = c.s, a = 1 - Math.exp(-dt * 5);
+  for (const k in target) s[k] += (target[k] - s[k]) * a;
+  const T = t + c.phase, step = T * 9, calm = reduceMotion ? 0 : 1;
+
+  // relocation: a small loop around home, facing the direction of travel
+  if (s.walk > 0.01) c.walkA += dt * 0.9 * s.walk;
+  const R = 0.35 * s.walk;
+  c.root.position.set(c.home.x + Math.sin(c.walkA) * R, 0, c.home.z + (Math.cos(c.walkA) - 1) * R);
+  c.root.rotation.y = lerp(0, Math.atan2(Math.cos(c.walkA), -Math.sin(c.walkA)), smooth(s.walk));
+
+  const breathe = Math.sin(T * 2.1) * 0.012 * (1 - s.hide) * calm;
+  c.torso.position.y = lerp(c.standY, c.hideY, s.hide) + breathe + s.walk * Math.abs(Math.sin(step)) * 0.05;
+  c.torso.position.x = s.shake * Math.sin(T * 55) * 0.018;
+  c.torso.rotation.z = s.peek * Math.sin(T * 1.7) * 0.14 + s.walk * Math.sin(step) * 0.05;
+  c.torso.rotation.x = s.peek * 0.12 + s.walk * 0.06;
+  c.torso.scale.y = 1 + breathe * 0.8 - s.shake * 0.03;
+
+  const legK = Math.max(0.001, 1 - s.hide);
+  for (const { p, ph } of c.legs) { p.scale.y = legK; p.visible = legK > 0.03; p.rotation.x = s.walk * Math.sin(step + ph) * 0.55; }
+  for (const p of c.arms) {
+    const { side, base } = p.userData;
+    p.scale.setScalar(Math.max(0.001, 1 - s.hide)); p.visible = s.hide < 0.97;
+    p.rotation.z = side * (base + s.shake * 1.7 + Math.sin(T * 1.3) * 0.06 * calm);
+    p.rotation.x = s.walk * Math.sin(step + (side > 0 ? 0 : Math.PI)) * 0.6;
+  }
+
+  if (t > c.blinkAt) { c.blinkOn = t; c.blinkAt = t + c.rng.range(2, 5.5); }
+  const blink = calm && t - c.blinkOn < 0.13 ? 0.08 : 1;
+  const open = (1 - smooth((s.hide - 0.5) * 2)) * blink;
+  const look = s.peek * Math.sin(T * 2.3) * 0.9 + (1 - s.peek) * Math.sin(T * 0.4) * 0.3 * calm;
+  for (const e of c.eyes) {
+    const { lid, pupil, r, p0 } = e.userData;
+    lid.scale.set(1 + s.shake * 0.2, Math.max(0.05, open * (1 + s.shake * 0.25)), 1);
+    if (pupil) { pupil.position.x = p0.x + look * r * 0.3; pupil.position.y = p0.y - s.peek * r * 0.08; pupil.visible = open > 0.3; }
+  }
+  if (c.hook) c.hook(c, s, T, dt);
+}
+
+function disposeCreature(c) {
+  c.root.traverse((o) => { if (o.isMesh) o.geometry.dispose(); });
+  c.own.forEach((m) => m.dispose());
+  c.root.removeFromParent();
+}
+
+// ───────────────────────── Miner reference (port of robots.ts createMiner, ×10 scale) ─────────────────────────
+function makeMiner() {
+  const S = 10, cell = 0.02 * S, group = new THREE.Group(), lamp = new THREE.MeshStandardMaterial({ color: '#ece7da', emissive: '#ece7da', emissiveIntensity: 0.6, roughness: 0.6 });
+  const mats = { body: new THREE.MeshStandardMaterial({ color: '#e4e1d8', roughness: 0.5 }), band: new THREE.MeshStandardMaterial({ color: '#3b3a37', roughness: 0.65, metalness: 0.15 }), char: new THREE.MeshStandardMaterial({ color: '#2c2c2b', roughness: 0.55, metalness: 0.2 }), lamp };
+  const parts = new Map();
+  const cube = (x, y, z, mat, scale = 0.97, c = cell) => { const g = new THREE.BoxGeometry(c * scale, c * scale, c * scale).translate(x * c, y * c, z * c); if (!parts.has(mat)) parts.set(mat, []); parts.get(mat).push(g); };
+  for (let x = -4; x <= 4; x++) for (let y = -4; y <= 4; y++) for (let z = -4; z <= 4; z++) {
+    const d = Math.hypot(x, y, z); if (d > 3.7 || d < 2.6) continue;
+    const eye = x >= 3 && (y === 0 || y === 1) && (z === 0 || z === -1);
+    cube(x, y, z, eye ? lamp : y === 0 ? mats.band : mats.body);
+  }
+  for (const [x, z] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]) cube(x, -4.3, z, mats.band);
+  cube(0, -5.3, 0, mats.band, 0.8); cube(0, -6.1, 0, mats.band, 0.5);
+  const flush = (target) => { for (const [m, list] of parts) { target.add(mk(mergeGeometries(list), m)); list.forEach((g) => g.dispose()); } parts.clear(); };
+  const orb = new THREE.Group(); flush(orb); group.add(orb);
+  const tilt = new THREE.Group(); tilt.rotation.z = 0.28; const spin = new THREE.Group(); tilt.add(spin); group.add(tilt);
+  const rc = 0.013 * S;
+  for (let i = 0; i < 26; i++) { const a = (i / 26) * Math.PI * 2; cube(Math.cos(a) * 0.106 / 0.013, 0, Math.sin(a) * 0.106 / 0.013, i % 6 === 0 ? mats.char : mats.band, 0.97, rc); }
+  flush(spin);
+  const holder = new THREE.Group(); holder.add(group); group.rotation.y = -Math.PI / 2; group.position.y = 0.15 * S;
+  holder.traverse((o) => { if (o.isMesh) o.userData.miner = true; });
+  return { root: holder, spin, update: (t) => { spin.rotation.y = t * 1.2; group.position.y = 0.15 * S + Math.sin(t * 1.6) * 0.04; } };
+}
+
+// ───────────────────────── scene ─────────────────────────
+const stage = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+stage.prepend(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(32, 1, 0.05, 300);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.maxPolarAngle = Math.PI * 0.49; controls.minDistance = 1.4; controls.maxDistance = 60;
+
+scene.add(new THREE.HemisphereLight('#ffffff', '#b7ad97', 2.0));
+const sun = new THREE.DirectionalLight('#ffffff', 2.6);
+sun.position.set(4, 9, 6); sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left: -11, right: 11, top: 11, bottom: -11, near: 1, far: 30 });
+sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.02;
+scene.add(sun);
+
+const GROUNDS = { paper: { bg: '#F3F1EB', ground: '#e9e6dd' }, terrain: { bg: '#8a8882', ground: '#9d9a93' } };
+const ground = new THREE.Mesh(new THREE.CircleGeometry(80, 64).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ roughness: 1 }));
+ground.receiveShadow = true; scene.add(ground);
+const ring = new THREE.Mesh(new THREE.TorusGeometry(0.85, 0.014, 6, 72).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#454641' }));
+ring.position.y = 0.01; scene.add(ring);
+
+const miner = makeMiner(); scene.add(miner.root);
+
+// ───────────────────────── app state ─────────────────────────
+const st = { view: 'all', sel: 0, seed: 1380, state: 'idle', sil: false, terrain: false, miner: false };
+let creatures = [], tags = [], tween = null, cols = 5, layoutSig = '', firstFit = true;
+const $ = (id) => document.getElementById(id);
+
+function setGround() {
+  const g = GROUNDS[st.terrain ? 'terrain' : 'paper'];
+  scene.background = new THREE.Color(g.bg); scene.fog = new THREE.Fog(g.bg, 22, 70);
+  ground.material.color.set(g.ground);
+  stage.style.background = g.bg;
+}
+
+function applySil() {
+  const swap = (o) => { if (!o.isMesh) return; if (st.sil) { o.userData.m ??= o.material; o.material = SIL; } else if (o.userData.m) { o.material = o.userData.m; } };
+  creatures.forEach((c) => c.root.traverse(swap));
+  miner.root.traverse(swap);
+}
+
+function build() {
+  creatures.forEach(disposeCreature);
+  const items = st.view === 'all'
+    ? SPECIES.map((d, i) => ({ d, seed: hashSeed(st.seed, i), i }))
+    : Array.from({ length: 6 }, (_, k) => ({ d: SPECIES[st.sel], seed: hashSeed(st.seed, st.sel, k + 1), i: k }));
+  creatures = items.map(({ d, seed, i }) => { const c = createCreature(d, seed, i); scene.add(c.root); return c; });
+  buildTags(); layout(true); applySil();
+}
+
+function layout(refit) {
+  const w = stage.clientWidth, h = stage.clientHeight, aspect = w / Math.max(1, h);
+  const n = creatures.length;
+  cols = st.view === 'all' ? (aspect < 1.25 ? 3 : 5) : (aspect < 0.85 ? 2 : 3);
+  const sp = st.view === 'all' ? 2.1 : 2.2, rowSp = 3.3, rows = Math.ceil(n / cols);
+  creatures.forEach((c, i) => {
+    const row = Math.floor(i / cols), col = i % cols, inRow = Math.min(cols, n - row * cols);
+    c.home.set((col - (inRow - 1) / 2) * sp, 0, (row - (rows - 1) / 2) * rowSp);
+    c.root.position.copy(c.home);
+  });
+  const mx = st.miner ? sp * 1.25 : 0, halfW = ((cols - 1) / 2) * sp + 0.8 + (st.miner ? mx / 2 + 1.2 : 0), halfD = ((rows - 1) / 2) * rowSp + 0.9;
+  miner.root.position.set(((cols - 1) / 2) * sp + mx, 0, 0);
+  st.shiftX = mx / 2;
+  miner.root.visible = st.miner;
+  st.fit = { halfW, halfD };
+  const sig = cols + '|' + n + '|' + st.miner;
+  if (refit || sig !== layoutSig) fitAll(firstFit ? 0 : 0.9);
+  if (n) firstFit = false;
+  layoutSig = sig;
+}
+
+function fitAll(dur = 0.9) {
+  const { halfW, halfD } = st.fit, aspect = camera.aspect, free = hudFree();
+  const elev = 0.62, vf0 = THREE.MathUtils.degToRad(camera.fov) / 2, hf = Math.atan(Math.tan(vf0) * aspect), vf = Math.atan(Math.tan(vf0) * free);
+  const dist = Math.max((halfW + 0.2) / Math.tan(hf), (halfD * Math.sin(elev) + 1.5) / Math.tan(vf)) + halfD * Math.cos(elev) * 0.5;
+  const tgt = V(st.shiftX || 0, 0.55, 0);
+  flyTo(tgt.clone().add(V(0, Math.sin(elev), Math.cos(elev)).multiplyScalar(dist)), tgt, dur);
+}
+function focus(c) {
+  const tgt = c.home.clone().add(V(0, c.height * 0.45, 0));
+  const dir = camera.position.clone().sub(controls.target).normalize();
+  dir.y = Math.max(0.25, Math.min(0.55, dir.y)); dir.normalize();
+  flyTo(tgt.clone().addScaledVector(dir, Math.max(3.8, c.height * 3.6)), tgt);
+}
+function farView() {
+  const tgt = (creatures[st.view === 'all' ? st.sel : 0] ?? creatures[0]).home.clone().add(V(0, 0.4, 0));
+  flyTo(tgt.clone().add(V(0, 0.62, 0.78).normalize().multiplyScalar(26)), tgt, 1.2);
+}
+function flyTo(pos, tgt, dur = 0.9) {
+  if (dur <= 0) { camera.position.copy(pos); controls.target.copy(tgt); tween = null; return; }
+  tween = { start: performance.now(), dur, p0: camera.position.clone(), t0: controls.target.clone(), p1: pos, t1: tgt };
+}
+controls.addEventListener('start', () => { tween = null; });
+
+// ───────────────────────── labels + panel ─────────────────────────
+function buildTags() {
+  const box = $('tags'); box.textContent = ''; tags = [];
+  creatures.forEach((c, i) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'tag';
+    const label = st.view === 'all' ? c.def.en : 'Seed ' + (c.seed % 10000).toString().padStart(4, '0');
+    b.innerHTML = '<b>' + (i + 1) + '</b><span></span>'; b.querySelector('span').textContent = label;
+    b.addEventListener('click', () => pick(c));
+    box.appendChild(b); tags.push(b);
+  });
+  syncTags();
+}
+function syncTags() {
+  tags.forEach((b, i) => b.setAttribute('aria-pressed', String(st.view === 'all' ? i === st.sel : false)));
+}
+const projV = V();
+function placeTags() {
+  const w = stage.clientWidth, h = stage.clientHeight;
+  creatures.forEach((c, i) => {
+    projV.set(c.root.position.x, 0, c.root.position.z + 0.85).project(camera);
+    const b = tags[i];
+    if (projV.z > 1) { b.hidden = true; return; }
+    b.hidden = false;
+    b.style.transform = 'translate(' + ((projV.x * 0.5 + 0.5) * w).toFixed(1) + 'px,' + ((-projV.y * 0.5 + 0.5) * h).toFixed(1) + 'px) translate(-50%, 0)';
+  });
+}
+
+function renderList() {
+  const ul = $('list'); ul.textContent = '';
+  SPECIES.forEach((d, i) => {
+    const li = document.createElement('li'), b = document.createElement('button');
+    b.type = 'button'; b.setAttribute('aria-pressed', String(i === st.sel));
+    b.innerHTML = '<span class="num">' + String(i + 1).padStart(2, '0') + '</span><span><span class="nm"></span><span class="sw">' + d.swatch.map((x) => '<i style="background:' + x + '"></i>').join('') + '</span></span>';
+    b.querySelector('.nm').textContent = d.en;
+    b.addEventListener('click', () => selectSpecies(i, true));
+    li.appendChild(b); ul.appendChild(li);
+  });
+}
+function renderDetail() {
+  const d = SPECIES[st.sel], el = $('detail');
+  el.innerHTML = '<div><h2></h2><p class="en"></p></div>'
+    + '<p><span class="label">Concept</span><span data-k="concept"></span></p>'
+    + '<p><span class="label">When hiding</span><span data-k="hide"></span></p>'
+    + '<p><span class="label">Reference</span><span data-k="ref"></span></p>'
+    + '<dl class="rates">' + RATE_LABELS.map((l, i) => '<div><dt>' + l + '</dt><dd aria-label="' + d.rate[i] + ' / 3">' + [0, 1, 2].map((k) => '<i class="' + (k < d.rate[i] ? 'on' : '') + '"></i>').join('') + '</dd></div>').join('') + '</dl>';
+  el.querySelector('h2').textContent = d.en;
+  el.querySelector('.en').textContent = String(st.sel + 1).padStart(2, '0') + ' · ' + d.en;
+  for (const k of ['concept', 'hide', 'ref']) el.querySelector('[data-k="' + k + '"]').textContent = d[k];
+}
+
+function selectSpecies(i, fly) {
+  const changed = i !== st.sel; st.sel = i;
+  renderList(); renderDetail(); syncTags();
+  if (st.view === 'pop' && changed) build();
+  else if (fly && st.view === 'all') focus(creatures[i]);
+}
+function pick(c) {
+  if (st.view === 'all') selectSpecies(c.index, true);
+  else focus(c);
+}
+
+function setView(v) {
+  st.view = v;
+  document.querySelectorAll('[data-view]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === v)));
+  build();
+}
+function setState(name) {
+  st.state = name;
+  document.querySelectorAll('[data-state]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.state === name)));
+  $('stateCaption').textContent = STATES[name].cap;
+}
+function reseed() {
+  st.seed = (Math.random() * 1e6) | 0;
+  $('seedLabel').textContent = '#' + st.seed;
+  const view = { p: camera.position.clone(), t: controls.target.clone() };
+  build(); flyTo(view.p, view.t, 0);
+}
+
+document.querySelectorAll('[data-view]').forEach((b) => b.addEventListener('click', () => setView(b.dataset.view)));
+document.querySelectorAll('[data-state]').forEach((b) => b.addEventListener('click', () => setState(b.dataset.state)));
+$('reseed').addEventListener('click', reseed);
+$('silBtn').addEventListener('click', (e) => { st.sil = !st.sil; e.currentTarget.setAttribute('aria-pressed', String(st.sil)); applySil(); });
+$('groundBtn').addEventListener('click', (e) => { st.terrain = !st.terrain; e.currentTarget.setAttribute('aria-pressed', String(st.terrain)); setGround(); });
+$('minerBtn').addEventListener('click', (e) => { st.miner = !st.miner; e.currentTarget.setAttribute('aria-pressed', String(st.miner)); layout(true); });
+$('farBtn').addEventListener('click', farView);
+$('fitBtn').addEventListener('click', () => fitAll());
+window.addEventListener('keydown', (e) => {
+  if (e.target.closest && e.target.closest('input, textarea')) return;
+  const keys = ['idle', 'peek', 'startle', 'hide', 'walk'];
+  if (e.key >= '1' && e.key <= '5') setState(keys[+e.key - 1]);
+  else if (e.key === 'r' || e.key === 'R') reseed();
+  else if (e.key === 's' || e.key === 'S') $('silBtn').click();
+});
+
+// picking
+const pointer = new THREE.Vector2(); let downAt = null, hoverDirty = false, lastMove = null;
+renderer.domElement.addEventListener('pointerdown', (e) => { downAt = [e.clientX, e.clientY]; });
+renderer.domElement.addEventListener('pointerup', (e) => {
+  if (!downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 5) return;
+  const c = pickAt(e); if (c) pick(c);
+});
+renderer.domElement.addEventListener('pointermove', (e) => { lastMove = e; hoverDirty = true; });
+function pickAt(e) {
+  const rect = renderer.domElement.getBoundingClientRect();
+  pointer.set(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
+  ray.setFromCamera(pointer, camera);
+  const h = ray.intersectObjects(creatures.map((c) => c.root), true).find((x) => x.object.userData.creature);
+  return h ? h.object.userData.creature : null;
+}
+
+// sizing: keep the scene centred in the area the HUD leaves free
+const hudTop = document.querySelector('.hud-top'), hudBottom = document.querySelector('.hud-bottom');
+function hudFree() { const h = stage.clientHeight || 1; return Math.max(0.4, (h - hudTop.offsetHeight - hudBottom.offsetHeight - 40) / h); }
+function resize() {
+  const w = stage.clientWidth, h = stage.clientHeight; if (!w || !h) return;
+  renderer.setSize(w, h, false); camera.aspect = w / h;
+  camera.setViewOffset(w, h, 0, (hudBottom.offsetHeight - hudTop.offsetHeight) / 2, w, h);
+  camera.updateProjectionMatrix();
+  layout(false);
+}
+new ResizeObserver(resize).observe(stage);
+
+// ───────────────────────── loop ─────────────────────────
+const clock = new THREE.Clock();
+function frame() {
+  const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime;
+  if (tween) {
+    const el = (performance.now() - tween.start) / 1000, k = smooth(el / tween.dur);
+    camera.position.lerpVectors(tween.p0, tween.p1, k); controls.target.lerpVectors(tween.t0, tween.t1, k);
+    if (el >= tween.dur) tween = null;
+  }
+  const target = STATES[st.state].t;
+  for (const c of creatures) updateCreature(c, t, dt, target);
+  if (st.view === 'all' && creatures[st.sel]) { ring.visible = true; const p = creatures[st.sel].root.position; ring.position.set(p.x, 0.01, p.z); } else ring.visible = false;
+  miner.update(t);
+  if (hoverDirty && lastMove) { hoverDirty = false; renderer.domElement.style.cursor = pickAt(lastMove) ? 'pointer' : 'grab'; }
+  controls.update();
+  renderer.render(scene, camera);
+  placeTags();
+  requestAnimationFrame(frame);
+}
+
+setGround(); renderList(); renderDetail(); setState('idle');
+resize(); build();
+requestAnimationFrame(frame);
+</script>
