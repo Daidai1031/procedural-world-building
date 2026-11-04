@@ -1,8 +1,9 @@
-import { Color, MeshPhysicalMaterial, MeshStandardMaterial, ShaderChunk, Vector3, Vector4, type Texture } from 'three'
+import { Color, MeshPhysicalMaterial, MeshStandardMaterial, ShaderChunk, Vector2, Vector3, Vector4, type Texture } from 'three'
 import { palette } from '../config/palette'
 import { resourceColors } from '../config/resourceColors'
 import { tuning } from '../config/tuning'
-import { surfaces, type SurfaceKind, type SurfaceProfile } from '../content/surfaces'
+import { surfaceOfMaterial, surfaces, type SurfaceKind, type SurfaceProfile } from '../content/surfaces'
+import type { MaterialId } from '../content/materials'
 import type { ResourceCluster } from '../world/resourceClusters'
 import { VOXEL_WORLD_SIZE } from '../world/voxels/voxelMath.js'
 
@@ -30,6 +31,29 @@ export function setTerrainMotion(time: number, sources: readonly { position: rea
     if (source) ripple.set(source.position[0], source.position[1], source.position[2], source.level)
     else ripple.w = 0
   })
+}
+
+// D-069: patches of shipped material blend into the active planet's terrain. Each carries the tone and the roughness and
+// metalness of the surface its material stands for, so plastic laid on metal turns glossy and non-metallic with a soft,
+// grain-roughened edge. Only the active planet's terrain reads these; other worlds in the system view stay plain.
+const MAX_PATCHES = tuning.patches.max
+const patchUniforms = {
+  at: { value: Array.from({ length: MAX_PATCHES }, () => new Vector4()) },
+  low: { value: Array.from({ length: MAX_PATCHES }, () => new Color()) },
+  high: { value: Array.from({ length: MAX_PATCHES }, () => new Color()) },
+  look: { value: Array.from({ length: MAX_PATCHES }, () => new Vector2()) },
+}
+export function setTerrainPatches(patches: readonly { centre: readonly number[]; radius: number; material: MaterialId }[]) {
+  for (let i = 0; i < MAX_PATCHES; i += 1) {
+    const patch = patches[i]
+    if (!patch) { patchUniforms.at.value[i].w = 0; continue }
+    const kind = surfaceOfMaterial(patch.material)
+    const { tone } = recipes[kind]
+    patchUniforms.at.value[i].set(patch.centre[0], patch.centre[1], patch.centre[2], patch.radius)
+    patchUniforms.low.value[i].set(tone.low)
+    patchUniforms.high.value[i].set(tone.high)
+    patchUniforms.look.value[i].set(surfaces[kind].look.roughness, surfaces[kind].look.metalness)
+  }
 }
 
 // SUR-14: how many hair shells this machine can afford. It stays lowered across planets.
@@ -210,6 +234,7 @@ export function createTerrainMaterial(clusters: ResourceCluster[] = [], baseRadi
   const recipe = recipes[kind]
   const { opaque = false, shell = false } = options
   const rippling = kind === 'jelly' && !opaque
+  const patching = !opaque
   const transmissive = (profile.look as SurfaceProfile['look']).transmission !== undefined && !opaque
   const material = surfaceMaterial(profile, options)
   const count = clusters.length
@@ -251,6 +276,7 @@ export function createTerrainMaterial(clusters: ResourceCluster[] = [], baseRadi
         uFurDensity: { value: tuning.surface.fur.density }, uFurTime: motion.time })
     }
     if (rippling) Object.assign(shader.uniforms, { uRipples: motion.ripples, uRippleTime: motion.time })
+    if (patching) Object.assign(shader.uniforms, { uPatch: patchUniforms.at, uPatchLow: patchUniforms.low, uPatchHigh: patchUniforms.high, uPatchLook: patchUniforms.look })
     const declarations = `
       varying vec3 vEdit;
       uniform float uGlowRadius;
@@ -278,6 +304,10 @@ export function createTerrainMaterial(clusters: ResourceCluster[] = [], baseRadi
       float contourPixels(float value) {
         return abs(fract(value) - 0.5) / max(fwidth(value), 0.0001);
       }
+      ${patching ? `uniform vec4 uPatch[${MAX_PATCHES}];
+      uniform vec3 uPatchLow[${MAX_PATCHES}];
+      uniform vec3 uPatchHigh[${MAX_PATCHES}];
+      uniform vec2 uPatchLook[${MAX_PATCHES}];` : ''}
       ${recipe.declare ?? ''}${shell ? shellDeclare : ''}${rippling ? 'varying vec3 vRippleTilt;' : ''}`
     shader.vertexShader = shader.vertexShader
       .replace('#include <common>', `#include <common>
@@ -328,6 +358,22 @@ export function createTerrainMaterial(clusters: ResourceCluster[] = [], baseRadi
         float terrainSolid = 0.0;
         vec3 terrainGlow = vec3(0.0);
         ${recipe.finish ?? ''}
+        float patchWeight = 0.0;
+        float patchRough = 0.0;
+        float patchMetal = 0.0;
+        ${patching ? `for (int i = 0; i < ${MAX_PATCHES}; i++) {
+          float reach = uPatch[i].w;
+          if (reach <= 0.0) continue;
+          float away = distance(vTerrainPosition, uPatch[i].xyz) + grain * 0.025;
+          float w = 1.0 - smoothstep(reach * 0.55, reach, away);
+          if (w <= 0.0) continue;
+          surface = mix(surface, mix(uPatchLow[i], uPatchHigh[i], smoothstep(-0.85, 0.85, height)), w);
+          ink *= 1.0 - 0.6 * w;
+          terrainCut *= 1.0 - w;
+          patchWeight = w;
+          patchRough = uPatchLook[i].x;
+          patchMetal = uPatchLook[i].y;
+        }` : ''}
         diffuseColor.rgb = mix(surface, uContourColor, ink) * (1.0 + 0.055 * grain);
         ${shell ? 'diffuseColor.rgb *= mix(0.62, 1.12, vShell);' : ''}
         vec3 glowTint = vec3(0.0);
@@ -343,7 +389,10 @@ export function createTerrainMaterial(clusters: ResourceCluster[] = [], baseRadi
         glowAmount = min(glowAmount, 1.0);
         diffuseColor.rgb = mix(diffuseColor.rgb, glowTint, glowAmount * uGlowAlbedoMix);`)
       .replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
-        roughnessFactor = mix(roughnessFactor, uCutRoughness, terrainCut);`)
+        roughnessFactor = mix(roughnessFactor, uCutRoughness, terrainCut);
+        roughnessFactor = mix(roughnessFactor, patchRough, patchWeight);`)
+      .replace('#include <metalnessmap_fragment>', `#include <metalnessmap_fragment>
+        metalnessFactor = mix(metalnessFactor, patchMetal, patchWeight);`)
       .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
         totalEmissiveRadiance += glowTint * glowAmount * uGlowEmissive + terrainGlow;`)
       // D-027 atmosphere C4: the planet's limb leans toward the atmosphere color.
@@ -361,6 +410,6 @@ export function createTerrainMaterial(clusters: ResourceCluster[] = [], baseRadi
     }
   }
   material.userData.resources = resources
-  material.customProgramCacheKey = () => `terrain-contour-glow-v3-${kind}-${opaque ? 'opaque' : 'live'}-${shell ? 'shell' : 'hide'}-${count}`
+  material.customProgramCacheKey = () => `terrain-contour-glow-v4-${kind}-${opaque ? 'opaque' : 'live'}-${shell ? 'shell' : 'hide'}-${count}${patching ? '-patch' : ''}`
   return material
 }

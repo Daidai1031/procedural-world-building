@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, type RefObject } from 'react'
 import type { SystemPlanet } from '../systems/system'
 import { holdProgress, type SystemLayout } from '../systems/systemView'
 import type { ProjectSphere } from '../views/ScreenProjector'
-import { planetConfig } from '../world/planet'
+import { planetConfig, visibleRadius } from '../world/planet'
 import { VOXEL_WORLD_SIZE } from '../world/voxels/voxelMath.js'
 import { tuning } from '../config/tuning'
 import { startDive, systemViewFrame, useSystemView } from '../state/systemView'
@@ -48,7 +48,7 @@ export function HoldToTravel({ planets, layout, sphereRef }: { planets: SystemPl
     const tick = () => {
       const el = root.current, project = sphereRef.current, at = layout.positions[world.seed]
       if (!el || !project || !at) return
-      const { x, y, r } = project(at, planetConfig(world.seed).radius * VOXEL_WORLD_SIZE)
+      const { x, y, r } = project(at, visibleRadius(world.seed))
       el.style.transform = `translate(${x.toFixed(1)}px, ${(y + r + 14).toFixed(1)}px) translate(-50%, 0)`
       el.style.opacity = '1'
     }

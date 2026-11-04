@@ -152,3 +152,30 @@ test('terrain material patches every shader chunk it relies on', () => {
   showWorkArea(null)
   assert.equal(uniforms.uAreaOn.value, 0)
 })
+
+// D-069/PAT-03: patches are painted by the terrain shader on the active planet only.
+test('patches blend through the terrain shader, and worlds drawn in the system view stay plain', async () => {
+  const { setTerrainPatches } = await import('../src/render/terrainMaterial')
+  const compile = (options: object, kind: 'rock' | 'metal' = 'metal') => {
+    const material = createTerrainMaterial([], undefined, kind, options)
+    const shader = { uniforms: {} as Record<string, { value: unknown }>, vertexShader: ShaderLib.physical.vertexShader, fragmentShader: ShaderLib.physical.fragmentShader }
+    material.onBeforeCompile(shader as never, undefined as never)
+    return shader
+  }
+  const live = compile({})
+  assert.match(live.fragmentShader, /metalnessFactor = mix\(metalnessFactor, patchMetal, patchWeight\)/)
+  assert.match(live.fragmentShader, /roughnessFactor = mix\(roughnessFactor, patchRough, patchWeight\)/)
+  assert.ok('uPatch' in live.uniforms)
+  const plain = compile({ opaque: true })
+  assert.ok(!('uPatch' in plain.uniforms))
+  assert.doesNotMatch(plain.fragmentShader, /uPatchLow/)
+  // A plastic patch on metal hands the shader plastic's tone, roughness and metalness, and clearing removes it.
+  setTerrainPatches([{ centre: [0, 0, 2], radius: 0.55, material: 'plastic' }])
+  const at = live.uniforms.uPatch.value as { w: number; z: number }[]
+  const look = live.uniforms.uPatchLook.value as { x: number; y: number }[]
+  assert.equal(at[0].w, 0.55)
+  assert.equal(look[0].x, surfaces.plastic.look.roughness)
+  assert.equal(look[0].y, surfaces.plastic.look.metalness)
+  setTerrainPatches([])
+  assert.equal(at[0].w, 0)
+})

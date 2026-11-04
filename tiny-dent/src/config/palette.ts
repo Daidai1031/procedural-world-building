@@ -94,7 +94,9 @@ export const palette = {
   },
   antenna: { frame: '#3b3a37', dish: '#e4e1d8', lamp: '#c98a2b' },
   // System view (D-049): arcs, ghost shells, unvisited outlines and resident glows.
-  system: { arc: '#454641', ghost: '#3b3a37', wire: '#8a887f', wireHover: '#3a3b36', residentGlow: '#e0b070' },
+  // D-070: the ground graph's layers. Desire paths are faint, roads dark, blocked ground rust, the picked edge amber.
+  road: { path: '#c9b98f', road: '#47443d', blocked: '#b3472f', pick: '#e3a22f', cold: '#d9d3c3', warm: '#d9732b', node: '#6b6a62' },
+  system: { arc: '#454641', ghost: '#3b3a37', wire: '#8a887f', wireHover: '#3a3b36', residentGlow: '#e0b070', rail: '#c9892f' },
   resource: resourceColors,
   // Dark gold self-light so crystals stay readable on the shadow side.
   crystalGlow: '#5a4508',

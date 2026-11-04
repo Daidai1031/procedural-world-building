@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
+import { WaterView } from './WaterView'
 import { useFrame, useThree } from '@react-three/fiber'
 import { BoxGeometry, Color, CylinderGeometry, IcosahedronGeometry, MeshBasicMaterial, TetrahedronGeometry, TorusGeometry, type Group, type Mesh, type MeshStandardMaterial, type Texture } from 'three'
 import type { PlanetRegistry } from '../state/planets'
@@ -90,6 +91,7 @@ function VisitedWorld({ planet, position, registry }: WorldProps) {
       onPointerOver={event => { if (!reachable()) return; event.stopPropagation(); setHover(planet.seed); gl.domElement.style.cursor = 'pointer' }}
       onPointerOut={() => { setHover(null); gl.domElement.style.cursor = '' }}
       onClick={event => { if (!reachable() || event.delta > 5 || event.button !== 0) return; event.stopPropagation(); pickWorld(planet.seed) }} />
+    <WaterView radius={planetConfig(planet.seed).water} opaque />
     <PlanetReadouts seed={planet.seed} source={() => registry.snapshot(planet.seed)} live={false} />
   </group>
 }

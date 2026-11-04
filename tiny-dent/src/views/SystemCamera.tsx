@@ -5,7 +5,7 @@ import type { createRunStore } from '../state/runState'
 import { travelTo } from '../systems/signal'
 import type { SystemPlanet } from '../systems/system'
 import { cameraPose, systemDistance, systemLayout, type SystemLayout } from '../systems/systemView'
-import { planetConfig } from '../world/planet'
+import { planetConfig, visibleRadius } from '../world/planet'
 import { VOXEL_WORLD_SIZE } from '../world/voxels/voxelMath.js'
 import { tuning } from '../config/tuning'
 import { arrive, systemViewFrame, useSystemView } from '../state/systemView'
@@ -69,7 +69,7 @@ export function SystemCamera({ layout, planets, store }: { layout: SystemLayout;
     }
     const world = focus ? planets.find(({ seed }) => seed === focus) : undefined
     const g = glide.current
-    const radius = world ? planetConfig(world.seed).radius * VOXEL_WORLD_SIZE : 0
+    const radius = world ? visibleRadius(world.seed) : 0
     if (world && layout.positions[world.seed]) {
       const target = layout.positions[world.seed]
       const distance = tuning.system.focusDistanceFactor * radius

@@ -2,7 +2,7 @@ import { useEffect, useRef, type RefObject } from 'react'
 import type { SystemPlanet } from '../systems/system'
 import type { SystemLayout } from '../systems/systemView'
 import type { ProjectSphere } from '../views/ScreenProjector'
-import { planetConfig } from '../world/planet'
+import { planetConfig, visibleRadius } from '../world/planet'
 import { VOXEL_WORLD_SIZE } from '../world/voxels/voxelMath.js'
 import { tuning } from '../config/tuning'
 import { systemViewFrame, useSystemView } from '../state/systemView'
@@ -28,7 +28,7 @@ export function SystemLabels({ planets, layout, sphereRef }: { planets: SystemPl
         const tag = tags.current.get(planet.seed)
         const at = layout.positions[planet.seed]
         if (!tag || !at || !project) continue
-        const { x, y, r } = project(at, planetConfig(planet.seed).radius * VOXEL_WORLD_SIZE)
+        const { x, y, r } = project(at, visibleRadius(planet.seed))
         tag.style.opacity = String(opacity)
         tag.style.transform = `translate(${x.toFixed(1)}px, ${(y - r - 8).toFixed(1)}px) translate(-50%, -100%)`
       }
