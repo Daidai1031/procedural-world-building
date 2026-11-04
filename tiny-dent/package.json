@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "tsx --test tests/planet.test.ts tests/miner.test.ts tests/gardener.test.ts tests/builder.test.ts tests/visual.test.ts tests/economy.test.ts tests/exploration.test.ts tests/signal.test.ts tests/comms.test.ts tests/residents.test.ts tests/autopilot.test.ts tests/systemView.test.ts tests/surfaces.test.ts tests/drifter.test.ts",
+    "test": "tsx --test tests/planet.test.ts tests/miner.test.ts tests/gardener.test.ts tests/builder.test.ts tests/visual.test.ts tests/economy.test.ts tests/inventory.test.ts tests/logistics.test.ts tests/migration.test.ts tests/patches.test.ts tests/roads.test.ts tests/species.test.ts tests/water.test.ts tests/exploration.test.ts tests/signal.test.ts tests/comms.test.ts tests/residents.test.ts tests/autopilot.test.ts tests/systemView.test.ts tests/surfaces.test.ts tests/drifter.test.ts tests/fieldVisit.test.ts",
     "board:drifter": "node scripts/build-drifter-board.mjs",
     "export:drifter": "tsx scripts/export-drifter-glb.ts"
   },

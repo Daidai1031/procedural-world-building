@@ -1,12 +1,18 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, type MutableRefObject } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Matrix4, Quaternion, Vector3, type Group } from 'three'
 import type { createRunStore } from '../state/runState'
 import { burrowSites, hashSeed, type Burrow, type PlanetWorld } from '../world/planet'
-import { disturbanceAt, plantCoverAt, stepResidents, temperamentFor, type Temperament } from '../systems/residents'
+import { disturbanceAt, plantCoverAt, stepResidents, temperamentOf, type Temperament } from '../systems/residents'
+import { stepMigration } from '../systems/migration'
+import { stepTraffic } from '../systems/traffic'
+import { isAquatic, stepWater } from '../systems/water'
+import { stepLogistics } from '../systems/logistics'
 import { tuning } from '../config/tuning'
-import { HALF } from '../systems/geometry'
+import { HALF, type Vec3 } from '../systems/geometry'
+import { audiencePlaces, type VisitPose } from '../systems/fieldVisit'
 import { VOXEL_WORLD_SIZE } from '../world/voxels/voxelMath.js'
+import type { ResidentKind } from '../content/residents'
 import { createResidentKit, createResidentModel, type ResidentPose } from '../render/models/residents'
 
 type Store = ReturnType<typeof createRunStore>
@@ -23,6 +29,11 @@ export function ResidentRunner({ world, store, active }: { world: PlanetWorld; s
     while (accumulator.current >= step) {
       accumulator.current -= step
       stepResidents(world, store)
+      // D-067/D-068: Manual mode does not run stepSimulation, but trains and visitors still move.
+      stepMigration(store)
+      stepTraffic(world as PlanetWorld, store)
+      stepWater(world as PlanetWorld, store)
+      stepLogistics(store)
     }
   })
   return null
@@ -108,15 +119,19 @@ const setPose = (tuck: number, shut: number, peek: number, shake: number, walk: 
 // RES-08, D-055: calm residents lurk with the crown showing and now and then surface to glance around; hiding sinks
 // further; disturbance nearby stops the peeks and sets the body trembling. Moving and searching stand on the surface.
 // D-059: every planet's residents are its own species, each with its body (render/models/residents.ts) and character.
-export function ResidentsView({ world, store }: { world: World; store: Store }) {
+export function ResidentsView({ world, store, visitRef, placesRef }: {
+  world: World; store: Store
+  visitRef?: MutableRefObject<VisitPose | null>
+  placesRef?: MutableRefObject<Map<string, Vec3>>
+}) {
   const group = useRef<Group>(null)
   const seed = store(state => state.seed)
-  const ids = store(state => state.residents.map(resident => resident.id).join(' '))
+  // D-068: a planet can hold several species, so a body is chosen per resident, keyed by id and species together.
+  const ids = store(state => state.residents.map(resident => `${resident.id}|${resident.species}`).join(' '))
   const kit = useMemo(() => createResidentKit(), [])
   useEffect(() => () => kit.dispose(), [kit])
   const models = useMemo(() => {
-    const { species } = temperamentFor(seed)
-    return ids ? ids.split(' ').map(id => createResidentModel(species, hashSeed(`${seed}:${id}:body`), kit)) : []
+    return ids ? ids.split(' ').map(key => { const [id, species] = key.split('|'); return createResidentModel(species as ResidentKind, hashSeed(`${seed}:${id}:body`), kit) }) : []
   }, [seed, ids, kit])
   const shown = useRef<Vector3[]>([])
   const heading = useRef<Vector3[]>([])
@@ -132,12 +147,36 @@ export function ResidentsView({ world, store }: { world: World; store: Store }) 
     const { residents: list, habitat, seed: current, structures } = store.getState()
     if (current !== seed) return
     const burrows = burrowSites(seed)
-    const nature = temperamentFor(seed)
     const time = clock.elapsedTime
+    const visit = visitRef?.current
+    const crowd = new Map((visit?.shown ? audiencePlaces(list.map((resident) => ({ id: resident.id, position: resident.position })), visit) : []).map((place) => [place.id, place]))
+    if (placesRef) placesRef.current.clear()
     list.forEach((resident, index) => {
       const model = models[index]
       if (!model) return
+      const nature = temperamentOf(resident.species)
       const node = model.object
+      if (isAquatic(resident.species)) {
+        // D-073: a swimmer is drawn where it is, in three dimensions, facing the way it swims.
+        const shownAt = shown.current[index] ??= new Vector3(...resident.position)
+        const was = shownAt.clone()
+        shownAt.lerp(target.set(...resident.position), Math.min(1, delta * 10))
+        const course = heading.current[index] ??= new Vector3(0, 0, 1)
+        if (was.distanceToSquared(shownAt) > 1e-9) course.copy(shownAt).sub(was).normalize()
+        up.copy(shownAt).normalize()
+        side.crossVectors(up, course)
+        if (side.lengthSq() < 1e-6) side.set(1, 0, 0)
+        side.normalize()
+        facing.crossVectors(course, side).normalize()
+        basis.makeBasis(side, facing, course)
+        node.quaternion.setFromRotationMatrix(basis)
+        node.position.copy(shownAt)
+        node.scale.setScalar(nature.look.scale * resident.size)
+        placesRef?.current.set(resident.id, [shownAt.x, shownAt.y, shownAt.z])
+        setPose(0, 0, 0, 0, 0)
+        model.update(pose, time, delta, nature.look.gait)
+        return
+      }
       const radius = rules.bodyRadius * resident.size
       const scale = nature.look.scale * resident.size
       const settled = resident.state === 'peeking' || resident.state === 'hiding'
@@ -153,8 +192,14 @@ export function ResidentsView({ world, store }: { world: World; store: Store }) 
       const lurk = model.stalkPeek ? crown : Math.min(crown, -model.eyeTop - look.eyeCover)
       const hidden = -model.top * (1 - nature.look.crown * look.hideCrown / look.crown)
       const peek = model.stalkPeek ? lurk : Math.min(0, Math.max(lurk, look.eyeClear - model.eyeLine))
+      const spot = crowd.get(resident.id)
       let goal: Vector3
-      if (settled && burrow) {
+      if (spot && visit) {
+        // The slot is a direction. Start from the Drifter's ground radius so the surface search lands on this planet.
+        const rough = Math.hypot(visit.feet[0], visit.feet[1], visit.feet[2])
+        goal = target.set(...spot.direction).setLength(rough)
+        goal.setLength(drawnGround(world, [goal.x, goal.y, goal.z]))
+      } else if (settled && burrow) {
         goal = mix(burrow.mouth, burrow.pocket, 0.82 + (tunnelExit(burrow, peek * scale) - 0.82) * out)
       } else if (settled && resident.home) {
         const depth = resident.state === 'hiding' ? hidden : lurk + (peek - lurk) * out
@@ -172,7 +217,11 @@ export function ResidentsView({ world, store }: { world: World; store: Store }) 
       // Face along the walk while moving and out of the tunnel while in a burrow; otherwise keep a stable heading.
       const travel = previous.sub(shownAt).negate()
       const wanted = heading.current[index] ??= new Vector3(1, 0, 0)
-      if (resident.state === 'moving' && travel.lengthSq() > 1e-8) wanted.copy(travel).normalize()
+      // Followers walk the way he walks, from behind. They do not turn around to face him on the way there.
+      if (spot?.manner === 'follow' && visit) wanted.set(...visit.heading)
+      else if (spot?.manner === 'watch' && visit && travel.lengthSq() > 1e-5) wanted.set(...visit.heading)
+      else if (spot?.manner === 'watch' && visit) wanted.set(...visit.feet).sub(shownAt)
+      else if (resident.state === 'moving' && travel.lengthSq() > 1e-8) wanted.copy(travel).normalize()
       else if (burrow) wanted.set(...burrow.mouth).sub(target.set(...burrow.pocket)).normalize()
       facing.copy(wanted).addScaledVector(up, -wanted.dot(up))
       if (facing.lengthSq() < 1e-6) facing.set(1, 0, 0).addScaledVector(up, -up.x)
@@ -181,21 +230,23 @@ export function ResidentsView({ world, store }: { world: World; store: Store }) 
       basis.makeBasis(side, up, facing)
       node.quaternion.setFromRotationMatrix(basis)
       // Look around while surfaced or searching, in the species' manner.
-      const looking = resident.state === 'searching' ? 1 : out
+      const looking = spot?.manner === 'follow' ? 0 : resident.state === 'searching' ? 1 : out
       const seen = glance.current[index] ?? 0
       const yaw = looking * nature.look.glance * glanceAt(nature.look.glanceStyle, resident.id, index, time, nature.look.glanceRate)
       glance.current[index] = seen + (yaw - seen) * Math.min(1, delta * 10)
       node.quaternion.multiply(turn.setFromAxisAngle(localUp, glance.current[index]))
       const bob = resident.state === 'searching' ? Math.abs(Math.sin(time * 3 + index)) * 0.02 : 0
       node.position.copy(shownAt).addScaledVector(up, bob)
-      if (fear > 0) {
+      if (fear > 0 && !spot) {
         const wave = time * Math.PI * 2 * look.tremble.rate + index
         const shake = fear * nature.look.tremble * radius
         node.position.addScaledVector(side, Math.sin(wave) * shake).addScaledVector(facing, Math.sin(wave * 1.37 + index) * shake * 0.6)
         node.quaternion.multiply(turn.setFromAxisAngle(localFront, Math.sin(wave * 1.13) * fear * look.tremble.roll))
       }
       node.scale.setScalar(scale)
-      if (resident.state === 'moving') setPose(0, 0, 0, 0, 1)
+      placesRef?.current.set(resident.id, [shownAt.x, shownAt.y, shownAt.z])
+      if (spot) setPose(0, 0, travel.length() > 0.0015 ? 0 : 1, 0, travel.length() > 0.0015 ? 1 : 0)
+      else if (resident.state === 'moving') setPose(0, 0, 0, 0, 1)
       else if (resident.state === 'searching') setPose(0, 0, 1, 0.25, 0)
       else setPose(1, resident.state === 'hiding' ? 1 : 0, out, fear, 0)
       model.update(pose, time, delta, nature.look.gait)

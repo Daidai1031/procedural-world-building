@@ -250,7 +250,7 @@ dl { display: grid; grid-template-columns: 60px 1fr; gap: 8px; margin-bottom: 0;
 
 
 /* Shared grid keeps both rails within the same top and bottom boundaries. */
-main { --rail-left: 324px; --rail-right: 270px; --layout-gap: 24px; display: grid; grid-template-columns: var(--rail-left) minmax(0, 1fr) var(--rail-right); grid-template-rows: 80px minmax(0, 1fr) 48px; column-gap: var(--layout-gap); height: 100dvh; min-height: 0; padding: 0 24px; overflow: hidden; }
+main { --rail-left: 324px; --rail-right: 270px; --layout-gap: 24px; display: grid; grid-template-columns: var(--rail-left) minmax(0, 1fr) var(--rail-right); grid-template-rows: 72px minmax(0, 1fr) 48px; column-gap: var(--layout-gap); height: 100dvh; min-height: 0; padding: 0 24px; overflow: hidden; }
 .app-topbar { grid-column: 1 / -1; grid-row: 1; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: center; min-width: 0; border-bottom: 1px solid var(--line); background: #3b3a37; color: var(--paper); box-shadow: 0 0 0 100vmax #3b3a37; clip-path: inset(0 -100vmax); }
 .app-topbar .brand p { color: #b9b6ad; }
 .app-topbar .brand h1 { color: var(--paper); }
@@ -330,9 +330,10 @@ main[data-view='surface'] .sidebar-controls .exploration-toolbar { flex-directio
 footer { position: static; grid-row: 3; grid-column: 1 / -1; min-width: 0; gap: 6px 16px; align-content: center; padding: 6px 0; border-top: 1px solid var(--line); font-size: 11px; }
 
 /* Opening copy is centered in the viewport while the world initializes behind it. */
-.opening-title { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; background: var(--paper); color: var(--ink); transition: opacity 300ms var(--ease); }
+.opening-title { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; background: var(--paper); color: var(--ink); transition: opacity 400ms var(--ease); }
 .opening-title[data-leaving='true'] { opacity: 0; pointer-events: none; }
 .opening-title-copy { padding: 24px; text-align: center; animation: opening-copy-in 500ms var(--ease) both; }
+.opening-wave { width: min(680px, 94vw); height: min(440px, 52vh); margin: 0 auto 4px; pointer-events: none; }
 .opening-title-copy p { margin: 0 0 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .18em; color: var(--ink-soft); }
 .opening-title-copy h1 { max-width: none; white-space: nowrap; font-size: clamp(21px, 5.2vw, 76px); line-height: 1.12; }
 .opening-title-copy em { display: block; margin-top: 22px; font-family: var(--font-display); font-size: clamp(12px, 1.7vw, 22px); color: var(--ink-soft); }
@@ -346,6 +347,12 @@ main[data-view='surface'] footer, main[data-view='surface'] .brand, main[data-vi
 main[data-view='surface'] .app-topbar { display: none; }
 main[data-view='surface'] .right-sidebar { position: absolute; top: 20px; left: 50%; translate: -50% 0; z-index: 3; display: block; width: max-content; padding: 0; overflow: visible; }
 main[data-view='surface'] .sidebar-controls { padding: 0; }
+.field-card { position: absolute; top: 20px; left: 20px; z-index: 4; width: min(300px, calc(100vw - 40px)); padding: 16px 16px 14px; border: 1px solid var(--line); border-radius: 16px; background: var(--card); box-shadow: 0 14px 34px -20px rgba(53, 54, 50, 0.5); }
+.field-card .kicker { margin-bottom: 6px; }
+.field-card-title { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.field-card h2 { font-size: 22px; }
+.field-card p:last-child { margin: 10px 0 0; font-size: 13px; line-height: 1.45; color: var(--ink-soft); }
+.field-card button { flex: none; width: 28px; height: 28px; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); color: var(--ink); cursor: pointer; }
 .surface-hud { position: absolute; bottom: 24px; left: 50%; translate: -50% 0; z-index: 2; padding: 12px 18px; border-radius: 12px; background: var(--card); text-align: center; width: max-content; max-width: calc(100vw - 32px); box-shadow: 0 4px 20px #0001; }
 .surface-hud p { margin: 0 0 6px; font-size: 14px; font-weight: 600; }
 .surface-hud span { font-size: 12px; color: var(--ink-soft); }
@@ -353,7 +360,7 @@ main[data-view='surface'] .sidebar-controls { padding: 0; }
 .walk-pad button { min-height: 44px; min-width: 44px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); color: var(--ink); touch-action: none; user-select: none; cursor: pointer; }
 .walk-pad button:active { background: var(--line); }
 @media (max-width: 1150px) {
-  main { --rail-left: 292px; --rail-right: 248px; --layout-gap: 16px; grid-template-rows: 80px minmax(0, 1fr) 48px; padding: 0 20px; }
+  main { --rail-left: 292px; --rail-right: 248px; --layout-gap: 16px; grid-template-rows: 72px minmax(0, 1fr) 48px; padding: 0 20px; }
   .app-topbar { grid-template-columns: minmax(0, 1fr) auto; gap: 0 20px; padding: 14px 0; }
 
   .project-nav { grid-column: 2; grid-row: 1; }
@@ -362,7 +369,7 @@ main[data-view='surface'] .sidebar-controls { padding: 0; }
   .crew-controls h2 { font-size: 18px; }
 }
 @media (max-width: 900px) {
-  main { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: 80px 420px auto auto; height: auto; min-height: 100dvh; overflow: visible; }
+  main { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: 72px 420px auto auto; height: auto; min-height: 100dvh; overflow: visible; }
   .world-canvas { grid-column: 1 / -1; grid-row: 2; }
   .left-sidebar { grid-column: 1; grid-row: 3; height: auto; overflow: visible; }
   .panel { flex: none; height: auto; overflow: visible; scrollbar-gutter: auto; }
@@ -371,7 +378,7 @@ main[data-view='surface'] .sidebar-controls { padding: 0; }
   footer { grid-row: 4; padding: 12px 0; }
 }
 @media (max-width: 540px) {
-  main { --layout-gap: 12px; padding: 0 12px; grid-template-rows: 80px 340px auto auto; }
+  main { --layout-gap: 12px; padding: 0 12px; grid-template-rows: 72px 340px auto auto; }
   .app-topbar { gap: 0 10px; }
   .brand h1 { font-size: clamp(16px, 4.3vw, 23px); }
   .brand em { white-space: normal; font-size: 10px; max-width: 220px; }
@@ -513,3 +520,18 @@ main[data-view='system'] .right-sidebar { translate: 24px 0; }
 @keyframes veil-in { from { opacity: 0; } 80%, to { opacity: 1; } }
 @keyframes veil-out { from { opacity: 1; } to { opacity: 0; } }
 .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; list-style: none; }
+.logistics-panel { position: absolute; right: 24px; top: 84px; z-index: 3; display: flex; flex-direction: column; gap: 6px; width: 280px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); font-size: 12px; }
+.logistics-panel p, .logistics-panel ul { margin: 0; }
+.logistics-panel ul { padding: 0; list-style: none; display: grid; gap: 4px; }
+.logistics-panel button { min-height: 32px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); color: var(--ink); cursor: pointer; font-size: 12px; text-align: left; }
+.logistics-panel button:disabled { opacity: 0.5; cursor: not-allowed; }
+.logistics-panel button:hover:not(:disabled) { border-color: var(--graphite); }
+.logistics-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.logistics-note { color: #a0432b; }
+.traffic-panel { position: absolute; left: 24px; bottom: 60px; z-index: 3; display: flex; flex-direction: column; gap: 6px; width: 250px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); font-size: 12px; }
+.traffic-panel[open] { gap: 6px; }
+.traffic-panel summary { cursor: pointer; font-weight: 600; }
+.traffic-panel p { margin: 4px 0 0; line-height: 1.4; color: var(--ink-soft); }
+.traffic-panel button { min-height: 30px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); color: var(--ink); cursor: pointer; font-size: 12px; text-align: left; }
+.traffic-panel button[aria-pressed='true'] { border-color: var(--graphite); }
+.traffic-card { display: grid; gap: 2px; padding-top: 4px; border-top: 1px solid var(--line); }

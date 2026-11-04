@@ -5,7 +5,7 @@ import { Starfield } from './ui/Starfield'
 import { SignalView } from './views/SignalView'
 import { DistantPlanetsView } from './views/DistantPlanetsView'
 import { travelTo, visiblePlanetCount } from './systems/signal'
-import { registryFor } from './state/planets'
+import { planetName, registryFor } from './state/planets'
 import { planetConfig, surfaceOf } from './world/planet'
 import { brushScale } from './content/surfaces'
 import { SystemLabels } from './ui/SystemLabels'
@@ -13,6 +13,8 @@ import { SystemCaption, SystemReturn, SystemVeil, SystemWorldList } from './ui/S
 import { HoldToTravel } from './ui/HoldToTravel'
 import { SystemWorlds } from './views/SystemWorlds'
 import { SystemArcs } from './views/SystemArcs'
+import { RailRoutes } from './views/RailRoutes'
+import { LogisticsPanel } from './ui/LogisticsPanel'
 import { ActiveReadouts } from './views/ActiveReadouts'
 import { SystemCamera, useSystemLayout } from './views/SystemCamera'
 import { useSystemPlanets } from './state/useSystemPlanets'
@@ -22,6 +24,8 @@ import { WorldMap } from './ui/WorldMap'
 import { PixelIcon } from './ui/PixelIcon'
 import { SoundToggle } from './ui/SoundToggle'
 import { SurfaceCamera, type SurfaceView } from './views/SurfaceCamera'
+import { inspectVisit, type FieldCard, type VisitPose } from './systems/fieldVisit'
+import { FieldCardPanel } from './ui/FieldCardPanel'
 import { LandingMarkers } from './views/LandingMarkers'
 import { findLandingSites, landingQuality, type LandingSite } from './systems/exploration'
 import type { Vec3 } from './systems/geometry'
@@ -56,6 +60,10 @@ import { MinerView } from './views/MinerView'
 import { PlacerView } from './views/PlacerView'
 import { BuilderView } from './views/BuilderView'
 import { StructuresView } from './views/StructuresView'
+import { PatchesView } from './views/PatchesView'
+import { WaterView } from './views/WaterView'
+import { RoadsView } from './views/RoadsView'
+import { TrafficPanel } from './ui/TrafficPanel'
 import { ResidentRunner, ResidentsView } from './views/ResidentsView'
 import { disturbanceAt, residentSummary } from './systems/residents'
 import { AtmosphereView } from './views/AtmosphereView'
@@ -95,8 +103,11 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
   const world = useMemo(() => registry.world(seed), [registry, seed])
   useEffect(() => { if (debug) Object.assign(window, { __world: world, __registry: registry, __travel: (to: string) => travelTo(useRunStore, to) }) }, [debug, world, registry, useRunStore])
   const [surfaceSite, setSurfaceSite] = useState<LandingSite | null>(null)
-  // D-064: the surface opens on the Drifter in third person; V or the HUD button switches to first person.
+  // Landing opens in first person. The view arrives, then the Drifter fades in ahead of it. V switches to third person.
   const [surfaceView, setSurfaceView] = useState<SurfaceView>('third')
+  const [fieldCard, setFieldCard] = useState<FieldCard | null>(null)
+  const visitPose = useRef<VisitPose | null>(null)
+  const residentPlaces = useRef(new Map<string, Vec3>())
   const toggleSurfaceView = useCallback(() => setSurfaceView(view => view === 'third' ? 'first' : 'third'), [])
   const [landingVisit, setLandingVisit] = useState(0)
   const [mapOpen, setMapOpen] = useState(false)
@@ -114,18 +125,33 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
   const walkerPosition = useRef<Vec3 | null>(null)
   const movement = useRef(new Set<string>())
   useEffect(() => { if (surfaceSite) showWorkArea(null) }, [surfaceSite])
-  const returnToOrbit = useCallback(() => { setSurfaceSite(null); movement.current.clear() }, [])
+  const returnToOrbit = useCallback(() => { setSurfaceSite(null); setFieldCard(null); movement.current.clear() }, [])
   const land = useCallback((site: LandingSite) => {
     if (landingQuality(world, site.direction) > 0.13) {
       setMessage('This landing site has changed. Choose another site on the map.')
       return false
     }
     movement.current.clear()
+    setFieldCard(null)
+    setSurfaceView('first')
     setLandingVisit(visit => visit + 1)
     setSurfaceSite(site)
     setMapOpen(false)
     return true
   }, [world])
+  const inspectSurface = useCallback((ray: { origin: Vec3; direction: Vec3 }) => {
+    const state = useRunStore.getState()
+    const card = inspectVisit(ray.origin, ray.direction, {
+      seed: state.seed,
+      nameOf: (seed: string) => planetName(seed, registry.homeSeed),
+      residents: state.residents,
+      shown: residentPlaces.current,
+      structures: state.structures,
+      tick: state.simTick,
+      pose: visitPose.current,
+    })
+    setFieldCard(card)
+  }, [useRunStore, registry])
   useEffect(() => {
     const refresh = () => setLandingSites(findLandingSites(world))
     refresh()
@@ -304,11 +330,13 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
         <directionalLight position={[-3, -5, 2]} intensity={1.3} color={palette.light.sky} />
         <directionalLight position={[2, 1, -5]} intensity={0.6} />
         {surfaceSite ? <SurfaceCamera key={landingVisit} world={world} start={surfaceSite.direction}
-          positionRef={walkerPosition} movement={movement} onExit={returnToOrbit} view={surfaceView} onToggleView={toggleSurfaceView} /> : <OrbitCamera onWheel={adjustRadius} />}
+          positionRef={walkerPosition} movement={movement} onExit={returnToOrbit} view={surfaceView} onToggleView={toggleSurfaceView}
+          onInspect={inspectSurface} poseRef={visitPose} /> : <OrbitCamera onWheel={adjustRadius} />}
         {!surfaceSite && <SystemCamera layout={layout} planets={systemWorlds} store={useRunStore} />}
         {!surfaceSite && <SystemWorlds planets={systemWorlds} layout={layout} registry={registry} />}
         {!surfaceSite && <ActiveReadouts store={useRunStore} seed={seed} />}
         {!surfaceSite && <SystemArcs planets={systemWorlds} layout={layout} store={useRunStore} />}
+        {!surfaceSite && <RailRoutes layout={layout} store={useRunStore} />}
         {!surfaceSite && !pulledBack && <LandingMarkers sites={landingSites} onLand={land} />}
         <PlanetView world={world} sources={() => useRunStore.getState().habitat.sources} baseRadius={planetConfig(seed).radius * VOXEL_WORLD_SIZE} clusters={clusters} collectedIds={collectedIds} radius={radius * brushScale(surfaceOf(seed))} detectorRadius={detector.radius}
           activeTool={surfaceSite || pulledBack || autopilotOn ? 'explore' : activeTool === 'detector' ? 'detector' : activeTool === 'auto' ? 'miner' : 'terrain'} selectedMode={terrainMode}
@@ -323,7 +351,10 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
         {riggerIds.split(',').filter(Boolean).map((id, index) => <PlacerView key={id} role="rigger" robotId={id} store={useRunStore} active={mode === 'auto' || !!surfaceSite} selected={index === 0 && !autopilotOn && !surfaceSite && autoRobot === 'rigger'} />)}
         {builderIds.split(',').filter(Boolean).map((id, index) => <BuilderView key={id} robotId={id} store={useRunStore} active={mode === 'auto' || !!surfaceSite} selected={index === 0 && !autopilotOn && !surfaceSite && autoRobot === 'builder'} />)}
         <StructuresView store={useRunStore} />
-        <ResidentsView world={world} store={useRunStore} />
+        <PatchesView store={useRunStore} />
+        <RoadsView world={world} store={useRunStore} />
+        <WaterView radius={world.waterRadius} />
+        <ResidentsView world={world} store={useRunStore} visitRef={visitPose} placesRef={residentPlaces} />
         <ResidentRunner world={world} store={useRunStore} active={mode === 'manual' && !bankrupt && !introOpen} />
         <SignalView store={useRunStore} />
         {!surfaceSite && !pulledBack && <DistantPlanetsView store={useRunStore} seed={seed}
@@ -370,10 +401,13 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
       {pulledBack && <SystemLabels planets={systemWorlds} layout={layout} sphereRef={sphereRef} />}
       {pulledBack && <HoldToTravel planets={systemWorlds} layout={layout} sphereRef={sphereRef} />}
       <SystemWorldList planets={systemWorlds} />
+      <LogisticsPanel useRunStore={useRunStore} planets={systemWorlds} />
+      {!surfaceSite && !pulledBack && <TrafficPanel store={useRunStore} world={world} />}
       <SystemCaption planets={systemWorlds} />
       <SystemReturn />
+      {surfaceSite && fieldCard && <FieldCardPanel card={fieldCard} onClose={() => setFieldCard(null)} />}
       {surfaceSite && <div className="surface-hud">
-        <p>{surfaceSite.name} · Surface exploration</p><span>WASD / arrows to walk · Shift to hurry · drag to look · V {surfaceView === 'third' ? 'first' : 'third'} person · 1–3 wave, kneel, sit · Esc to orbit</span>
+        <p>{surfaceSite.name} · Surface exploration</p><span>WASD / arrows to walk · Shift to hurry · Space to jump · drag to look · click a creature, plant or tower · V {surfaceView === 'third' ? 'first' : 'third'} person · 1–3 wave, kneel, sit · Esc to orbit</span>
         <div className="walk-pad" aria-label="Walking controls">{[['w', 'Forward ↑'], ['a', 'Left ←'], ['s', 'Back ↓'], ['d', 'Right →']].map(([key, label]) =>
           <button key={key} aria-label={label} onPointerDown={event => { event.currentTarget.setPointerCapture(event.pointerId); movement.current.add(key) }}
             onPointerUp={() => movement.current.delete(key)} onPointerCancel={() => movement.current.delete(key)}
