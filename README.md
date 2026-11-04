@@ -4,7 +4,7 @@
 
 Final project for DESIGN 4197/6197, Procedural World Building (Cornell, Fall 2026).
 
-> “We’re here to put a dent in the universe.”
+> “We’re here to put a dent in the universe.” —— Steve Jobs
 
 ![Autopilot mode: the robot crew works a seeded planet](docs/media/week8_autopilot_mode.jpg)
 
@@ -93,6 +93,64 @@ Everything else is rules over that field:
 
 The techniques come from the course lessons in the [guidebook](worldbuilding-guidebook/): noise and erosion, voxels, shaders, distributions, paths, particles, and branching systems. The game does not share code with the guidebook; it ports the ideas.
 
+## System architecture · 系统层与技术
+
+系统分为 **Planet Scale 的 7 层**与 **System Scale 的 3 层**。这是一种职责划分，不是每帧的执行顺序。以下按当前源码核对：1–9 层已有实现，其中材质、社会关系、地面交通、本地物流采用简化模型；第 10 层已实现经济核算，完整全局经济仍属后续方向。首页的 **System atlas** 提供对应的双尺度可展开系统图。
+
+### Planet Scale — 7 layers
+
+| 层级 | 系统与当前实现 | 技术 | 源码入口 |
+| --- | --- | --- | --- |
+| 1. Terrain & Geometry / 地形与几何 | 种子噪声生成密度场，挖掘、填补、整平后仅重建受影响区块；距离 LOD 控制网格细节。 | Noise · Density Field · Marching Cubes | [world/planet.ts](tiny-dent/src/world/planet.ts) · [world/voxels/](tiny-dent/src/world/voxels/) |
+| 2. Materials & Resources / 材质与资源 | 种子决定原生材质与矿藏；各星球独立库存，进口材料可铺成局部栖息地。当前是原生表面 + 局部铺层，并非完整三维 Material Field。 | Seeded Distribution · Surface Patches | [content/materials.ts](tiny-dent/src/content/materials.ts) · [systems/inventory.ts](tiny-dent/src/systems/inventory.ts) · [systems/patches.ts](tiny-dent/src/systems/patches.ts) |
+| 3. Vegetation & Infrastructure / 植被与基础设施 | 采样与坡度筛选决定种植位置，生长规则驱动扩散；天线支持发现，太空港作为航线端点。 | Spatial Sampling · Growth Rules | [systems/placer.ts](tiny-dent/src/systems/placer.ts) · [systems/structures.ts](tiny-dent/src/systems/structures.ts) · [systems/logistics.ts](tiny-dent/src/systems/logistics.ts) |
+| 4. Residents & Habitat / 居民与栖息地 | 物种偏好结合材料、水域、干扰、植被和同类邻居计算适宜度；居民以舒适度、归属感及状态机响应环境。 | Agent-Based Modeling · Habitat Suitability | [systems/residents.ts](tiny-dent/src/systems/residents.ts) · [systems/habitat.ts](tiny-dent/src/systems/habitat.ts) · [content/species.ts](tiny-dent/src/content/species.ts) |
+| 5. Colonies & Social Graph / 聚落与社会关系 | 同类居民按住处距离连成连通分量，派生聚落成员与中心；尚无持久的人际关系图或复杂社会行为。 | Neighborhood Search · Connected Components | [migration.ts](tiny-dent/src/systems/migration.ts) |
+| 6. Movement & Roads / 移动与道路 | 有搜索预算的 A* 规划地表路径；通行热度累积与衰减，Builder 消耗材料铺路。热度来自服务点间模拟行程，非所有居民的真实步迹；飞行机器人不贡献热度。 | A* · Traffic Heatmap · Desire Paths | [graph/surfaceGraph.ts](tiny-dent/src/graph/surfaceGraph.ts) · [systems/traffic.ts](tiny-dent/src/systems/traffic.ts) |
+| 7. Local Logistics / 本地物流 | 采挖入库，Builder 按需求与优先级分配工作，建造铺层、平台、道路或修整地形并扣除材料；本地库存共享，未逐件模拟搬运。 | Task Allocation · Resource Accounting | [systems/builder.ts](tiny-dent/src/systems/builder.ts) · [systems/inventory.ts](tiny-dent/src/systems/inventory.ts) |
+
+### System Scale — 3 layers
+
+| 层级 | 系统与当前实现 | 技术 | 源码入口 |
+| --- | --- | --- | --- |
+| 8. Planet Network / 星球网络 | 种子生成星球布局，已访问星球作为节点；玩家连接两端太空港，距离决定航线造价与行程时间。 | Graph Theory · Procedural Layout | [systems/system.ts](tiny-dent/src/systems/system.ts) · [graph/graphCore.ts](tiny-dent/src/graph/graphCore.ts) |
+| 9. Interplanetary Transport & Migration / 星际运输与移民 | Dijkstra 按旅行时间寻找最短航线；货物和居民经历在途、到达或退回，护照保留身份及旅程，移民经历探索、定居、思乡与返乡。 | Dijkstra · State Machine | [systems/logistics.ts](tiny-dent/src/systems/logistics.ts) · [systems/creatures.ts](tiny-dent/src/systems/creatures.ts) · [systems/migration.ts](tiny-dent/src/systems/migration.ts) |
+| 10. Economy & Global Simulation / 经济与全局模拟 | 已实现共享资金、矿物销售、电费、编辑费、建港建线成本、运费和跨星球库存流转；尚无供需动态定价。仅活动星球执行本地模拟，非活动星球保留快照并接收运输结算。 | Stock–Flow Accounting · Rule-Based Simulation | [systems/economy.ts](tiny-dent/src/systems/economy.ts) · [systems/simulation.ts](tiny-dent/src/systems/simulation.ts) · [state/planets.ts](tiny-dent/src/state/planets.ts) |
+
+### 跨层反馈
+
+```mermaid
+flowchart TD
+  subgraph P["Planet Scale · 每颗星球"]
+    T["1 地形与几何"] --> M["2 材质与资源"]
+    T --> V["3 植被与基础设施"]
+    M --> H["4 居民与栖息地"]
+    V --> H
+    H --> C["5 聚落"]
+    C --> R["6 移动与道路"]
+    R --> L["7 本地物流与建造"]
+    M --> L
+    L -->|修整地形| T
+    L -->|铺设栖息地材料| H
+  end
+  subgraph S["System Scale · 星球之间"]
+    N["8 星球网络"] --> X["9 星际运输与移民"]
+    X --> E["10 经济核算 · 部分实现"]
+    E -->|费用与资金约束| X
+  end
+  V -->|太空港| N
+  M -->|输出库存| X
+  X -->|进口材料| L
+  X -->|居民抵达| H
+  H -->|适应或返乡| X
+```
+
+例如：移民不适应当地材料 → 提出材料需求 → 从其他星球运入材料 → Builder 扣除库存铺设栖息地 → 舒适度与归属感重新计算 → 居民定居或请求返乡。另一条反馈是通行热度 → 道路建造 → 更低通行成本 → 后续路径选择改变。
+
+**运行边界：** [simulation.ts](tiny-dent/src/systems/simulation.ts) 使用固定步长，按顺序推进自动控制、电费、机器人、地表变化、植被、居民、迁移、交通、水域和星际物流。活动星球执行本地模拟；其他星球保留快照，运输到达可以更新其库存与居民。当前没有所有星球持续并行演化的全局模拟，也没有市场供需驱动的动态价格。
+
+**技术栈：** TypeScript、React 19、Three.js / React Three Fiber、Zustand、Vite；生成与规则模拟主要位于 `world/`、`graph/`、`systems/`，状态位于 `state/`，渲染位于 `render/` 与 `views/`。首页使用 HTML / CSS 和共享游戏模型的 Three.js 场景。
+
 ### Design decisions
 
 The look was chosen before any robot was built. A component board compared visual options for every on-planet element over five rounds, each option a 3D model at game scale. The chosen set uses voxel-orb robots that differ by silhouette, contour-line terrain shaded by height and slope, and a point-cloud atmosphere.
@@ -113,7 +171,7 @@ The full record is in the game docs:
 
 ## Current state
 
-Implemented: manual terrain editing, Miner / Gardener / Builder / Rigger automation, Autopilot, the site economy, surface exploration with a 2D world map, broadcast-triggered travel to persistent signal planets, a system overview, and resident species with shelter-and-tremble behaviour.
+Implemented: manual terrain editing, four robot roles, Autopilot, site accounting, surface exploration, persistent signal planets, per-planet material inventories, habitat preferences, derived colonies, surface pathfinding and traffic-driven roads, Builder habitat patches, interplanetary cargo and passenger routes, and resident passports and migration states. See the ten-layer architecture above for implementation limits; the full global economy remains partial.
 
 Not implemented, and marked as such in the [roadmap](tiny-dent/docs/roadmap.md): the end-of-run audit, planet classifications and the Silent / Heard / Erased endings (M5), cosmic ending visuals, and ending audio. Bankruptcy is the only way a run ends today.
 

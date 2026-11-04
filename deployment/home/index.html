@@ -23,6 +23,7 @@
     <a href="#contract"><span class="rail-dot" aria-hidden="true"></span><span class="rail-label">Contract</span></a>
     <a href="#crew"><span class="rail-dot" aria-hidden="true"></span><span class="rail-label">Field crew</span></a>
     <a href="#residents"><span class="rail-dot" aria-hidden="true"></span><span class="rail-label">Residents</span></a>
+    <a href="#systems"><span class="rail-dot" aria-hidden="true"></span><span class="rail-label">System atlas</span></a>
     <a href="#surface"><span class="rail-dot" aria-hidden="true"></span><span class="rail-label">Under the surface</span></a>
     <a href="#method"><span class="rail-dot" aria-hidden="true"></span><span class="rail-label">Method</span></a>
   </nav>
@@ -146,14 +147,48 @@
           <details style="--i:8"><summary><span class="num">09</span><span class="from">L-systems</span><span class="to">The Gardener's plants</span></summary>
             <div class="map-body"><p><small>Lesson 08 · Branching</small>Grow a plant by rewriting one branch into several. Young plants keep only the lower levels.</p><p><code>branchGeometries</code> Four levels, two or three children &#8594; one merged plant</p><p><code>surfaceModels.ts</code></p><a href="/guidebook/lesson/branching-systems">Open the lesson &#8599;</a></div></details>
         </div>
-        <p class="footnote" data-reveal>Connections reflect the current game build. Terrain degradation, resource economics and energy costs come later.</p>
+        <p class="footnote" data-reveal>Terrain techniques are only the foundation. Explore the system atlas below for habitats, roads, logistics and the current economic model.</p>
       </div>
     </section>
 
+    <section id="systems" class="systems" aria-labelledby="systems-title">
+      <div class="wrap">
+        <div class="section-head"><p class="eyebrow">05 · System atlas</p><h2 id="systems-title">One planet.<br>A connected system.</h2><p class="section-note">10 layers across 2 scales. Open a layer to explore its rules and current implementation. This is an architecture map, not live simulation data.</p></div>
+        <figure class="system-flow">
+          <figcaption>How a local change travels between worlds</figcaption>
+          <ol>
+            <li><a href="#layer-1">01–02 <strong>Shape &amp; extract</strong><span>Terrain becomes stock</span></a></li>
+            <li><a href="#layer-4">03–05 <strong>Grow &amp; settle</strong><span>Habitat creates needs</span></a></li>
+            <li><a href="#layer-6">06–07 <strong>Move &amp; build</strong><span>Needs create paths</span></a></li>
+            <li><a href="#layer-8">08–10 <strong>Connect &amp; exchange</strong><span>Cargo reaches other worlds</span></a></li>
+          </ol>
+          <p class="flow-return">↳ Imported materials → local construction → habitat fit → residents stay or return home ↺</p>
+        </figure>
+        <div class="system-scales">
+          <div class="system-scale">
+            <div class="scale-heading"><span class="scale-symbol" aria-hidden="true">◉</span><div><p class="eyebrow">Planet scale · 7 layers</p><h3>Life on the ground</h3></div></div>
+          <details class="system-layer" id="layer-1"><summary><span class="layer-number">01</span><span class="layer-name">Terrain & Geometry<small lang="zh">地形与几何</small></span><span class="layer-status">Built</span></summary><div class="layer-detail"><p class="layer-tech">Noise · Density Field · Marching Cubes</p><p>Seeded volumes support digging, filling and flattening; dirty chunks rebuild with distance-based LOD.</p><p class="layer-source">Source · <code>world/planet.ts; world/voxels/</code></p></div></details>
+          <details class="system-layer" id="layer-2"><summary><span class="layer-number">02</span><span class="layer-name">Materials & Resources<small lang="zh">材质与资源</small></span><span class="layer-status">Built · simplified</span></summary><div class="layer-detail"><p class="layer-tech">Seeded Distribution · Surface Patches</p><p>Native materials and seeded deposits feed per-planet inventories. Imported material patches change local habitat fit.</p><p class="layer-source">Source · <code>content/materials.ts; systems/inventory.ts; systems/patches.ts</code></p></div></details>
+          <details class="system-layer" id="layer-3"><summary><span class="layer-number">03</span><span class="layer-name">Vegetation & Infrastructure<small lang="zh">植被与基础设施</small></span><span class="layer-status">Built</span></summary><div class="layer-detail"><p class="layer-tech">Spatial Sampling · Growth Rules</p><p>Gardeners sample suitable ground; plants grow and spread. Riggers raise antennas, while spaceports unlock routes.</p><p class="layer-source">Source · <code>systems/placer.ts; systems/structures.ts; systems/logistics.ts</code></p></div></details>
+          <details class="system-layer" id="layer-4"><summary><span class="layer-number">04</span><span class="layer-name">Residents & Habitat<small lang="zh">居民与栖息地</small></span><span class="layer-status">Built</span></summary><div class="layer-detail"><p class="layer-tech">Agent-Based Modeling · Habitat Suitability</p><p>Species read material, water, disturbance and company. Comfort and belonging guide settling or returning home.</p><p class="layer-source">Source · <code>systems/residents.ts; systems/habitat.ts; content/species.ts</code></p></div></details>
+          <details class="system-layer" id="layer-5"><summary><span class="layer-number">05</span><span class="layer-name">Colonies & Social Graph<small lang="zh">聚落与社会关系</small></span><span class="layer-status">Built · simplified</span></summary><div class="layer-detail"><p class="layer-tech">Neighborhood Search · Connected Components</p><p>Nearby homes of the same species form colonies through connected chains. These groups also become service destinations.</p><p class="layer-source">Source · <code>systems/migration.ts → coloniesOf()</code></p></div></details>
+          <details class="system-layer" id="layer-6"><summary><span class="layer-number">06</span><span class="layer-name">Movement & Roads<small lang="zh">移动与道路</small></span><span class="layer-status">Built · simplified</span></summary><div class="layer-detail"><p class="layer-tech">A* · Traffic Heatmap · Desire Paths</p><p>Service trips add heat to surface edges. Busy paths become Builder jobs; roads lower travel cost and blocked routes replan.</p><p class="layer-source">Source · <code>graph/surfaceGraph.ts; systems/traffic.ts</code></p></div></details>
+          <details class="system-layer" id="layer-7"><summary><span class="layer-number">07</span><span class="layer-name">Local Logistics<small lang="zh">本地物流</small></span><span class="layer-status">Built · simplified</span></summary><div class="layer-detail"><p class="layer-tech">Task Allocation · Resource Accounting</p><p>Mining supplies local stock. Builders prioritize habitat patches, platforms and roads before terrain work, spending available materials.</p><p class="layer-source">Source · <code>systems/builder.ts; systems/inventory.ts</code></p></div></details>
+          </div>
+          <div class="system-scale">
+            <div class="scale-heading"><span class="scale-symbol" aria-hidden="true">◎</span><div><p class="eyebrow">System scale · 3 layers</p><h3>Worlds in exchange</h3></div></div>
+          <details class="system-layer" id="layer-8"><summary><span class="layer-number">08</span><span class="layer-name">Planet Network<small lang="zh">星球网络</small></span><span class="layer-status">Built</span></summary><div class="layer-detail"><p class="layer-tech">Graph Theory · Procedural Layout</p><p>Seeds fix planet positions. Visited worlds with spaceports can be joined by weighted, bidirectional routes.</p><p class="layer-source">Source · <code>systems/system.ts; graph/graphCore.ts</code></p></div></details>
+          <details class="system-layer" id="layer-9"><summary><span class="layer-number">09</span><span class="layer-name">Interplanetary Transport & Migration<small lang="zh">星际运输与移民</small></span><span class="layer-status">Built</span></summary><div class="layer-detail"><p class="layer-tech">Dijkstra · State Machine</p><p>Trains carry cargo and unique residents along shortest routes. Delivery, cancellation and passports preserve stock and identity.</p><p class="layer-source">Source · <code>systems/logistics.ts; systems/creatures.ts; systems/migration.ts</code></p></div></details>
+          <details class="system-layer" id="layer-10"><summary><span class="layer-number">10</span><span class="layer-name">Economy & Global Simulation<small lang="zh">经济与全局模拟</small></span><span class="layer-status">Partial</span></summary><div class="layer-detail"><p class="layer-tech">Stock–Flow Accounting · Rule-Based Simulation</p><p>Shared credits pay for energy, edits, ports and routes. Stock and shipments connect worlds; dynamic markets and simultaneous planet simulation remain planned.</p><p class="layer-source">Source · <code>systems/economy.ts; systems/simulation.ts; state/planets.ts</code></p></div></details>
+            <aside class="system-boundary"><h4>The current simulation boundary</h4><p>Local rules run on the active planet. Other planets retain snapshots and receive deliveries. Layer 10 has accounting and transport costs; dynamic supply-and-demand pricing and simultaneous simulation of every planet are still planned.</p><p>“Built · simplified” marks an implemented model with a narrower scope. Open each layer for its limits.</p></aside>
+          </div>
+        </div>
+      </div>
+    </section>
     <section id="method" class="method" aria-labelledby="method-title">
       <div class="wrap">
         <div class="section-head" data-reveal>
-          <p class="eyebrow">05 · How it is made</p>
+          <p class="eyebrow">06 · How it is made</p>
           <h2 id="method-title">From class notes to a lesson.</h2>
           <p class="section-note">Every lesson follows the same loop. Hover a step for detail.</p>
         </div>

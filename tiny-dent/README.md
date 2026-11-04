@@ -10,22 +10,28 @@ A browser-based procedural sandbox where players freely reshape different planet
 
 Players can pursue resource extraction, ecological flourishing, or strange planetary forms. There is no single ideal planet. The next development focus is a readable connection between terrain edits, habitat conditions, and residents choosing where to live.
 
+### System architecture
+
+The current game is organized into **7 planet layers** (terrain, materials, vegetation/infrastructure, habitat, colonies, movement/roads, local logistics) and **3 system layers** (planet network, transport/migration, economy/global simulation).
+
+See the [ten-layer architecture and source map](../README.md#system-architecture--系统层与技术) for the current implementation and its limits. The project homepage visualizes these scales in its **System atlas**.
+
 ### Current implementation
 
 - **Manual tools:** Dig, Add Terrain, Flatten, and a bounded Detector.
 - **Miner:** assign a spherical area and Start; it scans, chooses a mineral, hovers to an entry, excavates and collects, then repeats.
-- **Gardener:** surveys suitable ground and sows plants that spread by themselves, and currently also places antennas. Separating antenna construction from gardening is a proposal, not an implemented change.
+- **Gardener / Rigger:** the Gardener surveys suitable ground and plants vegetation that spreads; the Rigger builds antennas.
 - **Builder:** repairs local holes first, then trims isolated obstructions, using the shared soil stock. Prepared sites can wake a waiting Gardener.
 - **Operations:** mineral storage/sales, soil stock, electricity billing, debt warning and bankruptcy; communicator messages explain operating problems.
-- **Resources:** Mineral is the only resource. Existing seed strings retain the same mineral positions (D-044, D-048).
+- **Resources and logistics:** each planet keeps material inventories. Spaceports and weighted routes support cargo and passengers; Builders spend stock on terrain, habitat patches, roads and platforms.
 - **Exploration:** returnable outer-surface walking as the Quiet Drifter, in third or first person, landing sites and an updating 2D atlas. The Drifter's model, clips and board live in `docs/drifter/` (D-064).
 - **Planet materials:** rock, metal, plastic, fur, jelly and ice change digging, the crew and residents. Marks stay on the surface even where the ground heals (D-060, D-061).
 - **Sound:** each material has its own synthesized digging voice.
-- **Discovery/travel:** explicit broadcasts reveal distant planet entries. Travel currently creates a fresh planet state and carries funds only; old sites are not preserved for return.
+- **Discovery/travel:** broadcasts reveal distant planets. Visited sites retain their state for return; funds are shared, and the system overview shows connected worlds.
 
 ### Planned next
 
-One quiet-sensitive rock resident species now sinks into valid surface homes, hides from nearby work and relocates after sustained noise. Persistent planets and the live 3D overview remain part of the broader direction.
+Species now evaluate habitat fit, form proximity-based colonies and can migrate with persistent passports. Ground service trips create traffic heat, and Builders upgrade busy paths into roads. Dynamic supply-and-demand pricing and simultaneous local simulation of all planets remain future work.
 
 The desired money interface is compact: detailed accounting may remain internal, while operating restrictions and critical warnings remain understandable. The current debt/game-over rule is retained until a replacement is explicitly decided.
 
