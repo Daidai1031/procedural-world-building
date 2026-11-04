@@ -1,0 +1,32 @@
+{
+  "name": "tiny-dent",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "tsx --test tests/planet.test.ts tests/miner.test.ts tests/gardener.test.ts tests/builder.test.ts tests/visual.test.ts tests/economy.test.ts tests/exploration.test.ts tests/signal.test.ts tests/comms.test.ts tests/residents.test.ts tests/autopilot.test.ts tests/systemView.test.ts tests/surfaces.test.ts"
+  },
+  "dependencies": {
+    "@fontsource-variable/bricolage-grotesque": "^5.3.0",
+    "@fontsource-variable/outfit": "^5.3.0",
+    "@fontsource/audiowide": "^5.3.0",
+    "@react-three/fiber": "^9.7.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "three": "^0.185.1",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@types/three": "^0.185.0",
+    "@vitejs/plugin-react": "^6.1.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vite": "^8.2.2"
+  }
+}
