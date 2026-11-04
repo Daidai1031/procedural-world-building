@@ -1,6 +1,6 @@
 # Guidebook weekly log
 
-The guidebook is the course-learning half of the project: interactive lessons on procedural techniques, each built around live 3D demos. The final project, [Terraforming Contractor #1380](../README.md), borrows techniques from it. For setup, commands and the lesson workflow, see the [guidebook README](README.md).
+The guidebook is the course-learning half of the project: interactive lessons on procedural techniques, each built around live 3D demos. The final project, [Tiny Dent](../README.md), borrows techniques from it. For setup, commands and the lesson workflow, see the [guidebook README](README.md).
 
 | Week | Lesson / work | Notes |
 | --- | --- | --- |
