@@ -38,6 +38,18 @@ The look and the premise come from two places: a game that proved planets can be
 
 Where we diverge: in Astroneer the player does the digging. In #1380 the player’s main verb is *delegating*. Robots follow visible rules, and the interesting part is the planet’s response.
 
+### Slipways
+
+*Slipways* (Beau Jarrett, Kitfox Games) is the reference for the **planet system**, the System Scale layers above. Its map is a graph: planets are nodes, trade routes are edges, and each planet shows what it produces and what it needs. You grow a network by deciding which worlds to connect, and distance, supply and demand decide whether a link pays off. We borrow this reading of a system as a legible web of worlds, and the idea that building a route is itself the main design act.
+
+<p>
+  <img src="tiny-dent/docs/reference/Slipways.jpg" alt="Slipways: a star map of planets joined by glowing trade routes, each labelled with the goods it produces and consumes" width="80%">
+</p>
+
+*Image: Slipways screenshot, © Beau Jarrett / Kitfox Games. Used for reference only.*
+
+Where we diverge: Slipways is a turn-based map of abstract planets. In Tiny Dent each node is a planet you can walk on and reshape, and a route carries real cargo and residents between worlds you have edited yourself. The planet network (layer 8), route pathfinding (layer 9) and shared economy (layer 10) are built on this graph reading.
+
 ### *The Little Prince*
 
 Saint-Exupéry’s prince lives on a planet small enough to tend every day: weeding baobabs, sweeping volcanoes, watching one flower. That scale is the emotional target. A planet should be small enough that one change is visible from space and that its inhabitants can be known individually.
@@ -62,7 +74,17 @@ The residents are small rock creatures, and the planet’s surface language is f
 
 *Left: rock-creature character sheet signed “KEDO.” Right: stock illustration of stones. Both used for reference only.*
 
-These references fed the component board and the resident design board shown below.
+### The Quiet Drifter
+
+The player's traveller started as an original turnaround sheet: an ivory spacesuit, a domed helmet with a dark face inset, ochre cuffs, and a small rose brooch, four heads tall. The sheet also fixes the part breakdown, joint pivots, local axes and material palette, so the character could be built procedurally from primitives and rigged at those pivots.
+
+<p>
+  <img src="tiny-dent/docs/reference/drifter-turnaround.png" alt="The Quiet Drifter turnaround sheet: front, side, back and three-quarter views, exploded parts, rose brooch detail, joint pivots and material palette" width="100%">
+</p>
+
+*The Quiet Drifter turnaround sheet, the design source for the in-game character.*
+
+These references fed the component board, the resident design board and the Drifter rig shown below.
 
 ## How it plays
 
@@ -93,63 +115,63 @@ Everything else is rules over that field:
 
 The techniques come from the course lessons in the [guidebook](worldbuilding-guidebook/): noise and erosion, voxels, shaders, distributions, paths, particles, and branching systems. The game does not share code with the guidebook; it ports the ideas.
 
-## System architecture · 系统层与技术
+## System architecture
 
-系统分为 **Planet Scale 的 7 层**与 **System Scale 的 3 层**。这是一种职责划分，不是每帧的执行顺序。以下按当前源码核对：1–9 层已有实现，其中材质、社会关系、地面交通、本地物流采用简化模型；第 10 层已实现经济核算，完整全局经济仍属后续方向。首页的 **System atlas** 提供对应的双尺度可展开系统图。
+The game has **7 Planet Scale layers** and **3 System Scale layers**. These describe responsibilities, not the order of each simulation tick. Layers 1-9 have implementations, with simplified models for materials, social relationships, ground traffic and local logistics. Layer 10 provides economic accounting; a full global economy remains planned. The homepage's **System atlas** visualizes both scales with expandable implementation details.
 
-### Planet Scale — 7 layers
+### Planet Scale - 7 layers
 
-| 层级 | 系统与当前实现 | 技术 | 源码入口 |
+| Layer | Current implementation | Technique | Source |
 | --- | --- | --- | --- |
-| 1. Terrain & Geometry / 地形与几何 | 种子噪声生成密度场，挖掘、填补、整平后仅重建受影响区块；距离 LOD 控制网格细节。 | Noise · Density Field · Marching Cubes | [world/planet.ts](tiny-dent/src/world/planet.ts) · [world/voxels/](tiny-dent/src/world/voxels/) |
-| 2. Materials & Resources / 材质与资源 | 种子决定原生材质与矿藏；各星球独立库存，进口材料可铺成局部栖息地。当前是原生表面 + 局部铺层，并非完整三维 Material Field。 | Seeded Distribution · Surface Patches | [content/materials.ts](tiny-dent/src/content/materials.ts) · [systems/inventory.ts](tiny-dent/src/systems/inventory.ts) · [systems/patches.ts](tiny-dent/src/systems/patches.ts) |
-| 3. Vegetation & Infrastructure / 植被与基础设施 | 采样与坡度筛选决定种植位置，生长规则驱动扩散；天线支持发现，太空港作为航线端点。 | Spatial Sampling · Growth Rules | [systems/placer.ts](tiny-dent/src/systems/placer.ts) · [systems/structures.ts](tiny-dent/src/systems/structures.ts) · [systems/logistics.ts](tiny-dent/src/systems/logistics.ts) |
-| 4. Residents & Habitat / 居民与栖息地 | 物种偏好结合材料、水域、干扰、植被和同类邻居计算适宜度；居民以舒适度、归属感及状态机响应环境。 | Agent-Based Modeling · Habitat Suitability | [systems/residents.ts](tiny-dent/src/systems/residents.ts) · [systems/habitat.ts](tiny-dent/src/systems/habitat.ts) · [content/species.ts](tiny-dent/src/content/species.ts) |
-| 5. Colonies & Social Graph / 聚落与社会关系 | 同类居民按住处距离连成连通分量，派生聚落成员与中心；尚无持久的人际关系图或复杂社会行为。 | Neighborhood Search · Connected Components | [migration.ts](tiny-dent/src/systems/migration.ts) |
-| 6. Movement & Roads / 移动与道路 | 有搜索预算的 A* 规划地表路径；通行热度累积与衰减，Builder 消耗材料铺路。热度来自服务点间模拟行程，非所有居民的真实步迹；飞行机器人不贡献热度。 | A* · Traffic Heatmap · Desire Paths | [graph/surfaceGraph.ts](tiny-dent/src/graph/surfaceGraph.ts) · [systems/traffic.ts](tiny-dent/src/systems/traffic.ts) |
-| 7. Local Logistics / 本地物流 | 采挖入库，Builder 按需求与优先级分配工作，建造铺层、平台、道路或修整地形并扣除材料；本地库存共享，未逐件模拟搬运。 | Task Allocation · Resource Accounting | [systems/builder.ts](tiny-dent/src/systems/builder.ts) · [systems/inventory.ts](tiny-dent/src/systems/inventory.ts) |
+| 1. Terrain & Geometry | Seeded noise generates a density field. Digging, filling and flattening rebuild only affected chunks; distance-based LOD controls mesh detail. | Noise · Density Field · Marching Cubes | [world/planet.ts](tiny-dent/src/world/planet.ts) · [world/voxels/](tiny-dent/src/world/voxels/) |
+| 2. Materials & Resources | Seeds determine native materials and deposits. Each planet has its own inventory, and imported materials form local habitat patches. This is a native surface plus patches, not a full volumetric material field. | Seeded Distribution · Surface Patches | [content/materials.ts](tiny-dent/src/content/materials.ts) · [systems/inventory.ts](tiny-dent/src/systems/inventory.ts) · [systems/patches.ts](tiny-dent/src/systems/patches.ts) |
+| 3. Vegetation & Infrastructure | Spatial sampling and slope filters choose planting sites; growth rules drive spreading. Antennas support discovery and spaceports serve as route endpoints. | Spatial Sampling · Growth Rules | [systems/placer.ts](tiny-dent/src/systems/placer.ts) · [systems/structures.ts](tiny-dent/src/systems/structures.ts) · [systems/logistics.ts](tiny-dent/src/systems/logistics.ts) |
+| 4. Residents & Habitat | Species preferences combine material, water, disturbance, vegetation and nearby kin into habitat suitability. Comfort, belonging and state machines drive resident responses. | Agent-Based Modeling · Habitat Suitability | [systems/residents.ts](tiny-dent/src/systems/residents.ts) · [systems/habitat.ts](tiny-dent/src/systems/habitat.ts) · [content/species.ts](tiny-dent/src/content/species.ts) |
+| 5. Colonies & Social Graph | Nearby homes of the same species form connected components, yielding colony members and centres. Persistent interpersonal relationships and complex social behaviour are not implemented. | Neighborhood Search · Connected Components | [migration.ts](tiny-dent/src/systems/migration.ts) |
+| 6. Movement & Roads | Budgeted A* searches plan surface routes. Traffic heat accumulates and decays; Builders spend materials on roads. Heat comes from simulated service trips, not every resident footstep; flying robots contribute no heat. | A* · Traffic Heatmap · Desire Paths | [graph/surfaceGraph.ts](tiny-dent/src/graph/surfaceGraph.ts) · [systems/traffic.ts](tiny-dent/src/systems/traffic.ts) |
+| 7. Local Logistics | Excavation supplies inventory. Builders prioritize habitat patches, platforms, roads and terrain work, spending the required stock. Local inventory is shared; individual hauling trips are not simulated. | Task Allocation · Resource Accounting | [systems/builder.ts](tiny-dent/src/systems/builder.ts) · [systems/inventory.ts](tiny-dent/src/systems/inventory.ts) |
 
-### System Scale — 3 layers
+### System Scale - 3 layers
 
-| 层级 | 系统与当前实现 | 技术 | 源码入口 |
+| Layer | Current implementation | Technique | Source |
 | --- | --- | --- | --- |
-| 8. Planet Network / 星球网络 | 种子生成星球布局，已访问星球作为节点；玩家连接两端太空港，距离决定航线造价与行程时间。 | Graph Theory · Procedural Layout | [systems/system.ts](tiny-dent/src/systems/system.ts) · [graph/graphCore.ts](tiny-dent/src/graph/graphCore.ts) |
-| 9. Interplanetary Transport & Migration / 星际运输与移民 | Dijkstra 按旅行时间寻找最短航线；货物和居民经历在途、到达或退回，护照保留身份及旅程，移民经历探索、定居、思乡与返乡。 | Dijkstra · State Machine | [systems/logistics.ts](tiny-dent/src/systems/logistics.ts) · [systems/creatures.ts](tiny-dent/src/systems/creatures.ts) · [systems/migration.ts](tiny-dent/src/systems/migration.ts) |
-| 10. Economy & Global Simulation / 经济与全局模拟 | 已实现共享资金、矿物销售、电费、编辑费、建港建线成本、运费和跨星球库存流转；尚无供需动态定价。仅活动星球执行本地模拟，非活动星球保留快照并接收运输结算。 | Stock–Flow Accounting · Rule-Based Simulation | [systems/economy.ts](tiny-dent/src/systems/economy.ts) · [systems/simulation.ts](tiny-dent/src/systems/simulation.ts) · [state/planets.ts](tiny-dent/src/state/planets.ts) |
+| 8. Planet Network | Seeds determine planetary positions. Players connect spaceports on visited worlds; distance determines route construction cost and travel time. | Graph Theory · Procedural Layout | [systems/system.ts](tiny-dent/src/systems/system.ts) · [graph/graphCore.ts](tiny-dent/src/graph/graphCore.ts) |
+| 9. Interplanetary Transport & Migration | Dijkstra finds the shortest route by travel time. Cargo and residents move through transit, delivery or return states. Passports preserve identity and travel history; migrants explore, settle, become homesick or return home. | Dijkstra · State Machine | [systems/logistics.ts](tiny-dent/src/systems/logistics.ts) · [systems/creatures.ts](tiny-dent/src/systems/creatures.ts) · [systems/migration.ts](tiny-dent/src/systems/migration.ts) |
+| 10. Economy & Global Simulation | Shared credits, mineral sales, electricity, terrain-editing fees, ports, routes, shipping fees and interplanetary stock flows are implemented. Dynamic supply-and-demand pricing is not. Only the active planet runs local simulation; other planets retain snapshots and receive deliveries. | Stock–Flow Accounting · Rule-Based Simulation | [systems/economy.ts](tiny-dent/src/systems/economy.ts) · [systems/simulation.ts](tiny-dent/src/systems/simulation.ts) · [state/planets.ts](tiny-dent/src/state/planets.ts) |
 
-### 跨层反馈
+### Cross-layer feedback
 
 ```mermaid
 flowchart TD
-  subgraph P["Planet Scale · 每颗星球"]
-    T["1 地形与几何"] --> M["2 材质与资源"]
-    T --> V["3 植被与基础设施"]
-    M --> H["4 居民与栖息地"]
+  subgraph P["Planet Scale - each world"]
+    T["1 Terrain & Geometry"] --> M["2 Materials & Resources"]
+    T --> V["3 Vegetation & Infrastructure"]
+    M --> H["4 Residents & Habitat"]
     V --> H
-    H --> C["5 聚落"]
-    C --> R["6 移动与道路"]
-    R --> L["7 本地物流与建造"]
+    H --> C["5 Colonies & Social Graph"]
+    C --> R["6 Movement & Roads"]
+    R --> L["7 Local Logistics"]
     M --> L
-    L -->|修整地形| T
-    L -->|铺设栖息地材料| H
+    L -->|Reshape terrain| T
+    L -->|Build habitat patches| H
   end
-  subgraph S["System Scale · 星球之间"]
-    N["8 星球网络"] --> X["9 星际运输与移民"]
-    X --> E["10 经济核算 · 部分实现"]
-    E -->|费用与资金约束| X
+  subgraph S["System Scale - between worlds"]
+    N["8 Planet Network"] --> X["9 Transport & Migration"]
+    X --> E["10 Economic accounting - partial"]
+    E -->|Costs and funding limits| X
   end
-  V -->|太空港| N
-  M -->|输出库存| X
-  X -->|进口材料| L
-  X -->|居民抵达| H
-  H -->|适应或返乡| X
+  V -->|Spaceports| N
+  M -->|Export stock| X
+  X -->|Import materials| L
+  X -->|Residents arrive| H
+  H -->|Settle or return home| X
 ```
 
-例如：移民不适应当地材料 → 提出材料需求 → 从其他星球运入材料 → Builder 扣除库存铺设栖息地 → 舒适度与归属感重新计算 → 居民定居或请求返乡。另一条反馈是通行热度 → 道路建造 → 更低通行成本 → 后续路径选择改变。
+For example: a migrant dislikes the local material, requests a familiar one, and receives it from another planet. A Builder spends that stock on a habitat patch. Comfort and belonging are recalculated, affecting whether the resident settles or requests a return journey. Another feedback loop connects traffic heat to road construction, lower travel costs and subsequent route choices.
 
-**运行边界：** [simulation.ts](tiny-dent/src/systems/simulation.ts) 使用固定步长，按顺序推进自动控制、电费、机器人、地表变化、植被、居民、迁移、交通、水域和星际物流。活动星球执行本地模拟；其他星球保留快照，运输到达可以更新其库存与居民。当前没有所有星球持续并行演化的全局模拟，也没有市场供需驱动的动态价格。
+**Simulation boundary:** [simulation.ts](tiny-dent/src/systems/simulation.ts) advances fixed steps in order: autopilot, electricity, robots, surface changes, vegetation, residents, migration, traffic, water and interplanetary logistics. Only the active planet runs local simulation. Other planets retain snapshots that can receive cargo and residents. Simultaneous evolution of all planets and market-driven dynamic pricing are not implemented.
 
-**技术栈：** TypeScript、React 19、Three.js / React Three Fiber、Zustand、Vite；生成与规则模拟主要位于 `world/`、`graph/`、`systems/`，状态位于 `state/`，渲染位于 `render/` 与 `views/`。首页使用 HTML / CSS 和共享游戏模型的 Three.js 场景。
+**Technology stack:** TypeScript, React 19, Three.js / React Three Fiber, Zustand and Vite. Generation and simulation live mainly in `world/`, `graph/` and `systems/`; state lives in `state/`; rendering lives in `render/` and `views/`. The homepage uses HTML / CSS and a Three.js scene sharing the game's models.
 
 ### Design decisions
 
@@ -160,6 +182,14 @@ The look was chosen before any robot was built. A component board compared visua
 The residents followed the same method: nine body directions generated procedurally, then one species per planet.
 
 ![Resident design board](docs/media/week8_resident_design.jpg)
+
+### Drifter character and rig
+
+The Drifter rig viewer exposes the character's joint hierarchy, animation clips, local axes and rotation curves. Select a joint to inspect it or adjust its pose.
+
+[![Drifter character rig: joint hierarchy, character preview and rotation controls](docs/media/roledesign.webp)](tiny-dent/docs/Drifter%20Rig%20Nodes.html)
+
+[View rig details on the project site](https://worldbuilding-guidebook.web.app/design/drifter-rig-nodes.html) or open the [standalone HTML viewer](tiny-dent/docs/Drifter%20Rig%20Nodes.html) locally. The hosted viewer is included in the next site deployment.
 
 The full record is in the game docs:
 

@@ -14,7 +14,7 @@ Players can pursue resource extraction, ecological flourishing, or strange plane
 
 The current game is organized into **7 planet layers** (terrain, materials, vegetation/infrastructure, habitat, colonies, movement/roads, local logistics) and **3 system layers** (planet network, transport/migration, economy/global simulation).
 
-See the [ten-layer architecture and source map](../README.md#system-architecture--系统层与技术) for the current implementation and its limits. The project homepage visualizes these scales in its **System atlas**.
+See the [ten-layer architecture and source map](../README.md#system-architecture) for the current implementation and its limits. The project homepage visualizes these scales in its **System atlas**.
 
 ### Current implementation
 

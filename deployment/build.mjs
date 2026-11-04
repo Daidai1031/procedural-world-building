@@ -1,4 +1,4 @@
-import { cp, lstat, readFile, rm } from 'node:fs/promises'
+import { cp, lstat, mkdir, readFile, rm } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { spawnSync } from 'node:child_process'
@@ -52,6 +52,10 @@ const existing = await lstat(output).catch(error => {
 if (existing?.isSymbolicLink()) throw new Error('Deployment output must not be a symbolic link')
 await rm(output, { recursive: true, force: true })
 await cp(home, output, { recursive: true })
+await mkdir(path.join(output, 'design'), { recursive: true })
+await cp(path.join(root, 'docs/media/roledesign.webp'), path.join(output, 'images/roledesign.webp'))
+await cp(path.join(game, 'docs/Drifter Rig Nodes.html'), path.join(output, 'design/drifter-rig-nodes.html'))
+await cp(path.join(game, 'docs/Ares-9 Design Choices.html'), path.join(output, 'design/robot-design-choices.html'))
 await cp(path.join(guidebook, 'dist'), path.join(output, 'guidebook'), { recursive: true })
 await cp(path.join(game, 'dist'), path.join(output, 'game'), { recursive: true })
 console.log('Assembled deployment/public: home at /, guidebook at /guidebook/, game at /game/')

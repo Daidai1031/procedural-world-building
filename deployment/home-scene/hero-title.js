@@ -1,4 +1,4 @@
-// The hero title: "Learn it." is typed out with a caret, then a leaning "Shape it." blows in from the planet as sand.
+// The hero title: "Tiny" is typed out with a caret, then a leaning "Dent" blows in from the planet as sand.
 // Hovering loosens the grains under the pointer; pressing digs them out, and the hole refills.
 // The h1 keeps its real text underneath for readers, search and a no-script fallback.
 
@@ -9,7 +9,7 @@ const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
 
 const ARRIVE = 0, REST = 1, FALL = 2, DUG = 3, RETURN = 4
 const START = 520 // after the planet has begun to settle
-const LINE_GAP = 1700 // "Shape it." starts once "Learn it." has been typed
+const LINE_GAP = 1700 // "Dent" starts once "Tiny" has been typed
 const LOOSEN_R = 58, DIG_R = 24, REFILL_AFTER = 2600
 const TILT = -4 * Math.PI / 180
 const TYPE_MS = 95
@@ -37,7 +37,7 @@ function start() {
   const begin = Math.max(0, performance.now() - START)
   let grains = [], groups = [], lastDig = -1e9, visible = true
 
-  // "Learn it." stays real text, revealed one character at a time behind a blinking caret.
+  // "Tiny" stays real text, revealed one character at a time behind a blinking caret.
   const learn = title.querySelector('.hero-title-action:not(.hero-title-action-accent)')
   const caret = document.createElement('span')
   caret.className = 'hero-caret'
@@ -83,7 +83,7 @@ function start() {
       sctx.letterSpacing = style.letterSpacing
       return { style, rect, baseline: rect.top - box.top + sctx.measureText(span.textContent).fontBoundingBoxAscent }
     }
-    // "Shape it." leans, turning about its right end on the baseline so the S dips away from the line above.
+    // "Dent" leans, turning about its right end on the baseline so the D dips away from the line above.
     const accentLine = title.querySelector('.hero-title-action-accent')
     const accentEnd = measure(accentLine.lastElementChild)
     const pivotX = accentEnd.rect.right - box.left, pivotY = accentEnd.baseline

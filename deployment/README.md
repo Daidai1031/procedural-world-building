@@ -11,6 +11,15 @@ The script source is in `home-scene/`; the shared build bundles it into
 `home/scene/home.js` using the game's installed Three.js and Vite dependencies, and copies
 the game's fonts (Audiowide, Outfit, Bricolage Grotesque) into `home/scene/fonts/`.
 
+The field crew section renders the game's actual Drifter model with orbit controls,
+animation selection, pause/play and joint markers. It initializes near the viewport
+and stops drawing offscreen; reduced motion starts paused. A link opens the full rig inspector.
+The README keeps the static character reference image.
+The build copies `docs/media/roledesign.webp` to `/images/roledesign.webp` and
+`tiny-dent/docs/Drifter Rig Nodes.html` to `/design/drifter-rig-nodes.html`.
+It also copies `tiny-dent/docs/Ares-9 Design Choices.html` (the English robot design board, linked from the field crew section) to `/design/robot-design-choices.html`.
+Edit the original assets; the assembled copies are regenerated on each build.
+
 - `planet.js`: the hero loop. It imports the game's own `PlanetWorld`, terrain material,
   atmosphere, robots, surface models and residents. Each 32-second loop (sol 0 to 1380)
   the Miner, Builder and Gardener dig mineral deposits, level pads, raise antennas and plant
