@@ -8,5 +8,8 @@ docs/exercise中文版/
 CLAUDE.md
 # Obsidian editor config
 .obsidian/
-terraforming-1380/lod-check.png
+tiny-dent/lod-check.png
 debug.log
+
+# local QA browser profiles and scratch
+.tmp/

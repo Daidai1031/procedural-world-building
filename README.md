@@ -1,4 +1,4 @@
-# Terraforming Contractor #1380
+# Tiny Dent
 
 **A procedural sandbox where you reshape small planets, by hand or through autonomous robots, and watch the residents decide whether they like what you did.**
 
@@ -30,8 +30,8 @@ The look and the premise come from two places: a game that proved planets can be
 *Astroneer* (System Era Softworks, 2016) is the closest relative. Its planets are volumetric: a terrain tool digs, raises, and flattens a density field, and the chunked surface re-meshes under your hands. Its colour language (saturated, faceted, friendly) shows that an editable planet can still read as a toy. We borrow the premise of small, distinct, fully editable worlds, and the idea of travelling between them.
 
 <p>
-  <img src="terraforming-1380/docs/reference/Astroneer_1.png" alt="Astroneer: a base on a faceted, colourful planet" width="49%">
-  <img src="terraforming-1380/docs/reference/Astroneer_2.jpg" alt="Astroneer: a planet seen from orbit with a base and launch trails" width="49%">
+  <img src="tiny-dent/docs/reference/Astroneer_1.png" alt="Astroneer: a base on a faceted, colourful planet" width="49%">
+  <img src="tiny-dent/docs/reference/Astroneer_2.jpg" alt="Astroneer: a planet seen from orbit with a base and launch trails" width="49%">
 </p>
 
 *Images: Astroneer promotional art, © System Era Softworks. Used for reference only.*
@@ -43,8 +43,8 @@ Where we diverge: in Astroneer the player does the digging. In #1380 the player�
 Saint-Exupéry’s prince lives on a planet small enough to tend every day: weeding baobabs, sweeping volcanoes, watching one flower. That scale is the emotional target. A planet should be small enough that one change is visible from space and that its inhabitants can be known individually.
 
 <p>
-  <img src="terraforming-1380/docs/reference/the little prince.jpeg" alt="The Little Prince standing on his small cratered planet" width="49%">
-  <img src="terraforming-1380/docs/reference/planet.jpg" alt="A small, cratered, rocky planet" width="49%">
+  <img src="tiny-dent/docs/reference/the little prince.jpeg" alt="The Little Prince standing on his small cratered planet" width="49%">
+  <img src="tiny-dent/docs/reference/planet.jpg" alt="A small, cratered, rocky planet" width="49%">
 </p>
 
 *Left: The Little Prince, Starcatcher edition, property of Succession de Antoine de Saint-Exupéry (POMASE), licensed through LPP612 and Medialink, 2024. Right: stock image of a cratered rock planet. Both used for reference only.*
@@ -56,8 +56,8 @@ The planet in the game is a pale, cratered body in the same spirit: a single roc
 The residents are small rock creatures, and the planet’s surface language is flat-shaded stone. A character sheet of mossy, crystalline, and sleepy rock beings set the tone for their personalities and silhouettes. A sheet of flat-shaded stones set the faceted look of the terrain and boulders.
 
 <p>
-  <img src="terraforming-1380/docs/reference/character.jpg" alt="A sheet of small rock creatures with moss, crystals, and seedlings" width="49%">
-  <img src="terraforming-1380/docs/reference/stone.jpg" alt="A sheet of flat-shaded grey stones" width="49%">
+  <img src="tiny-dent/docs/reference/character.jpg" alt="A sheet of small rock creatures with moss, crystals, and seedlings" width="49%">
+  <img src="tiny-dent/docs/reference/stone.jpg" alt="A sheet of flat-shaded grey stones" width="49%">
 </p>
 
 *Left: rock-creature character sheet signed “KEDO.” Right: stock illustration of stones. Both used for reference only.*
@@ -105,23 +105,23 @@ The residents followed the same method: nine body directions generated procedura
 
 The full record is in the game docs:
 
-- [Design](terraforming-1380/docs/design.md): what the game is and why
-- [Specification](terraforming-1380/docs/spec.md) and [procedural system](terraforming-1380/docs/procedural-system.md)
-- [Decisions](terraforming-1380/docs/decisions.md): numbered and dated
-- [Roadmap](terraforming-1380/docs/roadmap.md): what is built and what is not
-- [Tuning](terraforming-1380/docs/tuning.md) and [content](terraforming-1380/docs/content.md)
+- [Design](tiny-dent/docs/design.md): what the game is and why
+- [Specification](tiny-dent/docs/spec.md) and [procedural system](tiny-dent/docs/procedural-system.md)
+- [Decisions](tiny-dent/docs/decisions.md): numbered and dated
+- [Roadmap](tiny-dent/docs/roadmap.md): what is built and what is not
+- [Tuning](tiny-dent/docs/tuning.md) and [content](tiny-dent/docs/content.md)
 
 ## Current state
 
 Implemented: manual terrain editing, Miner / Gardener / Builder / Rigger automation, Autopilot, the site economy, surface exploration with a 2D world map, broadcast-triggered travel to persistent signal planets, a system overview, and resident species with shelter-and-tremble behaviour.
 
-Not implemented, and marked as such in the [roadmap](terraforming-1380/docs/roadmap.md): the end-of-run audit, planet classifications and the Silent / Heard / Erased endings (M5), cosmic ending visuals, and ending audio. Bankruptcy is the only way a run ends today.
+Not implemented, and marked as such in the [roadmap](tiny-dent/docs/roadmap.md): the end-of-run audit, planet classifications and the Silent / Heard / Erased endings (M5), cosmic ending visuals, and ending audio. Bankruptcy is the only way a run ends today.
 
 ## Development log
 
 | Week | Game milestone |
 | --- | --- |
-| 6 (Sep 28) | `terraforming-1380/` created: seeded sphere-plus-noise planet, chunked Marching Cubes, Dig / Add / Flatten, Detector |
+| 6 (Sep 28) | `tiny-dent/` created: seeded sphere-plus-noise planet, chunked Marching Cubes, Dig / Add / Flatten, Detector |
 | 6 | Component board decides the visual language |
 | 7 (Oct 7) | Three-level distance-based terrain LOD |
 | 7 | Teacher feedback (“what if the game played itself?”) turns the game toward robots; Miner, Gardener, Builder; Auto and Manual modes; economy; world map; broadcasts |
@@ -150,13 +150,13 @@ The robots, terrain, and atmosphere use the look chosen on the component board. 
 
 ![Week 7 robot crew at work](docs/media/week7_world.gif)
 
-Key files: [planet generation](terraforming-1380/src/world/planet.ts), [LOD](terraforming-1380/src/world/lodChunks.js), [Miner](terraforming-1380/src/systems/miner.ts), [Gardener](terraforming-1380/src/systems/gardener.ts), [Builder](terraforming-1380/src/systems/builder.ts), [decisions D-022 to D-033](terraforming-1380/docs/decisions.md).
+Key files: [planet generation](tiny-dent/src/world/planet.ts), [LOD](tiny-dent/src/world/lodChunks.js), [Miner](tiny-dent/src/systems/miner.ts), [Gardener](tiny-dent/src/systems/gardener.ts), [Builder](tiny-dent/src/systems/builder.ts), [decisions D-022 to D-033](tiny-dent/docs/decisions.md).
 
 ### Week 8: autopilot, signal planets, and residents
 
 Autopilot hands the whole planet to the crew: Miners, Gardeners, Builders, and the new Rigger, which takes over antenna building, each sweep the surface sector by sector. Minerals now sell automatically on delivery, and manual terrain edits cost credits. Planets that answer a broadcast become persistent sites with their own seeds and shapes. Residents are small rock creatures that shelter underground, peek out, and tremble near robot work.
 
-Key files: [game systems](terraforming-1380/src/systems/), [decisions](terraforming-1380/docs/decisions.md).
+Key files: [game systems](tiny-dent/src/systems/), [decisions](tiny-dent/docs/decisions.md).
 
 ## Course work behind the game
 
@@ -178,7 +178,7 @@ Exercise write-ups are indexed in [docs/exercise/](docs/exercise/README.md); set
 
 ```text
 Repository
-├── terraforming-1380/         the game (start at docs/README.md)
+├── tiny-dent/         the game (start at docs/README.md)
 ├── worldbuilding-guidebook/   interactive lessons and 3D demos (LOG.md has the weekly record)
 ├── docs/                      exercise notes, tutorials, weekly media
 └── deployment/                homepage, combined build, Hosting routes
@@ -192,9 +192,9 @@ From the repository root:
 
 ```powershell
 npm.cmd ci --prefix worldbuilding-guidebook   # first time only
-npm.cmd ci --prefix terraforming-1380         # first time only
+npm.cmd ci --prefix tiny-dent         # first time only
 npm.cmd --prefix deployment run build         # rebuild after every change
 npm.cmd --prefix deployment run preview       # starts the Firebase Hosting emulator
 ```
 
-Open <http://127.0.0.1:5002/>. The homepage is `/`, the guidebook `/guidebook/`, and the game `/game/`. The preview serves the built copy in `deployment/public/`, so edits show up only after rebuilding. See the [game README](terraforming-1380/README.md) for controls and the [deployment README](deployment/README.md) for build and deploy details.
+Open <http://127.0.0.1:5002/>. The homepage is `/`, the guidebook `/guidebook/`, and the game `/game/`. The preview serves the built copy in `deployment/public/`, so edits show up only after rebuilding. See the [game README](tiny-dent/README.md) for controls and the [deployment README](deployment/README.md) for build and deploy details.
