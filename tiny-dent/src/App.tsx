@@ -21,7 +21,7 @@ import { showWorkArea } from './render/terrainMaterial'
 import { WorldMap } from './ui/WorldMap'
 import { PixelIcon } from './ui/PixelIcon'
 import { SoundToggle } from './ui/SoundToggle'
-import { SurfaceCamera } from './views/SurfaceCamera'
+import { SurfaceCamera, type SurfaceView } from './views/SurfaceCamera'
 import { LandingMarkers } from './views/LandingMarkers'
 import { findLandingSites, landingQuality, type LandingSite } from './systems/exploration'
 import type { Vec3 } from './systems/geometry'
@@ -95,6 +95,9 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
   const world = useMemo(() => registry.world(seed), [registry, seed])
   useEffect(() => { if (debug) Object.assign(window, { __world: world, __registry: registry, __travel: (to: string) => travelTo(useRunStore, to) }) }, [debug, world, registry, useRunStore])
   const [surfaceSite, setSurfaceSite] = useState<LandingSite | null>(null)
+  // D-064: the surface opens on the Drifter in third person; V or the HUD button switches to first person.
+  const [surfaceView, setSurfaceView] = useState<SurfaceView>('third')
+  const toggleSurfaceView = useCallback(() => setSurfaceView(view => view === 'third' ? 'first' : 'third'), [])
   const [landingVisit, setLandingVisit] = useState(0)
   const [mapOpen, setMapOpen] = useState(false)
   const phase = useSystemView(state => state.phase)
@@ -301,7 +304,7 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
         <directionalLight position={[-3, -5, 2]} intensity={1.3} color={palette.light.sky} />
         <directionalLight position={[2, 1, -5]} intensity={0.6} />
         {surfaceSite ? <SurfaceCamera key={landingVisit} world={world} start={surfaceSite.direction}
-          positionRef={walkerPosition} movement={movement} onExit={returnToOrbit} /> : <OrbitCamera onWheel={adjustRadius} />}
+          positionRef={walkerPosition} movement={movement} onExit={returnToOrbit} view={surfaceView} onToggleView={toggleSurfaceView} /> : <OrbitCamera onWheel={adjustRadius} />}
         {!surfaceSite && <SystemCamera layout={layout} planets={systemWorlds} store={useRunStore} />}
         {!surfaceSite && <SystemWorlds planets={systemWorlds} layout={layout} registry={registry} />}
         {!surfaceSite && <ActiveReadouts store={useRunStore} seed={seed} />}
@@ -347,6 +350,7 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
           <div className="exploration-toolbar">
             <button onClick={() => { movement.current.clear(); setMapOpen(true) }}><PixelIcon glyph="map" />World map & landing</button>
             {canPull && <button onClick={() => openSystem()}><PixelIcon glyph="system" />System overview</button>}
+            {surfaceSite && <button onClick={toggleSurfaceView} aria-pressed={surfaceView === 'first'}>{surfaceView === 'third' ? 'First-person view' : 'Third-person view'}</button>}
             {surfaceSite && <button onClick={returnToOrbit}><PixelIcon glyph="orbit" />Return to orbit</button>}
           </div>
         </div>
@@ -369,7 +373,7 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
       <SystemCaption planets={systemWorlds} />
       <SystemReturn />
       {surfaceSite && <div className="surface-hud">
-        <p>{surfaceSite.name} · Surface exploration</p><span>WASD / arrows to walk · drag to look · Esc to orbit</span>
+        <p>{surfaceSite.name} · Surface exploration</p><span>WASD / arrows to walk · Shift to hurry · drag to look · V {surfaceView === 'third' ? 'first' : 'third'} person · 1–3 wave, kneel, sit · Esc to orbit</span>
         <div className="walk-pad" aria-label="Walking controls">{[['w', 'Forward ↑'], ['a', 'Left ←'], ['s', 'Back ↓'], ['d', 'Right →']].map(([key, label]) =>
           <button key={key} aria-label={label} onPointerDown={event => { event.currentTarget.setPointerCapture(event.pointerId); movement.current.add(key) }}
             onPointerUp={() => movement.current.delete(key)} onPointerCancel={() => movement.current.delete(key)}
