@@ -1,6 +1,6 @@
 import type { Vec3 } from './geometry'
 import type { RunState } from '../state/runState'
-import { planetConfig } from '../world/planet'
+import { planetConfig, visibleRadius } from '../world/planet'
 import { VOXEL_WORLD_SIZE } from '../world/voxels/voxelMath.js'
 import { tuning } from '../config/tuning'
 
@@ -15,7 +15,7 @@ export function parentSeed(seed: string): string | null {
 export interface LayoutPlanet { seed: string; position: Vec3 }
 export interface SystemLayout { positions: Record<string, Vec3>; center: Vec3; extent: number }
 
-const worldRadius = (seed: string) => planetConfig(seed).radius * VOXEL_WORLD_SIZE
+const worldRadius = (seed: string) => visibleRadius(seed)
 
 // Push overlapping worlds apart in absolute space so the active-planet translation stays a pure offset (SYS-06).
 function separateWorlds(absolute: Record<string, Vec3>, seeds: string[]) {

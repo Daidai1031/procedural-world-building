@@ -4,6 +4,8 @@ import { hashSeed, type PlanetWorld } from '../world/planet'
 import { randomStream } from '../world/resourceClusters'
 import { VOXEL_WORLD_SIZE } from '../world/voxels/voxelMath.js'
 import { add, dot, distance, HALF, scale, surfaceRadius, unit, type Vec3 } from './geometry'
+import { standsDry, type WaterWorld } from './water'
+import type { Patch } from './patches'
 
 type RunStore = ReturnType<typeof createRunStore>
 const rules = tuning.structures
@@ -52,17 +54,19 @@ function clearance(a: StructureKind, b: StructureKind) {
 }
 
 // Terrain suitability and spacing for a new structure; the caller decides whether the place is inside a work area.
-export function isSuitable(world: Pick<PlanetWorld, 'densityAt'>, existing: Structure[], kind: StructureKind,
-  anchor: Vec3, normal: Vec3) {
+export function isSuitable(world: Pick<PlanetWorld, 'densityAt'> & Partial<Pick<WaterWorld, 'waterRadius'>>, existing: Structure[], kind: StructureKind,
+  anchor: Vec3, normal: Vec3, patches?: readonly Patch[]) {
+  // D-073: on an ocean only dry, anchored ground will do.
+  if (!standsDry(world, patches, anchor)) return false
   const maxSlope = kind === 'plant' ? tuning.gardener.plantMaxSlope : tuning.gardener.antennaMaxSlope
   if (slopeAt(normal, anchor) > maxSlope || !isAnchored(world, anchor, normal)) return false
   return existing.every((other) => distance(other.position, anchor) >= clearance(kind, other.kind))
 }
 
 // D-063: a robot leaves room between plants; only a plant's own seeds land closer.
-export function isSowable(world: Pick<PlanetWorld, 'densityAt'>, existing: Structure[], kind: StructureKind,
-  anchor: Vec3, normal: Vec3) {
-  return isSuitable(world, existing, kind, anchor, normal) && (kind !== 'plant'
+export function isSowable(world: Pick<PlanetWorld, 'densityAt'> & Partial<Pick<WaterWorld, 'waterRadius'>>, existing: Structure[], kind: StructureKind,
+  anchor: Vec3, normal: Vec3, patches?: readonly Patch[]) {
+  return isSuitable(world, existing, kind, anchor, normal, patches) && (kind !== 'plant'
     || existing.every((other) => other.kind !== 'plant' || distance(other.position, anchor) >= rules.sowSpacing))
 }
 

@@ -3,6 +3,7 @@ import type { createRunStore } from '../state/runState'
 import type { PlanetWorld } from '../world/planet'
 import type { ResourceCluster } from '../world/resourceClusters'
 import { isResourceExposed } from './detector'
+import { tuning } from '../config/tuning'
 
 // COL-01: a target is collected the moment terrain edits expose its center. Returns the newly collected ones.
 export function collectExposedResources(world: PlanetWorld, store: ReturnType<typeof createRunStore>): ResourceCluster[] {
@@ -14,7 +15,8 @@ export function collectExposedResources(world: PlanetWorld, store: ReturnType<ty
       collectedIds: [...collectedIds, ...found.map(({ id }) => id)],
       economy: { ...state.economy, mineralStock: state.economy.mineralStock + found.length },
     }))
-    sellMinerals(store)
+    // D-066: with the flag off, ore stays in economy.mineralStock until it is sold on purpose.
+    if (tuning.materials.autoSellOre) sellMinerals(store)
     updateSiteIndicators(store)
   }
   return found

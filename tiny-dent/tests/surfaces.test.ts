@@ -30,7 +30,7 @@ export function seedOf(kind: SurfaceKind, accept: (seed: string) => boolean = ()
   for (let parent = 0; parent < 500; parent += 1) {
     for (let index = 1; index <= 5; index += 1) {
       const seed = `s${parent}/signal-${index}`
-      if (planetConfig(seed).surface === kind && accept(seed)) return seed
+      if (planetConfig(seed).surface === kind && planetConfig(seed).water === 0 && accept(seed)) return seed
     }
   }
   throw new Error(`no planet of ${kind}`)

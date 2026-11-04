@@ -5,9 +5,11 @@ import { HALF, add, distance, dot, scale, unit, type Vec3 } from './geometry'
 import { groundRadius } from './exploration'
 import { VOXEL_WORLD_SIZE } from '../world/voxels/voxelMath.js'
 import { planetNatives, type ResidentKind } from '../content/residents'
+import { firstTerritory, isAquatic, stepSwimmer, type WaterWorld } from './water'
+import { suits } from './habitat'
 
 type Store = ReturnType<typeof createRunStore>
-type World = Pick<PlanetWorld, 'densityAt'> & Partial<Pick<PlanetWorld, 'wearNear'>>
+type World = Pick<PlanetWorld, 'densityAt'> & Partial<Pick<PlanetWorld, 'wearNear' | 'waterRadius'>>
 const rules = tuning.residents
 const STEP = VOXEL_WORLD_SIZE / (tuning.grid.resolution - 1)
 
@@ -19,6 +21,8 @@ export type { Home, Resident, ResidentState } from '../state/runState'
 // D-060: a material favours its own natives, so Crystal Crown's home world is ice.
 const speciesCache = new Map<string, ResidentKind>()
 export function planetSpecies(seed: string): ResidentKind {
+  // D-073: an ocean's own species, and nobody else's home.
+  if (planetConfig(seed).water > 0) return 'glassfin'
   const cached = speciesCache.get(seed)
   if (cached) return cached
   const match = /^(.*)\/signal-(\d+)$/.exec(seed)
@@ -80,12 +84,13 @@ export function temperament(species: ResidentKind) {
 export type Temperament = ReturnType<typeof temperament>
 
 const temperaments = new Map<ResidentKind, Temperament>()
-export function temperamentFor(seed: string) {
-  const species = planetSpecies(seed)
+// D-068: character belongs to the creature's species, not to the planet it stands on.
+export function temperamentOf(species: ResidentKind) {
   let found = temperaments.get(species)
   if (!found) temperaments.set(species, found = temperament(species))
   return found
 }
+export const temperamentFor = (seed: string) => temperamentOf(planetSpecies(seed))
 
 export interface DisturbanceSource { position: Vec3; level: number }
 export interface HabitatState { tick: number; sources: DisturbanceSource[]; candidates: Vec3[] }
@@ -101,6 +106,8 @@ const shaved = (world: World, p: Vec3) => (world.wearNear?.(p[0], p[1] + HALF, p
 export function isValidHome(world: World, candidate: Home, occupied: readonly Home[] = []) {
   const up = unit(candidate)
   if (Math.hypot(...candidate) < 0.5 || shaved(world, candidate)) return false
+  // D-073: ground under water is never a land creature's home.
+  if ((world.waterRadius ?? 0) > 0 && Math.hypot(...candidate) < world.waterRadius! + tuning.water.dry) return false
   for (let depth = STEP / 2; depth <= rules.minSoilDepth + STEP / 4; depth += STEP / 2) {
     if (!solid(world, add(candidate, scale(up, -Math.min(depth, rules.minSoilDepth))))) return false
   }
@@ -213,6 +220,10 @@ function makeResident(seed: string, index: number, home: Home, burrow: Burrow | 
   const { wanderEvery } = temperamentFor(seed)
   const resident: Resident = {
     id: `resident-${index}`,
+    // D-068: every creature is a unique individual for life, whichever planet it ends up on.
+    creatureId: `${seed}#resident-${index}`, species: planetSpecies(seed), origin: seed, life: 'native',
+    comfort: 0.9, belonging: 1, bias: ((hashSeed(`${seed}:resident:${index}:bias`) % 201) / 100 - 1) * tuning.migration.bias,
+    arrivedTick: 0, lifeTick: 0, request: null, passport: [{ kind: 'born', planet: seed, tick: 0 }],
     // D-053: stable per-resident variation makes individuals readable within one population.
     size: rules.size[0] + (hashSeed(`${seed}:resident:${index}:size`) % 101) / 100 * (rules.size[1] - rules.size[0]),
     home, burrowId: burrow?.id ?? null,
@@ -234,7 +245,18 @@ export function spawnResidents(seed: string): Resident[] {
   const spacing = VOXEL_WORLD_SIZE / (tuning.grid.resolution - 1)
   // Match PlanetWorld's nearest-sample density reads without constructing and meshing a second world.
   const snap = (value: number, centered: boolean) => Math.round((value + (centered ? HALF : 0)) / spacing) * spacing - (centered ? HALF : 0)
-  const world = { densityAt: (x: number, y: number, z: number) => field(snap(x, true), snap(y, false), snap(z, true)) }
+  const world = { densityAt: (x: number, y: number, z: number) => field(snap(x, true), snap(y, false), snap(z, true)), waterRadius: planetConfig(seed).water }
+  if (world.waterRadius > 0) {
+    // D-073: an ocean's residents are swimmers, each with a territory in water deep enough for it.
+    const count = Math.round(temperamentFor(seed).population * surfaceOf(seed).population
+      * (rules.initialCount[0] + hashSeed(`${seed}:residents:count`) % (rules.initialCount[1] - rules.initialCount[0] + 1)))
+    const territories: Vec3[] = []
+    for (let i = 0; i < count; i += 1) {
+      const point = firstTerritory(world, 'glassfin', `${seed}#resident-${i}`, territories)
+      if (point) territories.push(point)
+    }
+    return territories.map((home, i) => ({ ...makeResident(seed, i, home, null), position: home, peek: null }))
+  }
   const burrows = burrowSites(seed).filter(burrow => burrowOpen(world, burrow))
   const homes = residentHomeSites(world, seed).filter(home => burrows.every(burrow => distance(home, burrow.pocket) >= rules.minHomeSpacing))
   const rolled = Math.round(temperamentFor(seed).population * surfaceOf(seed).population
@@ -246,7 +268,8 @@ export function spawnResidents(seed: string): Resident[] {
   ]
 }
 
-function walkSurface(world: World, from: Vec3, toward: Vec3, final: Vec3) {
+// `blocked` is the point that must be open ground at the end of the walk; it is `final` unless the caller says otherwise.
+function walkSurface(world: World, from: Vec3, toward: Vec3, final: Vec3, blocked: Vec3 = final) {
   const a = unit(from), b = unit(toward)
   const angle = Math.acos(Math.max(-1, Math.min(1, dot(a, b))))
   const steps = Math.max(1, Math.ceil(angle * Math.max(Math.hypot(...from), Math.hypot(...toward)) / rules.pathStep))
@@ -261,7 +284,7 @@ function walkSurface(world: World, from: Vec3, toward: Vec3, final: Vec3) {
     if (solid(world, point)) return null
     points.push(point)
   }
-  if (solid(world, final)) return null
+  if (solid(world, blocked)) return null
   points.push(final)
   return points
 }
@@ -273,13 +296,15 @@ function throughTunnel(burrow: Burrow, fromMouth: boolean) {
   return points
 }
 
-function routeTo(world: World, seed: string, from: Vec3, home: Home, burrowId: string | null, leavingId: string | null) {
+// D-068: a visitor's walk ends on the surface point of its new home. The sunk pose it then takes is below ground by design,
+// so only a native's route (unchanged) is rejected when that pose is solid.
+function routeTo(world: World, seed: string, from: Vec3, home: Home, burrowId: string | null, leavingId: string | null, visitor = false) {
   const leaving = findBurrow(seed, leavingId)
   const exit = leaving && leaving.id !== burrowId ? throughTunnel(leaving, false) : []
   const start = exit.at(-1) ?? from
   const burrow = findBurrow(seed, burrowId)
   if (!burrow) {
-    const walk = walkSurface(world, start, home, poseAt(home, 'hiding'))
+    const walk = walkSurface(world, start, home, poseAt(home, 'hiding'), visitor ? home : undefined)
     return walk ? [...exit, ...walk] : null
   }
   const outside = walkSurface(world, start, burrow.mouth, burrow.mouth)
@@ -321,8 +346,10 @@ function destinations(world: World, state: RunState, resident: Resident, residen
     if (!isValidHome(world, candidate, claimed)) continue
     surface.push({ home: candidate, burrowId: null })
   }
-  const { companionBonus, burrowBonus } = temperamentFor(state.seed)
-  const score = (destination: Destination) => homePreferenceScore(destination.home, origin, claimed, companionBonus) + (destination.burrowId ? burrowBonus : 0)
+  const { companionBonus, burrowBonus } = temperamentOf(resident.species)
+  // D-069: a visitor leans toward ground that suits its species, such as a patch laid for it.
+  const pull = (destination: Destination) => resident.origin !== state.seed && suits(state, resident.species, destination.home) ? tuning.migration.fitPull : 0
+  const score = (destination: Destination) => homePreferenceScore(destination.home, origin, claimed, companionBonus) + (destination.burrowId ? burrowBonus : 0) + pull(destination)
   const ordered = [...burrows, ...surface].sort((a, b) => score(b) - score(a)
     || distance(a.home, origin) - distance(b.home, origin)
     || a.home[0] - b.home[0] || a.home[1] - b.home[1] || a.home[2] - b.home[2])
@@ -334,13 +361,14 @@ function destinations(world: World, state: RunState, resident: Resident, residen
   if (hole) return [hole]
   const stroll = ordered.filter(destination => !destination.burrowId && distance(destination.home, origin) <= rules.search.radius)
   if (!stroll.length) return []
-  const turn = hashSeed(`${resident.id}:${state.habitat.tick}:wander`) % stroll.length
+  // D-068: a visitor looking for better ground goes to the best place it knows; a native just wanders.
+  const turn = resident.origin !== state.seed ? 0 : hashSeed(`${resident.id}:${state.habitat.tick}:wander`) % stroll.length
   return [stroll[turn]]
 }
 
 function nearestHome(world: World, state: RunState, resident: Resident, residents: Resident[], wander = false) {
   for (const destination of destinations(world, state, resident, residents, wander)) {
-    const path = routeTo(world, state.seed, resident.position, destination.home, destination.burrowId, resident.burrowId)
+    const path = routeTo(world, state.seed, resident.position, destination.home, destination.burrowId, resident.burrowId, resident.origin !== state.seed)
     if (path) return { ...destination, path }
   }
   return null
@@ -364,9 +392,10 @@ function beginSearch(world: World, state: RunState, resident: Resident, resident
 }
 
 function stepResident(world: World, state: RunState, resident: Resident, residents: Resident[]): Resident {
+  if (isAquatic(resident.species)) return world.waterRadius ? stepSwimmer(world as WaterWorld, state, resident) : resident
   let r = { ...resident, path: [...resident.path] }
   const tick = state.habitat.tick
-  const nature = temperamentFor(state.seed)
+  const nature = temperamentOf(r.species)
   if (r.state === 'moving') {
     const target = r.path[0]
     if (!target) return { ...r, state: 'hiding', position: poseFor(state.seed, r, 'hiding'), quietTicks: 0, nextWander: tick + nature.wanderEvery }
@@ -400,7 +429,9 @@ function stepResident(world: World, state: RunState, resident: Resident, residen
   if (r.disturbedTicks >= nature.fleeTicks && tick - r.lastMoveTick >= rules.cooldownTicks) {
     return beginSearch(world, state, r, residents)
   }
-  if (!r.burrowId && r.state === 'peeking' && r.disturbedTicks === 0 && tick >= r.nextWander) {
+  // A visitor that is content where it is stays put; one that is not may go looking (D-068).
+  const content = r.origin !== state.seed && r.comfort >= tuning.migration.keepAbove
+  if (!r.burrowId && r.state === 'peeking' && r.disturbedTicks === 0 && tick >= r.nextWander && !content) {
     r.nextWander = tick + nature.wanderEvery
     const strolling = beginSearch(world, state, r, residents, true)
     if (strolling !== r) return strolling
@@ -434,6 +465,8 @@ export function reconcileResidentsAfterGroundChange(world: World, store: Store, 
   const occupiedFor = (id: string) => current.filter(other => other.id !== id && other.home).map(other => other.home!)
   const seed = store.getState().seed
   const residents = current.map(resident => {
+    // A swimmer re-reads its own water on its own rhythm.
+    if (isAquatic(resident.species)) return resident
     const anchor = resident.home ?? resident.position
     if (distance(anchor, center) > radius + rules.bodyRadius * resident.size) return resident
     if (resident.burrowId) {
@@ -461,6 +494,16 @@ export function reconcileResidentsAfterGroundChange(world: World, store: Store, 
       : resident
   })
   if (residents.some((resident, index) => resident !== current[index])) store.setState({ residents })
+}
+
+// D-068: where a visitor first stands: a seeded point on the ground. It searches for a home from here.
+export function arrivalSpot(world: World, creatureId: string, arrivals: number): Vec3 {
+  const h = hashSeed(`${creatureId}:arrive:${arrivals}`)
+  const y = ((h % 2001) / 1000) - 1
+  const angle = (((h >>> 11) % 6283) / 1000)
+  const ring = Math.sqrt(1 - y * y)
+  const ground = surfacePoint(world, [Math.cos(angle) * ring, y, Math.sin(angle) * ring])
+  return add(ground, scale(unit(ground), rules.surfaceLift))
 }
 
 export function residentSummary(residents: Resident[]) {

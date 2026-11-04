@@ -2,7 +2,7 @@
 // This is descriptive content. The numbers behind each character live in config/tuning.ts (residents.temperament),
 // and systems/residents.ts (planetSpecies) uses the native planets below to choose each signal planet's species.
 
-export type ResidentKind = 'facet' | 'moss' | 'slab' | 'crystal' | 'sentinel' | 'hermit' | 'cairn' | 'periscope' | 'shard'
+export type ResidentKind = 'facet' | 'moss' | 'slab' | 'crystal' | 'sentinel' | 'hermit' | 'cairn' | 'periscope' | 'shard' | 'glassfin'
 export type ResidentRockFamily = 'gray' | 'sand' | 'rose' | 'slate' | 'basalt' | 'umber' | 'sage' | 'moss'
 export type ShelterKind = 'sink' | 'cavity' | 'niche' | 'burrow'
 
@@ -33,6 +33,9 @@ export const residentSpecies = {
     nature: 'Watches from below: its body stays buried and only the eye stalk rises, often and for a while.' },
   shard: { name: 'Shard', rockFamilies: ['sage', 'sand', 'gray'],
     nature: 'Restless and jumpy; it strolls often and fast, darts its gaze about and is quick to leave noise behind.' },
+  // D-073: the one aquatic species. Native to every Water planet and to no other; it is not in planetNatives below.
+  glassfin: { name: 'Glassfin', rockFamilies: ['slate', 'sage', 'gray'],
+    nature: 'A pale, clear-bodied swimmer that drifts around one patch of open water, dives at the sound of digging and needs the sea to be deep.' },
 } as const satisfies Record<ResidentKind, ResidentSpecies>
 
 export interface PlanetNative {

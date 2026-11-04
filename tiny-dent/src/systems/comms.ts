@@ -1,6 +1,9 @@
 import type { AutoRobot, RunState } from '../state/runState'
 import { areaSown, placerFull } from './placer'
 import { tuning } from '../config/tuning'
+import { materials } from '../content/materials'
+import { nativeMaterial } from './inventory'
+import { waterRadiusOf } from './water'
 
 export type CommsAction = { kind: 'robot'; robot: AutoRobot; label: string } | { kind: 'takeover'; label: string }
 
@@ -24,7 +27,9 @@ export function commsMessages(state: RunState): CommsMessage[] {
   if (builder.stopReason === 'level') out.push({ id: 'builder-level', from: 'Builder 01', level: 'info',
     text: 'The area is level. Place the Builder somewhere new.', action: { kind: 'robot', robot: 'builder', label: 'Place the Builder' } })
   if (builder.stopReason === 'no-soil') out.push({ id: 'builder-no-soil', from: 'Builder 01', level: 'warn',
-    text: 'Out of soil. Let the Miner dig to bring more.', action: { kind: 'robot', robot: 'miner', label: 'Open the Miner' } })
+    text: 'Out of ' + materials[nativeMaterial(state.seed)].name.toLowerCase() + '. Let the Miner dig to bring more.', action: { kind: 'robot', robot: 'miner', label: 'Open the Miner' } })
+  if (builder.stopReason === 'no-material') out.push({ id: 'builder-no-material', from: 'Builder 01', level: 'warn',
+    text: 'The Builder is short of material for a patch, a platform or a road. Dig more, or send some by train.' })
   if (builder.stopReason === 'blocked') out.push({ id: 'builder-blocked', from: 'Builder 01', level: 'warn',
     text: 'The Builder could not reach its site and stopped.', action: { kind: 'robot', robot: 'builder', label: 'Place the Builder' } })
   if (gardener.stopReason === 'barren') out.push({ id: 'gardener-barren', from: 'Gardener 01', level: 'info', text: 'Nothing takes root in plastic.' })
@@ -37,7 +42,9 @@ export function commsMessages(state: RunState): CommsMessage[] {
         : kind === 'plant' && areaSown(state, robot) ? { id: 'gardener-sown', from: 'Gardener 01', level: 'info',
           text: 'This area is sown. The plants will spread from here.', action: { kind: 'robot', robot: 'gardener', label: 'Place the Gardener' } }
         : { id: id + '-no-sites', from: name + ' 01', level: 'info',
-          text: 'Waiting for suitable ground. Builder work inside this area will trigger a new survey.',
+          text: waterRadiusOf(state.seed) > 0
+            ? 'Everything here is under water. Dry ground needs a mound anchored by a platform: 30 plastic or scrap and 12 soil.'
+            : 'Waiting for suitable ground. Builder work inside this area will trigger a new survey.',
           action: { kind: 'robot', robot: 'builder', label: 'Open the Builder' } })
     }
     if (robot.stopReason === 'blocked') out.push({ id: id + '-blocked', from: name + ' 01', level: 'warn',

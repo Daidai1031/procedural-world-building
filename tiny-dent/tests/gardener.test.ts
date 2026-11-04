@@ -231,7 +231,7 @@ test('a full area stops the Gardener with no-sites', () => {
 test('Builder preparation wakes a waiting Gardener and Rigger without moving them', () => {
   const { world, store, center } = setup('1380', 1.2)
   placeRigger(store, world, 'rigger-0', center, 1.2)
-  store.setState(state => ({ soil: 5000,
+  store.setState(state => ({ inventory: { ...state.inventory, soil: 5000 },
     gardeners: state.gardeners.map(robot => ({ ...robot, phase: 'stopped', stopReason: 'no-sites' })),
     riggers: state.riggers.map(robot => ({ ...robot, phase: 'stopped', stopReason: 'no-sites' })) }))
   placeBuilder(store, world, 'builder-0', center, 1.2)

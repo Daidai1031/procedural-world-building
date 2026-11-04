@@ -16,7 +16,8 @@ export function hashSeed(seed: string) {
 }
 
 export type PlanetShape = 'sphere' | 'cube' | 'tetra' | 'donut' | 'apple' | 'nail'
-export interface PlanetConfig { radius: number; relief: number; minerals: number; residents: number; shape: PlanetShape; surface: SurfaceKind }
+// `water` is the radius of the water that covers the whole core (D-073), or 0 for a dry planet.
+export interface PlanetConfig { radius: number; relief: number; minerals: number; residents: number; shape: PlanetShape; surface: SurfaceKind; water: number }
 
 // PLN-02, D-041: the starting conditions of a planet. The home seed keeps the original values; a planet found by a
 // signal reads each property from a different byte of its hash, so size, relief and abundance vary independently.
@@ -31,11 +32,18 @@ export function planetConfig(seed: string): PlanetConfig {
   const rough = pick(relief, 8)
   let material = hashSeed(`${seed}:surface`) / 4294967296
   const surface = kinds.find((_, i) => (material -= surfaceWeights[i]) < 0) ?? kinds[0]
-  return { radius: pick(radius, 0), relief: shape !== 'sphere' || rough < smoothBelow ? 0 : rough,
-    minerals: pick(minerals, 16), residents: pick(residents, 24), shape, surface }
+  // D-073: its own stream again, so no other seeded value moves; only an ocean's core radius is capped.
+  const wet = shape === 'sphere' && hashSeed(`${seed}:water`) / 4294967296 < tuning.water.chance
+  const size = wet ? Math.min(pick(radius, 0), tuning.water.maxRadius) : pick(radius, 0)
+  const relief0 = shape !== 'sphere' || rough < smoothBelow ? 0 : rough
+  return { radius: size, relief: relief0, minerals: pick(minerals, 16), residents: pick(residents, 24), shape, surface,
+    water: wet ? size * VOXEL_WORLD_SIZE + relief0 * VOXEL_WORLD_SIZE * 0.5 + tuning.water.margin : 0 }
 }
 
 export const surfaceOf = (seed: string): SurfaceProfile => surfaces[planetConfig(seed).surface]
+
+/** How far a planet reaches, water included: what the system view lays out and frames. */
+export const visibleRadius = (seed: string) => { const config = planetConfig(seed); return Math.max(config.radius * VOXEL_WORLD_SIZE, config.water) }
 
 // Signed distance to the planet's solid, negative inside. `radius` is the sphere radius the config asks for.
 const TETRA_FACES: V3[] = [[1, 1, 1], [1, -1, -1], [-1, 1, -1], [-1, -1, 1]].map(v => v.map(c => c / Math.sqrt(3)) as V3)
@@ -235,6 +243,8 @@ export class PlanetWorld {
   private readonly resting = new Map<string, number>()
   private settleClock = 0
   readonly surface: SurfaceKind
+  /** D-073: radius of the water over the whole core, or 0. */
+  readonly waterRadius: number
   private readonly profile: SurfaceProfile
   /** Rock samples ever removed. Rebound does not take any back, so what it feeds never fades. */
   excavated = 0
@@ -255,6 +265,7 @@ export class PlanetWorld {
     const resolution = this.resolution
     const spacing = VOXEL_WORLD_SIZE / (resolution - 1)
     this.surface = planetConfig(seed).surface
+    this.waterRadius = planetConfig(seed).water
     this.profile = surfaces[this.surface]
     this.elastic = this.profile.elasticity > 0
     this.heals = this.elastic || this.surface === 'fur'
@@ -521,6 +532,37 @@ export class PlanetWorld {
     this.excavated += removedSamples
     this.edits += 1
     return { removedSamples, addedSamples, changed: true, reach }
+  }
+
+  // D-073: the water takes back what was built on its seabed. Every sample inside the sphere that building made more solid
+  // than it was originally goes back to its original value; samples that were dug (less solid than they began) are never
+  // touched, so nothing is dug and nothing is made. Same coordinates as `edit`. Returns the samples washed away.
+  washAway(center: { x: number; y: number; z: number }, radius: number) {
+    const { base, density, resolution } = this
+    const spacing = sampleSpacing(resolution)
+    const first = (c: number, offset: number) => Math.max(0, Math.floor((c + offset - radius) / spacing))
+    const last = (c: number, offset: number) => Math.min(resolution - 1, Math.ceil((c + offset + radius) / spacing))
+    let washed = 0
+    for (let z = first(center.z, VOXEL_WORLD_SIZE / 2); z <= last(center.z, VOXEL_WORLD_SIZE / 2); z += 1) {
+      for (let y = first(center.y, 0); y <= last(center.y, 0); y += 1) {
+        for (let x = first(center.x, VOXEL_WORLD_SIZE / 2); x <= last(center.x, VOXEL_WORLD_SIZE / 2); x += 1) {
+          const px = -VOXEL_WORLD_SIZE / 2 + x * spacing, py = y * spacing, pz = -VOXEL_WORLD_SIZE / 2 + z * spacing
+          if (Math.hypot(px - center.x, py - center.y, pz - center.z) > radius) continue
+          const index = this.index(x, y, z)
+          if (density[index] >= base[index]) continue
+          if (density[index] < 0 && base[index] >= 0) this.solidCount -= 1
+          density[index] = base[index]
+          washed += 1
+        }
+      }
+    }
+    if (washed === 0) return 0
+    const sphere = { ...center, radius: radius + 2 * spacing }
+    for (const chunkIndex of this.indices) {
+      if (chunkIsReached(resolution, this.chunksPerSide, chunkIndex, CHUNK_BORDER, sphere)) this.dirty.add(chunkIndex.join('-'))
+    }
+    this.edits += 1
+    return washed
   }
 
   // SUR-09, D-061: rested chunks heal a step. Elastic ground moves toward its original density; fur regrows. Scar is

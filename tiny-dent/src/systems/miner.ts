@@ -9,6 +9,7 @@ import { VOXEL_WORLD_SIZE } from '../world/voxels/voxelMath.js'
 import { distance, hoverGoal, hoverStep, isEmptyAt, scale, surfaceRadius, unit, type Vec3 } from './geometry'
 import { pruneStructures } from './structures'
 import { crackBurrows } from './surface'
+import { deposit, nativeMaterial, unitsFor } from './inventory'
 
 // AUT-01–12. Positions are centered world coordinates, see geometry.ts.
 export type { Vec3 } from './geometry'
@@ -198,8 +199,9 @@ function stepRobot(world: PlanetWorld, store: RunStore, source: MiningRobotState
   ]
   const edit = world.edit('dig', { x: next[0], y: next[1] + HALF, z: next[2] }, miner.digRadius)
   if (edit.changed) {
-    // D-026: the rock the Miner removes becomes soil the Builder can fill with.
-    store.setState((state) => ({ planetRemaining: world.planetRemaining, soil: state.soil + edit.removedSamples }))
+    // D-026/D-066: what the Miner removes becomes this planet's native material, which the Builder can fill with.
+    store.setState({ planetRemaining: world.planetRemaining })
+    deposit(store, nativeMaterial(store.getState().seed), unitsFor(edit.removedSamples))
     pruneStructures(world, store)
     notifyGroundChanged(store, next, edit.reach, world)
     recordDisturbance(store, next, 'robot', edit.removedSamples > 0)

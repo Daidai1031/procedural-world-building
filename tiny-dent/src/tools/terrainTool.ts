@@ -2,6 +2,7 @@ import { notifyGroundChanged } from '../systems/workSites'
 import { recordDisturbance } from '../systems/residents'
 import { billManualTerrain } from '../systems/economy'
 import { crackBurrows } from '../systems/surface'
+import { recordMound } from '../systems/water'
 import { HALF } from '../systems/geometry'
 import type { createRunStore, TerrainMode } from '../state/runState'
 import { surfaceOf, type PlanetWorld } from '../world/planet'
@@ -32,6 +33,8 @@ export function useTerrainTool(world: PlanetWorld, store: RunStore, mode: Terrai
   if (result.changed) {
     billManualTerrain(store, result.removedSamples + result.addedSamples)
     store.setState({ planetRemaining: world.planetRemaining })
+    // D-073: ground added on an ocean is a mound until a platform anchors it.
+    if (result.addedSamples > 0) recordMound(store, [point.x, point.y - HALF, point.z], brush)
     notifyGroundChanged(store, [point.x, point.y - HALF, point.z], mode === 'flatten' ? brush * Math.SQRT2 : result.reach, world)
     recordDisturbance(store, [point.x, point.y - HALF, point.z], 'manual', result.removedSamples > 0)
     if (mode === 'dig') crackBurrows(world, store, [point.x, point.y - HALF, point.z])

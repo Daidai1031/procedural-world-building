@@ -7,6 +7,8 @@ import { planetName } from '../state/planets'
 import { parentSeed } from './systemView'
 import { planetSpecies } from './residents'
 import { residentSpecies } from '../content/residents'
+import { materials } from '../content/materials'
+import { nativeMaterial, nativeStock } from './inventory'
 
 type Store = ReturnType<typeof createRunStore>
 
@@ -24,6 +26,11 @@ export interface SystemPlanet {
   robotsRunning: number
   residents: number
   residentsSearching: number
+  /** D-066: units of the planet's native material in its inventory, and that material's name. */
+  stock: number
+  /** D-068: how many species live there now. */
+  kinds: number
+  material: string
   traits: string
 }
 
@@ -60,7 +67,9 @@ export function planetTraits(seed: string) {
   const relief = config.relief < 0.1 ? 'smooth' : config.relief > 0.17 ? 'rugged' : 'rolling'
   const minerals = config.minerals < 0.8 ? 'mineral-poor' : config.minerals > 1.3 ? 'mineral-rich' : 'some minerals'
   const residents = config.residents < 0.8 ? 'few residents' : config.residents > 1.3 ? 'many residents' : 'some residents'
-  return `${surfaceOf(seed).name} · ${size}, ${relief}, ${minerals}, ${residents} · ${residentSpecies[planetSpecies(seed)].name}`
+  // D-073: an ocean says so and how deep: from the margin over its highest seabed to that plus the whole relief.
+  const sea = config.water > 0 ? `Water world (${surfaceOf(seed).name.toLowerCase()} seabed, ${tuning.water.margin.toFixed(1)}–${(tuning.water.margin + config.relief * 6).toFixed(1)} deep)` : surfaceOf(seed).name
+  return `${sea} · ${size}, ${relief}, ${minerals}, ${residents} · ${residentSpecies[planetSpecies(seed)].name}`
 }
 
 const active = (phase: string) => !['idle', 'paused', 'stopped'].includes(phase)
@@ -71,6 +80,8 @@ function describe(state: RunState) {
     antennas: state.structures.filter(s => s.kind === 'antenna').length,
     residents: state.residents.length,
     residentsSearching: state.residents.filter(r => r.state === 'moving' || r.state === 'searching').length,
+    stock: nativeStock(state),
+    kinds: new Set(state.residents.map(r => r.species)).size,
     robotsRunning: state.robots.filter(r => active(r.phase)).length + state.gardeners.filter(r => active(r.phase)).length
       + state.riggers.filter(r => active(r.phase)).length + state.builders.filter(r => active(r.phase)).length,
   }
@@ -85,7 +96,7 @@ export function systemPlanets(store: Store): SystemPlanet[] {
   const out: SystemPlanet[] = visited.map(({ seed, name }) => {
     const state = states.get(seed)
     return { seed, name, position: planetPosition(seed), parent: parentSeed(seed), visited: true, active: seed === current.seed, traits: planetTraits(seed),
-      ...(state ? describe(state) : { remaining: null, plants: 0, antennas: 0, robotsRunning: 0, residents: 0, residentsSearching: 0 }) }
+      ...(state ? describe(state) : { remaining: null, plants: 0, antennas: 0, robotsRunning: 0, residents: 0, residentsSearching: 0, stock: 0, kinds: 0 }), material: materials[nativeMaterial(seed)].name.toLowerCase() }
   })
   for (const [seed, state] of states) {
     if (!state) continue
@@ -93,7 +104,7 @@ export function systemPlanets(store: Store): SystemPlanet[] {
     for (const planet of distantPlanets(seed).slice(0, count)) {
       if (out.some(p => p.seed === planet.seed)) continue
       out.push({ seed: planet.seed, name: planetName(planet.seed, registry.homeSeed), position: planetPosition(planet.seed), parent: parentSeed(planet.seed), visited: false,
-        active: false, remaining: null, plants: 0, antennas: 0, robotsRunning: 0, residents: 0, residentsSearching: 0, traits: planetTraits(planet.seed) })
+        active: false, remaining: null, plants: 0, antennas: 0, robotsRunning: 0, residents: 0, residentsSearching: 0, stock: 0, kinds: 0, material: materials[nativeMaterial(planet.seed)].name.toLowerCase(), traits: planetTraits(planet.seed) })
     }
   }
   return out
@@ -105,6 +116,8 @@ export function describePlanet(planet: SystemPlanet) {
   const parts = [planet.traits, `${Math.round((planet.remaining ?? 1) * 100)}% of the original rock`]
   // Descriptive only: where residents are, never whether they are "happy".
   if (planet.residents) parts.push(`${planet.residents} resident${planet.residents === 1 ? '' : 's'}${planet.residentsSearching ? `, ${planet.residentsSearching} looking for shelter` : ''}`)
+  if (planet.kinds > 1) parts.push(`${planet.kinds} species`)
+  if (planet.stock) parts.push(`${planet.stock} ${planet.material} in stock`)
   if (planet.plants || planet.antennas) parts.push(`${planet.plants} plant${planet.plants === 1 ? '' : 's'}, ${planet.antennas} antenna${planet.antennas === 1 ? '' : 's'}`)
   parts.push(planet.active ? (planet.robotsRunning ? `${planet.robotsRunning} robot${planet.robotsRunning === 1 ? '' : 's'} at work` : 'Crew idle')
     : planet.robotsRunning ? 'Crew paused until you return' : 'Quiet')

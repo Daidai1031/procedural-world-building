@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { PlanetWorld, hashSeed } from '../world/planet'
 import type { RunState, createRunStore } from './runState'
+import { emptyLogistics, type LogisticsState } from '../systems/logisticsState'
 
 type Store = ReturnType<typeof createRunStore>
 
@@ -17,6 +18,8 @@ export class PlanetRegistry {
   readonly homeSeed: string
   private readonly worlds = new Map<string, PlanetWorld>()
   private readonly snapshots = new Map<string, RunState>()
+  // D-067: trains and routes belong to no planet, so they are kept here and are never frozen with one.
+  readonly logistics = create<LogisticsState>()(() => emptyLogistics())
   readonly list = create<{ planets: PlanetEntry[] }>()(() => ({ planets: [] }))
 
   constructor(homeSeed: string) {
@@ -38,6 +41,13 @@ export class PlanetRegistry {
   snapshot(seed: string) { return this.snapshots.get(seed) }
   save(state: RunState) { this.snapshots.set(state.seed, state); this.add(state.seed) }
   discover(seed: string) { this.add(seed) }
+  // Change a frozen planet's saved state in place (a delivery arriving while the player is elsewhere).
+  patchSnapshot(seed: string, change: (state: RunState) => Partial<RunState>) {
+    const state = this.snapshots.get(seed)
+    if (!state) return false
+    this.snapshots.set(seed, { ...state, ...change(state) })
+    return true
+  }
 }
 
 const registries = new WeakMap<Store, PlanetRegistry>()

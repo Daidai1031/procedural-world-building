@@ -124,7 +124,7 @@ function survey(spec: PlacerSpec, world: PlanetWorld, store: RunStore, robot: Pl
     const anchor = groundPoint(world, unit(point))
     if (distance(anchor, area.center) > area.radius) return
     const normal = surfaceNormal(world, anchor)
-    if (!isSowable(world, structures, kind, anchor, normal)) return
+    if (!isSowable(world, structures, kind, anchor, normal, store.getState().patches)) return
     const score = kind === 'plant' ? -slopeAt(normal, anchor) : Math.hypot(...anchor)
     if (!best || score > best.score) best = { anchor, normal, score }
   }
@@ -179,7 +179,7 @@ function stepPlacer(spec: PlacerSpec, world: PlanetWorld, store: RunStore, sourc
   const shearing = kind === 'plant' && world.surface === 'fur'
 
   // AUT-07 for placers: the chosen ground may have been dug, buried or taken since the last tick.
-  if (robot.site && !shearing && !isSowable(world, store.getState().structures, kind, robot.site.anchor, robot.site.normal)) {
+  if (robot.site && !shearing && !isSowable(world, store.getState().structures, kind, robot.site.anchor, robot.site.normal, store.getState().patches)) {
     robot.site = null
     robot.phase = 'scanning'
     robot.phaseTicks = 0

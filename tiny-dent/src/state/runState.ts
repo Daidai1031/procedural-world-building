@@ -11,7 +11,13 @@ import { spawnResidents, type HabitatState } from '../systems/residents'
 import type { AutopilotState } from '../systems/autopilot'
 import type { Vec3 } from '../systems/geometry'
 import { hashSeed } from '../world/planet'
+import { emptyInventory, type Inventory } from '../systems/inventory'
 import { shearPatterns, type ShearPattern } from '../content/surfaces'
+import type { ResidentKind } from '../content/residents'
+import type { MaterialId } from '../content/materials'
+import type { Patch } from '../systems/patches'
+import type { Mound } from '../systems/water'
+import { emptyNav, type NavState } from '../systems/traffic'
 
 export type ToolId = 'terrain' | 'detector' | 'scanner' | 'deepScanner' | 'wideDrill' | 'bioSeeder' | 'stabilizer' | 'auto'
 export type AutoRobot = 'miner' | 'gardener' | 'rigger' | 'builder'
@@ -21,8 +27,30 @@ export type TerrainMode = 'dig' | 'add' | 'flatten'
 // Resident persistence belongs to the run store. A Home is a valid world-space surface point.
 export type Home = Vec3
 export type ResidentState = 'peeking' | 'hiding' | 'moving' | 'searching'
+// D-068: where a creature is in its life as a visitor or a native. A creature in a train has no planet and is 'traveling'.
+export type CreatureLife = 'native' | 'traveling' | 'exploring' | 'settling' | 'established' | 'homesick' | 'returning'
+export type PassportKind = 'born' | 'departed' | 'arrived' | 'settling' | 'established' | 'homesick' | 'returned'
+// One line of travel or settlement history. `planet` is a seed; `tick` is that planet's habitat tick at the time.
+export interface PassportEntry { kind: PassportKind; planet: string; tick: number }
 export interface Resident {
+  /** Local key. A visitor takes its `creatureId` here on arrival so ids never clash between planets. */
   id: string
+  /** D-068: globally unique, never changes, never on two planets at once. */
+  creatureId: string
+  species: ResidentKind
+  /** The planet it was born on. */
+  origin: string
+  life: CreatureLife
+  /** 0..1: how well its present home suits it, smoothed. 0..1: how much it has settled, which changes slowly. */
+  comfort: number
+  belonging: number
+  /** Seeded personal taste in habitat, within ± `migration.bias`. */
+  bias: number
+  arrivedTick: number
+  lifeTick: number
+  /** The material it says would help, while it is unhappy on foreign ground. */
+  request: MaterialId | null
+  passport: PassportEntry[]
   size: number
   home: Home | null
   /** Set while the resident occupies a seeded burrow. One burrow holds one resident. */
@@ -94,10 +122,18 @@ export interface RunState {
   builders: BuilderState[]
   // D-043: the crew sizes and the hand-over to full automation. Kept per planet, so a frozen planet resumes as it was left.
   autopilot: AutopilotState
-  // D-026: soil removed by Miners, spent by the Builder when filling. Counted in density samples.
+  // D-026/D-066: construction material this planet has produced. A Miner's dig deposits its native material, the Builder spends it.
   economy: { mineralStock: number; mineralsSold: number; revenue: number; electricitySpent: number; terrainSpent: number; bankrupt: boolean; preparedSamples: number }
   preparedSites: [number, number, number][]
-  soil: number
+  inventory: Inventory
+  // D-069: local patches of shipped material. They change habitat, not terrain.
+  patches: Patch[]
+  // D-070: heat, roads and walkers on this planet's ground graph.
+  nav: NavState
+  // D-073: ground built up on an ocean that no platform holds yet.
+  mounds: Mound[]
+  // D-067: a spaceport is the end of a rail route. Built once per planet.
+  spaceport: boolean
   // AUT-15/16: plants and antennas standing on the surface.
   structures: Structure[]
   structureCounter: number
@@ -148,7 +184,11 @@ export function createInitialRunState(seed: string): RunState {
     autopilot: { enabled: false, counts: { ...tuning.autopilot.defaults }, autoBroadcast: true, holding: false, level: null, claimed: 0, lastBroadcastTick: null, crew: {} },
     economy: { mineralStock: 0, mineralsSold: 0, revenue: 0, electricitySpent: 0, terrainSpent: 0, bankrupt: false, preparedSamples: 0 },
     preparedSites: [],
-    soil: 0,
+    inventory: emptyInventory(),
+    patches: [],
+    nav: emptyNav(),
+    mounds: [],
+    spaceport: false,
     structures: [],
     structureCounter: 0,
     residents: spawnResidents(seed),

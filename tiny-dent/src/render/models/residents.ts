@@ -499,6 +499,26 @@ const builds: Record<ResidentKind, Build> = {
       }
     }
   },
+  // D-073: a small pale swimmer, long in Z (the way it faces), with a tail that wags and a fin on its back.
+  glassfin(rig, r) {
+    const R = r.range(0.34, 0.42), list = tones(r, 'glassfin')
+    const body = new Mesh(rockGeometry(r, { radius: R, detail: 2, radial: 0.02, offset: 0.01,
+      scale: [0.62, 0.78, 1.55], flat: -5, color: fromTones(list) }), rig.kit.rock)
+    addEyes(rig, body, { type: 'dot', r: 0.035, spacing: R * 0.7, y: R * 0.12 })
+    const fin = rig.kit.solid('#cfe3ea', true)
+    const tailPivot = new Group()
+    tailPivot.position.set(0, 0, -R * 1.4)
+    const tailGeometry = new ConeGeometry(R * 0.75, R * 1.5, 4, 1)
+    tailGeometry.rotateX(-Math.PI / 2)
+    tailGeometry.translate(0, 0, -R * 0.7)
+    tailPivot.add(new Mesh(tailGeometry, fin))
+    const back = new Mesh(new ConeGeometry(R * 0.28, R * 0.7, 4, 1), fin)
+    back.position.set(0, R * 0.95, -R * 0.2)
+    back.rotation.x = -0.35
+    rig.torso.add(body, tailPivot, back)
+    rig.own.push(fin)
+    rig.hook = (_s, T) => { tailPivot.rotation.y = Math.sin(T * 7) * 0.45; back.rotation.z = Math.sin(T * 3.5) * 0.12 }
+  },
   shard(rig, r) {
     const H = r.range(1.0, 1.3), Rb = r.range(0.32, 0.4), lean = r.range(-0.22, 0.22), list = tones(r, 'shard')
     const cone = new ConeGeometry(Rb, H, 5, 3)

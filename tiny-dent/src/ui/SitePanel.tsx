@@ -4,6 +4,8 @@ import type { ResourceCategory } from '../world/resourceClusters'
 import type { createRunStore } from '../state/runState'
 import { powerDemand } from '../systems/economy'
 import { tuning } from '../config/tuning'
+import { materials } from '../content/materials'
+import { nativeMaterial, nativeStock } from '../systems/inventory'
 
 export function SitePanel({ useRunStore, slotRefs }: {
   useRunStore: ReturnType<typeof createRunStore>
@@ -11,7 +13,8 @@ export function SitePanel({ useRunStore, slotRefs }: {
 }) {
   const economy = useRunStore(s => s.economy)
   const capital = useRunStore(s => s.metrics.capital)
-  const soil = useRunStore(s => s.soil)
+  const soil = useRunStore(nativeStock)
+  const material = materials[nativeMaterial(useRunStore(s => s.seed))]
   const demand = useRunStore(powerDemand)
   const isAuto = useRunStore(s => s.loadout.activeTool === 'auto')
   const power = isAuto ? demand : 0
@@ -41,16 +44,16 @@ export function SitePanel({ useRunStore, slotRefs }: {
         <span className="slot-name"><small>Bay 01 / auto-sold</small>Minerals sold</span><strong className="slot-count">{sold}</strong>
       </li>
       <li className="warehouse-slot">
-        <span className="storage-bay"><svg viewBox="0 0 150 110" role="img" aria-label={'Soil stock: ' + soil}>
+        <span className="storage-bay"><svg viewBox="0 0 150 110" role="img" aria-label={material.name + ' stock: ' + soil}>
           <path d="M10 70 L70 38 L140 70 L80 104 Z" fill="#d9d3c3" stroke="#aaa391" />
           <path d="M10 70 V77 L80 110 L140 77 V70 L80 104 Z" fill="#b7ae99" />
           {soil > 0 ? <g transform={'translate(75 83) scale(' + Math.min(1, 0.3 + Math.log1p(soil) / 10) + ')'}>
-            <path d="M-55 0 L-16 -49 L12 -63 L54 -3 L0 22 Z" fill="#9d8567" />
-            <path d="M12 -63 L0 22 L54 -3 Z" fill="#76634f" />
-            <path d="M-16 -49 L12 -63 L0 -16 L-55 0 Z" fill="#c3ad86" />
+            <path d="M-55 0 L-16 -49 L12 -63 L54 -3 L0 22 Z" fill={material.color} />
+            <path d="M12 -63 L0 22 L54 -3 Z" fill={material.color} /><path d="M12 -63 L0 22 L54 -3 Z" fill="#000" fillOpacity=".3" />
+            <path d="M-16 -49 L12 -63 L0 -16 L-55 0 Z" fill={material.color} /><path d="M-16 -49 L12 -63 L0 -16 L-55 0 Z" fill="#fff" fillOpacity=".25" />
           </g> : <text x="75" y="78" textAnchor="middle" fill="#62635c" fontSize="10">EMPTY BAY</text>}
         </svg></span>
-        <span className="slot-name"><small>Bay 02 / construction</small>Soil</span><strong className="slot-count">{soil}</strong>
+        <span className="slot-name"><small>Bay 02 / construction</small>{material.name}</span><strong className="slot-count">{soil}</strong>
       </li>
     </ul>
     <section className="operations" aria-label="Operating account">

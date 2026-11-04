@@ -5,6 +5,8 @@ import {
   pauseBuilder, setBuilderArea, startBuilder, type BuilderPhase, type BuilderStopReason,
 } from '../systems/builder'
 import { tuning } from '../config/tuning'
+import { materials } from '../content/materials'
+import { nativeMaterial, nativeStock } from '../systems/inventory'
 
 const phaseText: Record<BuilderPhase, string> = {
   idle: 'Ready', scanning: 'Surveying', moving: 'Flying to site', working: 'Working',
@@ -15,7 +17,7 @@ const track: { phase: BuilderPhase; label: string }[] = [
 ]
 const running = ['scanning', 'moving', 'working']
 
-// D-026: place the Builder, size its area, start or pause, and see what it is shaping and how much soil is left.
+// D-026: place the Builder, size its area, start or pause, and see what it is shaping and how much of the planet's own material is left.
 export function BuilderPanel({ useRunStore, onMessage }: {
   useRunStore: ReturnType<typeof createRunStore>
   onMessage: (message: string) => void
@@ -26,7 +28,8 @@ export function BuilderPanel({ useRunStore, onMessage }: {
   const radius = useRunStore((state) => state.builders[0].area?.radius ?? tuning.builder.area.default)
   const job = useRunStore((state) => state.builders[0].job?.kind ?? null)
   const done = useRunStore((state) => state.builders[0].done)
-  const soil = useRunStore((state) => state.soil)
+  const stock = useRunStore(nativeStock)
+  const seed = useRunStore((state) => state.seed)
   const isRunning = running.includes(phase)
   const current = phase === 'paused' ? resumePhase : phase
   const resize = useCallback((value: number) => {
@@ -64,7 +67,7 @@ export function BuilderPanel({ useRunStore, onMessage }: {
     </ol>
     <dl className="facts">
       <dt>Current job</dt><dd>{job === 'flatten' ? 'Flatten' : job === 'fill' ? 'Fill' : '—'}</dd>
-      <dt>Soil in stock</dt><dd>{soil}</dd>
+      <dt>{materials[nativeMaterial(seed)].name} in stock</dt><dd>{stock}</dd>
       <dt>Jobs done</dt><dd>{done}</dd>
     </dl>
   </>

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { emptyInventory, nativeStock } from '../src/systems/inventory'
 import test from 'node:test'
 import { tuning } from '../src/config/tuning'
 import { createRunStore } from '../src/state/runState'
@@ -52,10 +53,10 @@ function runBuilder(world: PlanetWorld, store: Store, ticks: number) {
   return jobs
 }
 
-test('Miner digging puts soil in stock', () => {
+test('Miner digging puts its native material in stock', () => {
   const { store } = minedSite()
   assert.ok(store.getState().robots[0].collectedMinerals >= 1)
-  assert.ok(store.getState().soil > 0)
+  assert.ok(nativeStock(store.getState()) > 0)
 })
 
 // D-050: local holes are repaired before isolated high points are trimmed.
@@ -77,13 +78,13 @@ test('the Builder prioritizes filling local holes and reduces roughness', () => 
 // Starting from an empty stock, every fill is paid for by soil already cut or dug.
 test('the Builder only fills when the stock holds enough soil', () => {
   const { world, store, center } = minedSite()
-  store.setState({ soil: 0 })
+  store.setState({ inventory: emptyInventory() })
   const radius = tuning.builder.area.default
   placeBuilder(store, world, 'builder-0', center, radius)
   startBuilder(store, 'builder-0')
   const fills: Vec3[] = []
   for (let i = 0; i < 30000 && builderOf(store).phase !== 'stopped'; i += 1) {
-    const soil = store.getState().soil
+    const soil = nativeStock(store.getState())
     const job = builderOf(store).job
     stepSimulation(world, store)
     if (job?.kind === 'fill' && !builderOf(store).job) {
@@ -91,7 +92,7 @@ test('the Builder only fills when the stock holds enough soil', () => {
       fills.push(job.ground)
     }
   }
-  assert.ok(store.getState().soil >= 0)
+  assert.ok(nativeStock(store.getState()) >= 0)
 })
 
 // It leaves the ground around antennas alone.
@@ -154,7 +155,7 @@ test('the level is measured from the area and the run is reproducible', () => {
     const level = measureLevel(world, '1380', builderOf(store))
     startBuilder(store, 'builder-0')
     runBuilder(world, store, 1200)
-    return { level, robot: builderOf(store), soil: store.getState().soil, remaining: world.planetRemaining }
+    return { level, robot: builderOf(store), soil: nativeStock(store.getState()), remaining: world.planetRemaining }
   }
   const a = build()
   assert.ok(a.level! > 1 && a.level! < 3)
