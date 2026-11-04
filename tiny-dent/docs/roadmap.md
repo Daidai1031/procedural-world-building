@@ -6,6 +6,46 @@
 | **Last updated** | 2026-11-04 |
 | **Current focus** | Multi-planet ecosystem E1–E6 (D-065), in order; S1–S6 and Autopilot (D-043) still need a person's playtest |
 
+## Next up — polish, onboarding and presentation (planned)
+
+Recorded 2026-11-04 from the author's list. Nothing here is built or decided yet; each item needs a decision entry before code. Items are unordered except where noted.
+
+### P1 — Presentation and showing the result
+
+The course deliverable is how the game is shown, so this comes first.
+
+- [ ] Decide the form of the presentation: a recorded video, and a vertical-format slide deck (portrait slides).
+- [ ] Decide how the final result of a run is displayed: what the player or a viewer sees at the end (a result card, a system overview shot, a replay), and what is easy to capture on video.
+- [ ] Plan first, then record on a schedule: write the plan (script, a clean starting state, what to cut), record a version, and each week re-record after the game changes. Keep each weekly version so progress can be compared.
+
+### P2 — Accounts and the gallery
+
+- [ ] User login.
+- [ ] A signed-in player can save a finished world and have it appear in a gallery.
+- [ ] Decide what a gallery entry holds (seed and edits, a screenshot, a short clip) and how the result is shown there.
+
+### P3 — Onboarding
+
+- [ ] A first-time guide in very short sentences. It points at the thing on screen and tells the player what they can do now ("You can now…"), one prompt at a time.
+- [ ] Walk the player through the game step by step: each step waits for the player to do it, then moves on.
+- [ ] Once the player has understood the logic of a step, the game takes over that step automatically, so they are not asked to repeat it.
+
+### P4 — Creature redesign
+
+- [ ] Redesign the creatures (the author's next step). The brief should say, in very few words, what each creature is and what it does, so the look explains itself.
+
+### P5 — Feel and sound of digging
+
+- [ ] Fine-tune how digging a planet feels and sounds; SUR-13 is built but still needs a listening pass. Playtest numbers go in `tuning.md`.
+
+### P6 — Planet count
+
+- [ ] Control the number of planets (a cap or a curated set), so the system stays readable and the frame cost stays bounded.
+
+### P7 — Interplanetary train cutscene
+
+- [ ] A cutscene for the interplanetary train journey (builds on E2 routes and shipments).
+
 ## Ecosystem roadmap — D-065 (active)
 
 Brief: [Tiny_Dent_Gameplay_Update_Spec.md](Tiny_Dent_Gameplay_Update_Spec.md). Six slices, built strictly in order; each ends with tests and `npm run build` green. A box is ticked only when the code and its test exist. "Playable" means the stated check passes in the game, not only in unit tests.
@@ -386,6 +426,7 @@ Frame rate while remeshing · confusion about the two views · getting trapped f
 
 ## Change log
 
+- **2026-11-04:** Added the "Next up" backlog P1–P7 (presentation, login and gallery, onboarding, creature redesign, dig feel and sound, planet count, train cutscene). Planned only; no decisions yet. Then refined P1 (plan, then record weekly and re-record after changes) and P3 (point-out prompts, step-by-step guidance, automate once understood).
 - **2026-11-04 / D-071, D-073:** E6 land half built; the Water slice scoped (E7) before any code, then built (E7). Tests 193.
 - **2026-11-04 / D-070:** E5 built (ground graph, A*, walkers, heat, desire paths, Builder roads, reroute on terrain cuts, layers and edge card).
 - **2026-11-04 / D-069:** E4 built (patches, Builder patch job, drawn skin); suitability layer left out.
