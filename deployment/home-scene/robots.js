@@ -1,14 +1,14 @@
 import * as THREE from 'three'
-import { createRobot } from '../../terraforming-1380/src/render/models/robots'
-import { modelMaterial } from '../../terraforming-1380/src/render/models/voxel'
+import { createRobot } from '../../tiny-dent/src/render/models/robots'
+import { modelMaterial } from '../../tiny-dent/src/render/models/voxel'
 import {
   antennaColors,
   antennaGeometries,
   branchGeometries,
   crystalClusterGeometry,
   lichenGeometries,
-} from '../../terraforming-1380/src/render/models/surfaceModels'
-import { palette } from '../../terraforming-1380/src/config/palette'
+} from '../../tiny-dent/src/render/models/surfaceModels'
+import { palette } from '../../tiny-dent/src/config/palette'
 
 // Each crew portrait is a miniature work site built from the same models and surface assets as the game.
 const roster = document.querySelector('[data-crew]')

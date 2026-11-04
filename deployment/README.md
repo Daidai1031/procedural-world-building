@@ -4,7 +4,7 @@
 | --- | --- | --- |
 | / | Project home | deployment/home |
 | /guidebook/ | Worldbuilding Guidebook | worldbuilding-guidebook |
-| /game/ | Terraforming Contractor #1380 | terraforming-1380 |
+| /game/ | Tiny Dent | tiny-dent |
 
 The home page is HTML/CSS (`home/index.html`, `home/home-v6.css`) plus one script bundle.
 The script source is in `home-scene/`; the shared build bundles it into
@@ -38,7 +38,7 @@ Requires Node.js 22.12+ and npm. From the repository root:
 
 ```powershell
 npm.cmd ci --prefix worldbuilding-guidebook
-npm.cmd ci --prefix terraforming-1380
+npm.cmd ci --prefix tiny-dent
 npm.cmd --prefix deployment run build
 npm.cmd --prefix deployment run preview
 ```

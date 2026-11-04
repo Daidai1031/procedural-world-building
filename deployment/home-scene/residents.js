@@ -1,7 +1,7 @@
 import * as THREE from 'three'
-import { createResidentKit, createResidentModel } from '../../terraforming-1380/src/render/models/residents'
-import { planetNatives, residentSpecies } from '../../terraforming-1380/src/content/residents'
-import { palette } from '../../terraforming-1380/src/config/palette'
+import { createResidentKit, createResidentModel } from '../../tiny-dent/src/render/models/residents'
+import { planetNatives, residentSpecies } from '../../tiny-dent/src/content/residents'
+import { palette } from '../../tiny-dent/src/config/palette'
 
 // Resident profiles: the game's own species text and bodies. One renderer draws every visible portrait into its card.
 

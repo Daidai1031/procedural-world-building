@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 
-const three = fileURLToPath(new URL('../../terraforming-1380/node_modules/three/', import.meta.url))
+const three = fileURLToPath(new URL('../../tiny-dent/node_modules/three/', import.meta.url))
 
 export default {
   publicDir: false,

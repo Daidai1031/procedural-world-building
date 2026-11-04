@@ -3,10 +3,10 @@
 ## Hero typography — 2026-10-21
 
 - Direction: Editorial, selected from `/proto/hero-type/`.
-- Typeface: the game's Audiowide title face, preserving the visual connection to Terraforming Contractor #1380.
+- Typeface: the game's Audiowide title face, preserving the visual connection to Tiny Dent.
 - “Learn it.” and “Shape it.” carry the full hero hierarchy; “Shape it.” uses the mustard accent.
 - The course name replaces the descriptive lead as a compact metadata line.
-- Eyebrow: "Contract #1380 · multi-planet procedural sandbox". This matches the project's definition and avoids implying galaxy or star-cluster simulation.
+- Eyebrow: "Multi-planet procedural sandbox". This matches the project's definition and avoids implying galaxy or star-cluster simulation.
 - The original three-line statement, both calls to action, and the course name are retained in a compact black footer bar.
 - Rejected: Orbit was more spatially dependent, System felt more operational than invitational, and Signal competed too strongly with the planet.
 

@@ -8,7 +8,7 @@ const deployment = path.dirname(fileURLToPath(import.meta.url))
 const root = path.dirname(deployment)
 const guidebook = path.join(root, 'worldbuilding-guidebook')
 const home = path.join(deployment, 'home')
-const game = path.join(root, 'terraforming-1380')
+const game = path.join(root, 'tiny-dent')
 const output = path.resolve(deployment, 'public')
 const npmCli = process.env.npm_execpath
 if (!npmCli) throw new Error('Run this through npm: npm --prefix deployment run build')

@@ -19,10 +19,10 @@ jobs:
           cache: npm
           cache-dependency-path: |
             worldbuilding-guidebook/package-lock.json
-            terraforming-1380/package-lock.json
+            tiny-dent/package-lock.json
       - run: npm ci --prefix worldbuilding-guidebook
-      - run: npm ci --prefix terraforming-1380
-      - run: npm --prefix terraforming-1380 test
+      - run: npm ci --prefix tiny-dent
+      - run: npm --prefix tiny-dent test
       - run: npm --prefix deployment run build
         env:
           VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
