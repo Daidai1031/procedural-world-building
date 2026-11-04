@@ -1,7 +1,8 @@
-import { OpeningTitle } from './ui/OpeningTitle'
+import { OpeningGreeting, OpeningTitle } from './ui/OpeningTitle'
 import { GameOver } from './ui/GameOver'
 import { Comms } from './ui/Comms'
 import { Starfield } from './ui/Starfield'
+import { SkySync } from './views/SkySync'
 import { SignalView } from './views/SignalView'
 import { DistantPlanetsView } from './views/DistantPlanetsView'
 import { travelTo, visiblePlanetCount } from './systems/signal'
@@ -56,6 +57,7 @@ import { ScreenProjector, type ProjectSphere, type ProjectToScreen } from './vie
 import { PlanetView } from './views/PlanetView'
 import { DetectorView } from './views/DetectorView'
 import { MinerRunner } from './views/MinerRunner'
+import { BackgroundRunner } from './views/BackgroundRunner'
 import { MinerView } from './views/MinerView'
 import { PlacerView } from './views/PlacerView'
 import { BuilderView } from './views/BuilderView'
@@ -82,8 +84,10 @@ const messages = {
 }
 
 export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnType<typeof createRunStore>; debug: boolean; intro?: boolean }) {
-  const [introOpen, setIntroOpen] = useState(intro)
-  const completeIntro = useCallback(() => setIntroOpen(false), [])
+  const [introPhase, setIntroPhase] = useState<'wave' | 'reveal' | 'done'>(intro ? 'wave' : 'done')
+  const introOpen = introPhase !== 'done'
+  const revealIntro = useCallback(() => setIntroPhase(phase => phase === 'done' ? phase : 'reveal'), [])
+  const completeIntro = useCallback(() => setIntroPhase('done'), [])
   const seed = useRunStore((state) => state.seed)
   const registry = useMemo(() => registryFor(useRunStore), [useRunStore])
   const bankrupt = useRunStore((state) => state.economy.bankrupt)
@@ -113,6 +117,7 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
   const [mapOpen, setMapOpen] = useState(false)
   const phase = useSystemView(state => state.phase)
   const pulledBack = phase !== 'orbit'
+  const viewMode = surfaceSite ? 'surface' : pulledBack && phase !== 'arriving' ? 'system' : 'orbit'
   const systemWorlds = useSystemPlanets(useRunStore)
   const layout = useSystemLayout(systemWorlds, seed)
   const sphereRef = useRef<ProjectSphere | null>(null)
@@ -312,8 +317,8 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
 
   return (
     <>
-    <Starfield />
-    <main inert={introOpen || bankrupt} aria-hidden={introOpen || bankrupt || undefined} data-view={surfaceSite ? 'surface' : pulledBack && phase !== 'arriving' ? 'system' : 'orbit'}>
+    <Starfield view={viewMode} />
+    <main inert={introOpen || bankrupt} aria-hidden={introOpen || bankrupt || undefined} data-intro={introPhase === 'wave' ? 'wave' : undefined} data-view={viewMode}>
       <div className="app-topbar">
         <header className="brand">
           <h1>Tiny Dent</h1>
@@ -323,7 +328,9 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
       <Canvas className="world-canvas" camera={{ position: [0, 0, 8], fov: 42 }} dpr={[1, 1.5]}
         onPointerMissed={event => { if (event.button === 0) clearFocus() }}
         fallback={<p className="fallback">This game needs a browser with WebGL2 enabled.</p>}>
+        {introPhase === 'wave' ? <OpeningGreeting /> : <>
         {/* VIS-01, D-027: warm white studio with one soft key light. */}
+        <SkySync />
         <ambientLight intensity={0.55} />
         <hemisphereLight args={[palette.light.sky, palette.light.ground, 1.8]} />
         <directionalLight position={[4, 6, 5]} intensity={2} />
@@ -361,10 +368,12 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
           onHover={planet => setMessage(planet ? `Distant planet ${planet.name} · click to see it in the system view` : messages[mode === 'auto' ? 'auto' : manualTool])}
           onSelect={planet => openSystem(planet.seed)} />}
         <MinerRunner world={world} store={useRunStore} active={mode === 'auto' && !bankrupt} onCollect={flyCollected} />
+        <BackgroundRunner store={useRunStore} active={!introOpen && !bankrupt} />
         <ScreenProjector projectRef={projectRef} sphereRef={sphereRef} />
         <RemeshScheduler world={world} onRemesh={() => setMeshRevision((revision) => revision + 1)} />
         {debug && <FrameMeter onSample={setFps} />}
         {debug && <DebugHandles />}
+        </>}
       </Canvas>
       {!surfaceSite && <div className="left-sidebar">
         <div className="sidebar-controls"><ModeSwitch mode={mode} onChange={selectMode} /></div>
@@ -416,7 +425,7 @@ export function App({ useRunStore, debug, intro = true }: { useRunStore: ReturnT
       <Comms useRunStore={useRunStore} onOpenRobot={openRobot} onTakeOver={takeOver} />
       <footer>{hint.map(([keys, action]) => <span key={keys}><kbd>{keys}</kbd>{action}</span>)}</footer>
     </main>
-    {introOpen && <OpeningTitle onComplete={completeIntro} />}
+    {introOpen && <OpeningTitle onReveal={revealIntro} onComplete={completeIntro} />}
     {bankrupt && <GameOver />}
     <SystemVeil />
     </>

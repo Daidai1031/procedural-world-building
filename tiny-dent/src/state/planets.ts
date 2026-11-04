@@ -13,16 +13,17 @@ export function planetName(seed: string, homeSeed: string) {
 }
 
 // PLN-03/04: one registry per run store. It keeps every visited planet's edited density and a snapshot of its run state,
-// so switching planets only swaps which one is active. D-040: inactive planets are frozen, funds are shared.
+// so switching planets only swaps which one is visible. Funds are shared.
 export class PlanetRegistry {
   readonly homeSeed: string
   private readonly worlds = new Map<string, PlanetWorld>()
   private readonly snapshots = new Map<string, RunState>()
+  private readonly backgroundStores = new Map<string, Store>()
   // D-067: trains and routes belong to no planet, so they are kept here and are never frozen with one.
   readonly logistics = create<LogisticsState>()(() => emptyLogistics())
   readonly list = create<{ planets: PlanetEntry[] }>()(() => ({ planets: [] }))
 
-  constructor(homeSeed: string) {
+  constructor(homeSeed: string, private readonly activeStore?: Store) {
     this.homeSeed = homeSeed
     this.add(homeSeed)
   }
@@ -38,11 +39,30 @@ export class PlanetRegistry {
     return world
   }
   has(seed: string) { return this.worlds.has(seed) || this.snapshots.has(seed) }
-  snapshot(seed: string) { return this.snapshots.get(seed) }
+  snapshot(seed: string) {
+    const active = this.activeStore?.getState()
+    return active?.seed === seed ? active : this.snapshots.get(seed)
+  }
+  backgroundStore(seed: string) {
+    const state = this.snapshots.get(seed)
+    if (!state) return undefined
+    let store = this.backgroundStores.get(seed)
+    if (!store) {
+      store = create<RunState>()(() => state)
+      this.backgroundStores.set(seed, store)
+      registries.set(store, this)
+    }
+    store.setState(state, true)
+    return store
+  }
   save(state: RunState) { this.snapshots.set(state.seed, state); this.add(state.seed) }
   discover(seed: string) { this.add(seed) }
-  // Change a frozen planet's saved state in place (a delivery arriving while the player is elsewhere).
+  // Deliveries and migration can address either the visible planet or a saved one.
   patchSnapshot(seed: string, change: (state: RunState) => Partial<RunState>) {
+    if (this.activeStore?.getState().seed === seed) {
+      this.activeStore.setState(change(this.activeStore.getState()))
+      return true
+    }
     const state = this.snapshots.get(seed)
     if (!state) return false
     this.snapshots.set(seed, { ...state, ...change(state) })
@@ -53,6 +73,6 @@ export class PlanetRegistry {
 const registries = new WeakMap<Store, PlanetRegistry>()
 export function registryFor(store: Store) {
   let registry = registries.get(store)
-  if (!registry) { registry = new PlanetRegistry(store.getState().seed); registries.set(store, registry) }
+  if (!registry) { registry = new PlanetRegistry(store.getState().seed, store); registries.set(store, registry) }
   return registry
 }

@@ -57,7 +57,7 @@ export function distantPlanets(seed: string): DistantPlanet[] {
 }
 
 // PLN-03/04: leave the current planet exactly as it is and arrive at the target, new or revisited.
-// Only the operating account and the player's tool selection travel with the operator; D-040 freezes the planet left behind.
+// Only the operating account and the player's tool selection travel with the operator; the crew keeps working.
 export function travelTo(store: Store, seed: string) {
   const current = store.getState()
   if (current.seed === seed) return
@@ -65,6 +65,7 @@ export function travelTo(store: Store, seed: string) {
   registry.world(current.seed).remeshDirty(Infinity)
   registry.save(current)
   const next = registry.snapshot(seed) ?? createInitialRunState(seed)
+  registry.world(seed).remeshDirty(Infinity)
   registry.discover(seed)
   store.setState({ ...next, metrics: { ...next.metrics, capital: current.metrics.capital }, loadout: current.loadout,
     economy: { ...next.economy, bankrupt: current.economy.bankrupt } })

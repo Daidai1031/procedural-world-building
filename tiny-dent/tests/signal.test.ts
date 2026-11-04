@@ -3,6 +3,49 @@ import assert from 'node:assert/strict'
 import { createRunStore } from '../src/state/runState'
 import { broadcast, distantPlanets, travelTo, visiblePlanetCount } from '../src/systems/signal'
 import { tuning } from '../src/config/tuning'
+import { registryFor } from '../src/state/planets'
+import { stepBackgroundPlanets } from '../src/systems/simulation'
+import { pauseRobot, setWorkArea, startRobot, surfaceRadius } from '../src/systems/miner'
+
+test('crews keep mining off planet, sharing funds without advancing transport twice', () => {
+  const store = createRunStore('1380')
+  const registry = registryFor(store)
+  const world = registry.world('1380')
+  const mineral = store.getState().resourceClusters.find(c => c.category === 'mineral')!
+  const length = Math.hypot(...mineral.position)
+  const direction = mineral.position.map(v => v / length) as [number, number, number]
+  const reach = surfaceRadius(world.densityAt, direction)
+  setWorkArea(store, 'miner-0', { center: direction.map(v => v * reach) as [number, number, number], radius: tuning.miner.area.max })
+  startRobot(store, 'miner-0')
+  const funds = store.getState().metrics.capital
+  travelTo(store, '1380/signal-1')
+  assert.equal(store.getState().loadout.activeTool, 'terrain')
+  for (let i = 0; i < 6000 && !registry.snapshot('1380')!.robots[0].collectedMinerals; i++) stepBackgroundPlanets(store)
+  const home = registry.snapshot('1380')!
+  assert.ok(home.robots[0].collectedMinerals > 0)
+  assert.ok(home.simTick > 0)
+  assert.ok(world.planetRemaining < 1)
+  assert.equal(store.getState().simTick, 0, 'visible planet is not stepped by the background runner')
+  assert.equal(registry.logistics.getState().tick, 0)
+  assert.ok(home.economy.electricitySpent > 0)
+  assert.ok(Math.abs(store.getState().metrics.capital - (funds + home.economy.revenue - home.economy.electricitySpent)) < 1e-8)
+  const capital = store.getState().metrics.capital
+  travelTo(store, '1380')
+  assert.equal(store.getState().simTick, home.simTick)
+  assert.equal(store.getState().robots[0].collectedMinerals, home.robots[0].collectedMinerals)
+  assert.equal(store.getState().metrics.capital, capital)
+  assert.equal(world.dirtyChunkCount, 0, 'returning refreshes terrain edited in the background')
+
+  pauseRobot(store, 'miner-0')
+  const paused = store.getState().robots[0]
+  travelTo(store, '1380/signal-1')
+  stepBackgroundPlanets(store)
+  assert.deepEqual(registry.snapshot('1380')!.robots[0], paused)
+  const tick = registry.snapshot('1380')!.simTick
+  store.setState(state => ({ economy: { ...state.economy, bankrupt: true } }))
+  stepBackgroundPlanets(store)
+  assert.equal(registry.snapshot('1380')!.simTick, tick)
+})
 
 const antenna = (id: string) => ({ id, kind: 'antenna' as const, position: [0, 2, 0] as [number, number, number], normal: [0, 1, 0] as [number, number, number], bornTick: 0 })
 
