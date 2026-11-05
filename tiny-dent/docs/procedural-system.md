@@ -114,9 +114,9 @@ The chain of section 1 gains a second loop that joins planets. Rules link to [sp
 4. **Judge.** On arrival the creature scores the sites it can reach with local material, ground stability, disturbance and neighbours of its species. Hard needs veto; the rest add up. It must keep a better score for a margin and a time before changing its mind.
 5. **Patch.** If nothing suits, the creature asks. A Builder can lay a patch of the shipped material, which changes the scores around it (PAT).
 6. **Walk.** Settlements, mines and spaceports create trips. Each trip adds heat along its path; heat fades slowly (RDS).
-7. **Road.** Enough heat shows a desire path; enough more lets a Builder spend stock to make a road. Roads cut travel cost. A cut through a road marks it blocked and trips reroute.
+7. **Road.** Enough heat shows a desire path; enough more wears it into a road by itself. Residents on foot add heat and start their walks along a close road. Roads cut travel cost. A cut through a road marks it blocked and trips reroute.
 
-Worked example (target, after Phase 5): plastic dug on a plastic world is shipped with a Cairn to a metal world. The Cairn dislikes bare metal and asks. A Builder lays a plastic patch. The Cairn stays and a second Cairn joins it. Trips between the spaceport and the patch wear a path; a Builder makes it a road; the player digs across it and trips take the long way round.
+Worked example (target, after Phase 5): plastic dug on a plastic world is shipped with a Cairn to a metal world. The Cairn dislikes bare metal and asks. A Builder lays a plastic patch. The Cairn stays and a second Cairn joins it. Trips between the spaceport and the patch wear a path; it wears into a road; the player digs across it and trips take the long way round.
 
 Three graphs, never merged: the **interplanetary** graph (planets, routes), the **local navigation** graph (surface nodes and edges, per planet), and optional **neighbour attraction** data (no all-pairs graph).
 

@@ -3,10 +3,9 @@ import { tuning } from '../config/tuning'
 import { buildNav, findPath, nearestNode, refreshNav, type NavEdge, type NavGraph } from '../graph/surfaceGraph'
 import { hashSeed, planetConfig, type PlanetWorld } from '../world/planet'
 import { VOXEL_WORLD_SIZE } from '../world/voxels/voxelMath.js'
-import type { Vec3 } from './geometry'
+import { distance, type Vec3 } from './geometry'
 import { coloniesOf } from './migration'
 import { disturbanceAt } from './residents'
-import { wakeBuilders } from './builder'
 import { isAquatic } from './water'
 
 type Store = ReturnType<typeof createRunStore>
@@ -35,6 +34,9 @@ export const emptyNav = (): NavState => ({ heat: {}, uses: {}, roads: [], trips:
 // Only ground walkers leave heat (RDS-07). Hovering robots and underground residents have their own ways and never touch it.
 export type Mover = 'ground' | 'air' | 'burrow'
 export const leavesHeat = (mover: Mover) => mover === 'ground'
+
+// Where each walking resident was last seen on the graph, so a crossing is counted once. The graph is derived, so this is too.
+const lastNode = new WeakMap<NavGraph, Map<string, number>>()
 
 // One graph per world, built the first time something needs it and then only refreshed locally.
 const graphs = new WeakMap<object, NavGraph>()
@@ -104,7 +106,8 @@ export function stepTraffic(world: World, store: Store) {
   const tick = state.habitat.tick
   let nav = state.nav
   const hasHeat = Object.keys(nav.heat).length > 0
-  const busy = nav.trips.length > 0 || hasHeat
+  const walking = state.residents.filter(r => r.state === 'moving' && !isAquatic(r.species))
+  const busy = nav.trips.length > 0 || hasHeat || walking.length > 0
   if (!busy && tick % rules.spawnEvery !== 0) return
   // Build the graph only when there is somewhere to go (a spaceport, a patch or a mine); other planets cost nothing.
   const somewhere = state.spaceport || state.patches.length > 0 || state.robots.some(r => r.area && ['scanning', 'moving', 'digging', 'collecting'].includes(r.phase))
@@ -113,6 +116,7 @@ export function stepTraffic(world: World, store: Store) {
   const roads = new Set(nav.roads)
   const price = (edge: NavEdge) => edgeCost(state, roads, edge)
   const floor = roadFactorOf(state.seed) < 1 ? FLOOR : 1
+  const wornRoads: string[] = []
 
   if (tick % rules.spawnEvery === 0 && nav.trips.length < rules.maxTrips) {
     const pairs = servicePairs(serviceNodes(graph, state))
@@ -128,7 +132,12 @@ export function stepTraffic(world: World, store: Store) {
 
   let heat = nav.heat, uses = nav.uses, reroutes = nav.reroutes, finished = nav.finished
   const trips: Trip[] = []
-  const ripe: Vec3[] = []
+  // D-075: one crossing of an edge, by an errand or by a resident on foot. Enough of them wear the edge into a road.
+  const cross = (id: string) => {
+    if ((heat[id] ?? 0) < rules.roadAt && (heat[id] ?? 0) + 1 >= rules.roadAt && !roads.has(id)) { roads.add(id); wornRoads.push(id) }
+    heat = bump(heat, id, 1, rules.heatCap)
+    uses = bump(uses, id, 1)
+  }
   for (const source of nav.trips) {
     const trip = { ...source }
     if (trip.wait > 0) { trip.wait -= 1; trips.push(trip); continue }
@@ -142,21 +151,51 @@ export function stepTraffic(world: World, store: Store) {
       trips.push(trip)
       continue
     }
-    if ((heat[edge.id] ?? 0) < rules.roadAt && (heat[edge.id] ?? 0) + 1 >= rules.roadAt) ripe.push(edge.mid)
-    heat = bump(heat, edge.id, 1, rules.heatCap)
-    uses = bump(uses, edge.id, 1)
+    cross(edge.id)
     trip.wait = Math.max(0, Math.ceil(price(edge) / rules.walkSpeed) - 1)
     trip.at += 1
     trips.push(trip)
   }
+  // D-075: residents walking to a new home wear the ground they cross, like any errand.
+  const seen = lastNode.get(graph) ?? new Map<string, number>()
+  lastNode.set(graph, seen)
+  for (const resident of walking) {
+    const node = nearestNode(graph, resident.position)
+    const before = seen.get(resident.id)
+    seen.set(resident.id, node)
+    const id = before === undefined || before === node || node < 0 ? undefined : edgeId(before, node)
+    if (id && graph.edges[graph.byId.get(id) ?? -1]?.passable) cross(id)
+  }
+  for (const id of [...seen.keys()]) if (!walking.some(r => r.id === id)) seen.delete(id)
   if (tick % rules.decayEvery === 0 && Object.keys(heat).length) {
     const next: Record<string, number> = {}
     for (const [id, value] of Object.entries(heat)) if (value * rules.decay >= rules.heatFloor) next[id] = value * rules.decay
     heat = next
   }
-  if (trips.length || nav.trips.length || heat !== state.nav.heat || nav !== state.nav) store.setState({ nav: { ...nav, trips, heat, uses, reroutes, finished } })
-  // A Builder that stopped for want of work looks again when an edge in its area becomes worth a road.
-  for (const point of ripe) wakeBuilders(store, point)
+  if (trips.length || nav.trips.length || heat !== state.nav.heat || nav !== state.nav) {
+    store.setState({ nav: { ...nav, roads: wornRoads.length ? [...nav.roads, ...wornRoads].sort() : nav.roads, trips, heat, uses, reroutes, finished } })
+  }
+}
+
+// D-075: the points of a walk that follows worn roads, or null when the straight walk is as good. A resident only turns
+// toward a road that is close to where it starts and where it is going, and never takes one that is a long way round.
+export function roadRoute(world: World, state: RunState, from: Vec3, to: Vec3): Vec3[] | null {
+  if (state.nav.roads.length === 0) return null
+  const graph = navGraph(world, state.seed)
+  const a = nearestNode(graph, from), b = nearestNode(graph, to)
+  if (a < 0 || b < 0 || a === b) return null
+  if (distance(from, graph.nodes[a].pos) > rules.roadReach || distance(to, graph.nodes[b].pos) > rules.roadReach) return null
+  const path = routeFor(state, graph, a, b)
+  if (!path) return null
+  const roads = new Set(state.nav.roads)
+  let onRoad = 0, length = distance(from, graph.nodes[a].pos) + distance(graph.nodes[b].pos, to)
+  for (let i = 1; i < path.nodes.length; i += 1) {
+    const edge = graph.edges[graph.byId.get(edgeId(path.nodes[i - 1], path.nodes[i]))!]
+    length += edge.len
+    if (roads.has(edge.id)) onRoad += 1
+  }
+  if (onRoad === 0 || length > distance(from, to) * rules.roadDetour) return null
+  return path.nodes.map(n => graph.nodes[n].pos)
 }
 
 export const edgeId = (a: number, b: number) => a < b ? `${a}-${b}` : `${b}-${a}`
@@ -184,17 +223,6 @@ export function refreshTraffic(world: World, store: Store, centre: Vec3, reach: 
     return [trip]
   })
   store.setState({ nav: { ...state.nav, trips, reroutes } })
-}
-
-// RDS-04: an edge is a candidate for a road once walked enough, if it can still be walked and is not one yet.
-export function roadCandidates(graph: NavGraph, nav: NavState) {
-  const roads = new Set(nav.roads)
-  return Object.entries(nav.heat).filter(([id, heat]) => heat >= rules.roadAt && !roads.has(id) && graph.edges[graph.byId.get(id) ?? -1]?.passable)
-    .sort((p, q) => q[1] - p[1] || (p[0] < q[0] ? -1 : 1)).map(([id]) => graph.edges[graph.byId.get(id)!])
-}
-
-export function addRoad(store: Store, id: string) {
-  store.setState(state => state.nav.roads.includes(id) ? {} : { nav: { ...state.nav, roads: [...state.nav.roads, id].sort() } })
 }
 
 export type EdgeKind = 'road' | 'path' | 'trail' | 'none'

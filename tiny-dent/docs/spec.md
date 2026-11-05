@@ -595,7 +595,8 @@ Phase 5 (E5). Planned.
 | RDS-01 | Each planet has a sampled navigation graph; nodes sit on the surface with slope and hazard, edges carry distance and cost. Built deterministically from the seed and updated locally. | MVP | done |
 | RDS-02 | A* with a node budget gives a route; it draws nothing and builds nothing. | MVP | done |
 | RDS-03 | Each trip adds heat along its edges; heat decays by a fixed factor per interval. | MVP | done |
-| RDS-04 | Heat above the first threshold shows a desire path; above the second the Builder may upgrade the edge to a road, withdrawing stock. | MVP | done |
+| RDS-04 | Heat above the first threshold shows a desire path; above the second the edge wears into a road by itself, at no cost (D-075). | MVP | done |
+| RDS-11 | A resident on the ground leaves heat as it walks, and starts its walk along a close worn road when that is not a long way round (D-075). | MVP | done |
 | RDS-05 | A road lowers its edge's cost by a fixed factor. | MVP | done |
 | RDS-06 | A terrain edit invalidates only edges within its reach (plus 1.5 node spacings); affected trips reroute within a bounded budget; a road across a cut is marked blocked. | MVP | done |
 | RDS-07 | Flying, underground and swimming agents have their own traversability and do not deposit road heat. | MVP | done (only ground walkers exist so far) |

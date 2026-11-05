@@ -829,3 +829,17 @@ Electricity was later raised from 0.25 to 0.4, then to 0.55 credits per kW-minut
 - **Not done:** no decorative planets, moons or galaxies in the sky (a first version had some and the author removed them; the only other worlds shown are the ones the player has discovered); no sun or lens flare; the home planet's dust halo is unchanged (it is grey and still shows on dark); the system view's world outlines and arcs were not re-tuned for the dark ground.
 - **Supersedes:** nothing in the decision log; it replaces the dust-and-haze `Starfield` that the system view brief listed as unchanged.
 - **Affects:** `ui/Starfield.tsx`, `ui/spaceLayers.ts` (new), `state/skyFrame.ts` (new), `views/SkySync.tsx` (new), `render/distantPlanet.ts` (new), `views/DistantPlanetsView.tsx`, `App.tsx`, `style.css`.
+
+## D-075 — Roads wear in by themselves, and residents follow them
+
+- **Date:** 2026-11-04
+- **Status:** accepted; implemented 2026-11-04, tests green (`tests/roads.test.ts`); not yet watched in a long session.
+- **Context:** D-070 made a road something a Builder paid for with the planet's material, and the heat came only from simulated service errands. The author wanted a road to appear because many walked there, and creatures near a road to prefer it.
+- **Decision:**
+  - **Wear makes the road.** When an edge's heat crosses `roadAt` it becomes a road at once, with no Builder, no material and no cost. Heat still comes from the service errands, and now also from every resident on the ground that is walking to a new home: each time it moves to the next graph node it adds one crossing to that edge. Swimmers, hovering robots and burrowers leave none, as before (RDS-07).
+  - **Residents prefer roads.** A resident's walk (`walkRoad` in `residents.ts`) asks `roadRoute` in `traffic.ts` for a way along the graph, priced with the road discount. It follows that way only if it uses at least one road, its start and end are within `roadReach` of the graph, and the way is at most `roadDetour` times the straight one. Otherwise it walks the straight line as before.
+  - **The Builder no longer paves.** The `road` job, its stock check and `roadCandidates` are removed; `tuning.roads.cost` is gone. Roads still cut travel cost by `tuning.roads.factor` for the planet's material and are still blocked by a cut.
+- **Why:** it reads as cause and effect on screen: walking makes the road, and the road changes where creatures walk. A paid job hid that loop behind a stock check.
+- **Not done:** roads never fade when heat does; a resident chooses a road only when it starts a walk, not part-way; the home-to-home wander is rare, so most heat on a quiet planet still comes from errands; no look has been drawn for the road other than the existing ribbon.
+- **Supersedes:** the Builder road job in D-070 (RDS-04/05).
+- **Affects:** `systems/traffic.ts`, `systems/residents.ts`, `systems/builder.ts`, `config/tuning.ts`, `ui/TrafficPanel.tsx`, `tests/roads.test.ts`.

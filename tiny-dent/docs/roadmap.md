@@ -108,7 +108,7 @@ Built 2026-11-04 except the suitability layer. Tests: `tests/patches.test.ts` (a
 
 ### E5 — Emergent roads (Phase 5, D-070)
 
-Built 2026-11-04. Tests: `tests/roads.test.ts` (graph, A*, heat and decay, road price, terrain cut and reroute, planet switch, and the whole target loop). Seen on screen: walkers wearing heat in Manual mode, hand-paved edges and the edge card. Not watched: a Builder paving a road in a live session, a cut in the browser, frame cost on a 900-node planet with many walkers.
+Built 2026-11-04. Tests: `tests/roads.test.ts` (graph, A*, heat and decay, road price, terrain cut and reroute, planet switch, and the whole target loop). Changed by D-075: roads wear in by themselves and residents follow them, so there is no Builder road job. Seen on screen: walkers wearing heat in Manual mode, hand-placed roads and the edge card. Not watched: a road wearing in during a live session, a resident choosing it, a cut in the browser, frame cost on a 900-node planet with many walkers.
 
 **Playable when:** the target scenario in the spec's multi-planet acceptance runs to the end.
 
@@ -427,6 +427,7 @@ Frame rate while remeshing · confusion about the two views · getting trapped f
 ## Change log
 
 - **2026-11-04:** Added the "Next up" backlog P1–P7 (presentation, login and gallery, onboarding, creature redesign, dig feel and sound, planet count, train cutscene). Planned only; no decisions yet. Then refined P1 (plan, then record weekly and re-record after changes) and P3 (point-out prompts, step-by-step guidance, automate once understood).
+- **2026-11-04 / D-075:** Roads wear in from walking and cost nothing; residents leave heat and prefer a close road. The Builder road job is removed.
 - **2026-11-04 / D-071, D-073:** E6 land half built; the Water slice scoped (E7) before any code, then built (E7). Tests 193.
 - **2026-11-04 / D-070:** E5 built (ground graph, A*, walkers, heat, desire paths, Builder roads, reroute on terrain cuts, layers and edge card).
 - **2026-11-04 / D-069:** E4 built (patches, Builder patch job, drawn skin); suitability layer left out.

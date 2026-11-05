@@ -7,6 +7,7 @@ import { VOXEL_WORLD_SIZE } from '../world/voxels/voxelMath.js'
 import { planetNatives, type ResidentKind } from '../content/residents'
 import { firstTerritory, isAquatic, stepSwimmer, type WaterWorld } from './water'
 import { suits } from './habitat'
+import { roadRoute } from './traffic'
 
 type Store = ReturnType<typeof createRunStore>
 type World = Pick<PlanetWorld, 'densityAt'> & Partial<Pick<PlanetWorld, 'wearNear' | 'waterRadius'>>
@@ -298,16 +299,36 @@ function throughTunnel(burrow: Burrow, fromMouth: boolean) {
 
 // D-068: a visitor's walk ends on the surface point of its new home. The sunk pose it then takes is below ground by design,
 // so only a native's route (unchanged) is rejected when that pose is solid.
-function routeTo(world: World, seed: string, from: Vec3, home: Home, burrowId: string | null, leavingId: string | null, visitor = false) {
+// D-075: a walk that follows a worn road when one is close and not a long way round, else the straight one.
+function walkRoad(world: World, state: RunState, from: Vec3, toward: Vec3, final: Vec3, blocked: Vec3 = final) {
+  const via = roadRoute(world, state, from, toward)
+  if (via) {
+    const points: Vec3[] = []
+    let at = from
+    for (const node of via) {
+      const lifted = scale(unit(node), Math.hypot(...node) + rules.surfaceLift)
+      const leg = walkSurface(world, at, lifted, lifted)
+      if (!leg) { points.length = 0; break }
+      points.push(...leg)
+      at = lifted
+    }
+    const last = points.length ? walkSurface(world, at, toward, final, blocked) : null
+    if (last) return [...points, ...last]
+  }
+  return walkSurface(world, from, toward, final, blocked)
+}
+
+function routeTo(world: World, state: RunState, from: Vec3, home: Home, burrowId: string | null, leavingId: string | null, visitor = false) {
+  const seed = state.seed
   const leaving = findBurrow(seed, leavingId)
   const exit = leaving && leaving.id !== burrowId ? throughTunnel(leaving, false) : []
   const start = exit.at(-1) ?? from
   const burrow = findBurrow(seed, burrowId)
   if (!burrow) {
-    const walk = walkSurface(world, start, home, poseAt(home, 'hiding'), visitor ? home : undefined)
+    const walk = walkRoad(world, state, start, home, poseAt(home, 'hiding'), visitor ? home : undefined)
     return walk ? [...exit, ...walk] : null
   }
-  const outside = walkSurface(world, start, burrow.mouth, burrow.mouth)
+  const outside = walkRoad(world, state, start, burrow.mouth, burrow.mouth)
   if (!outside) return null
   const tunnel = throughTunnel(burrow, true)
   tunnel[tunnel.length - 1] = burrowPose(burrow, 'hiding')
@@ -368,7 +389,7 @@ function destinations(world: World, state: RunState, resident: Resident, residen
 
 function nearestHome(world: World, state: RunState, resident: Resident, residents: Resident[], wander = false) {
   for (const destination of destinations(world, state, resident, residents, wander)) {
-    const path = routeTo(world, state.seed, resident.position, destination.home, destination.burrowId, resident.burrowId, resident.origin !== state.seed)
+    const path = routeTo(world, state, resident.position, destination.home, destination.burrowId, resident.burrowId, resident.origin !== state.seed)
     if (path) return { ...destination, path }
   }
   return null

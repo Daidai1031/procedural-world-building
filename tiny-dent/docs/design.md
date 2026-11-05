@@ -132,7 +132,7 @@ Robots act without repeated dig clicks. Residents choose automatically from curr
 
 ### 6.1 The multi-planet loop (D-065) — planned, built phase by phase
 
-Dig a planet and it gives you *its own* stuff: plastic from a plastic world, scrap from a metal one. That stuff is physical. It sits in that planet's store, it is counted, and the only ways it leaves are building with it or putting it on a train. A train carries cargo and, if they choose to come, creatures. A creature that lands somewhere strange looks around, and what it finds decides whether it settles, asks for help or goes home. Where creatures keep walking, the ground remembers: a faint path, then a worn one, then, if a Builder spends material on it, a road.
+Dig a planet and it gives you *its own* stuff: plastic from a plastic world, scrap from a metal one. That stuff is physical. It sits in that planet's store, it is counted, and the only ways it leaves are building with it or putting it on a train. A train carries cargo and, if they choose to come, creatures. A creature that lands somewhere strange looks around, and what it finds decides whether it settles, asks for help or goes home. Where creatures keep walking, the ground remembers: a faint path, then a worn one, then a road, with no one paying for it. Creatures that start a walk near a road take it.
 
 **Discover → extract → stock → ship → arrive → judge the habitat → settle or leave → cluster into colonies → walk the same ways → desire path → road → terrain and roads change the next choice.**
 

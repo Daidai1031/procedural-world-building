@@ -23,7 +23,7 @@ See the [ten-layer architecture and source map](../README.md#system-architecture
 - **Gardener / Rigger:** the Gardener surveys suitable ground and plants vegetation that spreads; the Rigger builds antennas.
 - **Builder:** repairs local holes first, then trims isolated obstructions, using the shared soil stock. Prepared sites can wake a waiting Gardener.
 - **Operations:** mineral storage/sales, soil stock, electricity billing, debt warning and bankruptcy; communicator messages explain operating problems.
-- **Resources and logistics:** each planet keeps material inventories. Spaceports and weighted routes support cargo and passengers; Builders spend stock on terrain, habitat patches, roads and platforms.
+- **Resources and logistics:** each planet keeps material inventories. Spaceports and weighted routes support cargo and passengers; Builders spend stock on terrain, habitat patches and platforms.
 - **Exploration:** returnable outer-surface walking as the Quiet Drifter, in third or first person, landing sites and an updating 2D atlas. The Drifter's model, clips and board live in `docs/drifter/` (D-064).
 - **Planet materials:** rock, metal, plastic, fur, jelly and ice change digging, the crew and residents. Marks stay on the surface even where the ground heals (D-060, D-061).
 - **Sound:** each material has its own synthesized digging voice.
@@ -31,7 +31,7 @@ See the [ten-layer architecture and source map](../README.md#system-architecture
 
 ### Planned next
 
-Species now evaluate habitat fit, form proximity-based colonies and can migrate with persistent passports. Ground service trips create traffic heat, and Builders upgrade busy paths into roads. Dynamic supply-and-demand pricing and simultaneous local simulation of all planets remain future work.
+Species now evaluate habitat fit, form proximity-based colonies and can migrate with persistent passports. Ground service trips create traffic heat, and busy paths wear into roads by themselves, and residents on foot follow them. Dynamic supply-and-demand pricing and simultaneous local simulation of all planets remain future work.
 
 The desired money interface is compact: detailed accounting may remain internal, while operating restrictions and critical warnings remain understandable. The current debt/game-over rule is retained until a replacement is explicitly decided.
 

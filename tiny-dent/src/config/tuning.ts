@@ -31,15 +31,17 @@ export const tuning = {
   // times (1 + `slopeCost` × slope + `hazardCost` × disturbance). A new errand starts every `spawnEvery` ticks, at most
   // `maxTrips` at once; a walker covers `walkSpeed` cost per tick. Each crossing adds 1 heat (up to `heatCap`); every
   // `decayEvery` ticks heat is multiplied by `decay` and dropped below `heatFloor`. At `pathAt` heat an edge shows as a
-  // desire path; at `roadAt` a Builder may make it a road. A search expands at most `expand` nodes.
+  // desire path; at `roadAt` it wears into a road with no Builder or material. A resident on the ground leaves heat as it
+  // walks too. A resident only follows a road if it lies within `roadReach` of both ends of its walk and the way along it is
+  // at most `roadDetour` times the straight one. A search expands at most `expand` nodes.
   traffic: {
     spacing: 0.32, maxNodes: 900, neighbours: 6, maxSlope: 1.1, slopeCost: 1.5, hazardCost: 2,
     spawnEvery: 90, maxTrips: 6, walkSpeed: 0.02, decayEvery: 30, decay: 0.9942, heatFloor: 0.05, heatCap: 60,
-    pathAt: 3, roadAt: 8, expand: 2500, rerouteLog: 6,
+    pathAt: 3, roadAt: 8, expand: 2500, rerouteLog: 6, roadReach: 0.7, roadDetour: 1.8,
   },
-  // D-070: a road costs `cost` units of the planet's native material and multiplies the cost of its edge by `factor` for
-  // the planet's material (ice melts and jelly shifts, so they help less).
-  roads: { cost: 12, factor: { rock: 0.5, metal: 0.45, plastic: 0.5, fur: 0.6, jelly: 0.7, ice: 0.65 } },
+  // D-075: a worn road multiplies the cost of its edge by `factor` for the planet's material (ice melts and jelly shifts,
+  // so they help less).
+  roads: { factor: { rock: 0.5, metal: 0.45, plastic: 0.5, fur: 0.6, jelly: 0.7, ice: 0.65 } },
   // D-073: a sphere-shaped signal planet is an ocean when its own draw falls below `chance`. Its core is then at most `maxRadius`
   // (a fraction of the voxel world) so the water fits, and the water covers the highest seabed by `margin` world units.
   // A swimmer needs `minDepth` of water; unanchored mounds wash away after `erodeAfter` ticks (checked every `erodeEvery`);

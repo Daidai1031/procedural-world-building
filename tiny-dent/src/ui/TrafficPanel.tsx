@@ -5,7 +5,7 @@ import { edgeInfo, hasNavGraph, navGraph } from '../systems/traffic'
 import { tuning } from '../config/tuning'
 import { selectEdge, toggleNavLayer, useNavLayers } from '../state/navLayers'
 
-const layerNames = [['nodes', 'Navigation nodes'], ['heat', 'Traffic heat'], ['paths', 'Desire paths'], ['roads', 'Built roads'], ['blocked', 'Blocked edges']] as const
+const layerNames = [['nodes', 'Navigation nodes'], ['heat', 'Traffic heat'], ['paths', 'Desire paths'], ['roads', 'Worn roads'], ['blocked', 'Blocked edges']] as const
 
 // D-070/RDS-09/10: the ground graph's layers and a card for one chosen edge: why it is a path or a road, in numbers.
 // Closed by default so it stays out of the way. Reads the planet twice a second, not every tick.
@@ -29,8 +29,8 @@ export function TrafficPanel({ store, world }: { store: ReturnType<typeof create
     })}
     {info && <div className="traffic-card" role="status">
       <strong>{info.kind === 'road' ? 'Road' : info.kind === 'path' ? 'Desire path' : 'Faint trail'}{info.blocked ? ' · blocked' : ''}</strong>
-      <p>{info.uses} crossing{info.uses === 1 ? '' : 's'}. Heat {info.heat.toFixed(1)}; a path shows at {info.pathAt}, a Builder may pave it at {info.roadAt}.</p>
-      {info.kind === 'road' && !info.blocked && <p>Crossing costs {info.cost.toFixed(2)} instead of {info.plainCost.toFixed(2)} ({Math.round(info.cost / info.plainCost * 100)}%). It took {tuning.roads.cost} units of the planet&apos;s material.</p>}
+      <p>{info.uses} crossing{info.uses === 1 ? '' : 's'}. Heat {info.heat.toFixed(1)}; a path shows at {info.pathAt}, and it wears into a road at {info.roadAt}.</p>
+      {info.kind === 'road' && !info.blocked && <p>Crossing costs {info.cost.toFixed(2)} instead of {info.plainCost.toFixed(2)} ({Math.round(info.cost / info.plainCost * 100)}%).</p>}
       {info.blocked && <p>Terrain was cut here, so nothing can cross. {info.kind === 'road' ? 'The road stays on the books and opens again if the ground is rebuilt.' : ''}</p>}
       {info.reroutes.length > 0 && <p>{info.reroutes.length} walker{info.reroutes.length === 1 ? '' : 's'} turned back here and went another way.</p>}
     </div>}

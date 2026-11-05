@@ -9,7 +9,7 @@ import { HALF, distance, type Vec3 } from '../src/systems/geometry'
 import { addPatch } from '../src/systems/patches'
 import { stepSimulation } from '../src/systems/simulation'
 import { travelTo } from '../src/systems/signal'
-import { edgeCost, edgeInfo, emptyNav, leavesHeat, navGraph, refreshTraffic, roadCandidates, roadFactorOf, routeFor, serviceNodes, servicePairs, stepTraffic } from '../src/systems/traffic'
+import { edgeCost, edgeInfo, emptyNav, leavesHeat, navGraph, refreshTraffic, roadFactorOf, roadRoute, routeFor, serviceNodes, servicePairs, stepTraffic, edgeId } from '../src/systems/traffic'
 import { notifyGroundChanged } from '../src/systems/workSites'
 import { groundPoint } from '../src/systems/structures'
 import { planetConfig } from '../src/world/planet'
@@ -102,25 +102,15 @@ test('RDS-07: only ground walkers leave heat; a hovering Miner at work makes non
   assert.equal(servicePairs(services).length, 0)
 })
 
-test('RDS-04/05: a Builder spends exactly the road price on a hot edge, only with stock, and the edge gets cheaper', () => {
+test('D-075 RDS-04/05: a well-walked edge wears into a road by itself, for nothing, and the edge gets cheaper', () => {
   const { store, world, graph } = sites()
-  traffic(store, world, 2000)
-  const [hot] = roadCandidates(graph, store.getState().nav)
-  assert.ok(hot, 'an edge has been walked enough')
-  const before = edgeInfo(store.getState(), graph, hot.id)!
-  assert.equal(before.kind, 'path')
-  placeBuilder(store, world, 'builder-0', hot.mid, 1.4)
-  store.setState(s => ({ inventory: { ...s.inventory, soil: tuning.roads.cost - 1 }, nav: { ...s.nav, trips: [] } }))
-  startBuilder(store, 'builder-0')
-  for (let i = 0; i < 400; i += 1) stepSimulation(world, store)
-  assert.equal(store.getState().nav.roads.length, 0, 'not enough stock')
-  assert.equal(store.getState().builders[0].stopReason, 'no-material')
-  assert.equal(store.getState().inventory.soil, tuning.roads.cost - 1)
   store.setState(s => ({ inventory: { ...s.inventory, soil: 40 } }))
-  for (let i = 0; i < 1500 && store.getState().nav.roads.length === 0; i += 1) stepSimulation(world, store)
+  traffic(store, world, 2000)
   const state = store.getState()
-  assert.ok(state.nav.roads.length >= 1)
-  assert.equal(state.inventory.soil, 40 - tuning.roads.cost * state.nav.roads.length)
+  assert.ok(state.nav.roads.length >= 1, 'heavy traffic made a road')
+  assert.equal(state.inventory.soil, 40, 'a road costs no material')
+  for (const id of state.nav.roads) assert.ok((state.nav.uses[id] ?? 0) >= tuning.traffic.roadAt)
+  assert.deepEqual([...state.nav.roads], [...state.nav.roads].sort())
   const road = edgeInfo(state, graph, state.nav.roads[0])!
   assert.equal(road.kind, 'road')
   assert.ok(Math.abs(road.cost - road.plainCost * roadFactorOf(SEED)) < 1e-9)
@@ -132,6 +122,47 @@ test('RDS-04/05: a Builder spends exactly the road price on a hot edge, only wit
   assert.ok(along.cost < around.cost)
   assert.equal(roadFactorOf(SEED), tuning.roads.factor.rock)
   assert.ok(tuning.roads.factor.ice > tuning.roads.factor.rock, 'ice helps less')
+})
+
+test('D-075: residents on foot wear the ground they cross, and enough of them make a road', () => {
+  const { store, world, graph } = sites()
+  store.setState({ spaceport: false, patches: [] })
+  const route = findPath(graph, 0, graph.nodes.findIndex(n => distance(n.pos, graph.nodes[0].pos) > 1.2), edge => edge.len, 1)!
+  assert.ok(route.nodes.length > 3)
+  const resident = store.getState().residents[0]
+  const walk = () => {
+    for (const node of route.nodes) {
+      store.setState(s => ({ residents: s.residents.map((r, i) => i === 0 ? { ...r, state: 'moving' as const, position: graph.nodes[node].pos } : r) }))
+      traffic(store, world, 1)
+    }
+    store.setState(s => ({ residents: s.residents.map((r, i) => i === 0 ? { ...r, state: 'peeking' as const } : r) }))
+    traffic(store, world, 1)
+  }
+  walk()
+  const first = store.getState().nav
+  assert.equal(Object.keys(first.heat).length, route.nodes.length - 1, 'one crossing per edge, none for standing still')
+  assert.equal(first.roads.length, 0)
+  for (let i = 0; i < tuning.traffic.roadAt; i += 1) walk()
+  const nav = store.getState().nav
+  assert.equal(nav.roads.length, route.nodes.length - 1, 'every edge of the walk became a road')
+  assert.ok(resident.species)
+})
+
+test('D-075: a resident follows a close worn road and ignores one that is far or a long way round', () => {
+  const { store, world, graph } = sites()
+  const a = 0, b = graph.nodes.findIndex(n => distance(n.pos, graph.nodes[0].pos) > 1.5 && distance(n.pos, graph.nodes[0].pos) < 2.2)
+  const way = findPath(graph, a, b, edge => edge.len, 1)!
+  const from = graph.nodes[a].pos, to = graph.nodes[b].pos
+  store.setState(s => ({ nav: { ...s.nav, roads: [] } }))
+  assert.equal(roadRoute(world, store.getState(), from, to), null, 'no road, so the straight walk')
+  const roads = way.nodes.slice(1).map((n, i) => edgeId(way.nodes[i], n)).sort()
+  store.setState(s => ({ nav: { ...s.nav, roads } }))
+  const via = roadRoute(world, store.getState(), from, to)!
+  assert.deepEqual(via, way.nodes.map(n => graph.nodes[n].pos), 'it walks the road node by node')
+  // Standing far from the road, it does not detour to it.
+  const far = graph.nodes.findIndex(n => distance(n.pos, from) > 2.6 && distance(n.pos, to) > 2.6)
+  assert.equal(roadRoute(world, store.getState(), graph.nodes[far].pos, to), null)
+  assert.equal(roadRoute(world, store.getState(), from, from), null)
 })
 
 test('RDS-06: a cut across a route blocks only nearby edges, walkers turn around and go another way, and the log says why', () => {
@@ -186,8 +217,7 @@ test('RDS-T: heat, roads and walkers stay with the planet across a switch', () =
 })
 
 // The target scenario of the brief, start to finish: plastic and a Cairn ride a train to a metal planet; the Cairn asks for plastic;
-// a Builder lays a patch; walkers between the spaceport and the patch wear a path; a Builder paves it from the planet's own
-// scrap; the player cuts across the road and the walkers go around; and everything is still there after a planet switch.
+// a Builder lays a patch; walkers between the spaceport and the patch wear a path; it wears into a road by itself; the player cuts across the road and the walkers go around; and everything is still there after a planet switch.
 test('RDS-T: the whole loop, from a shipped Cairn to a road that is cut and walked around', async () => {
   const { buildRoute, buildSpaceport, routeQuote, ship, stepLogistics } = await import('../src/systems/logistics')
   const { planetSpecies } = await import('../src/systems/residents')
@@ -228,15 +258,11 @@ test('RDS-T: the whole loop, from a shipped Cairn to a road that is cut and walk
   const nav = store.getState().nav
   assert.ok(nav.finished >= 5, `${nav.finished} errands`)
   assert.ok(Math.max(...Object.values(nav.heat)) >= tuning.traffic.pathAt, 'a desire path shows')
-  // A Builder pays for a road with the planet's own scrap.
-  const [hot] = roadCandidates(graph, store.getState().nav)
-  if (hot) {
-    store.setState(s => ({ builders: s.builders.map(b => ({ ...b, phase: 'scanning' as const, stopReason: null, misses: 0, area: { center: hot.mid, radius: 2.4 } })) }))
-    step(1500)
-  }
+  // Heavy traffic wears a road with no Builder and no material.
+  step(2500)
   const roads = store.getState().nav.roads
-  assert.ok(roads.length >= 1, 'a road was built')
-  assert.ok(store.getState().inventory.scrap <= 60 - tuning.roads.cost)
+  assert.ok(roads.length >= 1, 'a road wore in')
+  assert.equal(store.getState().inventory.scrap, 60)
   // Cut across it: the road is marked blocked and walkers find another way.
   const edge = graph.edges[graph.byId.get(roads[0])!]
   world.edit('dig', { x: edge.mid[0], y: edge.mid[1] + HALF, z: edge.mid[2] }, 1.5, 'radial')

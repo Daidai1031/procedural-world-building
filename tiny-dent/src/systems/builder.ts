@@ -9,7 +9,6 @@ import type { WorkArea } from './miner'
 import { groundPoint, pruneStructures } from './structures'
 import { nativeMaterial, nativeStock, settle, unitsFor, withdraw } from './inventory'
 import { addPatch, hasPatch } from './patches'
-import { addRoad, hasNavGraph, navGraph, roadCandidates } from './traffic'
 import { buildPlatform, platformDemand, recordMound } from './water'
 import type { MaterialId } from '../content/materials'
 
@@ -17,9 +16,8 @@ type RunStore = ReturnType<typeof createRunStore>
 const rules = tuning.builder
 
 // D-069: 'patch' lays shipped material under a creature that asked for it. It edits no terrain.
-// D-070: 'road' turns a well-walked edge into a road. It also edits no terrain.
 // D-073: 'platform' anchors a mound built in open water, with structural material and soil.
-export type BuilderJob = 'flatten' | 'fill' | 'patch' | 'road' | 'platform'
+export type BuilderJob = 'flatten' | 'fill' | 'patch' | 'platform'
 export type BuilderPhase = 'idle' | 'scanning' | 'moving' | 'working' | 'paused' | 'stopped'
 export type BuilderStopReason = 'level' | 'no-soil' | 'no-material' | 'blocked'
 
@@ -31,7 +29,7 @@ export interface BuilderState {
   phase: BuilderPhase
   // Seeded reference height retained for stable surveys and autopilot hand-off.
   level: number | null
-  job: { kind: BuilderJob; ground: Vec3; material?: MaterialId; edge?: string; mound?: string } | null
+  job: { kind: BuilderJob; ground: Vec3; material?: MaterialId; mound?: string } | null
   done: number
   surveys: number
   misses: number
@@ -210,26 +208,7 @@ function buildPatch(world: PlanetWorld, store: RunStore, ground: Vec3, material:
   return true
 }
 
-// D-070/RDS-04: the most walked edge in this area that is not a road yet, and whether the stock can pay for it.
-export function roadDemand(world: PlanetWorld, store: RunStore, area: WorkArea) {
-  if (!hasNavGraph(world)) return null
-  const state = store.getState()
-  const edge = roadCandidates(navGraph(world, state.seed), state.nav).find(candidate => distance(candidate.mid, area.center) <= area.radius)
-  return edge ? { edge: edge.id, ground: edge.mid, enough: nativeStock(state) >= tuning.roads.cost } : null
-}
-
-// The stock is spent here, all or nothing, once the edge is checked again: still walkable and still walked.
-function buildRoad(world: PlanetWorld, store: RunStore, id: string) {
-  const state = store.getState()
-  const graph = navGraph(world, state.seed)
-  const edge = graph.edges[graph.byId.get(id) ?? -1]
-  if (!edge || !edge.passable || state.nav.roads.includes(id) || (state.nav.heat[id] ?? 0) < tuning.traffic.roadAt * 0.5) return false
-  if (!withdraw(store, nativeMaterial(state.seed), tuning.roads.cost)) return false
-  addRoad(store, id)
-  return true
-}
-
-function build(world: PlanetWorld, store: RunStore, kind: Exclude<BuilderJob, 'patch' | 'road' | 'platform'>, ground: Vec3, level: number) {
+function build(world: PlanetWorld, store: RunStore, kind: Exclude<BuilderJob, 'patch' | 'platform'>, ground: Vec3, level: number) {
   const direction = unit(ground)
   if (combs(world, kind)) {
     const combed = world.groom('comb', { x: ground[0], y: ground[1] + HALF, z: ground[2] }, rules.flattenRadius)
@@ -268,7 +247,7 @@ function stepBuilder(world: PlanetWorld, store: RunStore, source: BuilderState) 
   }
 
   // AUT-07 for the Builder: a Miner may have started a tunnel, or the Gardener planted, where the job was.
-  if (robot.job && robot.job.kind !== 'patch' && robot.job.kind !== 'road' && robot.job.kind !== 'platform' && !combs(world, robot.job.kind) && isProtected(store, robot.job.ground, reachOf(robot.job.kind))) {
+  if (robot.job && robot.job.kind !== 'patch' && robot.job.kind !== 'platform' && !combs(world, robot.job.kind) && isProtected(store, robot.job.ground, reachOf(robot.job.kind))) {
     robot.job = null
     robot.phase = 'scanning'
     robot.phaseTicks = 0
@@ -294,16 +273,8 @@ function stepBuilder(world: PlanetWorld, store: RunStore, source: BuilderState) 
       robot.phase = 'moving'
       return robot
     }
-    // D-070: then the most walked edge in the area, if the stock can pay for a road.
-    const road = roadDemand(world, store, area)
-    if (road?.enough) {
-      robot.misses = 0
-      robot.job = { kind: 'road', ground: road.ground, edge: road.edge }
-      robot.phase = 'moving'
-      return robot
-    }
     const canFill = nativeStock(store.getState()) >= rules.fillCost
-    const order = rules.pattern as readonly Exclude<BuilderJob, 'patch' | 'road' | 'platform'>[]
+    const order = rules.pattern as readonly Exclude<BuilderJob, 'patch' | 'platform'>[]
     let found: { ground: Vec3 } | null = null
     let kind: BuilderJob = order[0]
     let wantedFill = false
@@ -322,7 +293,7 @@ function stepBuilder(world: PlanetWorld, store: RunStore, source: BuilderState) 
     }
     if (!found) {
       robot.misses += 1
-      if (robot.misses >= rules.blockedScans) stop(robot, demand || road || platform ? 'no-material' : wantedFill ? 'no-soil' : 'level')
+      if (robot.misses >= rules.blockedScans) stop(robot, demand || platform ? 'no-material' : wantedFill ? 'no-soil' : 'level')
       return robot
     }
     robot.misses = 0
@@ -355,13 +326,6 @@ function stepBuilder(world: PlanetWorld, store: RunStore, source: BuilderState) 
   if (robot.phaseTicks < rules.workTicks * (crew.work?.builder ?? 1)) return robot
   if (robot.job.kind === 'platform') {
     if (buildPlatform(world, store, robot.job.mound!, robot.job.material!)) robot.done += 1
-    robot.job = null
-    robot.phase = 'scanning'
-    robot.phaseTicks = 0
-    return robot
-  }
-  if (robot.job.kind === 'road') {
-    if (buildRoad(world, store, robot.job.edge!)) robot.done += 1
     robot.job = null
     robot.phase = 'scanning'
     robot.phaseTicks = 0
